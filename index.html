@@ -193,7 +193,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 </section>
 
 <section class="pane" id="p-history" hidden>
-  <div class="legend"><span><i class="lg-up"></i>PMH tăng so với đợt trước</span><span><i class="lg-down"></i>PMH giảm so với đợt trước</span><span><i class="lg-rrp"></i>Giá đen (RRP) tăng</span><span>Ô trống: chưa có dữ liệu</span><button class="btn" id="mtx-order" style="margin-left:auto;padding:4px 12px"></button></div>
+  <div class="legend"><span><i class="lg-up"></i>PMH tăng so với đợt trước</span><span><i class="lg-down"></i>PMH giảm so với đợt trước</span><span><i class="lg-rrp"></i>Giá đen (RRP) tăng</span><span>Ô trống: chưa có dữ liệu</span></div>
   <div class="panel tablewrap"><table class="matrix" id="mtx"></table></div>
 </section>
 
@@ -380,12 +380,9 @@ function renderBar(){
 }
 
 /* ---- history matrix ---- */
-/* Thứ tự cột ngày: mặc định đợt mới nhất nằm bên trái để mở ra là thấy ngay. */
-let newestFirst = true;
-try{ newestFirst = localStorage.getItem("tp_mtx_order")!=="old"; }catch(_){}
+/* Đợt quét mới nhất nằm bên trái để mở ra là thấy ngay. */
 function renderMatrix(){
-  const idx = S.dates.map((_,i)=>i); if(newestFirst) idx.reverse();
-  $("mtx-order").textContent = newestFirst ? "Đang xếp: mới nhất → cũ nhất (bấm để đảo)" : "Đang xếp: cũ nhất → mới nhất (bấm để đảo)";
+  const idx = S.dates.map((_,i)=>i).reverse();
   let h=`<thead><tr><th>Hãng</th><th>Model</th><th class="num">Giá đen</th>${idx.map(i=>`<th class="num">${esc(S.dates[i])}</th>`).join("")}</tr></thead><tbody>`;
   S.rows.forEach(r=>{
     h+=`<tr data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}</td><td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td>`;
@@ -574,9 +571,7 @@ document.addEventListener("keydown",e=>{
   if(e.key==="Escape") closeDrawer();
   if(e.key==="Enter"){ const tr=e.target.closest&&e.target.closest("tbody tr[data-m]"); if(tr) openDrawer(tr.dataset.m); }
 });
-$("dx").onclick=closeDrawer;
-$("mtx-order").onclick=()=>{ newestFirst=!newestFirst; try{ localStorage.setItem("tp_mtx_order", newestFirst?"new":"old"); }catch(_){} renderMatrix(); };
-$("q").oninput=e=>{F.q=e.target.value.trim().toLowerCase(); renderTable();};
+$("dx").onclick=closeDrawer;$("q").oninput=e=>{F.q=e.target.value.trim().toLowerCase(); renderTable();};
 ["c-den","c-do","c-ban","c-line"].forEach(id=>$(id).addEventListener("input",calc));
 $("file").onchange=async e=>{
   const f=e.target.files[0]; if(!f) return;
