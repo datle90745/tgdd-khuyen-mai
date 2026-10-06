@@ -4,7 +4,7 @@ Lấy từ trang danh sách của 4 nhà bán lẻ, chỉ 6 hãng đang theo dõ
 (Apple, Samsung, OPPO, Xiaomi gồm Redmi/POCO, Vivo, Realme):
   - TGDĐ:          POST /Category/FilterProductBox?c=42&pi=N (20 máy/trang)
   - CellphoneS:    GraphQL api.cellphones.com.vn, danh mục 3, chỉ hàng đang bán (stock 46)
-  - FPT Shop:      POST papi.fptshop.com.vn .../fulltext-search-service/category (tối đa 50/lần)
+  - FPT Shop:      dữ liệu nhúng trong trang /dien-thoai/<hãng> (API của FPT chặn máy chủ)
   - Viettel Store: POST /Site/_Sys/GetUserControlAsync.aspx (CatID=010001)
 Mỗi máy ghi: giá gốc (giá gạch), giá online (giá bán), giá trị KM = giá gốc − giá online.
 Lưu data/market.js (window.MARKET), giữ tối đa KEEP_SCANS đợt gần nhất; quét lại trong
@@ -152,28 +152,35 @@ def scan_cellphones():
     return rows
 
 
+FPT_BRAND_PAGES = ["apple-iphone", "samsung", "oppo", "xiaomi", "vivo", "realme"]
+
+
 def scan_fpt():
-    rows = []
-    for skip in range(0, 1000, 50):
-        data = request("POST", "https://papi.fptshop.com.vn/gw/v1/public/fulltext-search-service/category",
-                       headers={"order-channel": "1", "Origin": "https://fptshop.com.vn",
-                                "Referer": "https://fptshop.com.vn/dien-thoai",
-                                "Accept": "application/json, text/plain, */*"},
-                       json_body={"skipCount": skip, "maxResultCount": 50, "sortMethod": "noi-bat",
-                                  "slug": "dien-thoai", "categoryType": "category"}).json()
-        items = data.get("items") or []
-        for it in items:
-            brand_field = it.get("brand")
-            brand_name = brand_field.get("name") if isinstance(brand_field, dict) else brand_field
-            skus = it.get("skus") or []
-            name = (skus[0].get("displayName") if skus else None) or it.get("name") or ""
-            brand = brand_of(brand_name, name)
-            price, orig = num(it.get("currentPrice")), num(it.get("originalPrice"))
-            if brand and price:
-                rows.append(row("FPT Shop", brand, name, "https://fptshop.com.vn/" + (it.get("slug") or ""),
-                                price, orig))
-        if len(items) < 50:
-            break
+    """API của FPT chặn yêu cầu từ máy chủ (403), nên đọc dữ liệu nhúng sẵn trong trang
+    danh sách theo hãng (/dien-thoai/<hãng>), mỗi hãng một trang là đủ toàn bộ máy."""
+    rows, seen = [], set()
+    for page in FPT_BRAND_PAGES:
+        html = request("GET", f"https://fptshop.com.vn/dien-thoai/{page}",
+                       headers={"Accept": "text/html,application/xhtml+xml"}).text.replace('\\"', '"')
+        for match in re.finditer(r'"currentPrice":(\d+)', html):
+            back = html[max(0, match.start() - 2500):match.start()]
+            slugs = list(re.finditer(r'"slug":"(dien-thoai/[a-z0-9-]+)(?:\?sku=\d+)?"', back))
+            if not slugs:
+                continue
+            last = slugs[-1]
+            slug = last.group(1)
+            if slug in seen:
+                continue
+            origs = re.findall(r'"originalPrice":(\d+)', back[last.start():])
+            names = re.findall(r'"(?:displayName|name)":"([^"]{3,80})"', back[:last.start()])
+            name = names[-1] if names else slug.split("/")[-1].replace("-", " ")
+            brand = brand_of(name, slug)
+            price = int(match.group(1))
+            if not brand or not price:
+                continue
+            seen.add(slug)
+            rows.append(row("FPT Shop", brand, name, "https://fptshop.com.vn/" + slug,
+                            price, int(origs[-1]) if origs else 0))
         time.sleep(1)
     return rows
 
