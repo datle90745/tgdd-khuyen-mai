@@ -1,6 +1,6 @@
 {
  "date": "06-Oct",
- "scanned_at": "2026-10-06T19:15:25+07:00",
+ "scanned_at": "2026-10-06T19:27:06+07:00",
  "rows": [
   {
    "model": "iPhone 17 Pro Max 512GB",
@@ -12,7 +12,7 @@
    "online": null,
    "total": 3000000,
    "choice": 3000000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -38,7 +38,7 @@
    "online": null,
    "total": 3000000,
    "choice": 3000000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -51,7 +51,7 @@
    "online": null,
    "total": 12000000,
    "choice": 12000000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -64,7 +64,7 @@
    "online": null,
    "total": 3500000,
    "choice": 3500000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -77,7 +77,7 @@
    "online": null,
    "total": 2000000,
    "choice": 2000000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -90,7 +90,7 @@
    "online": null,
    "total": 2000000,
    "choice": 2000000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -116,7 +116,7 @@
    "online": null,
    "total": 0,
    "choice": 0,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -142,7 +142,7 @@
    "online": null,
    "total": 2600000,
    "choice": 2600000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -155,7 +155,7 @@
    "online": null,
    "total": 0,
    "choice": 0,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -168,7 +168,7 @@
    "online": null,
    "total": 1500000,
    "choice": 1500000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -233,7 +233,7 @@
    "online": 500000,
    "total": 500000,
    "choice": 0,
-   "kind": "banner",
+   "kind": "moi-banner",
    "rule": "banner_b"
   },
   {
@@ -246,7 +246,7 @@
    "online": null,
    "total": 0,
    "choice": 0,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -272,7 +272,7 @@
    "online": null,
    "total": 0,
    "choice": 0,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -285,7 +285,7 @@
    "online": 250000,
    "total": 250000,
    "choice": 0,
-   "kind": "moi-banner",
+   "kind": "banner",
    "rule": "banner_b"
   },
   {
@@ -321,11 +321,11 @@
    "rrp": 40990000,
    "red": 31490000,
    "pmh": 9500000,
-   "online": null,
+   "online": 9500000,
    "total": 9500000,
    "choice": 0,
-   "kind": "moi",
-   "rule": "khong_banner"
+   "kind": "banner",
+   "rule": "banner_b"
   },
   {
    "model": "S25 Ultra 5G 12GB/256GB",
@@ -350,7 +350,7 @@
    "online": null,
    "total": 9000000,
    "choice": 0,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -376,7 +376,7 @@
    "online": 2700000,
    "total": 2700000,
    "choice": 0,
-   "kind": "moi-banner",
+   "kind": "banner",
    "rule": "banner_b"
   },
   {
@@ -389,7 +389,7 @@
    "online": null,
    "total": 3500000,
    "choice": 0,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -402,7 +402,7 @@
    "online": null,
    "total": 2600000,
    "choice": 0,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -415,7 +415,7 @@
    "online": null,
    "total": 2800000,
    "choice": 300000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -441,7 +441,7 @@
    "online": null,
    "total": 900000,
    "choice": 0,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -467,7 +467,7 @@
    "online": null,
    "total": 300000,
    "choice": 300000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -514,13 +514,13 @@
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-4gb-64gb",
    "status": "active",
    "rrp": 3890000,
-   "red": 3590000,
-   "pmh": 0,
-   "online": 300000,
-   "total": 300000,
+   "red": 3690000,
+   "pmh": 200000,
+   "online": null,
+   "total": 200000,
    "choice": 200000,
-   "kind": "banner",
-   "rule": "banner_a"
+   "kind": "moi",
+   "rule": "khong_banner"
   },
   {
    "model": "Xiaomi 17 Ultra 5G 16GB/512GB",
@@ -532,7 +532,7 @@
    "online": 10300000,
    "total": 10300000,
    "choice": 0,
-   "kind": "moi-banner",
+   "kind": "banner",
    "rule": "banner_b"
   },
   {
@@ -545,7 +545,7 @@
    "online": 8500000,
    "total": 8500000,
    "choice": 0,
-   "kind": "banner",
+   "kind": "moi-banner",
    "rule": "banner_b"
   },
   {
@@ -558,7 +558,7 @@
    "online": null,
    "total": 4000000,
    "choice": 700000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -571,7 +571,7 @@
    "online": null,
    "total": 2200000,
    "choice": 700000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -584,7 +584,7 @@
    "online": null,
    "total": 2900000,
    "choice": 700000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -597,7 +597,7 @@
    "online": null,
    "total": 1400000,
    "choice": 1000000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -623,7 +623,7 @@
    "online": null,
    "total": 500000,
    "choice": 500000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -649,7 +649,7 @@
    "online": null,
    "total": 500000,
    "choice": 500000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -662,7 +662,7 @@
    "online": null,
    "total": 500000,
    "choice": 500000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -675,7 +675,7 @@
    "online": null,
    "total": 200000,
    "choice": 200000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -688,7 +688,7 @@
    "online": null,
    "total": 1700000,
    "choice": 600000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -701,7 +701,7 @@
    "online": null,
    "total": 700000,
    "choice": 200000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -727,7 +727,7 @@
    "online": null,
    "total": 600000,
    "choice": 200000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -740,14 +740,21 @@
    "online": null,
    "total": 800000,
    "choice": 800000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
    "model": "Redmi 15C 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-15c-6gb-128gb",
-   "status": "ngung_kd",
-   "pmh": null
+   "status": "active",
+   "rrp": 4990000,
+   "red": 4640000,
+   "pmh": 0,
+   "online": 350000,
+   "total": 350000,
+   "choice": 600000,
+   "kind": "banner",
+   "rule": "banner_a"
   },
   {
    "model": "Redmi 15 6GB/128GB",
@@ -804,7 +811,7 @@
    "online": 500000,
    "total": 500000,
    "choice": 0,
-   "kind": "banner",
+   "kind": "moi-banner",
    "rule": "banner_b"
   },
   {
@@ -817,7 +824,7 @@
    "online": 500000,
    "total": 500000,
    "choice": 0,
-   "kind": "moi-banner",
+   "kind": "banner",
    "rule": "banner_b"
   },
   {
@@ -843,7 +850,7 @@
    "online": null,
    "total": 1000000,
    "choice": 1000000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -864,12 +871,12 @@
    "url": "https://www.thegioididong.com/dtdd/vivo-y39-5g",
    "status": "active",
    "rrp": 7360000,
-   "red": 6690000,
+   "red": 6990000,
    "pmh": 0,
-   "online": 670000,
-   "total": 670000,
+   "online": 370000,
+   "total": 370000,
    "choice": 300000,
-   "kind": "moi-banner",
+   "kind": "banner",
    "rule": "banner_a"
   },
   {
@@ -903,12 +910,12 @@
    "url": "https://www.thegioididong.com/dtdd/vivo-y05-4gb-128gb",
    "status": "active",
    "rrp": 5990000,
-   "red": 5890000,
-   "pmh": 100000,
+   "red": 5790000,
+   "pmh": 200000,
    "online": null,
-   "total": 100000,
-   "choice": 100000,
-   "kind": "moi",
+   "total": 200000,
+   "choice": 200000,
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -921,7 +928,7 @@
    "online": null,
    "total": 100000,
    "choice": 100000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -929,12 +936,12 @@
    "url": "https://www.thegioididong.com/dtdd/realme-16-pro-5g-12gb-256gb",
    "status": "active",
    "rrp": 14490000,
-   "red": 12190000,
+   "red": 11790000,
    "pmh": 0,
-   "online": 2300000,
-   "total": 2300000,
+   "online": 2700000,
+   "total": 2700000,
    "choice": 400000,
-   "kind": "banner",
+   "kind": "moi-banner",
    "rule": "banner_a"
   },
   {
@@ -960,7 +967,7 @@
    "online": null,
    "total": 400000,
    "choice": 400000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -973,7 +980,7 @@
    "online": null,
    "total": 200000,
    "choice": 200000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -986,7 +993,7 @@
    "online": null,
    "total": 400000,
    "choice": 400000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -999,7 +1006,7 @@
    "online": null,
    "total": 950000,
    "choice": 950000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -1051,7 +1058,7 @@
    "online": null,
    "total": 700000,
    "choice": 200000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
