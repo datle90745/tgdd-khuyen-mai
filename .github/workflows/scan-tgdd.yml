@@ -2,8 +2,9 @@ name: Quét PMH TGDĐ
 
 on:
   schedule:
-    # 07:30 giờ Việt Nam mỗi ngày (00:30 UTC). GitHub có thể chạy trễ vài phút.
-    - cron: '30 0 * * *'
+    # 07:30 giờ Việt Nam thứ Hai và thứ Sáu (00:30 UTC). GitHub có thể chạy trễ vài phút.
+    # Ngoài lịch này chỉ quét khi bấm "Run workflow" trong tab Actions.
+    - cron: '30 0 * * 1,5'
   workflow_dispatch: {}
 
 permissions:
