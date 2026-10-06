@@ -1,0 +1,41 @@
+name: Quét PMH TGDĐ
+
+on:
+  schedule:
+    # 07:30 giờ Việt Nam mỗi ngày (00:30 UTC). GitHub có thể chạy trễ vài phút.
+    - cron: '30 0 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: scan-tgdd
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - run: pip install -r scraper/requirements.txt
+      - name: Quét 85 SKU
+        env:
+          CF_PROXY_URL: ${{ secrets.CF_PROXY_URL }}
+          CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
+        run: python scraper/scan_tgdd.py
+      - name: Lưu kết quả
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/scans data/scans.js
+          if git diff --cached --quiet; then
+            echo "Không có thay đổi"
+            exit 0
+          fi
+          git commit -m "Đợt quét PMH $(TZ=Asia/Ho_Chi_Minh date +%d-%m-%Y)"
+          git push
