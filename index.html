@@ -172,8 +172,8 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
   <button role="tab" aria-selected="true" data-tab="latest">Tra cứu mới nhất</button>
   <button role="tab" aria-selected="false" data-tab="history">Lịch sử theo đợt quét</button>
   <button role="tab" aria-selected="false" data-tab="rise">Lịch sử tăng giá</button>
-  <button role="tab" aria-selected="false" data-tab="rules">Quy tắc tính PMH</button>
-  <button role="tab" aria-selected="false" data-tab="import">Nhập đợt quét mới</button>
+  <button role="tab" aria-selected="false" data-tab="rules" data-admin hidden>Quy tắc tính PMH</button>
+  <button role="tab" aria-selected="false" data-tab="import" data-admin hidden>Nhập đợt quét mới</button>
 </nav>
 
 <section class="pane" id="p-latest">
@@ -597,6 +597,8 @@ $("file").onchange=async e=>{
   e.target.value="";
 };
 $("reset").onclick=()=>{ imports=[]; try{localStorage.removeItem("tp_imports");}catch(_){} renderAll(); $("imsg").textContent="Đã xóa các đợt nhập. Còn lại dữ liệu gốc."; };
+// Tab nội bộ (Quy tắc, Nhập đợt quét) chỉ hiện khi link có ?admin
+if(new URLSearchParams(location.search).has("admin")) document.querySelectorAll("nav.tabs [data-admin]").forEach(b=>b.hidden=false);
 try{ riseInit(); }catch(e){ console.error("rise",e); }
 renderAll(); initExports(); calc();
 </script>
