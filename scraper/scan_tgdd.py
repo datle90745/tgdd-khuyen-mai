@@ -7,8 +7,9 @@ Mỗi lần chạy tạo một đợt quét (ngày theo giờ Việt Nam), lưu:
 Cách tính (theo tab "Quy tắc tính PMH" của web, đã đối chiếu với số liệu tay):
   - Có banner "Online Giá Rẻ Quá" (khối flash sale còn suất): PMH = giá đen − giá đỏ của khối đó.
   - Không có banner: PMH = giá đen − giá đỏ (giá gạch ngang − giá đang bán).
-  - Khoản "Giảm giá Xđ" đang được chọn sẵn trong mục "Chọn 1 trong" được lưu riêng ở trường
-    `choice`. Đặt ADD_CHOICE = True nếu muốn cộng khoản đó vào PMH.
+  - Không có giá gạch: PMH = khoản "Giảm giá Xđ" là lựa chọn đầu của mục "Chọn 1 trong"
+    (trường hợp iPhone). Khoản này luôn được lưu riêng ở trường `choice`.
+    Đặt ADD_CHOICE = True nếu muốn luôn cộng khoản đó vào PMH.
 Không đoán số: trang lỗi/không đọc được giá thì PMH để trống (null).
 """
 import csv
@@ -67,6 +68,14 @@ def money(text):
     return int(digits) if digits else 0
 
 
+def final_pmh(discount, choice):
+    """discount = giá đen − giá đỏ; choice = khoản "Giảm giá X" trong mục "Chọn 1 trong".
+    Mặc định (khớp số liệu tay nhiều nhất): có giá gạch thì lấy discount, không có thì lấy choice."""
+    if ADD_CHOICE:
+        return discount + choice
+    return discount if discount > 0 else choice
+
+
 CHOICE_RE =re.compile(r"Chọn 1 trong[^:]{0,30}:\s*Giảm giá\s*([\d.,]+)\s*[₫đ]", re.I)
 
 
@@ -90,7 +99,7 @@ def parse_next_layout(soup):
     choice = money(match.group(1)) if match else 0
     banner = bool(re.search(r"Online Giá Rẻ Quá", page.get_text(" ", strip=True), re.I))
     discount = max(rrp - red - choice, 0)
-    pmh = discount + (choice if ADD_CHOICE else 0)
+    pmh = final_pmh(discount, choice)
     return {"status": "active", "rrp": rrp, "red": red, "pmh": pmh, "choice": choice,
             "kind": "moi-banner" if banner else "moi"}
 
@@ -134,7 +143,7 @@ def parse_page(html):
     discount = to_int(price.get("data-discountorigin"))
     if not rrp:
         return {"status": "no_price"}
-    pmh = discount + (choice if ADD_CHOICE else 0)
+    pmh = final_pmh(discount, choice)
     return {"status": "active", "rrp": rrp, "red": rrp - discount,
             "pmh": pmh, "choice": choice, "kind": kind}
 
