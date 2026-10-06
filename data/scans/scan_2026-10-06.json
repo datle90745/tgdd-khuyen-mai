@@ -1,6 +1,6 @@
 {
  "date": "06-Oct",
- "scanned_at": "2026-10-06T19:37:21+07:00",
+ "scanned_at": "2026-10-06T19:55:04+07:00",
  "rows": [
   {
    "model": "iPhone 17 Pro Max 512GB",
@@ -12,7 +12,7 @@
    "online": null,
    "total": 3000000,
    "choice": 3000000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -38,7 +38,7 @@
    "online": null,
    "total": 3000000,
    "choice": 3000000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -51,7 +51,7 @@
    "online": null,
    "total": 12000000,
    "choice": 12000000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -116,7 +116,7 @@
    "online": null,
    "total": 0,
    "choice": 0,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -155,7 +155,7 @@
    "online": null,
    "total": 0,
    "choice": 0,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -168,7 +168,7 @@
    "online": null,
    "total": 1500000,
    "choice": 1500000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -194,7 +194,7 @@
    "online": null,
    "total": 500000,
    "choice": 500000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -207,7 +207,7 @@
    "online": 500000,
    "total": 500000,
    "choice": 0,
-   "kind": "banner",
+   "kind": "moi-banner",
    "rule": "banner_b"
   },
   {
@@ -220,7 +220,7 @@
    "online": null,
    "total": 0,
    "choice": 0,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -259,7 +259,7 @@
    "online": null,
    "total": 200000,
    "choice": 200000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -285,7 +285,7 @@
    "online": 250000,
    "total": 250000,
    "choice": 0,
-   "kind": "banner",
+   "kind": "moi-banner",
    "rule": "banner_b"
   },
   {
@@ -298,7 +298,7 @@
    "online": null,
    "total": 0,
    "choice": 0,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -310,8 +310,8 @@
    "pmh": 0,
    "online": null,
    "total": 0,
-   "choice": 0,
-   "kind": "thuong",
+   "choice": 470000,
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -350,7 +350,7 @@
    "online": null,
    "total": 9000000,
    "choice": 0,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -363,7 +363,7 @@
    "online": null,
    "total": 2000000,
    "choice": 0,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -376,7 +376,7 @@
    "online": 2700000,
    "total": 2700000,
    "choice": 0,
-   "kind": "banner",
+   "kind": "moi-banner",
    "rule": "banner_b"
   },
   {
@@ -402,7 +402,7 @@
    "online": null,
    "total": 2600000,
    "choice": 0,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -415,7 +415,7 @@
    "online": null,
    "total": 2800000,
    "choice": 300000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -428,7 +428,7 @@
    "online": null,
    "total": 1300000,
    "choice": 300000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -441,7 +441,7 @@
    "online": null,
    "total": 900000,
    "choice": 0,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -467,7 +467,7 @@
    "online": null,
    "total": 300000,
    "choice": 300000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -493,7 +493,7 @@
    "online": null,
    "total": 600000,
    "choice": 200000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -506,7 +506,7 @@
    "online": null,
    "total": 200000,
    "choice": 200000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -545,7 +545,7 @@
    "online": 8500000,
    "total": 8500000,
    "choice": 0,
-   "kind": "moi-banner",
+   "kind": "banner",
    "rule": "banner_b"
   },
   {
@@ -558,7 +558,7 @@
    "online": null,
    "total": 4000000,
    "choice": 700000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -584,7 +584,7 @@
    "online": null,
    "total": 2900000,
    "choice": 700000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -597,7 +597,7 @@
    "online": null,
    "total": 1400000,
    "choice": 1000000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -610,7 +610,7 @@
    "online": null,
    "total": 1300000,
    "choice": 1000000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -636,7 +636,7 @@
    "online": null,
    "total": 500000,
    "choice": 500000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -649,7 +649,7 @@
    "online": null,
    "total": 500000,
    "choice": 500000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -701,7 +701,7 @@
    "online": null,
    "total": 700000,
    "choice": 200000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -714,7 +714,7 @@
    "online": null,
    "total": 200000,
    "choice": 200000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -863,7 +863,7 @@
    "online": null,
    "total": 900000,
    "choice": 900000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -871,12 +871,12 @@
    "url": "https://www.thegioididong.com/dtdd/vivo-y39-5g",
    "status": "active",
    "rrp": 7360000,
-   "red": 6690000,
+   "red": 6990000,
    "pmh": 0,
-   "online": 670000,
-   "total": 670000,
+   "online": 370000,
+   "total": 370000,
    "choice": 300000,
-   "kind": "moi-banner",
+   "kind": "banner",
    "rule": "banner_a"
   },
   {
@@ -902,7 +902,7 @@
    "online": null,
    "total": 300000,
    "choice": 300000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -928,7 +928,7 @@
    "online": null,
    "total": 100000,
    "choice": 100000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -936,12 +936,12 @@
    "url": "https://www.thegioididong.com/dtdd/realme-16-pro-5g-12gb-256gb",
    "status": "active",
    "rrp": 14490000,
-   "red": 11790000,
+   "red": 12190000,
    "pmh": 0,
-   "online": 2700000,
-   "total": 2700000,
+   "online": 2300000,
+   "total": 2300000,
    "choice": 400000,
-   "kind": "moi-banner",
+   "kind": "banner",
    "rule": "banner_a"
   },
   {
@@ -949,12 +949,12 @@
    "url": "https://www.thegioididong.com/dtdd/realme-16-5g-12gb-256gb",
    "status": "active",
    "rrp": 12490000,
-   "red": 10690000,
+   "red": 9990000,
    "pmh": 0,
-   "online": 1800000,
-   "total": 1800000,
+   "online": 2500000,
+   "total": 2500000,
    "choice": 700000,
-   "kind": "banner",
+   "kind": "moi-banner",
    "rule": "banner_a"
   },
   {
@@ -967,7 +967,7 @@
    "online": null,
    "total": 400000,
    "choice": 400000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -993,7 +993,7 @@
    "online": null,
    "total": 400000,
    "choice": 400000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "khong_banner"
   },
   {
@@ -1045,7 +1045,7 @@
    "online": null,
    "total": 200000,
    "choice": 200000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -1058,7 +1058,7 @@
    "online": null,
    "total": 700000,
    "choice": 200000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "khong_banner"
   },
   {
@@ -1066,12 +1066,12 @@
    "url": "https://www.thegioididong.com/dtdd/realme-c85-8gb-128gb",
    "status": "active",
    "rrp": 6290000,
-   "red": 5670000,
+   "red": 5470000,
    "pmh": 0,
-   "online": 620000,
-   "total": 620000,
+   "online": 820000,
+   "total": 820000,
    "choice": 200000,
-   "kind": "banner",
+   "kind": "moi-banner",
    "rule": "banner_a"
   },
   {
