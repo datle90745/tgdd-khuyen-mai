@@ -61,11 +61,48 @@ def to_int(value):
     return int(digits) if digits else 0
 
 
+def money(text):
+    """Giá dạng chữ hiển thị trên trang, ví dụ '11.190.000đ' -> 11190000."""
+    digits = re.sub(r"[^0-9]", "", str(text or ""))
+    return int(digits) if digits else 0
+
+
+CHOICE_RE =re.compile(r"Chọn 1 trong[^:]{0,30}:\s*Giảm giá\s*([\d.,]+)\s*[₫đ]", re.I)
+
+
+def parse_next_layout(soup):
+    """Bố cục mới của TGDĐ (không có .box_main): giá đỏ ở span.text-24.text-red-5,
+    giá đen ở thẻ <del> cạnh đó. Giá đỏ ở bố cục này đã trừ sẵn khoản "Giảm giá X"
+    của mục "Chọn 1 trong", nên tách khoản đó ra để khớp với bố cục cũ."""
+    page = soup.select_one("main")
+    if page is None:
+        return None
+    reds = page.select("span.text-24.font-700.text-red-5")
+    if not reds:
+        return None
+    red_node = next((r for r in reds if r.parent and r.parent.select_one("del")), reds[0])
+    red = money(red_node.get_text())
+    old = red_node.parent.select_one("del") if red_node.parent else None
+    rrp = money(old.get_text()) if old is not None else red
+    if not red or not rrp:
+        return None
+    match = CHOICE_RE.search(page.get_text(" ", strip=True))
+    choice = money(match.group(1)) if match else 0
+    banner = bool(re.search(r"Online Giá Rẻ Quá", page.get_text(" ", strip=True), re.I))
+    discount = max(rrp - red - choice, 0)
+    pmh = discount + (choice if ADD_CHOICE else 0)
+    return {"status": "active", "rrp": rrp, "red": red, "pmh": pmh, "choice": choice,
+            "kind": "moi-banner" if banner else "moi"}
+
+
 def parse_page(html):
     """Trả về dict: status, rrp (giá đen), red (giá đỏ), pmh, choice, kind."""
     soup = BeautifulSoup(html, "html.parser")
     main = soup.select_one(".box_main")
     if main is None:
+        result = parse_next_layout(soup)
+        if result is not None:
+            return result
         text = soup.get_text(" ", strip=True)
         if re.search(r"ngừng kinh doanh|ngưng kinh doanh", text, re.I):
             return {"status": "ngung_kd"}
@@ -111,10 +148,21 @@ def scan_one(url, attempts=3):
                 return {"status": "ngung_kd"}
             resp.raise_for_status()
             resp.encoding = "utf-8"
-            return parse_page(resp.text)
+            result = parse_page(resp.text)
+            if result["status"] == "no_price" and attempt < attempts - 1:
+                time.sleep(2)
+                continue
+            if result["status"] == "no_price":
+                soup = BeautifulSoup(resp.text, "html.parser")
+                h1 = soup.select_one("h1")
+                result["debug"] = (f"len={len(resp.text)} box_main={bool(soup.select_one('.box_main'))} "
+                                   f"main={bool(soup.select_one('main'))} h1={h1.get_text(strip=True)[:60] if h1 else None}")
+            return result
         except Exception as error:  # mạng chập chờn: thử lại có giãn cách
             last_error = error
             time.sleep(3 * (attempt + 1))
+    if last_error is None:
+        return result
     return {"status": "error", "error": str(last_error)}
 
 
@@ -150,7 +198,8 @@ def main():
             row["pmh"] = None
         rows.append(row)
         print(f"[{i}/{len(products)}] {product['model']}: {result.get('status')} "
-              f"rrp={result.get('rrp')} pmh={result.get('pmh')} ({result.get('kind', '')})", flush=True)
+              f"rrp={result.get('rrp')} pmh={result.get('pmh')} choice={result.get('choice')} "
+              f"({result.get('kind', '')}) {result.get('debug', '')}", flush=True)
         time.sleep(1.5)
 
     ok = sum(1 for r in rows if r["status"] == "active")
