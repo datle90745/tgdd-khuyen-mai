@@ -409,7 +409,7 @@ function openDrawer(model){
   $("dbody").innerHTML=`<h2>${esc(r.model)}</h2><div style="color:var(--muted)"><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span>phân khúc ${esc(r.segment)}, ${r.channel==="TGDD"?"độc quyền TGDĐ":"kênh Mass"}</div>
   <div class="kv"><div><small>Giá đen</small><b>${fmt(r.rrp)}</b></div><div><small>PMH hiện tại</small><b>${r.status==="active"?fmt(p):"–"}</b></div><div><small>PMH cao nhất</small><b>${fmt(best)}</b></div></div>
   ${r.flags.map(f=>`<div class="note">${esc(f)}</div>`).join("")}
-  ${r.choice?`<div class="note">Đợt quét gần nhất có lựa chọn “Giảm giá ${fmt(r.choice)}đ” trong mục “Chọn 1 trong” (không cộng vào PMH).</div>`:""}
+  ${r.choice?`<div class="note">Đợt quét gần nhất có lựa chọn “Giảm giá ${fmt(r.choice)}đ” trong mục “Chọn 1 trong” (chỉ tính làm PMH khi máy không có giá gạch ngang).</div>`:""}
   ${r.status==="ngung_kd"?`<div class="note">TGDĐ đã gỡ SKU này (trang trả về 404).</div>`:""}
   ${r.status==="chua_mo_ban"?`<div class="note">SKU mới có trang đăng ký nhận tin, chưa mở bán. Giá hiển thị là giá dự kiến.</div>`:""}
   ${chart(r)}
