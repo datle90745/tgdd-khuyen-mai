@@ -1,7 +1,7 @@
 // Tram trung gian cho bo quet (GitHub Actions bi cac trang ban le chan IP).
 // Chi cho phep cac trang ban le duoi day va bat buoc co dung X-Proxy-Token (Secret PROXY_TOKEN).
 const ALLOWED = new Set(["www.thegioididong.com", "thegioididong.com", "api.cellphones.com.vn", "cellphones.com.vn", "papi.fptshop.com.vn", "fptshop.com.vn", "viettelstore.vn", "www.viettelstore.vn"]);
-const PASS = ["content-type", "x-requested-with", "order-channel", "referer"];
+const PASS = ["content-type", "x-requested-with", "order-channel", "referer", "origin", "accept"];
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36";
 export default {
 async fetch(request, env) {
