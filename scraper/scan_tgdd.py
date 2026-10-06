@@ -52,7 +52,7 @@ def http_get(url):
     if CF_PROXY_URL and CF_PROXY_TOKEN:
         return requests.get(f"{CF_PROXY_URL}/fetch?url={quote(url, safe='')}",
                             headers={"X-Proxy-Token": CF_PROXY_TOKEN}, timeout=30)
-    return requests.get(url, headers=HEADERS, timeout=30)
+    return requests.get(url, headers=HEADERS, timeout=(10, 30))
 
 
 def to_int(value):
@@ -102,9 +102,9 @@ def parse_page(html):
             "pmh": pmh, "choice": choice, "kind": kind}
 
 
-def scan_one(url):
+def scan_one(url, attempts=3):
     last_error = None
-    for attempt in range(3):
+    for attempt in range(attempts):
         try:
             resp = http_get(url)
             if resp.status_code == 404:
@@ -138,9 +138,13 @@ def main():
 
     rows, errors = [], 0
     for i, product in enumerate(products, 1):
-        result = scan_one(product["url"].strip())
+        # 3 trang đầu đều lỗi mạng = đang bị chặn IP: dừng ngay thay vì treo cả job.
+        result = scan_one(product["url"].strip(), attempts=1 if i <= 3 else 3)
         if result["status"] == "error":
             errors += 1
+            if errors == i == 3:
+                sys.exit("ERROR: 3 trang đầu đều không kết nối được tới thegioididong.com "
+                         "(thường do TGDĐ chặn IP của GitHub). Cần cấu hình CF_PROXY_URL/CF_PROXY_TOKEN.")
         row = {"model": product["model"], "url": product["url"], **result}
         if row["status"] != "active":
             row["pmh"] = None
