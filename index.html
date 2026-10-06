@@ -75,6 +75,7 @@ td.model{white-space:normal;min-width:220px;font-weight:500}
 .badge{display:inline-block;border-radius:5px;padding:1px 8px;font-size:12px;font-weight:600}
 .badge.tgdd{background:var(--tgdd);color:var(--tgdd-ink)} .badge.mass{background:var(--mass-bg);color:var(--muted)}
 .badge.warn{background:var(--warn-bg);color:var(--warn)}
+.badge.fs{background:#e2252d;color:#fff}
 .d-up{color:var(--up);font-weight:600} .d-down{color:var(--down);font-weight:600} .d-flat{color:var(--flat)}
 .spark{display:block}
 .count{color:var(--muted);margin:2px 2px 10px}
@@ -183,6 +184,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
   <div class="panel filters">
     <div class="row"><label class="t">Hãng</label><span id="f-brand" class="row"></span></div>
     <div class="row"><label class="t">Phân khúc</label><span id="f-seg" class="row"></span></div>
+    <div class="row"><label class="t">Loại KM</label><span id="f-kind" class="row"></span></div>
     <div class="row"><label class="t">Kênh</label><span id="f-ch" class="row"></span>
       <input class="search" id="q" type="search" placeholder="Tìm theo tên máy, ví dụ: A6x 4GB/128GB" aria-label="Tìm theo tên máy"></div>
   </div>
@@ -293,7 +295,8 @@ function build(){
       // Trang lỗi/không đọc được giá thì giữ số cũ của cột (nếu có), không xoá thành ô trống.
       if(typeof x.pmh==="number") r.pmh[col] = x.pmh;
       else if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||r.pmh[col]===undefined) r.pmh[col] = null;
-      if(x.choice) r.choice = x.choice;
+      if("choice" in x) r.choice = x.choice || 0;
+      if(x.kind) r.kind = x.kind;
     });
   });
   rows.forEach(r=>{ if(RRP_NOTES[r.model]) r.flags.unshift(RRP_NOTES[r.model]); });
@@ -312,7 +315,10 @@ function cat(r){
 }
 
 /* ---- filters ---- */
-const F = {brand:"Tất cả", seg:"Tất cả", ch:"Tất cả", q:"", move:null, sort:"master", dir:1};
+/* Loại KM của đợt quét mới nhất: khối "Online Giá Rẻ Quá" (flash sale) hay khuyến mãi thường */
+const KIND_FS="Flash Sale Online", KIND_KM="Khuyến mãi";
+const kindOf = r => !r.kind ? null : /banner/.test(r.kind) ? KIND_FS : KIND_KM;
+const F = {brand:"Tất cả", seg:"Tất cả", ch:"Tất cả", kind:"Tất cả", q:"", move:null, sort:"master", dir:1};
 function chips(el, vals, key){
   el.innerHTML = vals.map(v=>`<button class="chip" aria-pressed="${F[key]===v}" data-k="${key}" data-v="${esc(v)}"${key==="brand"&&v!=="Tất cả"?` data-b="${esc(v)}"`:""}>${esc(key==="brand"?bdisp(v):v)}</button>`).join("");
 }
@@ -321,20 +327,21 @@ function renderFilters(){
   chips($("f-brand"), brands, "brand");
   chips($("f-seg"), ["Tất cả",...SEG_ORDER.filter(s=>S.rows.some(r=>r.segment===s))], "seg");
   chips($("f-ch"), ["Tất cả","TGDD","Mass"], "ch");
+  chips($("f-kind"), ["Tất cả",KIND_FS,KIND_KM], "kind");
 }
 function filtered(){
   let rows = S.rows.filter(r=>
     (F.brand==="Tất cả"||r.brand===F.brand)&&(F.seg==="Tất cả"||r.segment===F.seg)&&
-    (F.ch==="Tất cả"||r.channel===F.ch)&&(!F.q||r.model.toLowerCase().includes(F.q))&&(!F.move||cat(r)===F.move));
+    (F.ch==="Tất cả"||r.channel===F.ch)&&(F.kind==="Tất cả"||kindOf(r)===F.kind)&&(!F.q||r.model.toLowerCase().includes(F.q))&&(!F.move||cat(r)===F.move));
   if(F.sort!=="master"){
-    const k = {pmh:r=>r.pmh[r.pmh.length-1], rrp:r=>r.rrp, delta:r=>delta(r), model:r=>r.model, pct:r=>{const p=r.pmh[r.pmh.length-1];return p==null?null:p/r.rrp}}[F.sort];
+    const k = {pmh:r=>r.pmh[r.pmh.length-1], rrp:r=>r.rrp, choice:r=>r.choice||0, delta:r=>delta(r), model:r=>r.model, pct:r=>{const p=r.pmh[r.pmh.length-1];return p==null?null:p/r.rrp}}[F.sort];
     rows = [...rows].sort((a,b)=>{const x=k(a),y=k(b); if(x==null&&y==null) return 0; if(x==null) return 1; if(y==null) return -1; return (x>y?1:x<y?-1:0)*F.dir;});
   }
   return rows;
 }
 
 /* ---- latest table ---- */
-const COLS = [["brand","Hãng"],["model","Model"],["ch","Kênh"],["seg","Phân khúc"],["rrp","Giá đen (RRP)",1],["pmh","PMH hôm nay",1],["delta","So đợt trước",1],["pct","% giảm",1],["trend","Xu hướng"]];
+const COLS = [["brand","Hãng"],["model","Model"],["ch","Kênh"],["seg","Phân khúc"],["kind","Loại KM"],["rrp","Giá đen (RRP)",1],["pmh","PMH hôm nay",1],["choice","Giảm offline",1],["delta","So đợt trước",1],["pct","% giảm",1],["trend","Xu hướng"]];
 function spark(v){
   const pts=v.map((x,i)=>[i,x]).filter(p=>p[1]!=null);
   if(pts.length<2) return "";
@@ -361,8 +368,9 @@ function renderTable(){
     const flag = r.flags.length?` <span class="badge ${rrpUp(r)?"rrp":"warn"}" title="${esc(r.flags.join("; "))}">RRP${rrpUp(r)?" tăng":""}</span>`:"";
     return `<tr tabindex="0" data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${flag}</td>
     <td><span class="badge ${r.channel==="TGDD"?"tgdd":"mass"}">${r.channel==="TGDD"?"Độc quyền":"Mass"}</span></td><td>${esc(r.segment)}</td>
-    <td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td><td class="num"><strong>${r.status==="active"?fmt(p):"–"}</strong></td><td class="num">${deltaCell(r)}</td><td class="num">${pct}</td><td>${spark(r.pmh)}</td></tr>`;
-  }).join("") || `<tr><td colspan="9">Không có SKU nào khớp bộ lọc. Bỏ bớt một bộ lọc để xem lại danh sách.</td></tr>`;
+    <td>${kindOf(r)?`<span class="badge ${kindOf(r)===KIND_FS?"fs":"mass"}">${kindOf(r)}</span>`:"–"}</td>
+    <td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td><td class="num"><strong>${r.status==="active"?fmt(p):"–"}</strong></td><td class="num" title="Khoản “Giảm giá X” trong mục “Chọn 1 trong”">${r.choice?fmt(r.choice):"–"}</td><td class="num">${deltaCell(r)}</td><td class="num">${pct}</td><td>${spark(r.pmh)}</td></tr>`;
+  }).join("") || `<tr><td colspan="11">Không có SKU nào khớp bộ lọc. Bỏ bớt một bộ lọc để xem lại danh sách.</td></tr>`;
 }
 function renderBar(){
   const c={up:0,down:0,flat:0,na:0}; S.rows.forEach(r=>c[cat(r)]++);
@@ -406,7 +414,7 @@ function openDrawer(model){
   const vals=r.pmh.filter(x=>x!=null), p=r.pmh[r.pmh.length-1];
   const best=vals.length?Math.max(...vals):null, avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
   const runs=vals.filter(x=>x>0).length;
-  $("dbody").innerHTML=`<h2>${esc(r.model)}</h2><div style="color:var(--muted)"><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span>phân khúc ${esc(r.segment)}, ${r.channel==="TGDD"?"độc quyền TGDĐ":"kênh Mass"}</div>
+  $("dbody").innerHTML=`<h2>${esc(r.model)}</h2><div style="color:var(--muted)"><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span>phân khúc ${esc(r.segment)}, ${r.channel==="TGDD"?"độc quyền TGDĐ":"kênh Mass"}${kindOf(r)?`, đợt mới nhất: <span class="badge ${kindOf(r)===KIND_FS?"fs":"mass"}">${kindOf(r)}</span>`:""}</div>
   <div class="kv"><div><small>Giá đen</small><b>${fmt(r.rrp)}</b></div><div><small>PMH hiện tại</small><b>${r.status==="active"?fmt(p):"–"}</b></div><div><small>PMH cao nhất</small><b>${fmt(best)}</b></div></div>
   ${r.flags.map(f=>`<div class="note">${esc(f)}</div>`).join("")}
   ${r.choice?`<div class="note">Đợt quét gần nhất có lựa chọn “Giảm giá ${fmt(r.choice)}đ” trong mục “Chọn 1 trong” (chỉ tính làm PMH khi máy không có giá gạch ngang).</div>`:""}
@@ -435,8 +443,8 @@ function calc(){
 
 /* ---- export (tải file trực tiếp trên trình duyệt) ---- */
 function sheetAoa(){
-  const head=["Hãng","Model","Giá đen (RRP)","Kênh","Phân khúc",...S.dates];
-  return [head,...S.rows.map(r=>[r.brand,r.model,r.rrp,r.channel==="TGDD"?"Độc quyền TGDĐ":"Mass",r.segment,...r.pmh.map(x=>x==null?"":x)])];
+  const head=["Hãng","Model","Giá đen (RRP)","Kênh","Phân khúc","Loại KM","Giảm offline",...S.dates];
+  return [head,...S.rows.map(r=>[r.brand,r.model,r.rrp,r.channel==="TGDD"?"Độc quyền TGDĐ":"Mass",r.segment,kindOf(r)||"",r.choice||"",...r.pmh.map(x=>x==null?"":x)])];
 }
 function toast(t){ const e=$("toast"); e.textContent=t; e.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>e.hidden=true,2600); }
 function save(filename,data,type){
@@ -549,7 +557,7 @@ function renderAll(){
 document.addEventListener("click",e=>{
   const chip=e.target.closest(".chip"); if(chip){ F[chip.dataset.k]=chip.dataset.v; renderFilters(); renderTable(); return; }
   const seg=e.target.closest("#bar button"); if(seg){ F.move=F.move===seg.dataset.m?null:seg.dataset.m; renderBar(); renderTable(); return; }
-  const th=e.target.closest("#thead th"); if(th&&th.dataset.sort!=="brand"&&th.dataset.sort!=="ch"&&th.dataset.sort!=="seg"&&th.dataset.sort!=="trend"){
+  const th=e.target.closest("#thead th"); if(th&&th.dataset.sort!=="brand"&&th.dataset.sort!=="ch"&&th.dataset.sort!=="seg"&&th.dataset.sort!=="trend"&&th.dataset.sort!=="kind"){
     const k=th.dataset.sort; if(F.sort===k) F.dir=-F.dir; else {F.sort=k;F.dir=(k==="model")?1:-1;} renderTable(); return; }
   const tr=e.target.closest("tr[data-m]"); if(tr){ openDrawer(tr.dataset.m); return; }
   const tab=e.target.closest("nav.tabs button"); if(tab){
