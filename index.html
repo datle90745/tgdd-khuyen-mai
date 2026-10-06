@@ -290,7 +290,9 @@ function build(){
       if(!x){ if(r.pmh.length<=col) r.pmh.push(null); return; }
       if(typeof x.rrp==="number" && x.rrp!==r.rrp){ r.flags.push(`Giá đen đổi ${fmt(r.rrp)} → ${fmt(x.rrp)} (${im.date})`); r.rrp = x.rrp; }
       if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||x.status==="active") r.status = x.status;
-      r.pmh[col] = typeof x.pmh==="number" ? x.pmh : null;
+      // Trang lỗi/không đọc được giá thì giữ số cũ của cột (nếu có), không xoá thành ô trống.
+      if(typeof x.pmh==="number") r.pmh[col] = x.pmh;
+      else if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||r.pmh[col]===undefined) r.pmh[col] = null;
       if(x.choice) r.choice = x.choice;
     });
   });
