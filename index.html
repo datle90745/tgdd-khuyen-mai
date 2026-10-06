@@ -8,6 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="data/data.js"></script>
 <script src="data/scans.js"></script>
+<script src="data/market.js"></script>
 <style>
 :root{
   --bg:#eceff4; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
@@ -76,6 +77,12 @@ td.model{white-space:normal;min-width:220px;font-weight:500}
 .badge.tgdd{background:var(--tgdd);color:var(--tgdd-ink)} .badge.mass{background:var(--mass-bg);color:var(--muted)}
 .badge.warn{background:var(--warn-bg);color:var(--warn)}
 .badge.fs{background:#e2252d;color:#fff}
+/* ---- tab Toàn thị trường ---- */
+.rtl{display:inline-block;border-radius:5px;padding:1px 8px;font-size:12px;font-weight:700;white-space:nowrap}
+.rtl[data-r="TGDĐ"]{background:#ffd400;color:#2b2400}.rtl[data-r="CellphoneS"]{background:#d70018;color:#fff}
+.rtl[data-r="FPT Shop"]{background:#cb1c22;color:#fff;background:linear-gradient(90deg,#cb1c22,#f58220)}.rtl[data-r="Viettel Store"]{background:#00918e;color:#fff}
+.focus-dot{display:inline-block;border-radius:5px;padding:0 6px;font-size:11px;font-weight:700;background:var(--accent);color:#fff;margin-left:6px;vertical-align:1px}
+#mk-tbl td.n,#mk-tbl th.n{text-align:right}
 .d-up{color:var(--up);font-weight:600} .d-down{color:var(--down);font-weight:600} .d-flat{color:var(--flat)}
 .spark{display:block}
 .count{color:var(--muted);margin:2px 2px 10px}
@@ -172,6 +179,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
   <button role="tab" aria-selected="true" data-tab="latest">Tra cứu mới nhất</button>
   <button role="tab" aria-selected="false" data-tab="history">Lịch sử theo đợt quét</button>
   <button role="tab" aria-selected="false" data-tab="rise">Lịch sử tăng giá</button>
+  <button role="tab" aria-selected="false" data-tab="market">Toàn thị trường</button>
   <button role="tab" aria-selected="false" data-tab="rules" data-admin hidden>Quy tắc tính PMH</button>
   <button role="tab" aria-selected="false" data-tab="import" data-admin hidden>Nhập đợt quét mới</button>
 </nav>
@@ -223,6 +231,20 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
   </div>
   <div class="count" id="rl-count"></div>
   <div class="panel tablewrap"><table class="rtab" id="rlog"></table></div>
+</section>
+
+<section class="pane" id="p-market" hidden>
+  <div class="move-head" style="margin:0 2px 8px"><span id="mk-sub" style="color:var(--muted)"></span><button class="btn" id="mk-xlsx" style="padding:4px 12px">Xuất Excel tab này</button></div>
+  <div class="panel rise-kpi" id="mk-kpi"></div>
+  <div class="panel filters" style="margin-top:12px">
+    <div class="row"><label class="t">Sàn</label><span id="mk-f-r" class="row"></span></div>
+    <div class="row"><label class="t">Hãng</label><span id="mk-f-b" class="row"></span></div>
+    <div class="row"><label class="t">Loại KM</label><span id="mk-f-k" class="row"></span>
+      <label style="display:flex;gap:6px;align-items:center;color:var(--muted);margin-left:8px"><input type="checkbox" id="mk-focus"> Chỉ máy thuộc 86 SKU</label></div>
+    <div class="row"><label class="t">Tìm</label><input class="search" id="mk-q" type="search" placeholder="Tên máy, ví dụ: A57 8GB" aria-label="Tìm theo tên máy"></div>
+  </div>
+  <div class="count" id="mk-count"></div>
+  <div class="panel tablewrap"><table id="mk-tbl"><thead><tr id="mk-head"></tr></thead><tbody id="mk-body"></tbody></table></div>
 </section>
 
 <section class="pane" id="p-rules" hidden>
@@ -569,7 +591,7 @@ function renderAll(){
   document.title=`Theo dõi khuyến mãi TGDĐ — ${S.rows.length} SKU`;
 }
 document.addEventListener("click",e=>{
-  const chip=e.target.closest(".chip"); if(chip){ F[chip.dataset.k]=chip.dataset.v; renderFilters(); renderTable(); return; }
+  const chip=e.target.closest(".chip:not([data-mk])"); if(chip){ F[chip.dataset.k]=chip.dataset.v; renderFilters(); renderTable(); return; }
   const seg=e.target.closest("#bar button"); if(seg){ F.move=F.move===seg.dataset.m?null:seg.dataset.m; renderBar(); renderTable(); return; }
   const th=e.target.closest("#thead th"); if(th&&th.dataset.sort!=="brand"&&th.dataset.sort!=="ch"&&th.dataset.sort!=="seg"&&th.dataset.sort!=="trend"&&th.dataset.sort!=="kind"){
     const k=th.dataset.sort; if(F.sort===k) F.dir=-F.dir; else {F.sort=k;F.dir=(k==="model")?1:-1;} renderTable(); return; }
@@ -597,6 +619,66 @@ $("file").onchange=async e=>{
   e.target.value="";
 };
 $("reset").onclick=()=>{ imports=[]; try{localStorage.removeItem("tp_imports");}catch(_){} renderAll(); $("imsg").textContent="Đã xóa các đợt nhập. Còn lại dữ liệu gốc."; };
+/* ---- Toàn thị trường (tham khảo, từ trang danh sách của 4 sàn) ---- */
+const MK = window.MARKET && Array.isArray(window.MARKET.scans) ? window.MARKET : {scans:[]};
+const MK_RET = ["TGDĐ","CellphoneS","FPT Shop","Viettel Store"];
+const MF = {r:"Tất cả", b:"Tất cả", k:"Tất cả", q:"", focus:false, sort:"v", dir:-1};
+// Khoá so khớp tên máy giữa các sàn và danh sách 86 SKU: bỏ dấu, tên hãng, 5G/4G, ký tự đặc biệt.
+const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d")
+  .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|5g|4g|nfc)\b/g," ")
+  .replace(/[^a-z0-9]/g,"");
+const MK_FOCUS = new Set(BASE.rows.map(r=>mkKey(r.model)));
+function mkData(){
+  const n=MK.scans.length, cur=n?MK.scans[n-1]:null, prev=n>1?MK.scans[n-2]:null;
+  if(!cur) return {cur:null, rows:[]};
+  const pm=new Map((prev?prev.rows:[]).map(x=>[x.r+"|"+mkKey(x.n), x]));
+  return {cur, prev, rows:cur.rows.map(x=>{ const k=mkKey(x.n), v=Math.max((x.o||x.p)-x.p,0), pv=pm.get(x.r+"|"+k);
+    return {...x, key:k, v, pct:x.o?v/x.o:0, focus:MK_FOCUS.has(k), dv: pv? v-Math.max((pv.o||pv.p)-pv.p,0) : null}; })};
+}
+function mkChips(el, vals, key){
+  el.innerHTML = vals.map(v=>`<button class="chip" data-mk="${key}" data-v="${esc(v)}" aria-pressed="${MF[key]===v}"${key==="b"&&v!=="Tất cả"?` data-b="${esc(v)}"`:""}>${esc(key==="b"?bdisp(v):v)}</button>`).join("");
+}
+function renderMarket(){
+  const D=mkData();
+  if(!D.cur){ $("mk-sub").textContent="Chưa có đợt quét toàn thị trường. Đợt đầu tiên sẽ có sau lần chạy bộ quét kế tiếp."; $("mk-kpi").innerHTML=""; $("mk-body").innerHTML=""; $("mk-head").innerHTML=""; $("mk-count").textContent=""; return; }
+  const errs=Object.entries(D.cur.report||{}).filter(([,v])=>typeof v!=="number").map(([k])=>k);
+  $("mk-sub").textContent=`Đợt quét ${D.cur.date} lúc ${D.cur.at}${D.prev?`, so với đợt ${D.prev.date}`:""}. Giá lấy từ trang danh sách của từng sàn, chỉ 6 hãng đang theo dõi, chỉ để tham khảo.${errs.length?` Lỗi đợt này: ${errs.join(", ")}.`:""}`;
+  $("mk-kpi").innerHTML=MK_RET.map(r=>{ const L=D.rows.filter(x=>x.r===r), withKM=L.filter(x=>x.v>0), avg=withKM.length?withKM.reduce((t,x)=>t+x.pct,0)/withKM.length*100:0;
+    return `<div class="rk"><small><span class="rtl" data-r="${r}">${r}</span></small><b>${L.length} máy</b><span>${withKM.length} máy đang giảm giá, trung bình ${avg.toFixed(1)}%</span><span>${L.filter(x=>x.focus).length} máy thuộc 86 SKU</span></div>`; }).join("");
+  mkChips($("mk-f-r"),["Tất cả",...MK_RET],"r");
+  mkChips($("mk-f-b"),["Tất cả",...["Apple","Samsung","OPPO","Xiaomi","Vivo","Realme"].filter(b=>D.rows.some(x=>x.b===b))],"b");
+  mkChips($("mk-f-k"),["Tất cả","Flash Sale Online","Khuyến mãi"],"k");
+  const q=MF.q.toLowerCase();
+  let L=D.rows.filter(x=>(MF.r==="Tất cả"||x.r===MF.r)&&(MF.b==="Tất cả"||x.b===MF.b)&&(MF.k==="Tất cả"||x.k===MF.k)&&(!MF.focus||x.focus)&&(!q||x.n.toLowerCase().includes(q)));
+  const key={r:x=>x.r,b:x=>x.b,n:x=>x.n,o:x=>x.o,p:x=>x.p,v:x=>x.v,pct:x=>x.pct,dv:x=>x.dv}[MF.sort];
+  L.sort((a,c)=>{const x=key(a),y=key(c); if(x==null&&y==null) return 0; if(x==null) return 1; if(y==null) return -1; return (x>y?1:x<y?-1:0)*MF.dir;});
+  const cols=[["r","Sàn"],["b","Hãng"],["n","Tên sản phẩm"],["k","Loại KM"],["o","Giá gốc",1],["p","Giá online",1],["v","Giá trị KM",1],["pct","% giảm",1],["dv","So đợt trước",1],["u","Xem"]];
+  $("mk-head").innerHTML=cols.map(([k,l,n])=>`<th class="${n?"n":""}" data-mksort="${k}">${l}${MF.sort===k?(MF.dir>0?" ▲":" ▼"):""}</th>`).join("");
+  $("mk-count").textContent=`Hiển thị ${L.length} / ${D.rows.length} máy`;
+  $("mk-body").innerHTML=L.map(x=>`<tr><td><span class="rtl" data-r="${esc(x.r)}">${esc(x.r)}</span></td>${bcell(x.b)}<td class="model">${esc(x.n)}${x.focus?`<span class="focus-dot" title="Thuộc danh sách 86 SKU">86</span>`:""}</td>
+    <td>${x.k==="Flash Sale Online"?`<span class="badge fs">Flash Sale Online</span>`:`<span class="badge mass">Khuyến mãi</span>`}</td>
+    <td class="n">${fmt(x.o)}</td><td class="n"><strong>${fmt(x.p)}</strong></td><td class="n">${x.v?fmt(x.v):"–"}</td><td class="n">${x.v?(x.pct*100).toFixed(0)+"%":"0%"}</td>
+    <td class="n">${x.dv==null?`<span class="d-flat">mới</span>`:x.dv===0?`<span class="d-flat">không đổi</span>`:x.dv>0?`<span class="d-up">▲ ${fmt(x.dv)}</span>`:`<span class="d-down">▼ ${fmt(-x.dv)}</span>`}</td>
+    <td><a href="${esc(x.u)}" target="_blank" rel="noopener">Link</a></td></tr>`).join("") || `<tr><td colspan="10">Không có máy nào khớp bộ lọc.</td></tr>`;
+  renderMarket.rows=L;
+}
+document.addEventListener("click",e=>{
+  const chip=e.target.closest(".chip[data-mk]"); if(chip){ MF[chip.dataset.mk]=chip.dataset.v; renderMarket(); return; }
+  const th=e.target.closest("#mk-head th[data-mksort]"); if(th&&th.dataset.mksort!=="u"&&th.dataset.mksort!=="k"){ const k=th.dataset.mksort; if(MF.sort===k) MF.dir=-MF.dir; else {MF.sort=k; MF.dir=(k==="n"||k==="r"||k==="b")?1:-1;} renderMarket(); }
+});
+$("mk-q").addEventListener("input",e=>{ MF.q=e.target.value.trim(); renderMarket(); });
+$("mk-focus").addEventListener("change",e=>{ MF.focus=e.target.checked; renderMarket(); });
+$("mk-xlsx").onclick=()=>{
+  if(!window.XLSX){ toast("Chưa tải được thư viện Excel, kiểm tra kết nối mạng"); return; }
+  const D=mkData(), L=renderMarket.rows||[];
+  const aoa=[["Sàn","Hãng","Tên sản phẩm","Loại KM","Giá gốc","Giá online","Giá trị KM","% giảm","So đợt trước","Thuộc 86 SKU","Link"],
+    ...L.map(x=>[x.r,x.b,x.n,x.k,x.o,x.p,x.v,Math.round(x.pct*1000)/10,x.dv==null?"":x.dv,x.focus?"Có":"",x.u])];
+  const ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:13},{wch:9},{wch:42},{wch:16},{wch:12},{wch:12},{wch:12},{wch:8},{wch:12},{wch:8},{wch:50}];
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Toan thi truong");
+  save(`toan_thi_truong_${D.cur?D.cur.date:"chua_co"}.xlsx`,XLSX.write(wb,{type:"array",bookType:"xlsx"}),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+};
+try{ renderMarket(); }catch(e){ console.error("market",e); }
+
 // Tab nội bộ (Quy tắc, Nhập đợt quét) chỉ hiện khi link có ?admin
 if(new URLSearchParams(location.search).has("admin")) document.querySelectorAll("nav.tabs [data-admin]").forEach(b=>b.hidden=false);
 try{ riseInit(); }catch(e){ console.error("rise",e); }
