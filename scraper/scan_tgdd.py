@@ -180,7 +180,7 @@ def write_scans_js():
     for path in sorted(SCAN_DIR.glob("scan_*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
         scans.append({"date": data["date"], "rows": [
-            {k: r[k] for k in ("model", "rrp", "pmh", "status", "choice") if k in r}
+            {k: r[k] for k in ("model", "rrp", "pmh", "status", "choice", "kind") if k in r}
             for r in data["rows"]]})
     SCANS_JS.write_text(
         "/* Tự sinh bởi scraper/scan_tgdd.py, đừng sửa tay. */\n"
