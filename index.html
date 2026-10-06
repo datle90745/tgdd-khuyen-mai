@@ -227,16 +227,18 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 
 <section class="pane" id="p-rules" hidden>
   <div class="rules">
-    <div class="panel rule"><h3>Không có banner cam</h3><p>PMH = giá đen − giá đỏ. Bỏ qua mọi số trong dòng “Chọn 1 trong các khuyến mãi”.</p></div>
-    <div class="panel rule"><h3>Banner “Online Giá Rẻ Quá” loại B</h3><p>Flash sale đếm ngược, không có mục “Chọn 1 trong”. Giá trong Gói dịch vụ đã là giá cuối: PMH = giá đen − giá đỏ.</p></div>
-    <div class="panel rule"><h3>Banner loại A, có dòng “đã giảm”</h3><p>Có mục “Chọn 1 trong”. PMH = tổng các dòng “Giảm giá Xđ (đã giảm vào giá sản phẩm)”.</p></div>
-    <div class="panel rule"><h3>Banner loại A, không có dòng “đã giảm”</h3><p>PMH = 0. Không lấy số của lựa chọn phiếu mua hàng.</p></div>
+    <div class="panel rule"><h3>Có KM base</h3><p>KM base là lựa chọn “Giảm giá Xđ” trong mục “Chọn 1 trong”. Có KM base thì PMH = KM base, kể cả khi có banner flash sale.</p></div>
+    <div class="panel rule"><h3>Không có KM base, không có banner cam</h3><p>PMH = giá đen − giá đỏ.</p></div>
+    <div class="panel rule"><h3>Banner “Online Giá Rẻ Quá” loại B</h3><p>Flash sale đếm ngược, không có mục “Chọn 1 trong”: PMH = giá đen − giá đỏ.</p></div>
+    <div class="panel rule"><h3>Banner loại A, không có KM base</h3><p>Có mục “Chọn 1 trong” nhưng không có lựa chọn “Giảm giá Xđ”: PMH = tổng các dòng “(đã giảm vào giá sản phẩm)”, không có dòng nào thì PMH = 0.</p></div>
+    <div class="panel rule"><h3>KM online và Tổng KM</h3><p>Luôn ghi riêng để đối chiếu: KM online = giá đen − giá đỏ; Tổng KM = KM base + KM online.</p></div>
   </div>
   <div class="panel calc">
     <strong>Tính thử một SKU</strong>
     <div class="f"><label for="c-den">Giá đen (gạch ngang)</label><input id="c-den" type="text" inputmode="numeric" placeholder="13490000"></div>
     <div class="f"><label for="c-do">Giá đỏ (đang bán)</label><input id="c-do" type="text" inputmode="numeric" placeholder="10490000"></div>
     <div class="f"><label for="c-ban">Banner cam</label><select id="c-ban"><option value="no">Không có</option><option value="B">Có, không có “Chọn 1 trong”</option><option value="A">Có, có “Chọn 1 trong”</option></select></div>
+    <div class="f"><label for="c-base">KM base (“Giảm giá X” trong Chọn 1)</label><input id="c-base" type="text" inputmode="numeric" placeholder="để trống nếu không có"></div>
     <div class="f" id="c-line-row" hidden><label for="c-line">Tổng các dòng “đã giảm”</label><input id="c-line" type="text" inputmode="numeric" placeholder="để trống nếu không có dòng này"></div>
     <div class="result" id="c-res">Nhập giá đen và giá đỏ để tính.</div>
   </div>
@@ -290,12 +292,22 @@ function build(){
     rows.forEach(r=>{
       const x = m.get(r.model);
       if(!x){ if(r.pmh.length<=col) r.pmh.push(null); return; }
-      if(typeof x.rrp==="number" && x.rrp!==r.rrp){ r.flags.push(`Giá đen đổi ${fmt(r.rrp)} → ${fmt(x.rrp)} (${im.date})`); r.rrp = x.rrp; }
+      if(typeof x.rrp==="number" && x.rrp!==r.rrp){
+        r.flags.push(`Giá đen đổi ${fmt(r.rrp)} → ${fmt(x.rrp)} (${im.date})`); r.rrp = x.rrp;
+        // Giá đen đổi thì phân khúc tự đổi theo giá mới.
+        const seg = rseg(x.rrp); if(seg!==r.segment){ r.flags.push(`Phân khúc đổi ${r.segment} → ${seg} (${im.date})`); r.segment = seg; }
+      }
       if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||x.status==="active") r.status = x.status;
       // Trang lỗi/không đọc được giá thì giữ số cũ của cột (nếu có), không xoá thành ô trống.
       if(typeof x.pmh==="number") r.pmh[col] = x.pmh;
       else if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||r.pmh[col]===undefined) r.pmh[col] = null;
-      if("choice" in x) r.choice = x.choice || 0;
+      // KM base / KM online / Tổng KM của đợt quét mới nhất (đợt cũ chỉ có `choice` = KM base).
+      if("base" in x || "choice" in x){
+        r.base = x.base ?? x.choice ?? 0;
+        r.online = typeof x.online==="number" ? x.online : null;
+        r.total = typeof x.total==="number" ? x.total : null;
+        r.rule = x.rule || null;
+      }
       if(x.kind) r.kind = x.kind;
     });
   });
@@ -334,14 +346,14 @@ function filtered(){
     (F.brand==="Tất cả"||r.brand===F.brand)&&(F.seg==="Tất cả"||r.segment===F.seg)&&
     (F.ch==="Tất cả"||r.channel===F.ch)&&(F.kind==="Tất cả"||kindOf(r)===F.kind)&&(!F.q||r.model.toLowerCase().includes(F.q))&&(!F.move||cat(r)===F.move));
   if(F.sort!=="master"){
-    const k = {pmh:r=>r.pmh[r.pmh.length-1], rrp:r=>r.rrp, choice:r=>r.choice||0, delta:r=>delta(r), model:r=>r.model, pct:r=>{const p=r.pmh[r.pmh.length-1];return p==null?null:p/r.rrp}}[F.sort];
+    const k = {pmh:r=>r.pmh[r.pmh.length-1], rrp:r=>r.rrp, base:r=>r.base??null, online:r=>r.online??null, total:r=>r.total??null, delta:r=>delta(r), model:r=>r.model, pct:r=>{const p=r.pmh[r.pmh.length-1];return p==null?null:p/r.rrp}}[F.sort];
     rows = [...rows].sort((a,b)=>{const x=k(a),y=k(b); if(x==null&&y==null) return 0; if(x==null) return 1; if(y==null) return -1; return (x>y?1:x<y?-1:0)*F.dir;});
   }
   return rows;
 }
 
 /* ---- latest table ---- */
-const COLS = [["brand","Hãng"],["model","Model"],["ch","Kênh"],["seg","Phân khúc"],["kind","Loại KM"],["rrp","Giá đen (RRP)",1],["pmh","PMH hôm nay",1],["choice","Giảm offline",1],["delta","So đợt trước",1],["pct","% giảm",1],["trend","Xu hướng"]];
+const COLS = [["brand","Hãng"],["model","Model"],["ch","Kênh"],["seg","Phân khúc"],["kind","Loại KM"],["rrp","Giá đen (RRP)",1],["pmh","PMH hôm nay",1],["base","KM base",1],["online","KM online",1],["total","Tổng KM",1],["delta","So đợt trước",1],["pct","% giảm",1],["trend","Xu hướng"]];
 function spark(v){
   const pts=v.map((x,i)=>[i,x]).filter(p=>p[1]!=null);
   if(pts.length<2) return "";
@@ -369,8 +381,8 @@ function renderTable(){
     return `<tr tabindex="0" data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${flag}</td>
     <td><span class="badge ${r.channel==="TGDD"?"tgdd":"mass"}">${r.channel==="TGDD"?"Độc quyền":"Mass"}</span></td><td>${esc(r.segment)}</td>
     <td>${kindOf(r)?`<span class="badge ${kindOf(r)===KIND_FS?"fs":"mass"}">${kindOf(r)}</span>`:"–"}</td>
-    <td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td><td class="num"><strong>${r.status==="active"?fmt(p):"–"}</strong></td><td class="num" title="Khoản “Giảm giá X” trong mục “Chọn 1 trong”">${r.choice?fmt(r.choice):"–"}</td><td class="num">${deltaCell(r)}</td><td class="num">${pct}</td><td>${spark(r.pmh)}</td></tr>`;
-  }).join("") || `<tr><td colspan="11">Không có SKU nào khớp bộ lọc. Bỏ bớt một bộ lọc để xem lại danh sách.</td></tr>`;
+    <td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td><td class="num"><strong>${r.status==="active"?fmt(p):"–"}</strong></td><td class="num" title="Khoản “Giảm giá X” trong mục “Chọn 1 trong”">${r.base?fmt(r.base):"–"}</td><td class="num" title="Giá đen − giá đỏ (giá gạch hoặc flash sale)">${r.online?fmt(r.online):"–"}</td><td class="num">${r.total?`<strong>${fmt(r.total)}</strong>`:"–"}</td><td class="num">${deltaCell(r)}</td><td class="num">${pct}</td><td>${spark(r.pmh)}</td></tr>`;
+  }).join("") || `<tr><td colspan="13">Không có SKU nào khớp bộ lọc. Bỏ bớt một bộ lọc để xem lại danh sách.</td></tr>`;
 }
 function renderBar(){
   const c={up:0,down:0,flat:0,na:0}; S.rows.forEach(r=>c[cat(r)]++);
@@ -420,7 +432,7 @@ function openDrawer(model){
   $("dbody").innerHTML=`<h2>${esc(r.model)}</h2><div style="color:var(--muted)"><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span>phân khúc ${esc(r.segment)}, ${r.channel==="TGDD"?"độc quyền TGDĐ":"kênh Mass"}${kindOf(r)?`, đợt mới nhất: <span class="badge ${kindOf(r)===KIND_FS?"fs":"mass"}">${kindOf(r)}</span>`:""}</div>
   <div class="kv"><div><small>Giá đen</small><b>${fmt(r.rrp)}</b></div><div><small>PMH hiện tại</small><b>${r.status==="active"?fmt(p):"–"}</b></div><div><small>PMH cao nhất</small><b>${fmt(best)}</b></div></div>
   ${r.flags.map(f=>`<div class="note">${esc(f)}</div>`).join("")}
-  ${r.choice?`<div class="note">Đợt quét gần nhất có lựa chọn “Giảm giá ${fmt(r.choice)}đ” trong mục “Chọn 1 trong” (chỉ tính làm PMH khi máy không có giá gạch ngang).</div>`:""}
+  ${r.base!=null&&r.online!=null?`<div class="kv"><div><small>KM base (Chọn 1)</small><b>${fmt(r.base)}</b></div><div><small>KM online (đen − đỏ)</small><b>${fmt(r.online)}</b></div><div><small>Tổng KM</small><b>${fmt(r.total)}</b></div></div><div style="color:var(--muted)">PMH đợt mới nhất tính theo: ${{km_base:"có KM base nên PMH = KM base",banner_a:"banner loại A không có KM base nên PMH = các dòng “đã giảm” (không có thì 0)",den_tru_do:"không có KM base nên PMH = giá đen − giá đỏ"}[r.rule]||"–"}.</div>`:""}
   ${r.status==="ngung_kd"?`<div class="note">TGDĐ đã gỡ SKU này (trang trả về 404).</div>`:""}
   ${r.status==="chua_mo_ban"?`<div class="note">SKU mới có trang đăng ký nhận tin, chưa mở bán. Giá hiển thị là giá dự kiến.</div>`:""}
   ${chart(r)}
@@ -433,21 +445,24 @@ function closeDrawer(){ $("drawer").classList.remove("open"); $("drawer").setAtt
 /* ---- calculator ---- */
 const num = s => { const v=parseInt(String(s).replace(/[^\d]/g,""),10); return isNaN(v)?null:v; };
 function calc(){
-  const den=num($("c-den").value), dor=num($("c-do").value), ban=$("c-ban").value, line=num($("c-line").value);
-  $("c-line-row").hidden = ban!=="A";
+  const den=num($("c-den").value), dor=num($("c-do").value), ban=$("c-ban").value, line=num($("c-line").value), base=num($("c-base").value)||0;
+  $("c-line-row").hidden = ban!=="A" || base>0;
   if(den==null||dor==null){ $("c-res").textContent="Nhập giá đen và giá đỏ để tính."; return; }
   let pmh, why;
-  if(ban==="no"){ pmh=den-dor; why="Không có banner: giá đen − giá đỏ."; }
+  const online=Math.max(den-dor,0), extra=`<br><span style="color:var(--muted)">KM online ${fmt(online)} + KM base ${fmt(base)} = Tổng KM <b>${fmt(online+base)}</b></span>`;
+  if(base>0){ pmh=base; why="Có KM base: PMH = KM base."; }
+  else if(ban==="no"){ pmh=den-dor; why="Không có banner: giá đen − giá đỏ."; }
   else if(ban==="B"){ pmh=den-dor; why="Banner flash sale loại B: giá trong Gói dịch vụ đã là giá cuối, lấy giá đen − giá đỏ."; }
   else if(line){ pmh=line; why="Banner loại A có dòng “đã giảm”: lấy tổng các dòng đó."; }
   else { pmh=0; why="Banner loại A, không có dòng “đã giảm”: PMH bằng 0."; }
-  $("c-res").innerHTML=`PMH = <b>${fmt(pmh)}</b> <span style="color:var(--muted)">(${(den?pmh/den*100:0).toFixed(1)}% giá đen)</span><br><span style="color:var(--muted)">${why}</span>`;
+  $("c-res").innerHTML=`PMH = <b>${fmt(pmh)}</b> <span style="color:var(--muted)">(${(den?pmh/den*100:0).toFixed(1)}% giá đen)</span><br><span style="color:var(--muted)">${why}</span>${extra}`;
 }
 
 /* ---- export (tải file trực tiếp trên trình duyệt) ---- */
 function sheetAoa(){
-  const head=["Hãng","Model","Giá đen (RRP)","Kênh","Phân khúc","Loại KM","Giảm offline",...S.dates];
-  return [head,...S.rows.map(r=>[r.brand,r.model,r.rrp,r.channel==="TGDD"?"Độc quyền TGDĐ":"Mass",r.segment,kindOf(r)||"",r.choice||"",...r.pmh.map(x=>x==null?"":x)])];
+  const head=["Hãng","Model","Giá đen (RRP)","Kênh","Phân khúc","Loại KM","KM base","KM online","Tổng KM",...S.dates];
+  const v=x=>x==null?"":x;
+  return [head,...S.rows.map(r=>[r.brand,r.model,r.rrp,r.channel==="TGDD"?"Độc quyền TGDĐ":"Mass",r.segment,kindOf(r)||"",v(r.base),v(r.online),v(r.total),...r.pmh.map(v)])];
 }
 function toast(t){ const e=$("toast"); e.textContent=t; e.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>e.hidden=true,2600); }
 function save(filename,data,type){
@@ -572,7 +587,7 @@ document.addEventListener("keydown",e=>{
   if(e.key==="Enter"){ const tr=e.target.closest&&e.target.closest("tbody tr[data-m]"); if(tr) openDrawer(tr.dataset.m); }
 });
 $("dx").onclick=closeDrawer;$("q").oninput=e=>{F.q=e.target.value.trim().toLowerCase(); renderTable();};
-["c-den","c-do","c-ban","c-line"].forEach(id=>$(id).addEventListener("input",calc));
+["c-den","c-do","c-ban","c-line","c-base"].forEach(id=>$(id).addEventListener("input",calc));
 $("file").onchange=async e=>{
   const f=e.target.files[0]; if(!f) return;
   try{
