@@ -4,15 +4,15 @@ Mỗi lần chạy tạo một đợt quét (ngày theo giờ Việt Nam), lưu:
   data/scans/scan_YYYY-MM-DD.json   bản ghi chi tiết của đợt quét
   data/scans.js                     window.SCANS = [...] cho web đọc
 
-Các khoản ghi nhận cho mỗi SKU:
-  - KM base   (`base`):   khoản "Giảm giá Xđ" trong mục "Chọn 1 trong".
-  - KM online (`online`): giá đen − giá đỏ (giá gạch ngang, hoặc giá flash sale "Online Giá Rẻ Quá").
-  - Tổng KM   (`total`):  KM base + KM online.
-PMH (`pmh`), theo tab "Quy tắc tính PMH" của web:
-  1. Có KM base: PMH = KM base.
-  2. Không có KM base, có banner "Online Giá Rẻ Quá" kèm mục "Chọn 1 trong" (banner loại A):
-     PMH = tổng các dòng "Giảm giá Xđ (đã giảm vào giá sản phẩm)", không có dòng nào thì PMH = 0.
-  3. Các trường hợp còn lại: PMH = giá đen − giá đỏ.
+PMH (`pmh`, cũng gọi là KM base, là số lưu vào lịch sử), theo tab "Quy tắc tính PMH" của web:
+  1. Không có banner cam (flash sale): PMH = giá đen − giá đỏ đang hiển thị.
+  2. Banner loại A (trang có "Chọn 1 trong") có dòng "đã giảm vào giá sản phẩm": PMH = tổng các dòng đó.
+  3. Banner loại A không có dòng "đã giảm": PMH = 0.
+  4. Banner loại B (flash đếm ngược, không có "Chọn 1 trong"): PMH = giá đen − giá đỏ.
+Thông tin tham khảo, không vào lịch sử:
+  - KM online (`online`): giá đen − giá đỏ của khối flash sale (chỉ khi có banner).
+  - Tổng KM   (`total`):  PMH + KM online ở banner loại A; các trường hợp khác bằng PMH.
+  - `choice`: khoản "Giảm giá Xđ" trong mục "Chọn 1 trong" (chỉ ghi lại để đối chiếu).
 Không đoán số: trang lỗi/không đọc được giá thì để trống (null).
 """
 import csv
@@ -75,22 +75,24 @@ def money(text):
     return int(digits) if digits else 0
 
 
-def build_result(rrp, online, base, banner, choose, dagiam, kind):
-    if base > 0:
-        pmh, rule = base, "km_base"
-    elif banner and choose:
-        pmh, rule = dagiam, "banner_a"
+def build_result(rrp, red, banner, choose, dagiam, choice, kind):
+    """rrp/red = giá đen/giá đỏ như người dùng thấy trên trang (bố cục mới)."""
+    diff = max(rrp - red, 0)
+    online = None
+    if not banner:
+        pmh, rule = diff, "khong_banner"
+    elif choose:
+        pmh, rule, online = dagiam, "banner_a", diff
     else:
-        pmh, rule = online, "den_tru_do"
-    return {"status": "active", "rrp": rrp, "red": rrp - online, "pmh": pmh,
-            "base": base, "online": online, "total": base + online,
-            "kind": kind, "rule": rule}
+        pmh, rule, online = diff, "banner_b", diff
+    total = pmh + online if rule == "banner_a" else pmh
+    return {"status": "active", "rrp": rrp, "red": red, "pmh": pmh, "online": online,
+            "total": total, "choice": choice, "kind": kind, "rule": rule}
 
 
 def parse_next_layout(soup):
     """Bố cục mới của TGDĐ (không có .box_main): giá đỏ ở span.text-24.text-red-5,
-    giá đen ở thẻ <del> cạnh đó. Giá đỏ ở bố cục này đã trừ sẵn KM base,
-    nên KM online = giá đen − giá đỏ − KM base."""
+    giá đen ở thẻ <del> cạnh đó. Flash sale có dòng "Còn x/y suất" cạnh giá."""
     page = soup.select_one("main")
     if page is None:
         return None
@@ -105,7 +107,7 @@ def parse_next_layout(soup):
         return None
     text = page.get_text(" ", strip=True)
     match = BASE_RE.search(text)
-    base = money(match.group(1)) if match else 0
+    choice = money(match.group(1)) if match else 0
     # Chỉ xét khối giá của chính sản phẩm (vài tầng cha của giá đỏ), không xét sản phẩm gợi ý.
     box = red_node
     for _ in range(4):
@@ -113,8 +115,7 @@ def parse_next_layout(soup):
     box_text = box.get_text(" ", strip=True)
     banner = bool(SLOTS_RE.search(box_text) or BANNER_RE.search(box_text))
     dagiam = sum(money(m) for m in DAGIAM_RE.findall(text))
-    online = max(rrp - red - base, 0)
-    return build_result(rrp, online, base, banner, bool(CHOOSE_RE.search(text)), dagiam,
+    return build_result(rrp, red, banner, bool(CHOOSE_RE.search(text)), dagiam, choice,
                         "moi-banner" if banner else "moi")
 
 
@@ -132,10 +133,10 @@ def parse_page(html):
             return {"status": "chua_mo_ban"}
         return {"status": "no_price"}
 
-    base = 0
+    choice = 0
     active = main.select_one('label.label-radio[data-active="1"]')
     if active is not None and re.match(r"^\s*Giảm giá", active.get_text(" ", strip=True), re.I):
-        base = to_int(active.get("data-discountchoose"))
+        choice = to_int(active.get("data-discountchoose"))
 
     flash = next((box for box in main.select(".box_saving")
                   if "soldout" not in box.get("class", [])
@@ -152,11 +153,14 @@ def parse_page(html):
         return {"status": "no_price"}
 
     rrp = to_int(price.get("data-priceorg"))
-    online = to_int(price.get("data-discountorigin"))
+    discount = to_int(price.get("data-discountorigin"))
     if not rrp:
         return {"status": "no_price"}
+    # Bố cục cũ chưa trừ lựa chọn "Giảm giá X" vào giá đỏ; bố cục mới (người dùng đang thấy) thì
+    # đã trừ. Trừ thêm ở đây để hai bố cục cho cùng một giá đỏ.
+    red = rrp - discount - (choice if flash is None else 0)
     dagiam = sum(money(m) for m in DAGIAM_RE.findall(area))
-    return build_result(rrp, online, base, flash is not None, bool(CHOOSE_RE.search(area)), dagiam,
+    return build_result(rrp, red, flash is not None, bool(CHOOSE_RE.search(area)), dagiam, choice,
                         "banner" if flash is not None else "thuong")
 
 
@@ -189,7 +193,7 @@ def scan_one(url, attempts=3):
 
 
 def write_scans_js():
-    keys = ("model", "rrp", "pmh", "status", "base", "online", "total", "kind", "rule")
+    keys = ("model", "rrp", "pmh", "status", "online", "total", "choice", "kind", "rule")
     scans = []
     for path in sorted(SCAN_DIR.glob("scan_*.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
@@ -220,7 +224,7 @@ def main():
             row["pmh"] = None
         rows.append(row)
         print(f"[{i}/{len(products)}] {product['model']}: {result.get('status')} rrp={result.get('rrp')} "
-              f"pmh={result.get('pmh')} base={result.get('base')} online={result.get('online')} "
+              f"pmh={result.get('pmh')} online={result.get('online')} choice={result.get('choice')} "
               f"({result.get('kind', '')}/{result.get('rule', '')}) {result.get('debug', '')}", flush=True)
         time.sleep(1.5)
 
