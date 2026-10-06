@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Theo dõi khuyến mãi TGDĐ — 86 SKU</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="data/data.js"></script>
+<style>
+:root{
+  --bg:#eceff4; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
+  --up:#0a7d5c; --up-bg:#d8f0e6; --down:#b83250; --down-bg:#f9dde4; --flat:#8793a8;
+  --tgdd:#f4c20d; --tgdd-ink:#3d3000; --mass-bg:#e3e8f0; --accent:#2446a8; --warn:#c77700; --warn-bg:#fff0d6;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1523; --panel:#162033; --ink:#e8edf5; --muted:#9aa8bf; --line:#27344c; --soft:#1b2740;
+    --up:#4cd0a2; --up-bg:#123a30; --down:#ff8da3; --down-bg:#4a1d2a; --flat:#7482a0;
+    --mass-bg:#26334d; --accent:#8aa6ff; --warn:#ffb84d; --warn-bg:#3d2b0c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1523; --panel:#162033; --ink:#e8edf5; --muted:#9aa8bf; --line:#27344c; --soft:#1b2740;
+  --up:#4cd0a2; --up-bg:#123a30; --down:#ff8da3; --down-bg:#4a1d2a; --flat:#7482a0;
+  --mass-bg:#26334d; --accent:#8aa6ff; --warn:#ffb84d; --warn-bg:#3d2b0c;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 20px 60px}
+header.top{display:flex;gap:16px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+h1{margin:0;font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.01em}
+.sub{margin:4px 0 0;color:var(--muted);max-width:60ch}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn[hidden]{display:none}
+nav.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:16px;overflow-x:auto}
+nav.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;cursor:pointer;color:var(--muted);font-weight:500;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-color:var(--accent);font-weight:600}
+section.pane[hidden]{display:none}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+/* movement bar */
+.move{padding:14px 16px;margin-bottom:12px}
+.move-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px;color:var(--muted)}
+.move-head b{color:var(--ink)}
+.bar{display:flex;height:34px;border-radius:6px;overflow:hidden;background:var(--soft)}
+.bar button{border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;min-width:0;padding:0 6px}
+.bar .s-up{background:var(--up-bg);color:var(--up)} .bar .s-down{background:var(--down-bg);color:var(--down)}
+.bar .s-flat{background:var(--mass-bg);color:var(--muted)} .bar .s-na{background:var(--warn-bg);color:var(--warn)}
+.bar button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px currentColor}
+/* filters */
+.filters{padding:12px 16px;margin-bottom:12px;display:grid;gap:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row label.t{color:var(--muted);min-width:76px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.search{flex:1;min-width:200px;border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--panel)}
+/* table */
+.tablewrap{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;width:100%}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{position:sticky;top:0;background:var(--soft);font-weight:600;cursor:pointer;user-select:none;z-index:1}
+th.num,td.num{text-align:right}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--soft)}
+td.model{white-space:normal;min-width:220px;font-weight:500}
+.brandtag{color:var(--muted);font-size:12px;display:block;font-weight:400}
+.badge{display:inline-block;border-radius:5px;padding:1px 8px;font-size:12px;font-weight:600}
+.badge.tgdd{background:var(--tgdd);color:var(--tgdd-ink)} .badge.mass{background:var(--mass-bg);color:var(--muted)}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.d-up{color:var(--up);font-weight:600} .d-down{color:var(--down);font-weight:600} .d-flat{color:var(--flat)}
+.spark{display:block}
+.count{color:var(--muted);margin:2px 2px 10px}
+/* matrix */
+.matrix td.c{text-align:right;min-width:92px}
+.matrix td.up{background:var(--up-bg)} .matrix td.down{background:var(--down-bg)}
+.matrix td.first{background:transparent}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 2px 10px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+/* ---- màu theo bảng Excel T10 ---- */
+:root{--b-apple:#d9d9d9;--b-oppo:#00b050;--b-samsung:#4472c4;--b-mi:#ff6600;--b-vivo:#00b0f0;--b-realme:#ffff00;--x-up:#b6dcc0;--x-up-ink:#0b3d20;--x-down:#f4c1bf;--x-down-ink:#5a1414;--x-rrp:#ffff00}
+td.bcell{text-align:center;font-weight:700;letter-spacing:.02em;min-width:98px;color:#fff;border-bottom:1px solid rgba(255,255,255,.35)}
+td.bcell[data-b="Apple"]{background:var(--b-apple);color:#000}
+td.bcell[data-b="OPPO"]{background:var(--b-oppo)}
+td.bcell[data-b="Samsung"]{background:var(--b-samsung)}
+td.bcell[data-b="Xiaomi"]{background:var(--b-mi)}
+td.bcell[data-b="Vivo"]{background:var(--b-vivo)}
+td.bcell[data-b="Realme"]{background:var(--b-realme);color:#000}
+.chip[data-b]{border-left-width:8px}
+.chip[data-b="Apple"]{border-left-color:var(--b-apple)} .chip[data-b="OPPO"]{border-left-color:var(--b-oppo)} .chip[data-b="Samsung"]{border-left-color:var(--b-samsung)}
+.chip[data-b="Xiaomi"]{border-left-color:var(--b-mi)} .chip[data-b="Vivo"]{border-left-color:var(--b-vivo)} .chip[data-b="Realme"]{border-left-color:var(--b-realme)}
+.chip[data-b="Apple"][aria-pressed="true"]{background:var(--b-apple);color:#000;border-color:var(--b-apple)}
+.chip[data-b="OPPO"][aria-pressed="true"]{background:var(--b-oppo);color:#fff;border-color:var(--b-oppo)}
+.chip[data-b="Samsung"][aria-pressed="true"]{background:var(--b-samsung);color:#fff;border-color:var(--b-samsung)}
+.chip[data-b="Xiaomi"][aria-pressed="true"]{background:var(--b-mi);color:#fff;border-color:var(--b-mi)}
+.chip[data-b="Vivo"][aria-pressed="true"]{background:var(--b-vivo);color:#fff;border-color:var(--b-vivo)}
+.chip[data-b="Realme"][aria-pressed="true"]{background:var(--b-realme);color:#000;border-color:var(--b-realme)}
+.matrix td.up{background:var(--x-up);color:var(--x-up-ink)} .matrix td.down{background:var(--x-down);color:var(--x-down-ink)}
+.legend i.lg-up{background:var(--x-up)!important} .legend i.lg-down{background:var(--x-down)!important} .legend i.lg-rrp{background:var(--x-rrp)}
+td.rrpup{background:var(--x-rrp);color:#000;font-weight:700}
+.badge.rrp{background:var(--x-rrp);color:#000}
+.bpill{display:inline-block;border-radius:5px;padding:1px 10px;font-weight:700;font-size:12px;margin-right:6px;color:#fff}
+.bpill[data-b="Apple"]{background:var(--b-apple);color:#000}.bpill[data-b="OPPO"]{background:var(--b-oppo)}.bpill[data-b="Samsung"]{background:var(--b-samsung)}
+.bpill[data-b="Xiaomi"]{background:var(--b-mi)}.bpill[data-b="Vivo"]{background:var(--b-vivo)}.bpill[data-b="Realme"]{background:var(--b-realme);color:#000}
+
+/* ---- tab Lịch sử tăng giá ---- */
+td.bcell[data-b="Honor"]{background:#7030a0}
+.rh{margin:22px 2px 8px;font-size:15px;font-weight:600} .rh small{font-weight:400;color:var(--muted)}
+.rise-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;padding:14px}
+.rise-kpi .rk{background:var(--soft);border-radius:8px;padding:10px 12px} .rise-kpi .rk b{display:block;font-size:22px;line-height:1.25} .rise-kpi .rk small{color:var(--muted)} .rise-kpi .rk span{display:block;color:var(--muted);font-size:12px}
+.rtab{border-collapse:collapse;width:100%} .rtab th,.rtab td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.rtab th{background:var(--soft);font-weight:600;position:sticky;top:0} .rtab th.n,.rtab td.n{text-align:right} .rtab td.mdl{white-space:normal;min-width:230px}
+.rtab tbody tr.rclick{cursor:pointer} .rtab tbody tr.rclick:hover{background:var(--soft)}
+.rtab td.hm{text-align:center;min-width:46px;font-weight:600}
+.r-inc{color:var(--down);font-weight:600} .r-dec{color:var(--up);font-weight:600} .r-gap{color:var(--warn);cursor:help}
+.rwarn{border-left:3px solid var(--warn);background:var(--warn-bg);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.rwarn ul{margin:6px 0 0;padding-left:18px;color:var(--muted);font-size:12.5px}
+.rfil{display:flex;flex-wrap:wrap;gap:10px;padding:12px 14px;margin-bottom:8px} .rfil label{display:grid;gap:3px;color:var(--muted);font-size:12px;min-width:140px}
+.rfil select,.rfil input[type=search]{border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--panel);color:var(--ink)} .rfil label.chk{display:flex;align-items:center;gap:6px;align-self:end;padding-bottom:8px}
+/* drawer */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--panel);border-left:1px solid var(--line);box-shadow:-12px 0 32px rgba(0,0,0,.18);transform:translateX(105%);transition:transform .2s ease;z-index:20;overflow-y:auto;padding:calc(18px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px))}
+.drawer.open{transform:none}
+@media (prefers-reduced-motion:reduce){.drawer{transition:none}}
+.drawer h2{margin:0 36px 2px 0;font-size:18px;line-height:1.3}
+.x{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:14px}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.kv div{background:var(--soft);border-radius:8px;padding:8px 10px}
+.kv small{display:block;color:var(--muted)}
+.kv b{font-size:16px}
+.note{border-left:3px solid var(--warn);background:var(--warn-bg);padding:8px 12px;border-radius:0 8px 8px 0;margin:10px 0;color:var(--ink)}
+/* rules */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:16px}
+.rule{padding:14px 16px}
+.rule h3{margin:0 0 6px;font-size:15px}
+.rule p{margin:0;color:var(--muted)}
+.calc{padding:16px;display:grid;gap:12px;max-width:640px}
+.calc .f{display:grid;grid-template-columns:200px 1fr;gap:8px;align-items:center}
+.calc input[type=text],.calc select{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--panel);width:100%}
+.result{background:var(--soft);border-radius:8px;padding:12px 14px}
+.result b{font-size:20px}
+.imp{padding:16px;display:grid;gap:12px}
+pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0;font-size:12px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:9px 16px;border-radius:8px;z-index:30}
+.toast[hidden]{display:none}
+@media (max-width:640px){.wrap{padding:14px 12px 50px}h1{font-size:20px}.calc .f{grid-template-columns:1fr}.kv{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>Theo dõi khuyến mãi TGDĐ</h1>
+    <p class="sub" id="subline"></p>
+  </div>
+  <div class="actions">
+    <button class="btn" id="xlsx">Xuất Excel</button>
+    <button class="btn" id="csv">Xuất CSV</button>
+    <button class="btn" id="json">Xuất JSON</button>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-tab="latest">Tra cứu mới nhất</button>
+  <button role="tab" aria-selected="false" data-tab="history">Lịch sử theo đợt quét</button>
+  <button role="tab" aria-selected="false" data-tab="rise">Lịch sử tăng giá</button>
+  <button role="tab" aria-selected="false" data-tab="rules">Quy tắc tính PMH</button>
+  <button role="tab" aria-selected="false" data-tab="import">Nhập đợt quét mới</button>
+</nav>
+
+<section class="pane" id="p-latest">
+  <div class="panel move">
+    <div class="move-head"><span>So với đợt quét trước (<b id="prevd"></b>)</span><span id="movehint">Bấm vào từng đoạn để lọc</span></div>
+    <div class="bar" id="bar"></div>
+  </div>
+  <div class="panel filters">
+    <div class="row"><label class="t">Hãng</label><span id="f-brand" class="row"></span></div>
+    <div class="row"><label class="t">Phân khúc</label><span id="f-seg" class="row"></span></div>
+    <div class="row"><label class="t">Kênh</label><span id="f-ch" class="row"></span>
+      <input class="search" id="q" type="search" placeholder="Tìm theo tên máy, ví dụ: A6x 4GB/128GB" aria-label="Tìm theo tên máy"></div>
+  </div>
+  <div class="count" id="count"></div>
+  <div class="panel tablewrap"><table id="tbl"><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table></div>
+</section>
+
+<section class="pane" id="p-history" hidden>
+  <div class="legend"><span><i class="lg-up"></i>PMH tăng so với đợt trước</span><span><i class="lg-down"></i>PMH giảm so với đợt trước</span><span><i class="lg-rrp"></i>Giá đen (RRP) tăng</span><span>Ô trống: chưa có dữ liệu</span></div>
+  <div class="panel tablewrap"><table class="matrix" id="mtx"></table></div>
+</section>
+
+<section class="pane" id="p-rise" hidden>
+  <div class="panel rise-kpi" id="rkpi"></div>
+  <div id="rwarn"></div>
+  <h3 class="rh">Hãng nào tăng giá <small>(bấm vào hãng để lọc hai bảng bên dưới)</small></h3>
+  <div class="panel tablewrap"><table class="rtab" id="rbrand"></table></div>
+  <h3 class="rh">Hãng theo tháng <small>(số model tăng giá, ↓ là số model giảm)</small></h3>
+  <div class="panel tablewrap"><table class="rtab" id="rmatrix"></table></div>
+  <h3 class="rh">Model nào tăng giá <small>(gộp theo SKU, tính từ giá đầu tiên ghi nhận đến giá hiện tại)</small></h3>
+  <div class="panel rfil">
+    <label>Thương hiệu<select id="rm-brand"></select></label>
+    <label>Sắp xếp theo<select id="rm-sort"><option value="ups">Số lần tăng</option><option value="p">% tăng tích lũy</option><option value="v">Mức tăng tích lũy (đ)</option><option value="d">Lần đổi gần nhất</option></select></label>
+    <label class="chk"><input type="checkbox" id="rm-multi"> Chỉ model tăng từ 2 lần</label>
+    <label style="flex:1;min-width:200px">Tìm theo tên<input id="rm-q" type="search" placeholder="Ví dụ: A6x"></label>
+  </div>
+  <div class="count" id="rm-count"></div>
+  <div class="panel tablewrap"><table class="rtab" id="rmodel"></table></div>
+  <h3 class="rh">Nhật ký đổi giá chi tiết</h3>
+  <div class="panel rfil">
+    <label>Tháng<select id="rl-month"></select></label>
+    <label>Thương hiệu<select id="rl-brand"></select></label>
+    <label>Hướng<select id="rl-dir"><option value="all">Tăng và giảm</option><option value="up">Giá tăng</option><option value="down">Giá giảm</option></select></label>
+    <label>Phân khúc<select id="rl-seg"></select></label>
+    <label style="flex:1;min-width:200px">Tìm theo model<input id="rl-q" type="search" placeholder="Ví dụ: A57"></label>
+  </div>
+  <div class="count" id="rl-count"></div>
+  <div class="panel tablewrap"><table class="rtab" id="rlog"></table></div>
+</section>
+
+<section class="pane" id="p-rules" hidden>
+  <div class="rules">
+    <div class="panel rule"><h3>Không có banner cam</h3><p>PMH = giá đen − giá đỏ. Bỏ qua mọi số trong dòng “Chọn 1 trong các khuyến mãi”.</p></div>
+    <div class="panel rule"><h3>Banner “Online Giá Rẻ Quá” loại B</h3><p>Flash sale đếm ngược, không có mục “Chọn 1 trong”. Giá trong Gói dịch vụ đã là giá cuối: PMH = giá đen − giá đỏ.</p></div>
+    <div class="panel rule"><h3>Banner loại A, có dòng “đã giảm”</h3><p>Có mục “Chọn 1 trong”. PMH = tổng các dòng “Giảm giá Xđ (đã giảm vào giá sản phẩm)”.</p></div>
+    <div class="panel rule"><h3>Banner loại A, không có dòng “đã giảm”</h3><p>PMH = 0. Không lấy số của lựa chọn phiếu mua hàng.</p></div>
+  </div>
+  <div class="panel calc">
+    <strong>Tính thử một SKU</strong>
+    <div class="f"><label for="c-den">Giá đen (gạch ngang)</label><input id="c-den" type="text" inputmode="numeric" placeholder="13490000"></div>
+    <div class="f"><label for="c-do">Giá đỏ (đang bán)</label><input id="c-do" type="text" inputmode="numeric" placeholder="10490000"></div>
+    <div class="f"><label for="c-ban">Banner cam</label><select id="c-ban"><option value="no">Không có</option><option value="B">Có, không có “Chọn 1 trong”</option><option value="A">Có, có “Chọn 1 trong”</option></select></div>
+    <div class="f" id="c-line-row" hidden><label for="c-line">Tổng các dòng “đã giảm”</label><input id="c-line" type="text" inputmode="numeric" placeholder="để trống nếu không có dòng này"></div>
+    <div class="result" id="c-res">Nhập giá đen và giá đỏ để tính.</div>
+  </div>
+</section>
+
+<section class="pane" id="p-import" hidden>
+  <div class="panel imp">
+    <strong>Thêm một đợt quét từ scraper</strong>
+    <p style="margin:0;color:var(--muted)">Chạy <code>promotion_scraper.py</code> trên máy bạn, rồi chọn file <code>scan_YYYY-MM-DD.json</code> nó xuất ra. Cột mới sẽ nối vào lịch sử, và SKU nào đổi giá đen sẽ được gắn cờ.</p>
+    <div class="row"><input type="file" id="file" accept=".json,application/json" aria-label="Chọn file JSON đợt quét"><button class="btn" id="reset">Xóa các đợt đã nhập</button></div>
+    <div id="imsg" style="color:var(--muted)"></div>
+    <pre>{ "date": "06-Oct",
+  "rows": [ { "model": "iPhone 17 256GB", "rrp": 28990000, "pmh": 2000000 } ] }</pre>
+    <p style="margin:0;color:var(--muted)">Dữ liệu nhập chỉ lưu trong trình duyệt này. Muốn mọi người cùng thấy, thêm đợt quét vào <code>data/data.js</code> (mảng <code>SCANS</code>) rồi đưa web lên lại.</p>
+  </div>
+</section>
+</div>
+
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Chi tiết SKU">
+  <button class="btn x" id="dx" aria-label="Đóng">Đóng</button>
+  <div id="dbody"></div>
+</aside>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const BASE = window.BASE;
+const SCANS = Array.isArray(window.SCANS) ? window.SCANS : [];
+const SEG_ORDER = [">30M","20-30M","15-20M","10-15M","7-10M","5-7M","<5M"];
+const RRP_NOTES = window.RRP_NOTES || {};
+const fmt = n => n==null ? "–" : n.toLocaleString("vi-VN");
+const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const BDISP={Apple:"APPLE",Samsung:"SAMSUNG",Xiaomi:"MI"};
+const bdisp=b=>BDISP[b]||b;
+const bcell=b=>`<td class="bcell" data-b="${esc(b)}">${esc(bdisp(b))}</td>`;
+const rrpUp=r=>r.flags.some(f=>{ if(/tăng/.test(f)) return true; const m=f.match(/([\d.]+) → ([\d.]+)/); return !!m && +m[2].replace(/\./g,"") > +m[1].replace(/\./g,""); });
+const $ = id => document.getElementById(id);
+
+/* ---- state: base + published scans + scans imported in this browser ---- */
+let imports = [];
+try{ imports = JSON.parse(localStorage.getItem("tp_imports")||"[]"); }catch(e){ imports = []; }
+let S = {dates:[], rows:[]};
+function build(){
+  const rows = BASE.rows.map(r=>({...r, pmh:[...r.pmh], flags:[]}));
+  const dates = [...BASE.dates];
+  const pubDates = new Set(SCANS.map(s=>s.date));
+  [...SCANS, ...imports.filter(im=>!pubDates.has(im.date))].forEach(im=>{
+    dates.push(im.date);
+    const m = new Map(im.rows.map(x=>[x.model,x]));
+    rows.forEach(r=>{
+      const x = m.get(r.model);
+      if(!x){ r.pmh.push(null); return; }
+      if(typeof x.rrp==="number" && x.rrp!==r.rrp){ r.flags.push(`Giá đen đổi ${fmt(r.rrp)} → ${fmt(x.rrp)} (${im.date})`); r.rrp = x.rrp; }
+      r.pmh.push(typeof x.pmh==="number" ? x.pmh : null);
+    });
+  });
+  rows.forEach(r=>{ if(RRP_NOTES[r.model]) r.flags.unshift(RRP_NOTES[r.model]); });
+  S = {dates, rows};
+}
+function delta(r){
+  const n=r.pmh.length, a=r.pmh[n-1], b=r.pmh[n-2];
+  if(a==null||b==null) return null;
+  return a-b;
+}
+function cat(r){
+  if(r.status!=="active") return "na";
+  const d=delta(r);
+  if(d==null) return "na";
+  return d>0?"up":d<0?"down":"flat";
+}
+
+/* ---- filters ---- */
+const F = {brand:"Tất cả", seg:"Tất cả", ch:"Tất cả", q:"", move:null, sort:"master", dir:1};
+function chips(el, vals, key){
+  el.innerHTML = vals.map(v=>`<button class="chip" aria-pressed="${F[key]===v}" data-k="${key}" data-v="${esc(v)}"${key==="brand"&&v!=="Tất cả"?` data-b="${esc(v)}"`:""}>${esc(key==="brand"?bdisp(v):v)}</button>`).join("");
+}
+function renderFilters(){
+  const brands = ["Tất cả",...new Set(S.rows.map(r=>r.brand))];
+  chips($("f-brand"), brands, "brand");
+  chips($("f-seg"), ["Tất cả",...SEG_ORDER.filter(s=>S.rows.some(r=>r.segment===s))], "seg");
+  chips($("f-ch"), ["Tất cả","TGDD","Mass"], "ch");
+}
+function filtered(){
+  let rows = S.rows.filter(r=>
+    (F.brand==="Tất cả"||r.brand===F.brand)&&(F.seg==="Tất cả"||r.segment===F.seg)&&
+    (F.ch==="Tất cả"||r.channel===F.ch)&&(!F.q||r.model.toLowerCase().includes(F.q))&&(!F.move||cat(r)===F.move));
+  if(F.sort!=="master"){
+    const k = {pmh:r=>r.pmh[r.pmh.length-1], rrp:r=>r.rrp, delta:r=>delta(r), model:r=>r.model, pct:r=>{const p=r.pmh[r.pmh.length-1];return p==null?null:p/r.rrp}}[F.sort];
+    rows = [...rows].sort((a,b)=>{const x=k(a),y=k(b); if(x==null&&y==null) return 0; if(x==null) return 1; if(y==null) return -1; return (x>y?1:x<y?-1:0)*F.dir;});
+  }
+  return rows;
+}
+
+/* ---- latest table ---- */
+const COLS = [["brand","Hãng"],["model","Model"],["ch","Kênh"],["seg","Phân khúc"],["rrp","Giá đen (RRP)",1],["pmh","PMH hôm nay",1],["delta","So đợt trước",1],["pct","% giảm",1],["trend","Xu hướng"]];
+function spark(v){
+  const pts=v.map((x,i)=>[i,x]).filter(p=>p[1]!=null);
+  if(pts.length<2) return "";
+  const W=84,H=22,max=Math.max(...pts.map(p=>p[1]),1),n=v.length-1||1;
+  const d=pts.map((p,i)=>`${i?"L":"M"}${(p[0]/n*(W-4)+2).toFixed(1)} ${(H-3-(p[1]/max)*(H-6)).toFixed(1)}`).join(" ");
+  const last=pts[pts.length-1];
+  return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${d}" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="${(last[0]/n*(W-4)+2).toFixed(1)}" cy="${(H-3-(last[1]/max)*(H-6)).toFixed(1)}" r="2.4" fill="var(--accent)"/></svg>`;
+}
+function deltaCell(r){
+  if(r.status==="ngung_kd") return `<span class="badge warn">Ngừng KD</span>`;
+  if(r.status==="chua_mo_ban") return `<span class="badge warn">Chưa mở bán</span>`;
+  const d=delta(r);
+  if(d==null) return `<span class="d-flat">mới</span>`;
+  if(d===0) return `<span class="d-flat">không đổi</span>`;
+  return d>0?`<span class="d-up">▲ ${fmt(d)}</span>`:`<span class="d-down">▼ ${fmt(-d)}</span>`;
+}
+function renderTable(){
+  $("thead").innerHTML = COLS.map(([k,l,n])=>`<th class="${n?"num":""}" data-sort="${k}" scope="col">${l}${F.sort===k?(F.dir>0?" ▲":" ▼"):""}</th>`).join("");
+  const rows=filtered();
+  $("count").textContent = `Hiển thị ${rows.length} / ${S.rows.length} SKU`;
+  $("tbody").innerHTML = rows.map(r=>{
+    const p=r.pmh[r.pmh.length-1];
+    const pct = (p==null||r.status!=="active")?"–":(p/r.rrp*100).toFixed(1)+"%";
+    const flag = r.flags.length?` <span class="badge ${rrpUp(r)?"rrp":"warn"}" title="${esc(r.flags.join("; "))}">RRP${rrpUp(r)?" tăng":""}</span>`:"";
+    return `<tr tabindex="0" data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${flag}</td>
+    <td><span class="badge ${r.channel==="TGDD"?"tgdd":"mass"}">${r.channel==="TGDD"?"Độc quyền":"Mass"}</span></td><td>${esc(r.segment)}</td>
+    <td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td><td class="num"><strong>${r.status==="active"?fmt(p):"–"}</strong></td><td class="num">${deltaCell(r)}</td><td class="num">${pct}</td><td>${spark(r.pmh)}</td></tr>`;
+  }).join("") || `<tr><td colspan="9">Không có SKU nào khớp bộ lọc. Bỏ bớt một bộ lọc để xem lại danh sách.</td></tr>`;
+}
+function renderBar(){
+  const c={up:0,down:0,flat:0,na:0}; S.rows.forEach(r=>c[cat(r)]++);
+  const seg=(k,l)=>c[k]?`<button class="s-${k}" style="flex:${c[k]}" data-m="${k}" aria-pressed="${F.move===k}" title="${l}">${c[k]} ${l}</button>`:"";
+  $("bar").innerHTML = seg("up","tăng")+seg("down","giảm")+seg("flat","không đổi")+seg("na","không so được");
+  $("prevd").textContent = S.dates[S.dates.length-2]+" → "+S.dates[S.dates.length-1];
+}
+
+/* ---- history matrix ---- */
+function renderMatrix(){
+  let h=`<thead><tr><th>Hãng</th><th>Model</th><th class="num">Giá đen</th>${S.dates.map(d=>`<th class="num">${esc(d)}</th>`).join("")}</tr></thead><tbody>`;
+  S.rows.forEach(r=>{
+    h+=`<tr data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}</td><td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td>`;
+    r.pmh.forEach((v,i)=>{
+      const prev=i>0?r.pmh[i-1]:null;
+      const cl = v==null||prev==null?"first":v>prev?"up":v<prev?"down":"first";
+      h+=`<td class="c ${cl}">${v==null?"":fmt(v)}</td>`;
+    });
+    h+="</tr>";
+  });
+  $("mtx").innerHTML=h+"</tbody>";
+}
+
+/* ---- detail drawer ---- */
+function chart(r){
+  const W=470,H=190,L=44,B=24,T=10,R=10,v=r.pmh,n=v.length;
+  const vals=v.filter(x=>x!=null); if(!vals.length) return "<p>Chưa có dữ liệu PMH.</p>";
+  const max=Math.max(...vals,1);
+  const X=i=>L+(n===1?0:i/(n-1))*(W-L-R), Y=x=>T+(1-x/max)*(H-T-B);
+  let path="",started=false;
+  v.forEach((x,i)=>{ if(x==null){started=false;return;} path+=`${started?"L":"M"}${X(i).toFixed(1)} ${Y(x).toFixed(1)} `; started=true; });
+  const grid=[0,.5,1].map(t=>`<line x1="${L}" x2="${W-R}" y1="${Y(max*t)}" y2="${Y(max*t)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(max*t)+4}" text-anchor="end" font-size="10" fill="var(--muted)">${fmt(Math.round(max*t/1000))}k</text>`).join("");
+  const dots=v.map((x,i)=>x==null?"":`<circle cx="${X(i)}" cy="${Y(x)}" r="3.5" fill="var(--accent)"><title>${esc(S.dates[i])}: ${fmt(x)}</title></circle>`).join("");
+  const xl=S.dates.map((d,i)=>`<text x="${X(i)}" y="${H-6}" text-anchor="middle" font-size="10" fill="var(--muted)">${esc(d)}</text>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="PMH theo đợt quét">${grid}<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2"/>${dots}${xl}</svg>`;
+}
+let lastFocus=null;
+function openDrawer(model){
+  const r=S.rows.find(x=>x.model===model); if(!r) return;
+  lastFocus=document.activeElement;
+  const vals=r.pmh.filter(x=>x!=null), p=r.pmh[r.pmh.length-1];
+  const best=vals.length?Math.max(...vals):null, avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
+  const runs=vals.filter(x=>x>0).length;
+  $("dbody").innerHTML=`<h2>${esc(r.model)}</h2><div style="color:var(--muted)"><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span>phân khúc ${esc(r.segment)}, ${r.channel==="TGDD"?"độc quyền TGDĐ":"kênh Mass"}</div>
+  <div class="kv"><div><small>Giá đen</small><b>${fmt(r.rrp)}</b></div><div><small>PMH hiện tại</small><b>${r.status==="active"?fmt(p):"–"}</b></div><div><small>PMH cao nhất</small><b>${fmt(best)}</b></div></div>
+  ${r.flags.map(f=>`<div class="note">${esc(f)}</div>`).join("")}
+  ${r.status==="ngung_kd"?`<div class="note">TGDĐ đã gỡ SKU này (trang trả về 404).</div>`:""}
+  ${r.status==="chua_mo_ban"?`<div class="note">SKU mới có trang đăng ký nhận tin, chưa mở bán. Giá hiển thị là giá dự kiến.</div>`:""}
+  ${chart(r)}
+  <div class="kv"><div><small>PMH trung bình</small><b>${fmt(avg)}</b></div><div><small>Đợt có khuyến mãi</small><b>${runs}/${vals.length}</b></div><div><small>% giảm hiện tại</small><b>${p==null||r.status!=="active"?"–":(p/r.rrp*100).toFixed(1)+"%"}</b></div></div>
+  <table><thead><tr><th>Đợt quét</th><th class="num">PMH</th><th class="num">So đợt trước</th></tr></thead><tbody>${r.pmh.map((x,i)=>{const pv=i?r.pmh[i-1]:null;const d=x!=null&&pv!=null?x-pv:null;return `<tr><td>${esc(S.dates[i])}</td><td class="num">${fmt(x)}</td><td class="num">${d==null?"–":d===0?"không đổi":d>0?`<span class="d-up">▲ ${fmt(d)}</span>`:`<span class="d-down">▼ ${fmt(-d)}</span>`}</td></tr>`}).join("")}</tbody></table>`;
+  $("drawer").classList.add("open"); $("drawer").setAttribute("aria-hidden","false"); $("dx").focus();
+}
+function closeDrawer(){ $("drawer").classList.remove("open"); $("drawer").setAttribute("aria-hidden","true"); if(lastFocus) lastFocus.focus(); }
+
+/* ---- calculator ---- */
+const num = s => { const v=parseInt(String(s).replace(/[^\d]/g,""),10); return isNaN(v)?null:v; };
+function calc(){
+  const den=num($("c-den").value), dor=num($("c-do").value), ban=$("c-ban").value, line=num($("c-line").value);
+  $("c-line-row").hidden = ban!=="A";
+  if(den==null||dor==null){ $("c-res").textContent="Nhập giá đen và giá đỏ để tính."; return; }
+  let pmh, why;
+  if(ban==="no"){ pmh=den-dor; why="Không có banner: giá đen − giá đỏ."; }
+  else if(ban==="B"){ pmh=den-dor; why="Banner flash sale loại B: giá trong Gói dịch vụ đã là giá cuối, lấy giá đen − giá đỏ."; }
+  else if(line){ pmh=line; why="Banner loại A có dòng “đã giảm”: lấy tổng các dòng đó."; }
+  else { pmh=0; why="Banner loại A, không có dòng “đã giảm”: PMH bằng 0."; }
+  $("c-res").innerHTML=`PMH = <b>${fmt(pmh)}</b> <span style="color:var(--muted)">(${(den?pmh/den*100:0).toFixed(1)}% giá đen)</span><br><span style="color:var(--muted)">${why}</span>`;
+}
+
+/* ---- export (tải file trực tiếp trên trình duyệt) ---- */
+function sheetAoa(){
+  const head=["Hãng","Model","Giá đen (RRP)","Kênh","Phân khúc",...S.dates];
+  return [head,...S.rows.map(r=>[r.brand,r.model,r.rrp,r.channel==="TGDD"?"Độc quyền TGDĐ":"Mass",r.segment,...r.pmh.map(x=>x==null?"":x)])];
+}
+function toast(t){ const e=$("toast"); e.textContent=t; e.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>e.hidden=true,2600); }
+function save(filename,data,type){
+  try{
+    const url=URL.createObjectURL(new Blob([data],{type}));
+    const a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    toast("Đã lưu "+filename);
+  }catch(e){ toast("Không lưu được: "+(e.message||e)); }
+}
+function csvText(){ return "﻿"+sheetAoa().map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n"); }
+function initExports(){
+  const day=()=>S.dates[S.dates.length-1];
+  $("csv").onclick=()=>save(`promotion_${day()}.csv`,csvText(),"text/csv;charset=utf-8");
+  $("json").onclick=()=>save(`promotion_${day()}.json`,JSON.stringify({dates:S.dates,rows:S.rows},null,1),"application/json");
+  $("xlsx").onclick=()=>{
+    if(!window.XLSX){ toast("Chưa tải được thư viện Excel, kiểm tra kết nối mạng"); return; }
+    const ws=XLSX.utils.aoa_to_sheet(sheetAoa());
+    ws["!cols"]=[{wch:9},{wch:38},{wch:14},{wch:16},{wch:11},...S.dates.map(()=>({wch:12}))];
+    const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Promotion");
+    save(`promotion_${day()}.xlsx`,XLSX.write(wb,{type:"array",bookType:"xlsx"}),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  };
+}
+
+/* ---- Lịch sử tăng giá ---- */
+const RISE_RAW = window.RISE_RAW || [];
+const RBD = {APPLE:"Apple",OPPO:"OPPO",SAMSUNG:"Samsung",XIAOMI:"Xiaomi",VIVO:"Vivo",REALME:"Realme",HONOR:"Honor"};
+const rseg = p => p<5e6?"<5M":p<7e6?"5-7M":p<1e7?"7-10M":p<1.5e7?"10-15M":p<2e7?"15-20M":p<=3e7?"20-30M":">30M";
+const SEGS = [">30M","20-30M","15-20M","10-15M","7-10M","5-7M","<5M"];
+const rd = iso => { const [y,m,d]=iso.split("-"); return `${+d}-${+m}-${y}`; };
+const rkey = (b,m) => { let s=m.toLowerCase().replace(/[:()]/g," ").replace(/\s+/g," ").trim();
+  s=s.replace(/(\d+)\s*(?:gb|g)?\s*\+\s*(\d+)\s*(gb|g|tb)?/g,(x,a,c,u)=>`${a}gb/${c}${u&&u[0]==="t"?"tb":"gb"}`);
+  s=s.replace(/(\d+)gb\s+(\d+)gb/g,"$1gb/$2gb").replace(/(\d+)\s*gb\s*\/\s*(\d+)\s*(gb|tb)/g,"$1gb/$2$3");
+  if(/^s25 fe/.test(s)&&!/5g/.test(s)) s=s.replace("s25 fe","s25 fe 5g");
+  return b+"|"+s.replace(/\s+/g," "); };
+const RISE = RISE_RAW.map((r,i)=>{ const [mo,b,m,o,n,d,p]=r; return {i,mo,b,m,o,n,v:n-o,p,seg:rseg(n),d,k:rkey(b,m)}; });
+const mnum = m => +m.slice(1);
+const RB_CELL = b => `<td class="bcell" data-b="${RBD[b]||b}">${b}</td>`;
+const rpct = p => (p>0?"+":"")+p.toFixed(1)+"%";
+function rBrandStats(){
+  const by={}; RISE.forEach(r=>(by[r.b]=by[r.b]||[]).push(r));
+  return Object.entries(by).map(([b,l])=>{ const up=l.filter(r=>r.v>0), dn=l.filter(r=>r.v<0), mx=up.slice().sort((a,c)=>c.p-a.p)[0];
+    return {b,ups:up.length,downs:dn.length,models:new Set(up.map(r=>r.k)).size,avg:up.length?up.reduce((t,r)=>t+r.p,0)/up.length:null,
+            waves:new Set(up.map(r=>r.d)).size,months:[...new Set(up.map(r=>r.mo))].sort((a,c)=>mnum(a)-mnum(c)),max:mx}; })
+    .sort((a,c)=>c.ups-a.ups||(c.avg||0)-(a.avg||0));
+}
+function rModels(){
+  const by=new Map();
+  RISE.slice().sort((a,c)=>a.d.localeCompare(c.d)||a.i-c.i).forEach(r=>{ if(!by.has(r.k)) by.set(r.k,[]); by.get(r.k).push(r); });
+  return [...by.values()].map(l=>{ const ups=l.filter(r=>r.v>0); if(!ups.length) return null;
+    const first=l[0].o, last=l[l.length-1].n, gaps=l.slice(1).filter((r,j)=>l[j].n!==r.o).length;
+    return {b:l[0].b,m:l[l.length-1].m,ups:ups.length,n:l.length,first,last,v:last-first,p:Math.round((last-first)/first*1000)/10,d:l[l.length-1].d,chain:l,gaps}; }).filter(Boolean);
+}
+let RMODELS=[];
+function renderRiseTop(){
+  const st=rBrandStats(), ups=RISE.filter(r=>r.v>0), dns=RISE.filter(r=>r.v<0), mods=new Set(ups.map(r=>r.k)).size;
+  const lastD=ups.map(r=>r.d).sort().pop(), lastWave=ups.filter(r=>r.d===lastD);
+  const top=st[0];
+  $("rkpi").innerHTML=`
+    <div class="rk"><small>Lượt đổi giá ghi nhận</small><b>${RISE.length}</b><span>${ups.length} lần tăng, ${dns.length} lần giảm</span></div>
+    <div class="rk"><small>Model đã từng tăng giá</small><b>${mods}</b><span>${RMODELS.filter(x=>x.ups>=2).length} model tăng từ 2 lần</span></div>
+    <div class="rk"><small>Hãng tăng nhiều lượt nhất</small><b>${top.b}</b><span>${top.ups} lượt, ${top.models} model, trung bình ${top.avg.toFixed(1)}%</span></div>
+    <div class="rk"><small>Đợt tăng gần nhất</small><b>${rd(lastD)}</b><span>${lastWave.length} lượt, ${[...new Set(lastWave.map(r=>r.b))].join(", ")}</span></div>`;
+  $("rbrand").innerHTML=`<thead><tr><th>Hãng</th><th class="n">Lượt tăng</th><th class="n">Lượt giảm</th><th class="n">Model tăng</th><th class="n">% tăng TB</th><th class="n">Số đợt tăng</th><th>Các tháng có tăng</th><th>Tăng mạnh nhất</th></tr></thead><tbody>`+
+    st.map(s=>`<tr class="rclick" data-rb="${s.b}">${RB_CELL(s.b)}<td class="n"><b>${s.ups}</b></td><td class="n">${s.downs||"–"}</td><td class="n">${s.models}</td><td class="n">${s.avg==null?"–":s.avg.toFixed(1)+"%"}</td><td class="n">${s.waves}</td><td>${s.months.join(", ")||"–"}</td><td>${s.max?`<span class="r-inc">${rpct(s.max.p)}</span> ${esc(s.max.m)} (${s.max.mo})`:"–"}</td></tr>`).join("")+`</tbody>`;
+  const months=[...new Set(RISE.map(r=>r.mo))].sort((a,c)=>mnum(a)-mnum(c)), mx=Math.max(...st.flatMap(s=>months.map(m=>RISE.filter(r=>r.b===s.b&&r.mo===m&&r.v>0).length)),1);
+  $("rmatrix").innerHTML=`<thead><tr><th>Hãng</th>${months.map(m=>`<th class="n">${m}</th>`).join("")}<th class="n">Tổng tăng</th></tr></thead><tbody>`+
+    st.map(s=>`<tr>${RB_CELL(s.b)}${months.map(m=>{ const u=RISE.filter(r=>r.b===s.b&&r.mo===m&&r.v>0).length, dn=RISE.filter(r=>r.b===s.b&&r.mo===m&&r.v<0).length;
+      return `<td class="hm" ${u?`style="background:rgba(184,50,80,${(0.12+0.55*u/mx).toFixed(2)})"`:""}>${u||(dn?"":"·")}${dn?` <span class="r-dec">↓${dn}</span>`:""}</td>`; }).join("")}<td class="n"><b>${s.ups}</b></td></tr>`).join("")+`</tbody>`;
+  const gapL=RMODELS.filter(x=>x.gaps);
+  $("rwarn").innerHTML=gapL.length?`<div class="rwarn"><b>${gapL.length} model có chuỗi giá không khớp.</b> Giá cũ của lần đổi sau khác giá mới của lần trước: có thể trùng dòng hoặc thiếu một đợt. Bạn kiểm tra lại các dòng này:<ul>`+
+    gapL.map(x=>`<li>${x.b} ${esc(x.m)}: ${x.chain.map(r=>`${r.mo} ${fmt(r.o)} → ${fmt(r.n)}`).join("; ")}</li>`).join("")+`</ul></div>`:"";
+}
+function renderRiseModels(){
+  const b=$("rm-brand").value, sort=$("rm-sort").value, multi=$("rm-multi").checked, q=$("rm-q").value.trim().toLowerCase();
+  let l=RMODELS.filter(x=>(b==="all"||x.b===b)&&(!multi||x.ups>=2)&&(!q||x.m.toLowerCase().includes(q)));
+  l.sort((a,c)=>sort==="d"?c.d.localeCompare(a.d):(c[sort]-a[sort])||c.p-a.p);
+  $("rm-count").textContent=`Hiển thị ${l.length} model đã từng tăng giá`;
+  $("rmodel").innerHTML=`<thead><tr><th>Hãng</th><th>Model</th><th class="n">Lần tăng</th><th class="n">Giá đầu</th><th class="n">Giá hiện tại</th><th class="n">Tăng tích lũy</th><th class="n">%</th><th>Lần đổi gần nhất</th><th>Các lần đổi</th></tr></thead><tbody>`+
+    l.map(x=>`<tr>${RB_CELL(x.b)}<td class="mdl">${esc(x.m)}${x.gaps?` <span class="r-gap" title="Chuỗi giá không khớp, xem cảnh báo ở đầu tab">⚠</span>`:""}</td><td class="n"><b>${x.ups}</b></td><td class="n">${fmt(x.first)}</td><td class="n"><b>${fmt(x.last)}</b></td>
+      <td class="n ${x.v>0?"r-inc":"r-dec"}">${x.v>0?"▲":"▼"} ${fmt(Math.abs(x.v))}</td><td class="n ${x.v>0?"r-inc":"r-dec"}">${rpct(x.p)}</td><td>${rd(x.d)}</td><td>${x.chain.map(r=>r.mo+(r.v<0?"↓":"")).join(" → ")}</td></tr>`).join("")+`</tbody>`;
+}
+function renderRiseLog(){
+  const m=$("rl-month").value, b=$("rl-brand").value, d=$("rl-dir").value, sg=$("rl-seg").value, q=$("rl-q").value.trim().toLowerCase();
+  const l=RISE.filter(r=>(m==="all"||r.mo===m)&&(b==="all"||r.b===b)&&(sg==="all"||r.seg===sg)&&(d==="all"||(d==="up"?r.v>0:r.v<0))&&(!q||r.m.toLowerCase().includes(q)))
+    .sort((a,c)=>c.d.localeCompare(a.d)||Math.abs(c.p)-Math.abs(a.p));
+  $("rl-count").textContent=`Hiển thị ${l.length} / ${RISE.length} lượt đổi giá`;
+  $("rlog").innerHTML=`<thead><tr><th>Month</th><th>Brand</th><th>Model</th><th class="n">Old Price</th><th class="n">New Price</th><th class="n">Variance</th><th class="n">% Change</th><th>Segment</th><th>Change Date</th></tr></thead><tbody>`+
+    l.map(r=>`<tr><td>${r.mo}</td>${RB_CELL(r.b)}<td class="mdl">${esc(r.m)}</td><td class="n">${fmt(r.o)}</td><td class="n"><b>${fmt(r.n)}</b></td><td class="n ${r.v>0?"r-inc":"r-dec"}">${r.v>0?"▲":"▼"} ${fmt(Math.abs(r.v))}</td><td class="n ${r.v>0?"r-inc":"r-dec"}">${r.p>0?"":"-"}${Math.abs(r.p).toFixed(1)}%</td><td>${r.seg}</td><td>${rd(r.d)}</td></tr>`).join("")+`</tbody>`;
+}
+function riseInit(){
+  RMODELS=rModels();
+  const brands=rBrandStats().map(s=>s.b), months=[...new Set(RISE.map(r=>r.mo))].sort((a,c)=>mnum(c)-mnum(a));
+  const opt=(id,vals,first)=>{ $(id).innerHTML=`<option value="all">${first}</option>`+vals.map(v=>`<option>${esc(v)}</option>`).join(""); };
+  opt("rm-brand",brands,"Tất cả"); opt("rl-brand",brands,"Tất cả"); opt("rl-month",months,"Tất cả"); opt("rl-seg",SEGS.filter(s=>RISE.some(r=>r.seg===s)),"Tất cả");
+  ["rm-brand","rm-sort","rm-multi"].forEach(i=>$(i).addEventListener("change",renderRiseModels)); $("rm-q").addEventListener("input",renderRiseModels);
+  ["rl-month","rl-brand","rl-dir","rl-seg"].forEach(i=>$(i).addEventListener("change",renderRiseLog)); $("rl-q").addEventListener("input",renderRiseLog);
+  $("rbrand").addEventListener("click",e=>{ const tr=e.target.closest("tr[data-rb]"); if(!tr) return; const b=tr.dataset.rb; $("rm-brand").value=b; $("rl-brand").value=b; renderRiseModels(); renderRiseLog(); $("rmodel").scrollIntoView({behavior:"smooth",block:"start"}); });
+  renderRiseTop(); renderRiseModels(); renderRiseLog();
+}
+
+/* ---- wiring ---- */
+function renderAll(){
+  build(); renderFilters(); renderBar(); renderTable(); renderMatrix();
+  const act=S.rows.filter(r=>r.status==="active"&&r.pmh[r.pmh.length-1]>0).length;
+  const nb=new Set(S.rows.map(r=>r.brand)).size;
+  $("subline").textContent=`${S.rows.length} SKU của ${nb} hãng, quét theo master list. Đợt mới nhất ${S.dates[S.dates.length-1]}: ${act} SKU đang có PMH.`;
+  document.title=`Theo dõi khuyến mãi TGDĐ — ${S.rows.length} SKU`;
+}
+document.addEventListener("click",e=>{
+  const chip=e.target.closest(".chip"); if(chip){ F[chip.dataset.k]=chip.dataset.v; renderFilters(); renderTable(); return; }
+  const seg=e.target.closest("#bar button"); if(seg){ F.move=F.move===seg.dataset.m?null:seg.dataset.m; renderBar(); renderTable(); return; }
+  const th=e.target.closest("#thead th"); if(th&&th.dataset.sort!=="brand"&&th.dataset.sort!=="ch"&&th.dataset.sort!=="seg"&&th.dataset.sort!=="trend"){
+    const k=th.dataset.sort; if(F.sort===k) F.dir=-F.dir; else {F.sort=k;F.dir=(k==="model")?1:-1;} renderTable(); return; }
+  const tr=e.target.closest("tr[data-m]"); if(tr){ openDrawer(tr.dataset.m); return; }
+  const tab=e.target.closest("nav.tabs button"); if(tab){
+    document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b===tab));
+    document.querySelectorAll(".pane").forEach(p=>p.hidden=p.id!=="p-"+tab.dataset.tab); }
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape") closeDrawer();
+  if(e.key==="Enter"){ const tr=e.target.closest&&e.target.closest("tbody tr[data-m]"); if(tr) openDrawer(tr.dataset.m); }
+});
+$("dx").onclick=closeDrawer;
+$("q").oninput=e=>{F.q=e.target.value.trim().toLowerCase(); renderTable();};
+["c-den","c-do","c-ban","c-line"].forEach(id=>$(id).addEventListener("input",calc));
+$("file").onchange=async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{
+    const j=JSON.parse(await f.text());
+    if(!j.date||!Array.isArray(j.rows)) throw new Error("File thiếu trường date hoặc rows");
+    imports=imports.filter(x=>x.date!==j.date); imports.push({date:j.date,rows:j.rows});
+    try{ localStorage.setItem("tp_imports",JSON.stringify(imports)); }catch(_){}
+    renderAll(); const fl=S.rows.filter(r=>r.flags.some(x=>x.includes(j.date))).length;
+    $("imsg").textContent=`Đã thêm đợt ${j.date}: ${j.rows.length} dòng.${fl?` ${fl} SKU đổi giá đen, xem cờ RRP ở bảng.`:""}`;
+  }catch(err){ $("imsg").textContent="Không đọc được file: "+err.message+". Kiểm tra lại định dạng mẫu bên trên."; }
+  e.target.value="";
+};
+$("reset").onclick=()=>{ imports=[]; try{localStorage.removeItem("tp_imports");}catch(_){} renderAll(); $("imsg").textContent="Đã xóa các đợt nhập. Còn lại dữ liệu gốc."; };
+try{ riseInit(); }catch(e){ console.error("rise",e); }
+renderAll(); initExports(); calc();
+</script>
+</body>
+</html>
