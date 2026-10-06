@@ -52,6 +52,7 @@ CHOOSE_RE = re.compile(r"Chọn 1 trong", re.I)
 BASE_RE = re.compile(r"Chọn 1 trong[^:]{0,30}:\s*Giảm giá\s*([\d.,]+)\s*[₫đ]", re.I)
 DAGIAM_RE = re.compile(r"Giảm(?: giá)?\s*([\d.,]+)\s*[₫đ]?\s*\(\s*đã giảm vào giá", re.I)
 BANNER_RE = re.compile(r"Online Giá Rẻ Quá", re.I)
+SLOTS_RE = re.compile(r"Còn\s*\d+\s*/\s*\d+\s*suất", re.I)  # flash sale ở bố cục mới: "Còn 2/5 suất"
 DISCONTINUED_RE = re.compile(r"ngừng kinh doanh|ngưng kinh doanh", re.I)
 
 
@@ -105,7 +106,12 @@ def parse_next_layout(soup):
     text = page.get_text(" ", strip=True)
     match = BASE_RE.search(text)
     base = money(match.group(1)) if match else 0
-    banner = bool(BANNER_RE.search(text))
+    # Chỉ xét khối giá của chính sản phẩm (vài tầng cha của giá đỏ), không xét sản phẩm gợi ý.
+    box = red_node
+    for _ in range(4):
+        box = box.parent if box.parent is not None else box
+    box_text = box.get_text(" ", strip=True)
+    banner = bool(SLOTS_RE.search(box_text) or BANNER_RE.search(box_text))
     dagiam = sum(money(m) for m in DAGIAM_RE.findall(text))
     online = max(rrp - red - base, 0)
     return build_result(rrp, online, base, banner, bool(CHOOSE_RE.search(text)), dagiam,
