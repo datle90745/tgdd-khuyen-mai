@@ -1,6 +1,6 @@
 {
  "date": "06-Oct",
- "scanned_at": "2026-10-06T14:39:52+07:00",
+ "scanned_at": "2026-10-06T14:46:41+07:00",
  "rows": [
   {
    "model": "iPhone 17 Pro Max 512GB",
@@ -12,7 +12,7 @@
    "base": 3000000,
    "online": 0,
    "total": 3000000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -25,7 +25,7 @@
    "base": 3000000,
    "online": 0,
    "total": 3000000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -51,7 +51,7 @@
    "base": 12000000,
    "online": 0,
    "total": 12000000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -64,7 +64,7 @@
    "base": 3500000,
    "online": 0,
    "total": 3500000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -142,7 +142,7 @@
    "base": 2600000,
    "online": 0,
    "total": 2600000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "km_base"
   },
   {
@@ -155,7 +155,7 @@
    "base": 0,
    "online": 500000,
    "total": 500000,
-   "kind": "moi",
+   "kind": "banner",
    "rule": "den_tru_do"
   },
   {
@@ -207,7 +207,7 @@
    "base": 0,
    "online": 500000,
    "total": 500000,
-   "kind": "moi",
+   "kind": "banner",
    "rule": "den_tru_do"
   },
   {
@@ -228,12 +228,12 @@
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-pro-8gb-256gb",
    "status": "active",
    "rrp": 9990000,
-   "red": 9490000,
-   "pmh": 500000,
+   "red": 9990000,
+   "pmh": 0,
    "base": 0,
-   "online": 500000,
-   "total": 500000,
-   "kind": "banner",
+   "online": 0,
+   "total": 0,
+   "kind": "moi",
    "rule": "den_tru_do"
   },
   {
@@ -246,7 +246,7 @@
    "base": 0,
    "online": 0,
    "total": 0,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "den_tru_do"
   },
   {
@@ -259,7 +259,7 @@
    "base": 200000,
    "online": 0,
    "total": 200000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -272,7 +272,7 @@
    "base": 0,
    "online": 0,
    "total": 0,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "den_tru_do"
   },
   {
@@ -285,7 +285,7 @@
    "base": 0,
    "online": 250000,
    "total": 250000,
-   "kind": "moi",
+   "kind": "moi-banner",
    "rule": "den_tru_do"
   },
   {
@@ -298,7 +298,7 @@
    "base": 0,
    "online": 0,
    "total": 0,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "den_tru_do"
   },
   {
@@ -376,7 +376,7 @@
    "base": 0,
    "online": 2700000,
    "total": 2700000,
-   "kind": "moi",
+   "kind": "moi-banner",
    "rule": "den_tru_do"
   },
   {
@@ -389,7 +389,7 @@
    "base": 0,
    "online": 3500000,
    "total": 3500000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "den_tru_do"
   },
   {
@@ -415,7 +415,7 @@
    "base": 300000,
    "online": 2500000,
    "total": 2800000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "km_base"
   },
   {
@@ -428,7 +428,7 @@
    "base": 0,
    "online": 1900000,
    "total": 1900000,
-   "kind": "moi",
+   "kind": "banner",
    "rule": "den_tru_do"
   },
   {
@@ -454,7 +454,7 @@
    "base": 0,
    "online": 600000,
    "total": 600000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "den_tru_do"
   },
   {
@@ -480,7 +480,7 @@
    "base": 200000,
    "online": 500000,
    "total": 700000,
-   "kind": "moi",
+   "kind": "moi-banner",
    "rule": "km_base"
   },
   {
@@ -493,7 +493,7 @@
    "base": 200000,
    "online": 400000,
    "total": 600000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -506,7 +506,7 @@
    "base": 200000,
    "online": 320000,
    "total": 520000,
-   "kind": "moi",
+   "kind": "banner",
    "rule": "km_base"
   },
   {
@@ -519,7 +519,7 @@
    "base": 200000,
    "online": 300000,
    "total": 500000,
-   "kind": "moi",
+   "kind": "banner",
    "rule": "km_base"
   },
   {
@@ -532,7 +532,7 @@
    "base": 0,
    "online": 10300000,
    "total": 10300000,
-   "kind": "banner",
+   "kind": "moi-banner",
    "rule": "den_tru_do"
   },
   {
@@ -545,7 +545,7 @@
    "base": 0,
    "online": 7500000,
    "total": 7500000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "den_tru_do"
   },
   {
@@ -571,7 +571,7 @@
    "base": 700000,
    "online": 1500000,
    "total": 2200000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "km_base"
   },
   {
@@ -584,7 +584,7 @@
    "base": 700000,
    "online": 2200000,
    "total": 2900000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -597,7 +597,7 @@
    "base": 1000000,
    "online": 400000,
    "total": 1400000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "km_base"
   },
   {
@@ -623,7 +623,7 @@
    "base": 500000,
    "online": 0,
    "total": 500000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -636,7 +636,7 @@
    "base": 500000,
    "online": 0,
    "total": 500000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "km_base"
   },
   {
@@ -662,7 +662,7 @@
    "base": 500000,
    "online": 0,
    "total": 500000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -675,7 +675,7 @@
    "base": 200000,
    "online": 0,
    "total": 200000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "km_base"
   },
   {
@@ -701,7 +701,7 @@
    "base": 200000,
    "online": 500000,
    "total": 700000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -714,7 +714,7 @@
    "base": 200000,
    "online": 0,
    "total": 200000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -727,7 +727,7 @@
    "base": 200000,
    "online": 400000,
    "total": 600000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -765,7 +765,7 @@
    "base": 500000,
    "online": 0,
    "total": 500000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "km_base"
   },
   {
@@ -804,7 +804,7 @@
    "base": 0,
    "online": 500000,
    "total": 500000,
-   "kind": "moi",
+   "kind": "moi-banner",
    "rule": "den_tru_do"
   },
   {
@@ -817,7 +817,7 @@
    "base": 0,
    "online": 500000,
    "total": 500000,
-   "kind": "moi",
+   "kind": "banner",
    "rule": "den_tru_do"
   },
   {
@@ -830,7 +830,7 @@
    "base": 0,
    "online": 500000,
    "total": 500000,
-   "kind": "banner",
+   "kind": "moi-banner",
    "rule": "den_tru_do"
   },
   {
@@ -843,7 +843,7 @@
    "base": 1000000,
    "online": 0,
    "total": 1000000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "km_base"
   },
   {
@@ -882,7 +882,7 @@
    "base": 0,
    "online": 370000,
    "total": 370000,
-   "kind": "moi",
+   "kind": "banner",
    "rule": "den_tru_do"
   },
   {
@@ -934,7 +934,7 @@
    "base": 400000,
    "online": 2300000,
    "total": 2700000,
-   "kind": "banner",
+   "kind": "moi-banner",
    "rule": "km_base"
   },
   {
@@ -986,7 +986,7 @@
    "base": 400000,
    "online": 0,
    "total": 400000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -999,7 +999,7 @@
    "base": 950000,
    "online": 0,
    "total": 950000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -1012,7 +1012,7 @@
    "base": 200000,
    "online": 300000,
    "total": 500000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "km_base"
   },
   {
@@ -1038,7 +1038,7 @@
    "base": 200000,
    "online": 0,
    "total": 200000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -1064,7 +1064,7 @@
    "base": 200000,
    "online": 620000,
    "total": 820000,
-   "kind": "moi",
+   "kind": "moi-banner",
    "rule": "km_base"
   },
   {
@@ -1077,7 +1077,7 @@
    "base": 100000,
    "online": 0,
    "total": 100000,
-   "kind": "moi",
+   "kind": "thuong",
    "rule": "km_base"
   },
   {
@@ -1090,7 +1090,7 @@
    "base": 200000,
    "online": 0,
    "total": 200000,
-   "kind": "thuong",
+   "kind": "moi",
    "rule": "km_base"
   }
  ]
