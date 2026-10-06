@@ -1,7 +1,6 @@
 {
  "date": "06-Oct",
- "scanned_at": "2026-10-06T14:20:25+07:00",
- "add_choice": false,
+ "scanned_at": "2026-10-06T14:39:52+07:00",
  "rows": [
   {
    "model": "iPhone 17 Pro Max 512GB",
@@ -10,8 +9,11 @@
    "rrp": 44490000,
    "red": 44490000,
    "pmh": 3000000,
-   "choice": 3000000,
-   "kind": "thuong"
+   "base": 3000000,
+   "online": 0,
+   "total": 3000000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "iPhone 17 Pro Max 256GB",
@@ -20,38 +22,50 @@
    "rrp": 37990000,
    "red": 37990000,
    "pmh": 3000000,
-   "choice": 3000000,
-   "kind": "thuong"
+   "base": 3000000,
+   "online": 0,
+   "total": 3000000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "iPhone 17 Pro 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17-pro",
    "status": "active",
    "rrp": 34990000,
-   "red": 31990000,
+   "red": 34990000,
    "pmh": 3000000,
-   "choice": 3000000,
-   "kind": "moi"
+   "base": 3000000,
+   "online": 0,
+   "total": 3000000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "iPhone Air 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-air",
    "status": "active",
    "rrp": 34990000,
-   "red": 22990000,
+   "red": 34990000,
    "pmh": 12000000,
-   "choice": 12000000,
-   "kind": "moi"
+   "base": 12000000,
+   "online": 0,
+   "total": 12000000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "iPhone 17 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17",
    "status": "active",
    "rrp": 28990000,
-   "red": 25490000,
+   "red": 28990000,
    "pmh": 3500000,
-   "choice": 3500000,
-   "kind": "moi"
+   "base": 3500000,
+   "online": 0,
+   "total": 3500000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "iPhone 16 128GB",
@@ -60,18 +74,24 @@
    "rrp": 24990000,
    "red": 24990000,
    "pmh": 2000000,
-   "choice": 2000000,
-   "kind": "thuong"
+   "base": 2000000,
+   "online": 0,
+   "total": 2000000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "iPhone 15 128GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-15",
    "status": "active",
    "rrp": 21990000,
-   "red": 19990000,
+   "red": 21990000,
    "pmh": 2000000,
-   "choice": 2000000,
-   "kind": "moi"
+   "base": 2000000,
+   "online": 0,
+   "total": 2000000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "Find X9 Ultra 12GB/512GB",
@@ -80,8 +100,11 @@
    "rrp": 49990000,
    "red": 45990000,
    "pmh": 4000000,
-   "choice": 0,
-   "kind": "thuong"
+   "base": 0,
+   "online": 4000000,
+   "total": 4000000,
+   "kind": "thuong",
+   "rule": "den_tru_do"
   },
   {
    "model": "Find X9s 12GB/512GB",
@@ -90,8 +113,11 @@
    "rrp": 26990000,
    "red": 26990000,
    "pmh": 0,
-   "choice": 0,
-   "kind": "moi"
+   "base": 0,
+   "online": 0,
+   "total": 0,
+   "kind": "thuong",
+   "rule": "den_tru_do"
   },
   {
    "model": "Find X9s 12GB/256GB",
@@ -100,8 +126,11 @@
    "rrp": 24990000,
    "red": 24990000,
    "pmh": 0,
-   "choice": 0,
-   "kind": "thuong"
+   "base": 0,
+   "online": 0,
+   "total": 0,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "Reno16 Pro 5G 12GB/256GB",
@@ -110,8 +139,11 @@
    "rrp": 25990000,
    "red": 25990000,
    "pmh": 2600000,
-   "choice": 2600000,
-   "kind": "thuong"
+   "base": 2600000,
+   "online": 0,
+   "total": 2600000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "Reno16 5G 8GB/256GB",
@@ -120,18 +152,24 @@
    "rrp": 18990000,
    "red": 18490000,
    "pmh": 500000,
-   "choice": 0,
-   "kind": "banner"
+   "base": 0,
+   "online": 500000,
+   "total": 500000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "Reno16F 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-reno16f-5g-8gb-128gb",
    "status": "active",
    "rrp": 14990000,
-   "red": 13490000,
+   "red": 14990000,
    "pmh": 1500000,
-   "choice": 1500000,
-   "kind": "moi"
+   "base": 1500000,
+   "online": 0,
+   "total": 1500000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "Reno16F 5G 8GB/256GB",
@@ -139,9 +177,12 @@
    "status": "active",
    "rrp": 15990000,
    "red": 15990000,
-   "pmh": 0,
-   "choice": 0,
-   "kind": "thuong"
+   "pmh": 1600000,
+   "base": 1600000,
+   "online": 0,
+   "total": 1600000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "A6 8GB/256GB",
@@ -150,8 +191,11 @@
    "rrp": 11990000,
    "red": 11990000,
    "pmh": 500000,
-   "choice": 500000,
-   "kind": "thuong"
+   "base": 500000,
+   "online": 0,
+   "total": 500000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "A6 Pro 5G 8GB/256GB",
@@ -160,8 +204,11 @@
    "rrp": 10990000,
    "red": 10490000,
    "pmh": 500000,
-   "choice": 0,
-   "kind": "banner"
+   "base": 0,
+   "online": 500000,
+   "total": 500000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "A6 6GB/128GB",
@@ -170,8 +217,11 @@
    "rrp": 9990000,
    "red": 9990000,
    "pmh": 0,
-   "choice": 0,
-   "kind": "thuong"
+   "base": 0,
+   "online": 0,
+   "total": 0,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "A6 Pro 8GB/256GB",
@@ -180,8 +230,11 @@
    "rrp": 9990000,
    "red": 9490000,
    "pmh": 500000,
-   "choice": 0,
-   "kind": "banner"
+   "base": 0,
+   "online": 500000,
+   "total": 500000,
+   "kind": "banner",
+   "rule": "den_tru_do"
   },
   {
    "model": "A6 8GB/128GB",
@@ -190,18 +243,24 @@
    "rrp": 10990000,
    "red": 10990000,
    "pmh": 0,
-   "choice": 0,
-   "kind": "moi"
+   "base": 0,
+   "online": 0,
+   "total": 0,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "A6x 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6x-6gb-256gb",
    "status": "active",
    "rrp": 8990000,
-   "red": 8790000,
+   "red": 8990000,
    "pmh": 200000,
-   "choice": 200000,
-   "kind": "moi"
+   "base": 200000,
+   "online": 0,
+   "total": 200000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "A6x 4GB/128GB",
@@ -210,8 +269,11 @@
    "rrp": 7090000,
    "red": 7090000,
    "pmh": 0,
-   "choice": 0,
-   "kind": "moi"
+   "base": 0,
+   "online": 0,
+   "total": 0,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "A6x 4GB/64GB",
@@ -220,8 +282,11 @@
    "rrp": 4990000,
    "red": 4740000,
    "pmh": 250000,
-   "choice": 0,
-   "kind": "banner"
+   "base": 0,
+   "online": 250000,
+   "total": 250000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "A6c 4GB/128GB",
@@ -230,8 +295,11 @@
    "rrp": 5690000,
    "red": 5690000,
    "pmh": 0,
-   "choice": 0,
-   "kind": "moi"
+   "base": 0,
+   "online": 0,
+   "total": 0,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "A6c 4GB/64GB",
@@ -240,8 +308,11 @@
    "rrp": 4690000,
    "red": 4690000,
    "pmh": 0,
-   "choice": 0,
-   "kind": "thuong"
+   "base": 0,
+   "online": 0,
+   "total": 0,
+   "kind": "thuong",
+   "rule": "den_tru_do"
   },
   {
    "model": "S26 Ultra 5G 12GB/256GB",
@@ -250,8 +321,11 @@
    "rrp": 40990000,
    "red": 31490000,
    "pmh": 9500000,
-   "choice": 0,
-   "kind": "moi"
+   "base": 0,
+   "online": 9500000,
+   "total": 9500000,
+   "kind": "banner",
+   "rule": "den_tru_do"
   },
   {
    "model": "S25 Ultra 5G 12GB/256GB",
@@ -260,8 +334,11 @@
    "rrp": 33380000,
    "red": 26990000,
    "pmh": 6390000,
-   "choice": 0,
-   "kind": "banner"
+   "base": 0,
+   "online": 6390000,
+   "total": 6390000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "S26+ 5G 12GB/256GB",
@@ -270,8 +347,11 @@
    "rrp": 33990000,
    "red": 24990000,
    "pmh": 9000000,
-   "choice": 0,
-   "kind": "thuong"
+   "base": 0,
+   "online": 9000000,
+   "total": 9000000,
+   "kind": "thuong",
+   "rule": "den_tru_do"
   },
   {
    "model": "S26 FE 5G 8GB/256GB",
@@ -280,8 +360,11 @@
    "rrp": 21990000,
    "red": 19990000,
    "pmh": 2000000,
-   "choice": 0,
-   "kind": "thuong"
+   "base": 0,
+   "online": 2000000,
+   "total": 2000000,
+   "kind": "thuong",
+   "rule": "den_tru_do"
   },
   {
    "model": "S25 FE 5G 8GB/256GB",
@@ -290,8 +373,11 @@
    "rrp": 19690000,
    "red": 16990000,
    "pmh": 2700000,
-   "choice": 0,
-   "kind": "moi"
+   "base": 0,
+   "online": 2700000,
+   "total": 2700000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "A57 5G 12GB/256GB",
@@ -300,8 +386,11 @@
    "rrp": 17490000,
    "red": 13990000,
    "pmh": 3500000,
-   "choice": 0,
-   "kind": "thuong"
+   "base": 0,
+   "online": 3500000,
+   "total": 3500000,
+   "kind": "thuong",
+   "rule": "den_tru_do"
   },
   {
    "model": "A57 5G 8GB/256GB",
@@ -310,8 +399,11 @@
    "rrp": 15490000,
    "red": 12290000,
    "pmh": 3200000,
-   "choice": 0,
-   "kind": "banner"
+   "base": 0,
+   "online": 3200000,
+   "total": 3200000,
+   "kind": "banner",
+   "rule": "den_tru_do"
   },
   {
    "model": "A37 8GB/256GB",
@@ -319,9 +411,12 @@
    "status": "active",
    "rrp": 13990000,
    "red": 11490000,
-   "pmh": 2500000,
-   "choice": 300000,
-   "kind": "thuong"
+   "pmh": 300000,
+   "base": 300000,
+   "online": 2500000,
+   "total": 2800000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "A37 5G 6GB/128GB",
@@ -330,8 +425,11 @@
    "rrp": 11190000,
    "red": 9290000,
    "pmh": 1900000,
-   "choice": 0,
-   "kind": "moi"
+   "base": 0,
+   "online": 1900000,
+   "total": 1900000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "A27 8GB/128GB",
@@ -340,8 +438,11 @@
    "rrp": 10190000,
    "red": 9290000,
    "pmh": 900000,
-   "choice": 0,
-   "kind": "thuong"
+   "base": 0,
+   "online": 900000,
+   "total": 900000,
+   "kind": "thuong",
+   "rule": "den_tru_do"
   },
   {
    "model": "A27 6GB/128GB",
@@ -350,18 +451,24 @@
    "rrp": 9090000,
    "red": 8490000,
    "pmh": 600000,
-   "choice": 0,
-   "kind": "thuong"
+   "base": 0,
+   "online": 600000,
+   "total": 600000,
+   "kind": "thuong",
+   "rule": "den_tru_do"
   },
   {
    "model": "A17 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-5g-8gb-256gb",
    "status": "active",
    "rrp": 7990000,
-   "red": 7690000,
+   "red": 7990000,
    "pmh": 300000,
-   "choice": 300000,
-   "kind": "moi"
+   "base": 300000,
+   "online": 0,
+   "total": 300000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "A17 8GB/256GB",
@@ -369,19 +476,25 @@
    "status": "active",
    "rrp": 6890000,
    "red": 6390000,
-   "pmh": 500000,
-   "choice": 200000,
-   "kind": "banner"
+   "pmh": 200000,
+   "base": 200000,
+   "online": 500000,
+   "total": 700000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "A17 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-4gb-128gb",
    "status": "active",
    "rrp": 5690000,
-   "red": 5090000,
-   "pmh": 400000,
-   "choice": 200000,
-   "kind": "moi"
+   "red": 5290000,
+   "pmh": 200000,
+   "base": 200000,
+   "online": 400000,
+   "total": 600000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "A07 6GB/128GB",
@@ -389,9 +502,12 @@
    "status": "active",
    "rrp": 4490000,
    "red": 4170000,
-   "pmh": 320000,
-   "choice": 200000,
-   "kind": "banner"
+   "pmh": 200000,
+   "base": 200000,
+   "online": 320000,
+   "total": 520000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "A07 4GB/64GB",
@@ -399,9 +515,12 @@
    "status": "active",
    "rrp": 3890000,
    "red": 3590000,
-   "pmh": 300000,
-   "choice": 200000,
-   "kind": "banner"
+   "pmh": 200000,
+   "base": 200000,
+   "online": 300000,
+   "total": 500000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "Xiaomi 17 Ultra 5G 16GB/512GB",
@@ -410,8 +529,11 @@
    "rrp": 39990000,
    "red": 29690000,
    "pmh": 10300000,
-   "choice": 0,
-   "kind": "moi"
+   "base": 0,
+   "online": 10300000,
+   "total": 10300000,
+   "kind": "banner",
+   "rule": "den_tru_do"
   },
   {
    "model": "Xiaomi 17 5G 12GB/256GB",
@@ -420,8 +542,11 @@
    "rrp": 26990000,
    "red": 19490000,
    "pmh": 7500000,
-   "choice": 0,
-   "kind": "thuong"
+   "base": 0,
+   "online": 7500000,
+   "total": 7500000,
+   "kind": "thuong",
+   "rule": "den_tru_do"
   },
   {
    "model": "17T Pro 5G 12GB/256GB",
@@ -429,19 +554,25 @@
    "status": "active",
    "rrp": 23990000,
    "red": 20690000,
-   "pmh": 3300000,
-   "choice": 700000,
-   "kind": "thuong"
+   "pmh": 700000,
+   "base": 700000,
+   "online": 3300000,
+   "total": 4000000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "17T 5G 12GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17t-5g-12gb-512gb",
    "status": "active",
    "rrp": 20990000,
-   "red": 18790000,
-   "pmh": 1500000,
-   "choice": 700000,
-   "kind": "moi"
+   "red": 19490000,
+   "pmh": 700000,
+   "base": 700000,
+   "online": 1500000,
+   "total": 2200000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "17T 5G 12GB/256GB",
@@ -449,19 +580,25 @@
    "status": "active",
    "rrp": 20090000,
    "red": 17890000,
-   "pmh": 2200000,
-   "choice": 700000,
-   "kind": "thuong"
+   "pmh": 700000,
+   "base": 700000,
+   "online": 2200000,
+   "total": 2900000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "Redmi Note 17 Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-5g-12gb-256gb",
    "status": "active",
    "rrp": 13490000,
-   "red": 12090000,
-   "pmh": 400000,
-   "choice": 1000000,
-   "kind": "moi"
+   "red": 13090000,
+   "pmh": 1000000,
+   "base": 1000000,
+   "online": 400000,
+   "total": 1400000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "Redmi Note 17 Pro 5G 8GB/256GB",
@@ -469,9 +606,12 @@
    "status": "active",
    "rrp": 12490000,
    "red": 12190000,
-   "pmh": 300000,
-   "choice": 1000000,
-   "kind": "thuong"
+   "pmh": 1000000,
+   "base": 1000000,
+   "online": 300000,
+   "total": 1300000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "Redmi Note 17 5G 8GB/256GB",
@@ -480,8 +620,11 @@
    "rrp": 10090000,
    "red": 10090000,
    "pmh": 500000,
-   "choice": 500000,
-   "kind": "thuong"
+   "base": 500000,
+   "online": 0,
+   "total": 500000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "Redmi Note 17 5G 6GB/256GB",
@@ -490,8 +633,11 @@
    "rrp": 9490000,
    "red": 9490000,
    "pmh": 500000,
-   "choice": 500000,
-   "kind": "thuong"
+   "base": 500000,
+   "online": 0,
+   "total": 500000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "Redmi Note 17 6GB/256GB",
@@ -500,28 +646,37 @@
    "rrp": 8290000,
    "red": 8290000,
    "pmh": 500000,
-   "choice": 500000,
-   "kind": "thuong"
+   "base": 500000,
+   "online": 0,
+   "total": 500000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "Redmi Note 17 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-4g-6gb-128gb",
    "status": "active",
    "rrp": 7690000,
-   "red": 7190000,
+   "red": 7690000,
    "pmh": 500000,
-   "choice": 500000,
-   "kind": "moi"
+   "base": 500000,
+   "online": 0,
+   "total": 500000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "Redmi 17 4G 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-4g-6gb-256gb",
    "status": "active",
    "rrp": 7490000,
-   "red": 7290000,
+   "red": 7490000,
    "pmh": 200000,
-   "choice": 200000,
-   "kind": "moi"
+   "base": 200000,
+   "online": 0,
+   "total": 200000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "Redmi Note 15 8GB/256GB",
@@ -529,49 +684,64 @@
    "status": "active",
    "rrp": 7090000,
    "red": 5990000,
-   "pmh": 1100000,
-   "choice": 600000,
-   "kind": "thuong"
+   "pmh": 600000,
+   "base": 600000,
+   "online": 1100000,
+   "total": 1700000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "Redmi 17 4G 4GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-4g-4gb-256gb",
    "status": "active",
    "rrp": 6690000,
-   "red": 5990000,
-   "pmh": 500000,
-   "choice": 200000,
-   "kind": "moi"
+   "red": 6190000,
+   "pmh": 200000,
+   "base": 200000,
+   "online": 500000,
+   "total": 700000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "Redmi 17 5G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-5g-4gb-128gb",
    "status": "active",
    "rrp": 6490000,
-   "red": 6290000,
+   "red": 6490000,
    "pmh": 200000,
-   "choice": 200000,
-   "kind": "moi"
+   "base": 200000,
+   "online": 0,
+   "total": 200000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "Redmi 17 4G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-4g-4gb-128gb",
    "status": "active",
    "rrp": 5990000,
-   "red": 5390000,
-   "pmh": 400000,
-   "choice": 200000,
-   "kind": "moi"
+   "red": 5590000,
+   "pmh": 200000,
+   "base": 200000,
+   "online": 400000,
+   "total": 600000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "Redmi 15 5G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-15-5g-4gb-128gb",
    "status": "active",
    "rrp": 5690000,
-   "red": 4890000,
+   "red": 5690000,
    "pmh": 800000,
-   "choice": 800000,
-   "kind": "moi"
+   "base": 800000,
+   "online": 0,
+   "total": 800000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "Redmi 15C 6GB/128GB",
@@ -592,18 +762,24 @@
    "rrp": 4990000,
    "red": 4990000,
    "pmh": 500000,
-   "choice": 500000,
-   "kind": "thuong"
+   "base": 500000,
+   "online": 0,
+   "total": 500000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "Redmi A7 Pro 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-a7-pro",
    "status": "active",
    "rrp": 4490000,
-   "red": 4190000,
+   "red": 4490000,
    "pmh": 300000,
-   "choice": 300000,
-   "kind": "moi"
+   "base": 300000,
+   "online": 0,
+   "total": 300000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "X300 Ultra 16GB/512GB",
@@ -612,8 +788,11 @@
    "rrp": 49990000,
    "red": 39990000,
    "pmh": 10000000,
-   "choice": 0,
-   "kind": "moi"
+   "base": 0,
+   "online": 10000000,
+   "total": 10000000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "V70 5G 8GB/256GB",
@@ -622,8 +801,11 @@
    "rrp": 17990000,
    "red": 17490000,
    "pmh": 500000,
-   "choice": 0,
-   "kind": "moi"
+   "base": 0,
+   "online": 500000,
+   "total": 500000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "V70 FE 5G 8GB/256GB",
@@ -632,8 +814,11 @@
    "rrp": 13990000,
    "red": 13490000,
    "pmh": 500000,
-   "choice": 0,
-   "kind": "banner"
+   "base": 0,
+   "online": 500000,
+   "total": 500000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "V60 Lite 5G 8GB/256GB",
@@ -642,8 +827,11 @@
    "rrp": 10490000,
    "red": 9990000,
    "pmh": 500000,
-   "choice": 0,
-   "kind": "banner"
+   "base": 0,
+   "online": 500000,
+   "total": 500000,
+   "kind": "banner",
+   "rule": "den_tru_do"
   },
   {
    "model": "Y31d 8GB/128GB",
@@ -652,18 +840,24 @@
    "rrp": 10090000,
    "red": 10090000,
    "pmh": 1000000,
-   "choice": 1000000,
-   "kind": "thuong"
+   "base": 1000000,
+   "online": 0,
+   "total": 1000000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "Y31d 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y31d-6gb-128gb",
    "status": "active",
    "rrp": 8990000,
-   "red": 8090000,
+   "red": 8990000,
    "pmh": 900000,
-   "choice": 900000,
-   "kind": "moi"
+   "base": 900000,
+   "online": 0,
+   "total": 900000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "Y39 5G 8GB/128GB",
@@ -671,9 +865,12 @@
    "status": "active",
    "rrp": 7360000,
    "red": 6990000,
-   "pmh": 370000,
-   "choice": 300000,
-   "kind": "banner"
+   "pmh": 300000,
+   "base": 300000,
+   "online": 370000,
+   "total": 670000,
+   "kind": "banner",
+   "rule": "km_base"
   },
   {
    "model": "Y11d 6GB/128GB",
@@ -682,8 +879,11 @@
    "rrp": 7290000,
    "red": 6920000,
    "pmh": 370000,
-   "choice": 0,
-   "kind": "banner"
+   "base": 0,
+   "online": 370000,
+   "total": 370000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "Y11d 4GB/128GB",
@@ -692,18 +892,24 @@
    "rrp": 6790000,
    "red": 6790000,
    "pmh": 300000,
-   "choice": 300000,
-   "kind": "thuong"
+   "base": 300000,
+   "online": 0,
+   "total": 300000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "Y05 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y05-4gb-128gb",
    "status": "active",
    "rrp": 5990000,
-   "red": 5890000,
+   "red": 5990000,
    "pmh": 100000,
-   "choice": 100000,
-   "kind": "moi"
+   "base": 100000,
+   "online": 0,
+   "total": 100000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "Y05 4GB/64GB",
@@ -712,18 +918,24 @@
    "rrp": 4990000,
    "red": 4990000,
    "pmh": 100000,
-   "choice": 100000,
-   "kind": "thuong"
+   "base": 100000,
+   "online": 0,
+   "total": 100000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "16 Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16-pro-5g-12gb-256gb",
    "status": "active",
    "rrp": 14490000,
-   "red": 11790000,
-   "pmh": 2300000,
-   "choice": 400000,
-   "kind": "moi"
+   "red": 12190000,
+   "pmh": 400000,
+   "base": 400000,
+   "online": 2300000,
+   "total": 2700000,
+   "kind": "banner",
+   "rule": "km_base"
   },
   {
    "model": "16 5G 12GB/256GB",
@@ -731,49 +943,64 @@
    "status": "active",
    "rrp": 12490000,
    "red": 10690000,
-   "pmh": 1800000,
-   "choice": 700000,
-   "kind": "banner"
+   "pmh": 700000,
+   "base": 700000,
+   "online": 1800000,
+   "total": 2500000,
+   "kind": "banner",
+   "rule": "km_base"
   },
   {
    "model": "16 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16-5g-8gb-256gb",
    "status": "active",
    "rrp": 11490000,
-   "red": 11090000,
+   "red": 11490000,
    "pmh": 400000,
-   "choice": 400000,
-   "kind": "moi"
+   "base": 400000,
+   "online": 0,
+   "total": 400000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "16T 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16t-5g-8gb-256gb",
    "status": "active",
    "rrp": 10990000,
-   "red": 10790000,
+   "red": 10990000,
    "pmh": 200000,
-   "choice": 200000,
-   "kind": "moi"
+   "base": 200000,
+   "online": 0,
+   "total": 200000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "16T 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16t-5g-8gb-128gb",
    "status": "active",
    "rrp": 10290000,
-   "red": 9890000,
+   "red": 10290000,
    "pmh": 400000,
-   "choice": 400000,
-   "kind": "moi"
+   "base": 400000,
+   "online": 0,
+   "total": 400000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "C100 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100-4g-8gb-256gb",
    "status": "active",
    "rrp": 9490000,
-   "red": 8540000,
+   "red": 9490000,
    "pmh": 950000,
-   "choice": 950000,
-   "kind": "moi"
+   "base": 950000,
+   "online": 0,
+   "total": 950000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "C85 5G 8GB/256GB",
@@ -781,9 +1008,12 @@
    "status": "active",
    "rrp": 8490000,
    "red": 8190000,
-   "pmh": 300000,
-   "choice": 200000,
-   "kind": "thuong"
+   "pmh": 200000,
+   "base": 200000,
+   "online": 300000,
+   "total": 500000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "C100 4G 8GB/128GB",
@@ -792,18 +1022,24 @@
    "rrp": 8790000,
    "red": 8790000,
    "pmh": 850000,
-   "choice": 850000,
-   "kind": "thuong"
+   "base": 850000,
+   "online": 0,
+   "total": 850000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "C100 4G 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100-4g-6gb-128gb",
    "status": "active",
    "rrp": 8290000,
-   "red": 8090000,
+   "red": 8290000,
    "pmh": 200000,
-   "choice": 200000,
-   "kind": "moi"
+   "base": 200000,
+   "online": 0,
+   "total": 200000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "C85 Pro 8GB/256GB",
@@ -811,9 +1047,12 @@
    "status": "active",
    "rrp": 7690000,
    "red": 7190000,
-   "pmh": 500000,
-   "choice": 200000,
-   "kind": "thuong"
+   "pmh": 200000,
+   "base": 200000,
+   "online": 500000,
+   "total": 700000,
+   "kind": "thuong",
+   "rule": "km_base"
   },
   {
    "model": "C85 8GB/128GB",
@@ -821,19 +1060,25 @@
    "status": "active",
    "rrp": 6290000,
    "red": 5670000,
-   "pmh": 620000,
-   "choice": 200000,
-   "kind": "banner"
+   "pmh": 200000,
+   "base": 200000,
+   "online": 620000,
+   "total": 820000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "C100i 4G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100i-4gb-128gb",
    "status": "active",
    "rrp": 6290000,
-   "red": 6190000,
+   "red": 6290000,
    "pmh": 100000,
-   "choice": 100000,
-   "kind": "moi"
+   "base": 100000,
+   "online": 0,
+   "total": 100000,
+   "kind": "moi",
+   "rule": "km_base"
   },
   {
    "model": "C100i 4GB/64GB",
@@ -842,8 +1087,11 @@
    "rrp": 5290000,
    "red": 5290000,
    "pmh": 200000,
-   "choice": 200000,
-   "kind": "thuong"
+   "base": 200000,
+   "online": 0,
+   "total": 200000,
+   "kind": "thuong",
+   "rule": "km_base"
   }
  ]
 }
