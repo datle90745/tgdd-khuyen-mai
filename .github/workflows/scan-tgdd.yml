@@ -24,6 +24,8 @@ jobs:
         with:
           python-version: '3.13'
       - run: pip install -r scraper/requirements.txt
+      # FPT Shop chặn kết nối từ máy chủ, phải mở bằng trình duyệt thật
+      - run: python -m playwright install --with-deps chromium
       - name: Quét 85 SKU
         id: focus
         continue-on-error: true
