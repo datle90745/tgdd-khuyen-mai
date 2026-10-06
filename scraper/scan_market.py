@@ -156,7 +156,9 @@ def scan_fpt():
     rows = []
     for skip in range(0, 1000, 50):
         data = request("POST", "https://papi.fptshop.com.vn/gw/v1/public/fulltext-search-service/category",
-                       headers={"order-channel": "1"},
+                       headers={"order-channel": "1", "Origin": "https://fptshop.com.vn",
+                                "Referer": "https://fptshop.com.vn/dien-thoai",
+                                "Accept": "application/json, text/plain, */*"},
                        json_body={"skipCount": skip, "maxResultCount": 50, "sortMethod": "noi-bat",
                                   "slug": "dien-thoai", "categoryType": "category"}).json()
         items = data.get("items") or []
