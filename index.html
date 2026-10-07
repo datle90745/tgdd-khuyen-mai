@@ -8,6 +8,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="data/data.js"></script>
 <script src="data/scans.js"></script>
+<script src="data/latest.js"></script>
 <script src="data/market.js"></script>
 <style>
 :root{
@@ -276,6 +277,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 <script>
 const BASE = window.BASE;
 const SCANS = Array.isArray(window.SCANS) ? window.SCANS : [];
+const LATEST = window.LATEST && Array.isArray(window.LATEST.rows) ? window.LATEST : null;
 const SEG_ORDER = [">30M","20-30M","15-20M","10-15M","7-10M","5-7M","<5M"];
 const RRP_NOTES = window.RRP_NOTES || {};
 const fmt = n => n==null ? "–" : n.toLocaleString("vi-VN");
@@ -322,6 +324,19 @@ function build(){
       if(x.kind) r.kind = x.kind;
     });
   });
+  // Cột tham khảo (Loại KM, Flash sale) lấy theo đợt quét mới nhất, kể cả ngày không lưu cột KM base.
+  if(LATEST && Array.isArray(LATEST.rows)){
+    const m = new Map(LATEST.rows.map(x=>[x.model,x]));
+    rows.forEach(r=>{
+      const x = m.get(r.model); if(!x || !("rule" in x)) return;
+      r.online = typeof x.online==="number" ? x.online : null;
+      r.choice = typeof x.choice==="number" ? x.choice : null;
+      r.tot = typeof x.total_online==="number" ? x.total_online
+            : (r.online==null ? null : r.online + (x.rule==="den_tru_do" ? 0 : (r.choice||0)));
+      r.rule = x.rule || null;
+      if(x.kind) r.kind = x.kind;
+    });
+  }
   rows.forEach(r=>{ if(RRP_NOTES[r.model]) r.flags.unshift(RRP_NOTES[r.model]); });
   // Giữ nguyên thứ tự hãng như trong dữ liệu gốc, trong mỗi hãng xếp giá đen từ cao xuống thấp.
   const bOrder = []; rows.forEach(r=>{ if(!bOrder.includes(r.brand)) bOrder.push(r.brand); });
