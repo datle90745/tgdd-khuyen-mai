@@ -334,6 +334,9 @@ function build(){
         r.tot = x.rule!=="flash_chon1" ? null
               : (typeof x.total_online==="number" ? x.total_online
                  : (r.online==null ? null : r.online + (r.choice||0)));
+        // Tổng khuyến mãi khi mua online (gồm cả flash sale), luôn ghi kể cả khi không có flash sale.
+        r.totAll = typeof x.total_online==="number" ? x.total_online
+                 : (r.online==null ? null : r.online + (r.choice||0));
         r.rule = x.rule || null;
       }
       if(x.kind) r.kind = x.kind;
@@ -399,6 +402,14 @@ function offPrice(r){
   const p = r.pmh[r.pmh.length-1];
   return typeof p==="number" ? r.rrp - p : null;
 }
+// PMH online = tổng khuyến mãi khi mua online, gồm cả flash sale. Giá online = RRP trừ khoản đó.
+function pmhOnline(r){
+  if(r.status!=="active") return null;
+  if(typeof r.totAll==="number") return r.totAll;
+  const p = r.pmh[r.pmh.length-1];
+  return typeof p==="number" ? p : null;
+}
+function onPrice(r){ const t = pmhOnline(r); return t==null ? null : r.rrp - t; }
 function deltaCell(r){
   if(r.status==="ngung_kd") return `<span class="badge warn">Ngừng KD</span>`;
   if(r.status==="chua_mo_ban") return `<span class="badge warn">Chưa mở bán</span>`;
@@ -466,9 +477,9 @@ function openDrawer(model){
   const best=vals.length?Math.max(...vals):null, avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
   const runs=vals.filter(x=>x>0).length;
   $("dbody").innerHTML=`<h2>${esc(r.model)}</h2><div style="color:var(--muted)"><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span>phân khúc ${esc(r.segment)}, ${r.channel==="TGDD"?"độc quyền TGDĐ":"kênh Mass"}${kindOf(r)?`, đợt mới nhất: <span class="badge ${kindOf(r)===KIND_FS?"fs":"mass"}">${kindOf(r)}</span>`:""}</div>
-  <div class="kv"><div><small>RRP</small><b>${fmt(r.rrp)}</b></div><div><small>PMH hiện tại</small><b>${r.status==="active"?fmt(p):"–"}</b></div><div><small>PMH cao nhất</small><b>${fmt(best)}</b></div>
+  <div class="kv"><div><small>RRP</small><b>${fmt(r.rrp)}</b></div><div><small>PMH online</small><b>${fmt(pmhOnline(r))}</b></div><div><small>PMH cao nhất</small><b>${fmt(best)}</b></div>
   <div><small>Trang sản phẩm</small>${LINKS[r.model]?`<a class="plink" href="${esc(LINKS[r.model])}" target="_blank" rel="noopener noreferrer">Mở trên TGDĐ ↗</a>`:`<b>–</b>`}</div>
-  <div><small>Giá offline</small><b>${fmt(offPrice(r))}</b></div></div>
+  <div><small>Giá offline</small><b>${fmt(offPrice(r))}</b></div><div><small>Giá online</small><b>${fmt(onPrice(r))}</b></div></div>
   ${r.flags.map(f=>`<div class="note">${esc(f)}</div>`).join("")}
   ${r.rule?`<div class="kv"><div><small>KM base (PMH)</small><b>${fmt(r.pmh[r.pmh.length-1])}</b></div><div><small>Flash sale</small><b>${fmt(r.tot)}</b></div><div><small>Giá đen − giá đỏ</small><b>${fmt(r.online)}</b></div></div><div style="color:var(--muted)">Đợt mới nhất: ${{flash_chon1:"có flash sale nên PMH = khoản “Chọn 1 trong”",den_tru_do:"không flash sale, giá đen − giá đỏ lớn hơn khoản “Chọn 1 trong”",chon1:"không flash sale, khoản “Chọn 1 trong” lớn hơn giá đen − giá đỏ",khong_banner:"không có banner (quy tắc cũ)",banner_a:"banner loại A (quy tắc cũ)",banner_b:"banner loại B (quy tắc cũ)"}[r.rule]||"–"}.</div>`:""}
   ${r.status==="ngung_kd"?`<div class="note">TGDĐ đã gỡ SKU này (trang trả về 404).</div>`:""}
