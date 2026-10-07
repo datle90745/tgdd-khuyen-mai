@@ -299,7 +299,8 @@ function build(){
   // Đợt quét mới nhất luôn được đưa vào sau cùng: rơi đúng thứ Hai/thứ Sáu thì ghi đè cột đó,
   // ngày khác thì thành cột "hôm nay" riêng để mọi người xem được số mới nhất.
   const feeds = [...SCANS, ...imports.filter(im=>!pubDates.has(im.date))];
-  if(LATEST && !pubDates.has(LATEST.date)) feeds.push(LATEST);
+  // Chỉ thêm cột khi đợt mới nhất thật sự có số PMH, tránh file hỏng làm trắng cả bảng.
+  if(LATEST && !pubDates.has(LATEST.date) && LATEST.rows.some(x=>typeof x.pmh==="number")) feeds.push(LATEST);
   feeds.forEach(im=>{
     // Đợt quét trùng ngày với cột đã có thì ghi đè cột đó, không thêm cột mới.
     let col = dates.indexOf(im.date);
