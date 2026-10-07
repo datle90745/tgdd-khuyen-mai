@@ -335,8 +335,6 @@ function build(){
               : (typeof x.total_online==="number" ? x.total_online
                  : (r.online==null ? null : r.online + (r.choice||0)));
         r.rule = x.rule || null;
-        r.red = typeof x.red==="number" ? x.red : null;   // giá đỏ khách trả khi mua online
-        r.at = x.at || null;                              // mốc giờ quét của riêng dòng này
       }
       if(x.kind) r.kind = x.kind;
     });
@@ -379,14 +377,14 @@ function filtered(){
     (F.brand==="Tất cả"||r.brand===F.brand)&&(F.seg==="Tất cả"||r.segment===F.seg)&&
     (F.ch==="Tất cả"||r.channel===F.ch)&&(F.kind==="Tất cả"||kindOf(r)===F.kind)&&(!F.q||r.model.toLowerCase().includes(F.q))&&(!F.move||cat(r)===F.move));
   if(F.sort!=="master"){
-    const k = {pmh:r=>r.pmh[r.pmh.length-1], rrp:r=>r.rrp, red:r=>r.red??null, tot:r=>r.tot??null, delta:r=>delta(r), model:r=>r.model, pct:r=>{const p=r.pmh[r.pmh.length-1];return p==null?null:p/r.rrp}}[F.sort];
+    const k = {pmh:r=>r.pmh[r.pmh.length-1], rrp:r=>r.rrp, off:r=>offPrice(r), tot:r=>r.tot??null, delta:r=>delta(r), model:r=>r.model, pct:r=>{const p=r.pmh[r.pmh.length-1];return p==null?null:p/r.rrp}}[F.sort];
     rows = [...rows].sort((a,b)=>{const x=k(a),y=k(b); if(x==null&&y==null) return 0; if(x==null) return 1; if(y==null) return -1; return (x>y?1:x<y?-1:0)*F.dir;});
   }
   return rows;
 }
 
 /* ---- latest table ---- */
-const COLS = [["brand","Hãng"],["model","Model"],["ch","Kênh"],["seg","Phân khúc"],["rrp","RRP",1],["red","Giá online",1],["pmh","KM base (PMH)",1],["tot","Flash sale",1],["delta","So đợt trước",1],["pct","% giảm",1],["trend","Xu hướng"]];
+const COLS = [["brand","Hãng"],["model","Model"],["ch","Kênh"],["seg","Phân khúc"],["rrp","RRP",1],["off","Giá offline",1],["pmh","KM base (PMH)",1],["tot","Flash sale",1],["delta","So đợt trước",1],["pct","% giảm",1],["trend","Xu hướng"]];
 function spark(v){
   const pts=v.map((x,i)=>[i,x]).filter(p=>p[1]!=null);
   if(pts.length<2) return "";
@@ -394,6 +392,12 @@ function spark(v){
   const d=pts.map((p,i)=>`${i?"L":"M"}${(p[0]/n*(W-4)+2).toFixed(1)} ${(H-3-(p[1]/max)*(H-6)).toFixed(1)}`).join(" ");
   const last=pts[pts.length-1];
   return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${d}" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="${(last[0]/n*(W-4)+2).toFixed(1)}" cy="${(H-3-(last[1]/max)*(H-6)).toFixed(1)}" r="2.4" fill="var(--accent)"/></svg>`;
+}
+// Giá offline = RRP trừ KM base. Flash sale chỉ áp dụng khi mua online nên không trừ vào đây.
+function offPrice(r){
+  if(r.status!=="active") return null;
+  const p = r.pmh[r.pmh.length-1];
+  return typeof p==="number" ? r.rrp - p : null;
 }
 function deltaCell(r){
   if(r.status==="ngung_kd") return `<span class="badge warn">Ngừng KD</span>`;
@@ -413,7 +417,7 @@ function renderTable(){
     const flag = r.flags.length?` <span class="badge ${rrpUp(r)?"rrp":"warn"}" title="${esc(r.flags.join("; "))}">RRP${rrpUp(r)?" tăng":""}</span>`:"";
     return `<tr tabindex="0" data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${flag}</td>
     <td><span class="badge ${r.channel==="TGDD"?"tgdd":"mass"}">${r.channel==="TGDD"?"Độc quyền":"Mass"}</span></td><td>${esc(r.segment)}</td>
-    <td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td><td class="num" title="Giá đỏ khách trả khi mua online, đã gồm flash sale nếu có.">${r.red?fmt(r.red):"–"}</td><td class="num"><strong>${r.status==="active"?fmt(p):"–"}</strong></td><td class="num${r.tot?" fscell":""}"${r.tot?` title="Máy đang chạy flash sale online. Số đỏ là tổng tiền giảm khách thấy trên trang, chỉ để tham khảo."`:""}>${r.tot?fmt(r.tot):"–"}</td><td class="num">${deltaCell(r)}</td><td class="num">${pct}</td><td>${spark(r.pmh)}</td></tr>`;
+    <td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td><td class="num" title="RRP trừ KM base. Flash sale chỉ có khi mua online nên không trừ vào giá này.">${fmt(offPrice(r))}</td><td class="num"><strong>${r.status==="active"?fmt(p):"–"}</strong></td><td class="num${r.tot?" fscell":""}"${r.tot?` title="Máy đang chạy flash sale online. Số đỏ là tổng tiền giảm khách thấy trên trang, chỉ để tham khảo."`:""}>${r.tot?fmt(r.tot):"–"}</td><td class="num">${deltaCell(r)}</td><td class="num">${pct}</td><td>${spark(r.pmh)}</td></tr>`;
   }).join("") || `<tr><td colspan="12">Không có SKU nào khớp bộ lọc. Bỏ bớt một bộ lọc để xem lại danh sách.</td></tr>`;
 }
 function renderBar(){
@@ -464,7 +468,7 @@ function openDrawer(model){
   $("dbody").innerHTML=`<h2>${esc(r.model)}</h2><div style="color:var(--muted)"><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span>phân khúc ${esc(r.segment)}, ${r.channel==="TGDD"?"độc quyền TGDĐ":"kênh Mass"}${kindOf(r)?`, đợt mới nhất: <span class="badge ${kindOf(r)===KIND_FS?"fs":"mass"}">${kindOf(r)}</span>`:""}</div>
   <div class="kv"><div><small>RRP</small><b>${fmt(r.rrp)}</b></div><div><small>PMH hiện tại</small><b>${r.status==="active"?fmt(p):"–"}</b></div><div><small>PMH cao nhất</small><b>${fmt(best)}</b></div>
   <div><small>Trang sản phẩm</small>${LINKS[r.model]?`<a class="plink" href="${esc(LINKS[r.model])}" target="_blank" rel="noopener noreferrer">Mở trên TGDĐ ↗</a>`:`<b>–</b>`}</div>
-  <div><small>Giá online</small><b>${fmt(r.red)}</b></div><div><small>Quét lúc</small><b>${r.at?esc(r.at):"–"}</b></div></div>
+  <div><small>Giá offline</small><b>${fmt(offPrice(r))}</b></div></div>
   ${r.flags.map(f=>`<div class="note">${esc(f)}</div>`).join("")}
   ${r.rule?`<div class="kv"><div><small>KM base (PMH)</small><b>${fmt(r.pmh[r.pmh.length-1])}</b></div><div><small>Flash sale</small><b>${fmt(r.tot)}</b></div><div><small>Giá đen − giá đỏ</small><b>${fmt(r.online)}</b></div></div><div style="color:var(--muted)">Đợt mới nhất: ${{flash_chon1:"có flash sale nên PMH = khoản “Chọn 1 trong”",den_tru_do:"không flash sale, giá đen − giá đỏ lớn hơn khoản “Chọn 1 trong”",chon1:"không flash sale, khoản “Chọn 1 trong” lớn hơn giá đen − giá đỏ",khong_banner:"không có banner (quy tắc cũ)",banner_a:"banner loại A (quy tắc cũ)",banner_b:"banner loại B (quy tắc cũ)"}[r.rule]||"–"}.</div>`:""}
   ${r.status==="ngung_kd"?`<div class="note">TGDĐ đã gỡ SKU này (trang trả về 404).</div>`:""}
@@ -493,10 +497,10 @@ function calc(){
 function sheetAoa(){
   // Cột chính là PMH (KM base) theo quy tắc; thông tin flash sale để cuối, chỉ tham khảo.
   const head=["Hãng","Model","RRP","Kênh","Phân khúc",...S.dates.map(d=>"KM base "+d),
-              "Giá online (tham khảo)","Loại KM (tham khảo)","Flash sale (tham khảo)","Quét lúc","Link"];
+              "Giá offline","Loại KM (tham khảo)","Flash sale (tham khảo)","Link"];
   const v=x=>x==null?"":x;
   return [head,...S.rows.map(r=>[r.brand,r.model,r.rrp,r.channel==="TGDD"?"Độc quyền TGDĐ":"Mass",r.segment,
-                                 ...r.pmh.map(v), v(r.red), kindOf(r)||"", v(r.tot), r.at||"", LINKS[r.model]||""])];
+                                 ...r.pmh.map(v), v(offPrice(r)), kindOf(r)||"", v(r.tot), LINKS[r.model]||""])];
 }
 function toast(t){ const e=$("toast"); e.textContent=t; e.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>e.hidden=true,2600); }
 function save(filename,data,type){
