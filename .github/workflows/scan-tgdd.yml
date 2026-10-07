@@ -2,9 +2,9 @@ name: Quét PMH TGDĐ
 
 on:
   schedule:
-    # 07:30 giờ Việt Nam thứ Hai và thứ Sáu (00:30 UTC). GitHub có thể chạy trễ vài phút.
-    # Ngoài lịch này chỉ quét khi bấm "Run workflow" trong tab Actions.
-    - cron: '30 0 * * 1,5'
+    # 07:30 giờ Việt Nam mỗi ngày (00:30 UTC). GitHub có thể chạy trễ vài phút.
+    # Quét hằng ngày để dò giá đen tăng; riêng thứ Hai và thứ Sáu mới lưu thành cột mới.
+    - cron: '30 0 * * *'
   workflow_dispatch: {}
 
 permissions:
@@ -45,7 +45,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          for f in data/scans data/scans.js data/market.js; do
+          for f in data/scans data/scans.js data/market.js data/alerts.js data/market_last.json; do
             if [ -e "$f" ]; then git add "$f"; fi
           done
           if git diff --cached --quiet; then
