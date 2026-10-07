@@ -12,6 +12,7 @@ Ghi kèm để đối chiếu: `online` = giá đen − giá đỏ, `choice` = k
 `rule` = quy tắc đã dùng (flash_chon1 / den_tru_do / chon1).
 Không đoán số: trang lỗi/không đọc được giá thì để trống (null).
 """
+import argparse
 import csv
 import json
 import os
@@ -224,10 +225,54 @@ def write_latest_js(scan):
         encoding="utf-8")
 
 
+def pick_products(products, only):
+    """--only "A17 8GB/128GB,A08": quét một phần, khớp tên không phân biệt hoa thường.
+    --only missing: chỉ quét những model HÔM NAY chưa có số. Hôm nay chưa quét lần nào
+    thì quét hết, không dựa vào đợt của ngày cũ để bỏ qua model nào."""
+    if not only:
+        return products
+    if only.strip().lower() == "missing":
+        path = SCAN_DIR / f"scan_{date.today().isoformat()}.json"
+        if not path.exists():
+            return products
+        rows = json.loads(path.read_text(encoding="utf-8"))["rows"]
+        done = {r["model"] for r in rows if isinstance(r.get("pmh"), int)}
+        return [p for p in products if p["model"] not in done]
+    keys = [k.strip().lower() for k in only.split(",") if k.strip()]
+    return [p for p in products if any(k in p["model"].lower() for k in keys)]
+
+
+def merge_into_today(rows, now):
+    """Quét một phần thì ghép vào ĐÚNG đợt quét của hôm nay, không bao giờ lấy đợt ngày khác.
+    Hôm nay chưa quét lần nào thì chỉ ghi các model vừa quét; model chưa quét để trống,
+    tuyệt đối không bê số của ngày cũ sang."""
+    path = SCAN_DIR / f"scan_{now.date().isoformat()}.json"
+    if not path.exists():
+        return None
+    scan = json.loads(path.read_text(encoding="utf-8"))
+    fresh = {r["model"]: r for r in rows}
+    scan["rows"] = [fresh.pop(r["model"], r) for r in scan["rows"]] + list(fresh.values())
+    scan["scanned_at"] = now.isoformat(timespec="seconds")
+    return scan
+
+
 def main():
     now = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh"))
+    parser = argparse.ArgumentParser(description="Quét PMH của các SKU đang theo dõi trên TGDĐ.")
+    parser.add_argument("--only", default=os.environ.get("ONLY", ""),
+                        help='Chỉ quét một phần: "missing" hoặc danh sách model cách nhau bằng dấu phẩy.')
+    args = parser.parse_args()
+
     with PRODUCTS.open(encoding="utf-8-sig", newline="") as f:
-        products = [p for p in csv.DictReader(f) if p["url"].strip()]
+        all_products = [p for p in csv.DictReader(f) if p["url"].strip()]
+    products = pick_products(all_products, args.only)
+    partial = len(products) != len(all_products)
+    if not products:
+        print("Không có model nào cần quét.")
+        return
+    if partial:
+        print(f"Quét một phần: {len(products)}/{len(all_products)} model — "
+              + ", ".join(p["model"] for p in products), flush=True)
 
     rows, errors = [], 0
     for i, product in enumerate(products, 1):
@@ -271,11 +316,19 @@ def main():
 
     SCAN_DIR.mkdir(parents=True, exist_ok=True)
     scan = {"date": now.strftime("%d-%b"), "scanned_at": now.isoformat(timespec="seconds"), "rows": rows}
+    if partial:
+        merged = merge_into_today(rows, now)
+        if merged is not None:
+            scan = merged
+        else:
+            print("Hôm nay chưa có đợt quét nào, chỉ ghi các model vừa quét; "
+                  "các model còn lại để trống chứ không lấy số của ngày cũ.", flush=True)
     (SCAN_DIR / f"scan_{now.date().isoformat()}.json").write_text(
         json.dumps(scan, ensure_ascii=False, indent=1), encoding="utf-8")
     write_scans_js()
     write_latest_js(scan)
-    print(f"Đã lưu đợt {scan['date']}: {ok}/{len(products)} SKU đọc được giá, {errors} lỗi mạng.")
+    print(f"Đã lưu đợt {scan['date']}: {ok}/{len(products)} SKU đọc được giá, {errors} lỗi mạng. "
+          f"Tổng cộng {len(scan['rows'])} model trong đợt.")
 
 
 if __name__ == "__main__":
