@@ -72,9 +72,10 @@ def money(text):
     return int(digits) if digits else 0
 
 
-def build_result(rrp, red, banner, choice, kind):
+def build_result(rrp, red, banner, choice, kind, choice_in_red=True):
     """rrp/red = giá đen/giá đỏ khách thật sự trả (đã trừ khoản "Chọn 1 trong").
-    choice = khoản "Giảm giá X" trong mục "Chọn 1 trong"."""
+    choice = khoản "Giảm giá X" trong mục "Chọn 1 trong".
+    choice_in_red = giá đỏ đã trừ sẵn khoản "Chọn 1 trong" hay chưa."""
     diff = max(rrp - red, 0)  # giá đen − giá đỏ
     if banner:  # có flash sale: chỉ lấy khoản "Chọn 1 trong", không có thì 0
         pmh, rule = choice, "flash_chon1"
@@ -82,8 +83,10 @@ def build_result(rrp, red, banner, choice, kind):
         pmh, rule = diff, "den_tru_do"
     else:
         pmh, rule = choice, "chon1"
+    # Tổng khuyến mãi online khách thấy trên trang (gồm cả flash sale), chỉ để tham khảo.
+    total = diff + (0 if choice_in_red else choice)
     return {"status": "active", "rrp": rrp, "red": red, "pmh": pmh, "online": diff,
-            "total": pmh, "choice": choice, "kind": kind, "rule": rule}
+            "total_online": total, "choice": choice, "kind": kind, "rule": rule}
 
 
 def parse_next_layout(soup):
@@ -110,7 +113,9 @@ def parse_next_layout(soup):
         box = box.parent if box.parent is not None else box
     box_text = box.get_text(" ", strip=True)
     banner = bool(SLOTS_RE.search(box_text) or BANNER_RE.search(box_text))
-    return build_result(rrp, red, banner, choice, "moi-banner" if banner else "moi")
+    # Bố cục mới hiển thị giá đỏ chưa trừ khoản "Chọn 1 trong" (bấm chọn mới trừ tiếp).
+    return build_result(rrp, red, banner, choice, "moi-banner" if banner else "moi",
+                        choice_in_red=False)
 
 
 def parse_page(html):
@@ -154,7 +159,8 @@ def parse_page(html):
     # đã trừ. Trừ thêm ở đây để hai bố cục cho cùng một giá đỏ.
     red = rrp - discount - (choice if flash is None else 0)
     return build_result(rrp, red, flash is not None, choice,
-                        "banner" if flash is not None else "thuong")
+                        "banner" if flash is not None else "thuong",
+                        choice_in_red=flash is None)
 
 
 def scan_one(url, attempts=3):
@@ -187,7 +193,7 @@ def scan_one(url, attempts=3):
 
 def write_scans_js():
     """Chỉ đưa các đợt quét của thứ Hai và thứ Sáu lên web; ngày khác chỉ dùng để dò tăng giá."""
-    keys = ("model", "rrp", "pmh", "status", "online", "total", "choice", "kind", "rule")
+    keys = ("model", "rrp", "pmh", "status", "online", "total_online", "choice", "kind", "rule")
     scans = []
     for path in sorted(SCAN_DIR.glob("scan_*.json")):
         try:
