@@ -324,8 +324,10 @@ function build(){
       if("rule" in x){
         r.online = typeof x.online==="number" ? x.online : null;
         r.choice = typeof x.choice==="number" ? x.choice : null;
-        r.tot = typeof x.total_online==="number" ? x.total_online
-              : (r.online==null ? null : r.online + (x.rule==="den_tru_do" ? 0 : (r.choice||0)));
+        // Chỉ điền ô Flash sale khi máy thật sự đang chạy flash sale online; không thì để trống.
+        r.tot = x.rule!=="flash_chon1" ? null
+              : (typeof x.total_online==="number" ? x.total_online
+                 : (r.online==null ? null : r.online + (r.choice||0)));
         r.rule = x.rule || null;
       }
       if(x.kind) r.kind = x.kind;
