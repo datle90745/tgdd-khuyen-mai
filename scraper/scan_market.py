@@ -4,7 +4,7 @@ Lấy từ trang danh sách của 4 nhà bán lẻ, chỉ 6 hãng đang theo dõ
 (Apple, Samsung, OPPO, Xiaomi gồm Redmi/POCO, Vivo, Realme):
   - TGDĐ:          POST /Category/FilterProductBox?c=42&pi=N (20 máy/trang)
   - CellphoneS:    GraphQL api.cellphones.com.vn, danh mục 3, chỉ hàng đang bán (stock 46)
-  - FPT Shop:      dữ liệu nhúng trong trang /dien-thoai/<hãng> (API của FPT chặn máy chủ)
+  - FPT Shop:      mở /dien-thoai/<hãng> bằng trình duyệt thật (FPT chặn kết nối từ máy chủ)
   - Viettel Store: POST /Site/_Sys/GetUserControlAsync.aspx (CatID=010001)
 Mỗi máy ghi: giá gốc (giá gạch), giá online (giá bán), giá trị KM = giá gốc − giá online.
 Lưu data/market.js (window.MARKET), giữ tối đa KEEP_SCANS đợt gần nhất; quét lại trong
@@ -29,6 +29,8 @@ KEEP_SCANS = 20
 
 CF_PROXY_URL = os.environ.get("CF_PROXY_URL", "").rstrip("/")
 CF_PROXY_TOKEN = os.environ.get("CF_PROXY_TOKEN", "")
+# Trình duyệt cho FPT: có màn hình ảo (xvfb-run) thì để hiện, chạy máy thường thì ẩn.
+HEADLESS = os.environ.get("DISPLAY", "") == ""
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36")
 
@@ -155,72 +157,83 @@ def scan_cellphones():
 FPT_BRAND_PAGES = ["apple-iphone", "samsung", "oppo", "xiaomi", "vivo", "realme"]
 
 
-def fpt_pages_via_browser(urls):
+# Bóc từng thẻ sản phẩm ngay trên giao diện: tên ở <h3>, giá gạch ở .line-through,
+# giá bán ở đoạn b1-semibold.
+FPT_EXTRACT_JS = """() => {
+  const money = s => +String(s || '').replace(/[^0-9]/g, '') || 0;
+  return [...document.querySelectorAll('a[href^="/dien-thoai/"]')]
+    .filter(a => a.querySelector('h3'))
+    .map(a => ({
+      n: a.querySelector('h3').textContent.trim(),
+      u: a.getAttribute('href').split('?')[0],
+      o: money((a.querySelector('.line-through') || {}).textContent),
+      p: money((a.querySelector('p[class*="b1-semibold"]') || {}).textContent),
+    }));
+}"""
+
+FPT_SHOW_ALL_JS = """async () => {
+  const count = () => document.querySelectorAll('a[href^="/dien-thoai/"] h3').length;
+  for (let i = 0; i < 10; i++) {
+    const btn = [...document.querySelectorAll('button')]
+      .find(b => /xem thêm/i.test(b.textContent) && b.offsetParent !== null);
+    if (!btn) break;
+    const before = count();
+    btn.scrollIntoView({block: 'center'});
+    btn.click();
+    await new Promise(r => setTimeout(r, 2500));
+    if (count() === before) break;
+  }
+  return count();
+}"""
+
+
+def fpt_rows_via_browser():
     """FPT chặn mọi kết nối từ máy chủ bằng trang kiểm tra chống bot ("Just a moment"),
-    nên mở bằng trình duyệt thật (Playwright) để trang tự vượt qua rồi lấy HTML."""
+    nên mở bằng trình duyệt thật. Chạy có màn hình ảo (xvfb-run) để vượt qua dễ hơn."""
     from playwright.sync_api import sync_playwright
 
-    pages = {}
+    rows, seen, failed = [], set(), []
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(args=["--disable-blink-features=AutomationControlled"])
+        browser = pw.chromium.launch(headless=HEADLESS, args=[
+            "--disable-blink-features=AutomationControlled", "--no-sandbox"])
         context = browser.new_context(user_agent=UA, locale="vi-VN",
                                       timezone_id="Asia/Ho_Chi_Minh",
-                                      viewport={"width": 1366, "height": 768})
+                                      viewport={"width": 1366, "height": 900})
         page = context.new_page()
-        for url in urls:
-            html = ""
-            try:
-                page.goto(url, wait_until="domcontentloaded", timeout=60000)
-                for _ in range(20):  # chờ trang kiểm tra tự chuyển sang nội dung thật
-                    html = page.content()
-                    if '"currentPrice"' in html.replace('\\"', '"'):
-                        break
-                    page.wait_for_timeout(2000)
-            except Exception as error:
-                print(f"  playwright {url}: {error}", flush=True)
-            pages[url] = html
+        for slug in FPT_BRAND_PAGES:
+            url = f"https://fptshop.com.vn/dien-thoai/{slug}"
+            items = []
+            for attempt in range(3):  # trang kiểm tra có thể cần vài lần tải lại
+                try:
+                    page.goto(url, wait_until="domcontentloaded", timeout=90000)
+                    page.wait_for_selector('a[href^="/dien-thoai/"] h3', timeout=60000)
+                    page.evaluate(FPT_SHOW_ALL_JS)
+                    items = page.evaluate(FPT_EXTRACT_JS)
+                except Exception as error:
+                    print(f"  FPT {slug} lần {attempt + 1}: {str(error)[:120]}", flush=True)
+                if items:
+                    break
+                page.wait_for_timeout(5000)
+            if not items:
+                failed.append(slug)
+            for it in items:
+                url_full = "https://fptshop.com.vn" + it["u"]
+                brand = brand_of(it["n"], it["u"])
+                if not brand or not it["p"] or url_full in seen:
+                    continue
+                seen.add(url_full)
+                rows.append(row("FPT Shop", brand, it["n"], url_full, it["p"], it["o"]))
+            print(f"  FPT {slug}: {len(items)} thẻ", flush=True)
         browser.close()
-    return pages
+    if failed:
+        print(f"  FPT không đọc được trang: {', '.join(failed)}", flush=True)
+    return rows
 
 
 def scan_fpt():
-    """Đọc dữ liệu nhúng sẵn trong trang danh sách theo hãng (/dien-thoai/<hãng>)."""
-    urls = [f"https://fptshop.com.vn/dien-thoai/{p}" for p in FPT_BRAND_PAGES]
-    pages, errors = {}, []
-    try:  # thử đọc thẳng trước, nhanh hơn nhiều
-        pages[urls[0]] = request("GET", urls[0], headers={"Accept": "text/html,application/xhtml+xml"}).text
-        for url in urls[1:]:
-            pages[url] = request("GET", url, headers={"Accept": "text/html,application/xhtml+xml"}).text
-            time.sleep(1)
-    except Exception as error:
-        errors.append(str(error)[:120])
-        print(f"  FPT đọc thẳng không được ({error}); chuyển sang trình duyệt thật.", flush=True)
-        pages = fpt_pages_via_browser(urls)
-
-    rows, seen = [], set()
-    for html in pages.values():
-        html = (html or "").replace('\\"', '"')
-        for match in re.finditer(r'"currentPrice":(\d+)', html):
-            back = html[max(0, match.start() - 2500):match.start()]
-            slugs = list(re.finditer(r'"slug":"(dien-thoai/[a-z0-9-]+)(?:\?sku=\d+)?"', back))
-            if not slugs:
-                continue
-            last = slugs[-1]
-            slug = last.group(1)
-            if slug in seen:
-                continue
-            origs = re.findall(r'"originalPrice":(\d+)', back[last.start():])
-            names = re.findall(r'"(?:displayName|name)":"([^"]{3,80})"', back[:last.start()])
-            name = names[-1] if names else slug.split("/")[-1].replace("-", " ")
-            brand = brand_of(name, slug)
-            price = int(match.group(1))
-            if not brand or not price:
-                continue
-            seen.add(slug)
-            rows.append(row("FPT Shop", brand, name, "https://fptshop.com.vn/" + slug,
-                            price, int(origs[-1]) if origs else 0))
+    rows = fpt_rows_via_browser()
     if not rows:
-        raise RuntimeError("không đọc được máy nào. " + "; ".join(errors))
+        raise RuntimeError("không đọc được máy nào (trang kiểm tra chống bot).")
     return rows
 
 
