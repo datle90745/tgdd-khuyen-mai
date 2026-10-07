@@ -129,6 +129,8 @@ td.bcell[data-b="Honor"]{background:#7030a0}
 .r-inc{color:var(--down);font-weight:600} .r-dec{color:var(--up);font-weight:600} .r-gap{color:var(--warn);cursor:help}
 .rwarn{border-left:3px solid var(--warn);background:var(--warn-bg);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
 .rwarn ul{margin:6px 0 0;padding-left:18px;color:var(--muted);font-size:12.5px}
+/* Chuỗi đã kiểm tra: để màu dịu, không tranh chỗ với cảnh báo thật. */
+.rwarn.ok{border-left-color:var(--line);background:var(--panel-2);color:var(--muted);font-size:13px}
 .rfil{display:flex;flex-wrap:wrap;gap:10px;padding:12px 14px;margin-bottom:8px} .rfil label{display:grid;gap:3px;color:var(--muted);font-size:12px;min-width:140px}
 .rfil select,.rfil input[type=search]{border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--panel);color:var(--ink)} .rfil label.chk{display:flex;align-items:center;gap:6px;align-self:end;padding-bottom:8px}
 /* drawer */
@@ -558,6 +560,9 @@ const rkey = (b,m) => { let s=m.toLowerCase().replace(/[:()]/g," ").replace(/\s+
   s=s.replace(/(\d+)gb\s+(\d+)gb/g,"$1gb/$2gb").replace(/(\d+)\s*gb\s*\/\s*(\d+)\s*(gb|tb)/g,"$1gb/$2$3");
   if(/^s25 fe/.test(s)&&!/5g/.test(s)) s=s.replace("s25 fe","s25 fe 5g");
   return b+"|"+s.replace(/\s+/g," "); };
+// Các chuỗi giá đã kiểm tra: biết là thiếu một nấc nhưng không còn nguồn để bổ sung,
+// nên thôi không cảnh báo nữa — để dành cảnh báo cho lỗi thật. Khai trong data.js.
+const GAP_OK = new Set((window.RISE_GAP_OK||[]).map(x=>rkey(x[0],x[1])));
 const RISE = RISE_RAW.map((r,i)=>{ const [mo,b,m,o,n,d,p]=r; return {i,mo,b,m,o,n,v:n-o,p,seg:rseg(n),d,k:rkey(b,m)}; });
 const mnum = m => +m.slice(1);
 const RB_CELL = b => `<td class="bcell" data-b="${RBD[b]||b}">${b}</td>`;
@@ -592,9 +597,11 @@ function renderRiseTop(){
   $("rmatrix").innerHTML=`<thead><tr><th>Hãng</th>${months.map(m=>`<th class="n">${m}</th>`).join("")}<th class="n">Tổng tăng</th></tr></thead><tbody>`+
     st.map(s=>`<tr>${RB_CELL(s.b)}${months.map(m=>{ const u=RISE.filter(r=>r.b===s.b&&r.mo===m&&r.v>0).length, dn=RISE.filter(r=>r.b===s.b&&r.mo===m&&r.v<0).length;
       return `<td class="hm" ${u?`style="background:rgba(184,50,80,${(0.12+0.55*u/mx).toFixed(2)})"`:""}>${u||(dn?"":"·")}${dn?` <span class="r-dec">↓${dn}</span>`:""}</td>`; }).join("")}<td class="n"><b>${s.ups}</b></td></tr>`).join("")+`</tbody>`;
-  const gapL=RMODELS.filter(x=>x.gaps);
-  $("rwarn").innerHTML=gapL.length?`<div class="rwarn"><b>${gapL.length} model có chuỗi giá không khớp.</b> Giá cũ của lần đổi sau khác giá mới của lần trước: có thể trùng dòng hoặc thiếu một đợt. Bạn kiểm tra lại các dòng này:<ul>`+
-    gapL.map(x=>`<li>${x.b} ${esc(x.m)}: ${x.chain.map(r=>`${r.mo} ${fmt(r.o)} → ${fmt(r.n)}`).join("; ")}</li>`).join("")+`</ul></div>`:"";
+  const all=RMODELS.filter(x=>x.gaps);
+  const gapL=all.filter(x=>!GAP_OK.has(rkey(x.b,x.m))), okL=all.filter(x=>GAP_OK.has(rkey(x.b,x.m)));
+  const okNote=okL.length?`<div class="rwarn ok"><b>${okL.length} chuỗi đã kiểm tra, chấp nhận thiếu nấc.</b> Không tìm được dữ liệu của lần tăng còn thiếu, giữ nguyên để khỏi bịa số: ${okL.map(x=>esc(x.b+" "+x.m)).join("; ")}.</div>`:"";
+  $("rwarn").innerHTML=(gapL.length?`<div class="rwarn"><b>${gapL.length} model có chuỗi giá không khớp.</b> Giá cũ của lần đổi sau khác giá mới của lần trước: có thể trùng dòng hoặc thiếu một đợt. Bạn kiểm tra lại các dòng này:<ul>`+
+    gapL.map(x=>`<li>${x.b} ${esc(x.m)}: ${x.chain.map(r=>`${r.mo} ${fmt(r.o)} → ${fmt(r.n)}`).join("; ")}</li>`).join("")+`</ul></div>`:"")+okNote;
 }
 function renderRiseModels(){
   const b=$("rm-brand").value, sort=$("rm-sort").value, multi=$("rm-multi").checked, q=$("rm-q").value.trim().toLowerCase();
