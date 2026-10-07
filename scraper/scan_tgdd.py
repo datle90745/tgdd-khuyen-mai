@@ -213,9 +213,9 @@ def write_scans_js():
 
 
 def write_latest_js(scan):
-    """Các cột tham khảo (Loại KM, Flash sale) lấy theo đợt quét mới nhất, quét ngày nào cũng ghi.
-    Không đụng tới cột KM base: cột đó vẫn chỉ lưu thứ Hai và thứ Sáu trong scans.js."""
-    keys = ("model", "status", "online", "total_online", "choice", "kind", "rule")
+    """Đợt quét mới nhất, quét ngày nào cũng ghi, để web có cột "hôm nay" và các cột tham khảo.
+    Trùng ngày với một cột đã lưu (thứ Hai/thứ Sáu) thì web ghi đè chính cột đó, không thêm cột mới."""
+    keys = ("model", "rrp", "pmh", "status", "online", "total_online", "choice", "kind", "rule")
     latest = {"date": scan["date"], "rows": [
         {k: r[k] for k in keys if k in r} for r in scan["rows"]]}
     LATEST_JS.write_text(
