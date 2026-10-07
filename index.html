@@ -10,6 +10,7 @@
 <script src="data/data.js?v=20261007c"></script>
 <script src="data/scans.js?v=20261007c"></script>
 <script src="data/latest.js?v=20261007c"></script>
+<script src="data/links.js?v=20261007c"></script>
 <script src="data/market.js?v=20261007c"></script>
 <style>
 :root{
@@ -78,6 +79,8 @@ td.model{white-space:normal;min-width:220px;font-weight:500}
 .d-up{color:var(--up);font-weight:600} .d-down{color:var(--down);font-weight:600} .d-flat{color:var(--flat)}
 /* Ô Flash sale: có số tức là đang chạy flash sale online, tô đỏ cho dễ nhận ra. */
 #tbl td.fscell{color:#d81f2a;font-weight:600}
+.plink{display:inline-block;margin-top:2px;font-size:17px;font-weight:700;color:var(--acc);text-decoration:none}
+.plink:hover{text-decoration:underline}
 .spark{display:block}
 .count{color:var(--muted);margin:2px 2px 10px}
 /* matrix */
@@ -281,6 +284,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 const BASE = window.BASE;
 const SCANS = Array.isArray(window.SCANS) ? window.SCANS : [];
 const LATEST = window.LATEST && Array.isArray(window.LATEST.rows) ? window.LATEST : null;
+const LINKS = window.LINKS && typeof window.LINKS==="object" ? window.LINKS : {};
 const SEG_ORDER = [">30M","20-30M","15-20M","10-15M","7-10M","5-7M","<5M"];
 const RRP_NOTES = window.RRP_NOTES || {};
 const fmt = n => n==null ? "–" : n.toLocaleString("vi-VN");
@@ -456,9 +460,10 @@ function openDrawer(model){
   const best=vals.length?Math.max(...vals):null, avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
   const runs=vals.filter(x=>x>0).length;
   $("dbody").innerHTML=`<h2>${esc(r.model)}</h2><div style="color:var(--muted)"><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span>phân khúc ${esc(r.segment)}, ${r.channel==="TGDD"?"độc quyền TGDĐ":"kênh Mass"}${kindOf(r)?`, đợt mới nhất: <span class="badge ${kindOf(r)===KIND_FS?"fs":"mass"}">${kindOf(r)}</span>`:""}</div>
-  <div class="kv"><div><small>RRP</small><b>${fmt(r.rrp)}</b></div><div><small>PMH hiện tại</small><b>${r.status==="active"?fmt(p):"–"}</b></div><div><small>PMH cao nhất</small><b>${fmt(best)}</b></div></div>
+  <div class="kv"><div><small>RRP</small><b>${fmt(r.rrp)}</b></div><div><small>PMH hiện tại</small><b>${r.status==="active"?fmt(p):"–"}</b></div><div><small>PMH cao nhất</small><b>${fmt(best)}</b></div>
+  <div><small>Trang sản phẩm</small>${LINKS[r.model]?`<a class="plink" href="${esc(LINKS[r.model])}" target="_blank" rel="noopener noreferrer">Mở trên TGDĐ ↗</a>`:`<b>–</b>`}</div></div>
   ${r.flags.map(f=>`<div class="note">${esc(f)}</div>`).join("")}
-  ${r.rule?`<div class="kv"><div><small>KM base (PMH)</small><b>${fmt(r.pmh[r.pmh.length-1])}</b></div><div><small>Flash sale</small><b>${fmt(r.tot)}</b></div><div><small>Giá đen − giá đỏ</small><b>${fmt(r.online)}</b></div><div><small>Chọn 1 trong</small><b>${fmt(r.choice)}</b></div></div><div style="color:var(--muted)">Đợt mới nhất: ${{flash_chon1:"có flash sale nên PMH = khoản “Chọn 1 trong”",den_tru_do:"không flash sale, giá đen − giá đỏ lớn hơn khoản “Chọn 1 trong”",chon1:"không flash sale, khoản “Chọn 1 trong” lớn hơn giá đen − giá đỏ",khong_banner:"không có banner (quy tắc cũ)",banner_a:"banner loại A (quy tắc cũ)",banner_b:"banner loại B (quy tắc cũ)"}[r.rule]||"–"}.</div>`:""}
+  ${r.rule?`<div class="kv"><div><small>KM base (PMH)</small><b>${fmt(r.pmh[r.pmh.length-1])}</b></div><div><small>Flash sale</small><b>${fmt(r.tot)}</b></div><div><small>Giá đen − giá đỏ</small><b>${fmt(r.online)}</b></div></div><div style="color:var(--muted)">Đợt mới nhất: ${{flash_chon1:"có flash sale nên PMH = khoản “Chọn 1 trong”",den_tru_do:"không flash sale, giá đen − giá đỏ lớn hơn khoản “Chọn 1 trong”",chon1:"không flash sale, khoản “Chọn 1 trong” lớn hơn giá đen − giá đỏ",khong_banner:"không có banner (quy tắc cũ)",banner_a:"banner loại A (quy tắc cũ)",banner_b:"banner loại B (quy tắc cũ)"}[r.rule]||"–"}.</div>`:""}
   ${r.status==="ngung_kd"?`<div class="note">TGDĐ đã gỡ SKU này (trang trả về 404).</div>`:""}
   ${r.status==="chua_mo_ban"?`<div class="note">SKU mới có trang đăng ký nhận tin, chưa mở bán. Giá hiển thị là giá dự kiến.</div>`:""}
   ${chart(r)}
