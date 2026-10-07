@@ -323,6 +323,9 @@ function build(){
     });
   });
   rows.forEach(r=>{ if(RRP_NOTES[r.model]) r.flags.unshift(RRP_NOTES[r.model]); });
+  // Giữ nguyên thứ tự hãng như trong dữ liệu gốc, trong mỗi hãng xếp giá đen từ cao xuống thấp.
+  const bOrder = []; rows.forEach(r=>{ if(!bOrder.includes(r.brand)) bOrder.push(r.brand); });
+  rows.sort((a,b)=> bOrder.indexOf(a.brand)-bOrder.indexOf(b.brand) || (b.rrp||0)-(a.rrp||0));
   S = {dates, rows};
 }
 function delta(r){
