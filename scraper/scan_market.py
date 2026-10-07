@@ -187,9 +187,40 @@ FPT_SHOW_ALL_JS = """async () => {
 }"""
 
 
+# Sau khi trình duyệt đã vượt trang kiểm tra, tải các trang hãng còn lại ngay trong
+# trình duyệt đó (đã có cookie hợp lệ) thay vì mở từng trang và bị kiểm tra lại.
+FPT_FETCH_JS = """async (url) => {
+  const r = await fetch(url, {credentials: 'include'});
+  return r.ok ? await r.text() : '';
+}"""
+
+
+def parse_fpt_html(html):
+    """Bóc dữ liệu sản phẩm nhúng sẵn trong HTML trang danh sách của FPT."""
+    html = (html or "").replace('\\"', '"')
+    items, seen = [], set()
+    for match in re.finditer(r'"currentPrice":(\d+)', html):
+        back = html[max(0, match.start() - 2500):match.start()]
+        slugs = list(re.finditer(r'"slug":"(dien-thoai/[a-z0-9-]+)(?:\?sku=\d+)?"', back))
+        if not slugs:
+            continue
+        last = slugs[-1]
+        slug = last.group(1)
+        if slug in seen:
+            continue
+        seen.add(slug)
+        origs = re.findall(r'"originalPrice":(\d+)', back[last.start():])
+        names = re.findall(r'"(?:displayName|name)":"([^"]{3,80})"', back[:last.start()])
+        items.append({"n": names[-1] if names else slug.split("/")[-1].replace("-", " "),
+                      "u": "/" + slug, "p": int(match.group(1)),
+                      "o": int(origs[-1]) if origs else 0})
+    return items
+
+
 def fpt_rows_via_browser():
-    """FPT chặn mọi kết nối từ máy chủ bằng trang kiểm tra chống bot ("Just a moment"),
-    nên mở bằng trình duyệt thật. Chạy có màn hình ảo (xvfb-run) để vượt qua dễ hơn."""
+    """FPT chặn mọi kết nối từ máy chủ bằng trang kiểm tra chống bot ("Just a moment").
+    Mở bằng trình duyệt thật một lần để lấy cookie hợp lệ, rồi tải 6 trang hãng ngay
+    trong trình duyệt đó. Chạy có màn hình ảo (xvfb-run) để vượt qua dễ hơn."""
     from playwright.sync_api import sync_playwright
 
     rows, seen, failed = [], set(), []
@@ -200,20 +231,34 @@ def fpt_rows_via_browser():
                                       timezone_id="Asia/Ho_Chi_Minh",
                                       viewport={"width": 1366, "height": 900})
         page = context.new_page()
+
+        passed = False
+        for attempt in range(6):  # vượt trang kiểm tra, mỗi lần chờ tối đa 40 giây
+            try:
+                page.goto("https://fptshop.com.vn/dien-thoai/samsung",
+                          wait_until="domcontentloaded", timeout=90000)
+                page.wait_for_selector('a[href^="/dien-thoai/"] h3', timeout=40000)
+                passed = True
+                break
+            except Exception as error:
+                print(f"  FPT vượt trang kiểm tra lần {attempt + 1}: "
+                      f"{page.title()[:40]} | {str(error)[:80]}", flush=True)
+                page.wait_for_timeout(10000)
+        if not passed:
+            browser.close()
+            raise RuntimeError("không vượt được trang kiểm tra chống bot của FPT")
+
         for slug in FPT_BRAND_PAGES:
-            url = f"https://fptshop.com.vn/dien-thoai/{slug}"
             items = []
-            for attempt in range(3):  # trang kiểm tra có thể cần vài lần tải lại
+            for attempt in range(2):
                 try:
-                    page.goto(url, wait_until="domcontentloaded", timeout=90000)
-                    page.wait_for_selector('a[href^="/dien-thoai/"] h3', timeout=60000)
-                    page.evaluate(FPT_SHOW_ALL_JS)
-                    items = page.evaluate(FPT_EXTRACT_JS)
+                    html = page.evaluate(FPT_FETCH_JS, f"https://fptshop.com.vn/dien-thoai/{slug}")
+                    items = parse_fpt_html(html)
                 except Exception as error:
-                    print(f"  FPT {slug} lần {attempt + 1}: {str(error)[:120]}", flush=True)
+                    print(f"  FPT {slug} lần {attempt + 1}: {str(error)[:100]}", flush=True)
                 if items:
                     break
-                page.wait_for_timeout(5000)
+                page.wait_for_timeout(4000)
             if not items:
                 failed.append(slug)
             for it in items:
@@ -223,7 +268,8 @@ def fpt_rows_via_browser():
                     continue
                 seen.add(url_full)
                 rows.append(row("FPT Shop", brand, it["n"], url_full, it["p"], it["o"]))
-            print(f"  FPT {slug}: {len(items)} thẻ", flush=True)
+            print(f"  FPT {slug}: {len(items)} máy", flush=True)
+            page.wait_for_timeout(2000)
         browser.close()
     if failed:
         print(f"  FPT không đọc được trang: {', '.join(failed)}", flush=True)
