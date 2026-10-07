@@ -316,7 +316,8 @@ function build(){
         const seg = rseg(x.rrp); if(seg!==r.segment){ r.flags.push(`Phân khúc đổi ${r.segment} → ${seg} (${im.date})`); r.segment = seg; }
       }
       if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||x.status==="active") r.status = x.status;
-      // Trang lỗi/không đọc được giá thì giữ số cũ của cột (nếu có), không xoá thành ô trống.
+      // Trang lỗi thì giữ số đã quét được CỦA CHÍNH NGÀY ĐÓ (lần quét trước trong cùng ngày),
+      // cột mới thì để trống. Không bao giờ lấy số của ngày cũ lấp vào ngày mới.
       if(typeof x.pmh==="number") r.pmh[col] = x.pmh;
       else if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||r.pmh[col]===undefined) r.pmh[col] = null;
       // KM online / Tổng KM (tham khảo) và quy tắc đã áp dụng ở đợt quét mới nhất.
