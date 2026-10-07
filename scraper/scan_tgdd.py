@@ -21,13 +21,15 @@ import os
 import re
 import sys
 import time
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from urllib.parse import quote
 from zoneinfo import ZoneInfo
 
 import requests
 from bs4 import BeautifulSoup
+
+import alerts
 
 ROOT = Path(__file__).resolve().parent.parent
 PRODUCTS = ROOT / "scraper" / "products.csv"
@@ -193,9 +195,16 @@ def scan_one(url, attempts=3):
 
 
 def write_scans_js():
+    """Chỉ đưa các đợt quét của thứ Hai và thứ Sáu lên web; ngày khác chỉ dùng để dò tăng giá."""
     keys = ("model", "rrp", "pmh", "status", "online", "total", "choice", "kind", "rule")
     scans = []
     for path in sorted(SCAN_DIR.glob("scan_*.json")):
+        try:
+            day = date.fromisoformat(path.stem.replace("scan_", ""))
+        except ValueError:
+            continue
+        if day.weekday() not in alerts.KEEP_WEEKDAYS:
+            continue
         data = json.loads(path.read_text(encoding="utf-8"))
         scans.append({"date": data["date"], "rows": [
             {k: r[k] for k in keys if k in r} for r in data["rows"]]})
@@ -232,6 +241,23 @@ def main():
     if ok < len(products) * 0.5:
         # Đa số trang lỗi (thường do bị chặn IP): không ghi đè dữ liệu.
         sys.exit(f"ERROR: chỉ đọc được {ok}/{len(products)} trang, không lưu đợt quét này.")
+
+    # Dò giá đen tăng so với đợt quét gần nhất trước hôm nay.
+    today = now.date().isoformat()
+    previous = sorted(p for p in SCAN_DIR.glob("scan_*.json")
+                      if p.stem.replace("scan_", "") < today)
+    ups = []
+    if previous:
+        old = {r["model"]: r.get("rrp") for r in
+               json.loads(previous[-1].read_text(encoding="utf-8"))["rows"]}
+        for r in rows:
+            before, after = old.get(r["model"]), r.get("rrp")
+            if before and after and after > before:
+                ups.append({"r": "TGDĐ", "n": r["model"], "old": before, "new": after})
+    alerts.record("tgdd-86", today, now.strftime("%H:%M"), ups)
+    print(f"Giá đen tăng (86 SKU): {len(ups)}"
+          + ("; " + "; ".join(f"{u['n']} {u['old']:,}→{u['new']:,}" for u in ups[:10]) if ups else ""),
+          flush=True)
 
     SCAN_DIR.mkdir(parents=True, exist_ok=True)
     scan = {"date": now.strftime("%d-%b"), "scanned_at": now.isoformat(timespec="seconds"), "rows": rows}

@@ -23,8 +23,11 @@ from zoneinfo import ZoneInfo
 import requests
 from bs4 import BeautifulSoup
 
+import alerts
+
 ROOT = Path(__file__).resolve().parent.parent
 MARKET_JS = ROOT / "data" / "market.js"
+LAST_JSON = ROOT / "data" / "market_last.json"  # giá lần quét trước, chỉ dùng để dò tăng giá
 KEEP_SCANS = 20
 
 CF_PROXY_URL = os.environ.get("CF_PROXY_URL", "").rstrip("/")
@@ -326,20 +329,42 @@ def main():
     if not rows:
         sys.exit("ERROR: không sàn nào đọc được, không lưu.")
 
+    # Dò giá gốc tăng so với lần quét trước (bất kể ngày nào).
+    today, label, at = now.date().isoformat(), now.strftime("%d-%b"), now.strftime("%H:%M")
+    old = {}
+    if LAST_JSON.exists():
+        old = json.loads(LAST_JSON.read_text(encoding="utf-8")).get("prices", {})
+    ups = []
+    for r in rows:
+        key = r["r"] + "|" + r["u"]
+        before = old.get(key)
+        if before and r["o"] > before:
+            ups.append({"r": r["r"], "b": r["b"], "n": r["n"], "old": before, "new": r["o"]})
+    alerts.record("market", today, at, ups)
+    LAST_JSON.write_text(json.dumps({"day": today, "at": at,
+                                     "prices": {r["r"] + "|" + r["u"]: r["o"] for r in rows}},
+                                    ensure_ascii=False), encoding="utf-8")
+    print(f"Giá gốc tăng (toàn thị trường): {len(ups)}"
+          + ("; " + "; ".join(f"{u['r']} {u['n']} {u['old']:,}→{u['new']:,}" for u in ups[:10]) if ups else ""),
+          flush=True)
+
+    # Chỉ thứ Hai và thứ Sáu mới lưu thành một đợt hiển thị trên web.
+    if now.weekday() not in alerts.KEEP_WEEKDAYS:
+        print(f"Hôm nay không phải thứ Hai/thứ Sáu nên không thêm đợt mới. {report}")
+        return
     market = {"scans": []}
     if MARKET_JS.exists():
         text = MARKET_JS.read_text(encoding="utf-8")
         match = re.search(r"window\.MARKET\s*=\s*(\{.*\});", text, re.S)
         if match:
             market = json.loads(match.group(1))
-    date = now.strftime("%d-%b")
-    scan = {"date": date, "at": now.strftime("%H:%M"), "report": report, "rows": rows}
-    market["scans"] = [s for s in market.get("scans", []) if s.get("date") != date] + [scan]
+    scan = {"date": label, "at": at, "report": report, "rows": rows}
+    market["scans"] = [s for s in market.get("scans", []) if s.get("date") != label] + [scan]
     market["scans"] = market["scans"][-KEEP_SCANS:]
     MARKET_JS.write_text("/* Tự sinh bởi scraper/scan_market.py, đừng sửa tay. */\n"
                          "window.MARKET = " + json.dumps(market, ensure_ascii=False, separators=(",", ":")) + ";\n",
                          encoding="utf-8")
-    print(f"Đã lưu đợt {date} {scan['at']}: {len(rows)} máy. {report}")
+    print(f"Đã lưu đợt {label} {at}: {len(rows)} máy. {report}")
 
 
 if __name__ == "__main__":
