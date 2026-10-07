@@ -190,36 +190,6 @@ FPT_SHOW_ALL_JS = """async () => {
 }"""
 
 
-# Sau khi trình duyệt đã vượt trang kiểm tra, tải các trang hãng còn lại ngay trong
-# trình duyệt đó (đã có cookie hợp lệ) thay vì mở từng trang và bị kiểm tra lại.
-FPT_FETCH_JS = """async (url) => {
-  const r = await fetch(url, {credentials: 'include'});
-  return r.ok ? await r.text() : '';
-}"""
-
-
-def parse_fpt_html(html):
-    """Bóc dữ liệu sản phẩm nhúng sẵn trong HTML trang danh sách của FPT."""
-    html = (html or "").replace('\\"', '"')
-    items, seen = [], set()
-    for match in re.finditer(r'"currentPrice":(\d+)', html):
-        back = html[max(0, match.start() - 2500):match.start()]
-        slugs = list(re.finditer(r'"slug":"(dien-thoai/[a-z0-9-]+)(?:\?sku=\d+)?"', back))
-        if not slugs:
-            continue
-        last = slugs[-1]
-        slug = last.group(1)
-        if slug in seen:
-            continue
-        seen.add(slug)
-        origs = re.findall(r'"originalPrice":(\d+)', back[last.start():])
-        names = re.findall(r'"(?:displayName|name)":"([^"]{3,80})"', back[:last.start()])
-        items.append({"n": names[-1] if names else slug.split("/")[-1].replace("-", " "),
-                      "u": "/" + slug, "p": int(match.group(1)),
-                      "o": int(origs[-1]) if origs else 0})
-    return items
-
-
 def fpt_rows_via_browser():
     """FPT chặn mọi kết nối từ máy chủ bằng trang kiểm tra chống bot ("Just a moment").
     Mở bằng trình duyệt thật một lần để lấy cookie hợp lệ, rồi tải 6 trang hãng ngay
@@ -255,13 +225,20 @@ def fpt_rows_via_browser():
             items = []
             for attempt in range(2):
                 try:
-                    html = page.evaluate(FPT_FETCH_JS, f"https://fptshop.com.vn/dien-thoai/{slug}")
-                    items = parse_fpt_html(html)
+                    # Chuyển trang thật trong chính trình duyệt đã có cookie hợp lệ.
+                    # (Trước đây dùng fetch rồi bóc "currentPrice" trong HTML, nhưng FPT đã đổi
+                    # cấu trúc nên HTML không còn trường đó — đọc thẳng trên giao diện mới chắc.)
+                    page.goto(f"https://fptshop.com.vn/dien-thoai/{slug}",
+                              wait_until="domcontentloaded", timeout=90000)
+                    page.wait_for_selector('a[href^="/dien-thoai/"] h3', timeout=40000)
+                    page.evaluate(FPT_SHOW_ALL_JS)
+                    items = page.evaluate(FPT_EXTRACT_JS)
                 except Exception as error:
                     print(f"  FPT {slug} lần {attempt + 1}: {str(error)[:100]}", flush=True)
                 if items:
                     break
                 page.wait_for_timeout(4000)
+            print(f"  FPT {slug}: {len(items)} máy", flush=True)
             if not items:
                 failed.append(slug)
             for it in items:
@@ -271,7 +248,6 @@ def fpt_rows_via_browser():
                     continue
                 seen.add(url_full)
                 rows.append(row("FPT Shop", brand, it["n"], url_full, it["p"], it["o"]))
-            print(f"  FPT {slug}: {len(items)} máy", flush=True)
             page.wait_for_timeout(2000)
         browser.close()
     if failed:
