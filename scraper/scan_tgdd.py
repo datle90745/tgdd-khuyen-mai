@@ -4,15 +4,12 @@ Mỗi lần chạy tạo một đợt quét (ngày theo giờ Việt Nam), lưu:
   data/scans/scan_YYYY-MM-DD.json   bản ghi chi tiết của đợt quét
   data/scans.js                     window.SCANS = [...] cho web đọc
 
-PMH (`pmh`, cũng gọi là KM base, là số lưu vào lịch sử), theo tab "Quy tắc tính PMH" của web:
-  1. Không có banner cam (flash sale): PMH = giá đen − giá đỏ đang hiển thị.
-  2. Banner loại A (trang có "Chọn 1 trong") có dòng "đã giảm vào giá sản phẩm": PMH = tổng các dòng đó.
-  3. Banner loại A không có dòng "đã giảm": PMH = 0.
-  4. Banner loại B (flash đếm ngược, không có "Chọn 1 trong"): PMH = giá đen − giá đỏ.
-Thông tin tham khảo, không vào lịch sử:
-  - KM online (`online`): giá đen − giá đỏ của khối flash sale (chỉ khi có banner).
-  - Tổng KM   (`total`):  PMH + KM online ở banner loại A; các trường hợp khác bằng PMH.
-  - `choice`: khoản "Giảm giá Xđ" trong mục "Chọn 1 trong" (chỉ ghi lại để đối chiếu).
+PMH (`pmh`), theo tab "Quy tắc tính PMH" của web:
+  1. Có flash sale: PMH = khoản "Giảm giá X" trong mục "Chọn 1 trong".
+     Không có mục đó thì PMH = 0 (không lấy chênh lệch giá đen và giá đỏ của flash sale).
+  2. Không có flash sale: PMH = số lớn hơn giữa (giá đen − giá đỏ) và khoản "Chọn 1 trong".
+Ghi kèm để đối chiếu: `online` = giá đen − giá đỏ, `choice` = khoản "Chọn 1 trong",
+`rule` = quy tắc đã dùng (flash_chon1 / den_tru_do / chon1).
 Không đoán số: trang lỗi/không đọc được giá thì để trống (null).
 """
 import csv
@@ -50,9 +47,7 @@ HEADERS = {
 CF_PROXY_URL = os.environ.get("CF_PROXY_URL", "").rstrip("/")
 CF_PROXY_TOKEN = os.environ.get("CF_PROXY_TOKEN", "")
 
-CHOOSE_RE = re.compile(r"Chọn 1 trong", re.I)
 BASE_RE = re.compile(r"Chọn 1 trong[^:]{0,30}:\s*Giảm giá\s*([\d.,]+)\s*[₫đ]", re.I)
-DAGIAM_RE = re.compile(r"Giảm(?: giá)?\s*([\d.,]+)\s*[₫đ]?\s*\(\s*đã giảm vào giá", re.I)
 BANNER_RE = re.compile(r"Online Giá Rẻ Quá", re.I)
 SLOTS_RE = re.compile(r"Còn\s*\d+\s*/\s*\d+\s*suất", re.I)  # flash sale ở bố cục mới: "Còn 2/5 suất"
 DISCONTINUED_RE = re.compile(r"ngừng kinh doanh|ngưng kinh doanh", re.I)
@@ -77,19 +72,18 @@ def money(text):
     return int(digits) if digits else 0
 
 
-def build_result(rrp, red, banner, choose, dagiam, choice, kind):
-    """rrp/red = giá đen/giá đỏ như người dùng thấy trên trang (bố cục mới)."""
-    diff = max(rrp - red, 0)
-    online = None
-    if not banner:
-        pmh, rule = diff, "khong_banner"
-    elif choose:
-        pmh, rule, online = dagiam, "banner_a", diff
+def build_result(rrp, red, banner, choice, kind):
+    """rrp/red = giá đen/giá đỏ khách thật sự trả (đã trừ khoản "Chọn 1 trong").
+    choice = khoản "Giảm giá X" trong mục "Chọn 1 trong"."""
+    diff = max(rrp - red, 0)  # giá đen − giá đỏ
+    if banner:  # có flash sale: chỉ lấy khoản "Chọn 1 trong", không có thì 0
+        pmh, rule = choice, "flash_chon1"
+    elif diff >= choice:  # không flash sale: lấy số lớn hơn
+        pmh, rule = diff, "den_tru_do"
     else:
-        pmh, rule, online = diff, "banner_b", diff
-    total = pmh + online if rule == "banner_a" else pmh
-    return {"status": "active", "rrp": rrp, "red": red, "pmh": pmh, "online": online,
-            "total": total, "choice": choice, "kind": kind, "rule": rule}
+        pmh, rule = choice, "chon1"
+    return {"status": "active", "rrp": rrp, "red": red, "pmh": pmh, "online": diff,
+            "total": pmh, "choice": choice, "kind": kind, "rule": rule}
 
 
 def parse_next_layout(soup):
@@ -116,9 +110,7 @@ def parse_next_layout(soup):
         box = box.parent if box.parent is not None else box
     box_text = box.get_text(" ", strip=True)
     banner = bool(SLOTS_RE.search(box_text) or BANNER_RE.search(box_text))
-    dagiam = sum(money(m) for m in DAGIAM_RE.findall(text))
-    return build_result(rrp, red, banner, bool(CHOOSE_RE.search(text)), dagiam, choice,
-                        "moi-banner" if banner else "moi")
+    return build_result(rrp, red, banner, choice, "moi-banner" if banner else "moi")
 
 
 def parse_page(html):
@@ -161,8 +153,7 @@ def parse_page(html):
     # Bố cục cũ chưa trừ lựa chọn "Giảm giá X" vào giá đỏ; bố cục mới (người dùng đang thấy) thì
     # đã trừ. Trừ thêm ở đây để hai bố cục cho cùng một giá đỏ.
     red = rrp - discount - (choice if flash is None else 0)
-    dagiam = sum(money(m) for m in DAGIAM_RE.findall(area))
-    return build_result(rrp, red, flash is not None, bool(CHOOSE_RE.search(area)), dagiam, choice,
+    return build_result(rrp, red, flash is not None, choice,
                         "banner" if flash is not None else "thuong")
 
 
