@@ -348,10 +348,8 @@ def main():
           + ("; " + "; ".join(f"{u['r']} {u['n']} {u['old']:,}→{u['new']:,}" for u in ups[:10]) if ups else ""),
           flush=True)
 
-    # Chỉ thứ Hai và thứ Sáu mới lưu thành một đợt hiển thị trên web.
-    if now.weekday() not in alerts.KEEP_WEEKDAYS:
-        print(f"Hôm nay không phải thứ Hai/thứ Sáu nên không thêm đợt mới. {report}")
-        return
+    # Tab "Toàn thị trường" chỉ để tham khảo nên cập nhật mỗi ngày; quy tắc chỉ lưu
+    # thứ Hai/thứ Sáu là dành cho cột KM base của 91 SKU, không áp vào đây.
     market = {"scans": []}
     if MARKET_JS.exists():
         text = MARKET_JS.read_text(encoding="utf-8")
