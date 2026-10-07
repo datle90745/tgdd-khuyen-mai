@@ -307,7 +307,8 @@ function build(){
   // ngày khác thì thành cột "hôm nay" riêng để mọi người xem được số mới nhất.
   const feeds = [...SCANS, ...imports.filter(im=>!pubDates.has(im.date))];
   // Chỉ thêm cột khi đợt mới nhất thật sự có số PMH, tránh file hỏng làm trắng cả bảng.
-  if(LATEST && !pubDates.has(LATEST.date) && LATEST.rows.some(x=>typeof x.pmh==="number")) feeds.push(LATEST);
+  let todayDate = null;
+  if(LATEST && !pubDates.has(LATEST.date) && LATEST.rows.some(x=>typeof x.pmh==="number")){ feeds.push(LATEST); todayDate = LATEST.date; }
   feeds.forEach(im=>{
     // Đợt quét trùng ngày với cột đã có thì ghi đè cột đó, không thêm cột mới.
     let col = dates.indexOf(im.date);
@@ -346,7 +347,7 @@ function build(){
   // Giữ nguyên thứ tự hãng như trong dữ liệu gốc, trong mỗi hãng xếp giá đen từ cao xuống thấp.
   const bOrder = []; rows.forEach(r=>{ if(!bOrder.includes(r.brand)) bOrder.push(r.brand); });
   rows.sort((a,b)=> bOrder.indexOf(a.brand)-bOrder.indexOf(b.brand) || (b.rrp||0)-(a.rrp||0));
-  S = {dates, rows};
+  S = {dates, rows, todayDate};
 }
 function delta(r){
   const n=r.pmh.length, a=r.pmh[n-1], b=r.pmh[n-2];
@@ -396,6 +397,8 @@ function spark(v){
   const last=pts[pts.length-1];
   return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${d}" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="${(last[0]/n*(W-4)+2).toFixed(1)}" cy="${(H-3-(last[1]/max)*(H-6)).toFixed(1)}" r="2.4" fill="var(--accent)"/></svg>`;
 }
+// Cột của đợt quét hôm nay gọi thẳng là "Hôm nay", vẫn kèm ngày để khỏi nhầm khi mở lại hôm sau.
+const dlabel = d => d===S.todayDate ? `Hôm nay (${d})` : d;
 // Giá offline = RRP trừ KM base. Flash sale chỉ áp dụng khi mua online nên không trừ vào đây.
 function offPrice(r){
   if(r.status!=="active") return null;
@@ -442,7 +445,7 @@ function renderBar(){
 /* Đợt quét mới nhất nằm bên trái để mở ra là thấy ngay. */
 function renderMatrix(){
   const idx = S.dates.map((_,i)=>i).reverse();
-  let h=`<thead><tr><th>Hãng</th><th>Model</th><th class="num">RRP</th>${idx.map(i=>`<th class="num">${esc(S.dates[i])}</th>`).join("")}</tr></thead><tbody>`;
+  let h=`<thead><tr><th>Hãng</th><th>Model</th><th class="num">RRP</th>${idx.map(i=>`<th class="num">${esc(dlabel(S.dates[i]))}</th>`).join("")}</tr></thead><tbody>`;
   S.rows.forEach(r=>{
     h+=`<tr data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}</td><td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td>`;
     idx.forEach(i=>{
@@ -486,7 +489,7 @@ function openDrawer(model){
   ${r.status==="chua_mo_ban"?`<div class="note">SKU mới có trang đăng ký nhận tin, chưa mở bán. Giá hiển thị là giá dự kiến.</div>`:""}
   ${chart(r)}
   <div class="kv"><div><small>PMH trung bình</small><b>${fmt(avg)}</b></div><div><small>Đợt có khuyến mãi</small><b>${runs}/${vals.length}</b></div><div><small>% giảm hiện tại</small><b>${p==null||r.status!=="active"?"–":(p/r.rrp*100).toFixed(1)+"%"}</b></div></div>
-  <table><thead><tr><th>Đợt quét</th><th class="num">PMH</th><th class="num">So đợt trước</th></tr></thead><tbody>${r.pmh.map((x,i)=>{const pv=i?r.pmh[i-1]:null;const d=x!=null&&pv!=null?x-pv:null;return `<tr><td>${esc(S.dates[i])}</td><td class="num">${fmt(x)}</td><td class="num">${d==null?"–":d===0?"không đổi":d>0?`<span class="d-up">▲ ${fmt(d)}</span>`:`<span class="d-down">▼ ${fmt(-d)}</span>`}</td></tr>`}).reverse().join("")}</tbody></table>`;
+  <table><thead><tr><th>Đợt quét</th><th class="num">PMH</th><th class="num">So đợt trước</th></tr></thead><tbody>${r.pmh.map((x,i)=>{const pv=i?r.pmh[i-1]:null;const d=x!=null&&pv!=null?x-pv:null;return `<tr><td>${esc(dlabel(S.dates[i]))}</td><td class="num">${fmt(x)}</td><td class="num">${d==null?"–":d===0?"không đổi":d>0?`<span class="d-up">▲ ${fmt(d)}</span>`:`<span class="d-down">▼ ${fmt(-d)}</span>`}</td></tr>`}).reverse().join("")}</tbody></table>`;
   $("drawer").classList.add("open"); $("drawer").setAttribute("aria-hidden","false"); $("dx").focus();
 }
 function closeDrawer(){ $("drawer").classList.remove("open"); $("drawer").setAttribute("aria-hidden","true"); if(lastFocus) lastFocus.focus(); }
