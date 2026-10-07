@@ -53,7 +53,14 @@ jobs:
             exit 0
           fi
           git commit -m "Đợt quét PMH $(TZ=Asia/Ho_Chi_Minh date +%d-%m-%Y)"
-          git push
+          # Có thể có commit mới trong lúc quét: đồng bộ lại rồi mới đẩy.
+          for i in 1 2 3; do
+            if git push; then exit 0; fi
+            git pull --rebase origin main || exit 1
+            sleep 5
+          done
+          echo "::error::Không đẩy được kết quả sau 3 lần thử."
+          exit 1
       - name: Báo lỗi nếu cả hai bước quét đều lỗi
         if: steps.focus.outcome == 'failure' && steps.market.outcome == 'failure'
         run: exit 1
