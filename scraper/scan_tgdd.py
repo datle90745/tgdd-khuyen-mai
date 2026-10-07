@@ -32,6 +32,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PRODUCTS = ROOT / "scraper" / "products.csv"
 SCAN_DIR = ROOT / "data" / "scans"
 SCANS_JS = ROOT / "data" / "scans.js"
+LATEST_JS = ROOT / "data" / "latest.js"
 
 HEADERS = {
     "User-Agent": (
@@ -211,6 +212,18 @@ def write_scans_js():
         encoding="utf-8")
 
 
+def write_latest_js(scan):
+    """Các cột tham khảo (Loại KM, Flash sale) lấy theo đợt quét mới nhất, quét ngày nào cũng ghi.
+    Không đụng tới cột KM base: cột đó vẫn chỉ lưu thứ Hai và thứ Sáu trong scans.js."""
+    keys = ("model", "status", "online", "total_online", "choice", "kind", "rule")
+    latest = {"date": scan["date"], "rows": [
+        {k: r[k] for k in keys if k in r} for r in scan["rows"]]}
+    LATEST_JS.write_text(
+        "/* Tự sinh bởi scraper/scan_tgdd.py, đừng sửa tay. */\n"
+        "window.LATEST = " + json.dumps(latest, ensure_ascii=False) + ";\n",
+        encoding="utf-8")
+
+
 def main():
     now = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh"))
     with PRODUCTS.open(encoding="utf-8-sig", newline="") as f:
@@ -261,6 +274,7 @@ def main():
     (SCAN_DIR / f"scan_{now.date().isoformat()}.json").write_text(
         json.dumps(scan, ensure_ascii=False, indent=1), encoding="utf-8")
     write_scans_js()
+    write_latest_js(scan)
     print(f"Đã lưu đợt {scan['date']}: {ok}/{len(products)} SKU đọc được giá, {errors} lỗi mạng.")
 
 
