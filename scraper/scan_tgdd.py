@@ -65,6 +65,62 @@ def http_get(url):
     return requests.get(url, headers=HEADERS, timeout=(10, 30))
 
 
+_CATALOG = None
+
+
+def catalog():
+    """Toàn bộ đường dẫn điện thoại đang bán trên TGDĐ, lấy từ API danh mục (đọc được từ máy chủ,
+    khác với trang tìm kiếm vốn dựng bằng JS). Chỉ tải một lần cho cả đợt quét."""
+    global _CATALOG
+    if _CATALOG is not None:
+        return _CATALOG
+    slugs = set()
+    for page in range(30):
+        try:
+            resp = requests.post(
+                f"https://www.thegioididong.com/Category/FilterProductBox?c=42&o=13&pi={page}",
+                headers={**HEADERS, "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                         "X-Requested-With": "XMLHttpRequest",
+                         "Referer": "https://www.thegioididong.com/dtdd"},
+                data="IsParentCate=False&IsShowCompare=True&prevent=true", timeout=(10, 30))
+            html = resp.json().get("listproducts") or ""
+        except Exception:
+            break
+        links = BeautifulSoup(html, "html.parser").select("li.item[data-id] a.main-contain")
+        if not links:
+            break
+        for a in links:
+            href = (a.get("href") or "").split("?")[0].strip("/")
+            if href.startswith("dtdd/"):
+                slugs.add(href[len("dtdd/"):])
+        time.sleep(1)
+    _CATALOG = sorted(slugs)
+    print(f"Danh mục TGDĐ: {len(_CATALOG)} đường dẫn điện thoại.", flush=True)
+    return _CATALOG
+
+
+#   Những từ phân biệt phiên bản: thừa một từ trong nhóm này là MÁY KHÁC, không phải đổi link.
+VARIANT_WORDS = {"5g", "4g", "pro", "plus", "max", "ultra", "lite", "fe", "mini",
+                 "s", "e", "t", "c", "x", "i", "f", "neo", "turbo", "edge", "air"}
+
+
+def find_slug(old_slug):
+    """TGDĐ hay đổi đường dẫn. Tìm lại máy đó trong danh mục bằng cách so bộ từ của đường dẫn.
+    Đường dẫn mới phải chứa đủ mọi từ của đường dẫn cũ, và phần dư ra không được là từ phân biệt
+    phiên bản — để không bao giờ nhảy nhầm từ bản thường sang bản 5G/Pro/Plus."""
+    want = set(t for t in old_slug.split("-") if t)
+    best = None
+    for slug in catalog():
+        have = set(t for t in slug.split("-") if t)
+        if not want <= have:
+            continue
+        if (have - want) & VARIANT_WORDS:
+            continue
+        if best is None or len(slug) < len(best):
+            best = slug
+    return best
+
+
 def to_int(value):
     """Số trong thuộc tính data-*, ví dụ '13990000.0' -> 13990000."""
     digits = re.sub(r"[^0-9]", "", str(value or "").split(".")[0])
@@ -175,13 +231,30 @@ def parse_page(html):
                         choice_in_red=flash is None)
 
 
-def scan_one(url, attempts=3):
+def retry_other_slug(url, bad_result, allowed):
+    """Link hỏng thì đi tìm lại máy đó trong danh mục TGDĐ trước khi kết luận gì.
+    Chỉ ghi "ngừng kinh doanh" khi chính trang sản phẩm nói vậy, không phải vì link cũ hỏng."""
+    if not allowed:
+        return bad_result
+    old = url.rstrip("/").rsplit("/", 1)[-1].split("?")[0]
+    new = find_slug(old)
+    if not new or new == old:
+        return bad_result
+    print(f"  đường dẫn đổi: {old} -> {new}", flush=True)
+    fresh = scan_one(f"https://www.thegioididong.com/dtdd/{new}", attempts=2, allow_retry_slug=False)
+    if fresh.get("status") == "active":
+        fresh["new_url"] = f"https://www.thegioididong.com/dtdd/{new}"
+        return fresh
+    return bad_result
+
+
+def scan_one(url, attempts=3, allow_retry_slug=True):
     last_error, result = None, None
     for attempt in range(attempts):
         try:
             resp = http_get(url)
             if resp.status_code == 404:
-                return {"status": "ngung_kd"}
+                return retry_other_slug(url, {"status": "ngung_kd", "debug": "404"}, allow_retry_slug)
             resp.raise_for_status()
             resp.encoding = "utf-8"
             result = parse_page(resp.text)
@@ -196,6 +269,7 @@ def scan_one(url, attempts=3):
                 h1 = soup.select_one("h1")
                 result["debug"] = (f"len={len(resp.text)} box_main={bool(soup.select_one('.box_main'))} "
                                    f"main={bool(soup.select_one('main'))} h1={h1.get_text(strip=True)[:60] if h1 else None}")
+                return retry_other_slug(url, result, allow_retry_slug)
             return result
         except Exception as error:  # mạng chập chờn: thử lại có giãn cách
             last_error = error
@@ -316,6 +390,18 @@ def main():
               f"pmh={result.get('pmh')} online={result.get('online')} choice={result.get('choice')} "
               f"({result.get('kind', '')}/{result.get('rule', '')}) {result.get('debug', '')}", flush=True)
         time.sleep(1.5)
+
+    # TGDĐ đổi đường dẫn thì ghi luôn link mới vào danh sách để lần sau khỏi phải dò lại.
+    moved = {r["model"]: r["new_url"] for r in rows if r.get("new_url")}
+    if moved:
+        for p in all_products:
+            if p["model"] in moved:
+                p["url"] = moved[p["model"]]
+        with PRODUCTS.open("w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=["model", "url"])
+            writer.writeheader()
+            writer.writerows({"model": p["model"], "url": p["url"]} for p in all_products)
+        print("Đã cập nhật link mới: " + "; ".join(f"{m} -> {u}" for m, u in moved.items()), flush=True)
 
     ok = sum(1 for r in rows if r["status"] == "active")
     if ok < len(products) * 0.5:
