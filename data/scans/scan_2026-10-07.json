@@ -1,6 +1,6 @@
 {
  "date": "07-Oct",
- "scanned_at": "2026-10-07T15:09:39+07:00",
+ "scanned_at": "2026-10-07T18:39:21+07:00",
  "rows": [
   {
    "model": "iPhone 17 Pro Max 512GB",
@@ -111,13 +111,13 @@
    "url": "https://www.thegioididong.com/dtdd/oppo-find-x9s-12gb-512gb",
    "status": "active",
    "rrp": 26990000,
-   "red": 26490000,
+   "red": 26990000,
    "pmh": 0,
-   "online": 500000,
-   "total_online": 500000,
+   "online": 0,
+   "total_online": 0,
    "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1"
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "Find X9s 12GB/256GB",
@@ -241,13 +241,13 @@
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-8gb-128gb",
    "status": "active",
    "rrp": 10990000,
-   "red": 10490000,
+   "red": 10990000,
    "pmh": 0,
-   "online": 500000,
-   "total_online": 500000,
+   "online": 0,
+   "total_online": 0,
    "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1"
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "A6x 6GB/256GB",
@@ -358,13 +358,13 @@
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s26-fe-8gb-256gb",
    "status": "active",
    "rrp": 21990000,
-   "red": 18990000,
-   "pmh": 0,
-   "online": 3000000,
-   "total_online": 3000000,
+   "red": 19990000,
+   "pmh": 2000000,
+   "online": 2000000,
+   "total_online": 2000000,
    "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1"
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "S25 FE 5G 8GB/256GB",
@@ -436,13 +436,13 @@
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a27-8gb-128gb",
    "status": "active",
    "rrp": 10190000,
-   "red": 8590000,
-   "pmh": 0,
-   "online": 1600000,
-   "total_online": 1600000,
+   "red": 9290000,
+   "pmh": 900000,
+   "online": 900000,
+   "total_online": 900000,
    "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1"
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "A27 6GB/128GB",
@@ -475,13 +475,13 @@
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-8gb-256gb",
    "status": "active",
    "rrp": 6890000,
-   "red": 6190000,
+   "red": 6690000,
    "pmh": 200000,
-   "online": 700000,
-   "total_online": 900000,
+   "online": 200000,
+   "total_online": 400000,
    "choice": 200000,
-   "kind": "moi-banner",
-   "rule": "flash_chon1"
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "A17 4GB/128GB",
@@ -578,7 +578,7 @@
    "model": "A08 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a08-4gb-64gb",
    "status": "no_price",
-   "debug": "len=591515 box_main=False main=False h1=None",
+   "debug": "len=601976 box_main=False main=False h1=None",
    "pmh": null
   },
   {
@@ -826,26 +826,26 @@
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-a7-pro-4gb-128gb",
    "status": "active",
    "rrp": 4990000,
-   "red": 4640000,
-   "pmh": 0,
-   "online": 350000,
-   "total_online": 350000,
-   "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1"
+   "red": 4490000,
+   "pmh": 500000,
+   "online": 500000,
+   "total_online": 1000000,
+   "choice": 500000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "Redmi A7 Pro 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-a7-pro",
    "status": "active",
    "rrp": 4490000,
-   "red": 4170000,
-   "pmh": 0,
-   "online": 320000,
-   "total_online": 320000,
-   "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1"
+   "red": 4190000,
+   "pmh": 300000,
+   "online": 300000,
+   "total_online": 600000,
+   "choice": 300000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "X300 Ultra 16GB/512GB",
@@ -956,39 +956,39 @@
    "url": "https://www.thegioididong.com/dtdd/vivo-y11d-4gb-128gb",
    "status": "active",
    "rrp": 6790000,
-   "red": 6150000,
-   "pmh": 0,
-   "online": 640000,
-   "total_online": 640000,
-   "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1"
+   "red": 6490000,
+   "pmh": 300000,
+   "online": 300000,
+   "total_online": 600000,
+   "choice": 300000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "Y05 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y05-4gb-128gb",
    "status": "active",
    "rrp": 5990000,
-   "red": 5490000,
-   "pmh": 0,
-   "online": 500000,
-   "total_online": 500000,
-   "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1"
+   "red": 5890000,
+   "pmh": 100000,
+   "online": 100000,
+   "total_online": 200000,
+   "choice": 100000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "Y05 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y05-4gb-64gb",
    "status": "active",
    "rrp": 4990000,
-   "red": 4640000,
-   "pmh": 0,
-   "online": 350000,
-   "total_online": 350000,
-   "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1"
+   "red": 4890000,
+   "pmh": 100000,
+   "online": 100000,
+   "total_online": 200000,
+   "choice": 100000,
+   "kind": "moi",
+   "rule": "den_tru_do"
   },
   {
    "model": "16 Pro 5G 12GB/256GB",
