@@ -220,7 +220,8 @@ def write_scans_js():
 def write_latest_js(scan):
     """Đợt quét mới nhất, quét ngày nào cũng ghi, để web có cột "hôm nay" và các cột tham khảo.
     Trùng ngày với một cột đã lưu (thứ Hai/thứ Sáu) thì web ghi đè chính cột đó, không thêm cột mới."""
-    keys = ("model", "rrp", "pmh", "status", "online", "total_online", "choice", "kind", "rule")
+    keys = ("model", "rrp", "red", "pmh", "status", "online", "total_online",
+            "choice", "kind", "rule", "at")
     latest = {"date": scan["date"], "rows": [
         {k: r[k] for k in keys if k in r} for r in scan["rows"]]}
     LATEST_JS.write_text(
@@ -297,7 +298,9 @@ def main():
             if errors == i == 3:
                 sys.exit("ERROR: 3 trang đầu đều không kết nối được tới thegioididong.com "
                          "(thường do TGDĐ chặn IP của GitHub). Cần cấu hình CF_PROXY_URL/CF_PROXY_TOKEN.")
-        row = {"model": product["model"], "url": product["url"], **result}
+        # Mốc giờ của riêng từng dòng: quét một phần thì nhìn vào đây biết dòng nào mới, dòng nào cũ.
+        row = {"model": product["model"], "url": product["url"],
+               "at": datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%m %H:%M"), **result}
         if row["status"] != "active":
             row["pmh"] = None
         rows.append(row)
