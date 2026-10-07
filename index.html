@@ -296,7 +296,11 @@ function build(){
   const rows = BASE.rows.map(r=>({...r, pmh:[...r.pmh], flags:[]}));
   const dates = [...BASE.dates];
   const pubDates = new Set(SCANS.map(s=>s.date));
-  [...SCANS, ...imports.filter(im=>!pubDates.has(im.date))].forEach(im=>{
+  // Đợt quét mới nhất luôn được đưa vào sau cùng: rơi đúng thứ Hai/thứ Sáu thì ghi đè cột đó,
+  // ngày khác thì thành cột "hôm nay" riêng để mọi người xem được số mới nhất.
+  const feeds = [...SCANS, ...imports.filter(im=>!pubDates.has(im.date))];
+  if(LATEST && !pubDates.has(LATEST.date)) feeds.push(LATEST);
+  feeds.forEach(im=>{
     // Đợt quét trùng ngày với cột đã có thì ghi đè cột đó, không thêm cột mới.
     let col = dates.indexOf(im.date);
     if(col<0){ dates.push(im.date); col = dates.length-1; }
@@ -324,19 +328,6 @@ function build(){
       if(x.kind) r.kind = x.kind;
     });
   });
-  // Cột tham khảo (Loại KM, Flash sale) lấy theo đợt quét mới nhất, kể cả ngày không lưu cột KM base.
-  if(LATEST && Array.isArray(LATEST.rows)){
-    const m = new Map(LATEST.rows.map(x=>[x.model,x]));
-    rows.forEach(r=>{
-      const x = m.get(r.model); if(!x || !("rule" in x)) return;
-      r.online = typeof x.online==="number" ? x.online : null;
-      r.choice = typeof x.choice==="number" ? x.choice : null;
-      r.tot = typeof x.total_online==="number" ? x.total_online
-            : (r.online==null ? null : r.online + (x.rule==="den_tru_do" ? 0 : (r.choice||0)));
-      r.rule = x.rule || null;
-      if(x.kind) r.kind = x.kind;
-    });
-  }
   rows.forEach(r=>{ if(RRP_NOTES[r.model]) r.flags.unshift(RRP_NOTES[r.model]); });
   // Giữ nguyên thứ tự hãng như trong dữ liệu gốc, trong mỗi hãng xếp giá đen từ cao xuống thấp.
   const bOrder = []; rows.forEach(r=>{ if(!bOrder.includes(r.brand)) bOrder.push(r.brand); });
@@ -424,7 +415,7 @@ function renderBar(){
 /* Đợt quét mới nhất nằm bên trái để mở ra là thấy ngay. */
 function renderMatrix(){
   const idx = S.dates.map((_,i)=>i).reverse();
-  let h=`<thead><tr><th>Hãng</th><th>Model</th><th class="num">Giá đen</th>${idx.map(i=>`<th class="num">${esc(S.dates[i])}</th>`).join("")}</tr></thead><tbody>`;
+  let h=`<thead><tr><th>Hãng</th><th>Model</th><th class="num">RRP</th>${idx.map(i=>`<th class="num">${esc(S.dates[i])}</th>`).join("")}</tr></thead><tbody>`;
   S.rows.forEach(r=>{
     h+=`<tr data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}</td><td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td>`;
     idx.forEach(i=>{
@@ -459,7 +450,7 @@ function openDrawer(model){
   const best=vals.length?Math.max(...vals):null, avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
   const runs=vals.filter(x=>x>0).length;
   $("dbody").innerHTML=`<h2>${esc(r.model)}</h2><div style="color:var(--muted)"><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span>phân khúc ${esc(r.segment)}, ${r.channel==="TGDD"?"độc quyền TGDĐ":"kênh Mass"}${kindOf(r)?`, đợt mới nhất: <span class="badge ${kindOf(r)===KIND_FS?"fs":"mass"}">${kindOf(r)}</span>`:""}</div>
-  <div class="kv"><div><small>Giá đen</small><b>${fmt(r.rrp)}</b></div><div><small>PMH hiện tại</small><b>${r.status==="active"?fmt(p):"–"}</b></div><div><small>PMH cao nhất</small><b>${fmt(best)}</b></div></div>
+  <div class="kv"><div><small>RRP</small><b>${fmt(r.rrp)}</b></div><div><small>PMH hiện tại</small><b>${r.status==="active"?fmt(p):"–"}</b></div><div><small>PMH cao nhất</small><b>${fmt(best)}</b></div></div>
   ${r.flags.map(f=>`<div class="note">${esc(f)}</div>`).join("")}
   ${r.rule?`<div class="kv"><div><small>KM base (PMH)</small><b>${fmt(r.pmh[r.pmh.length-1])}</b></div><div><small>Flash sale</small><b>${fmt(r.tot)}</b></div><div><small>Giá đen − giá đỏ</small><b>${fmt(r.online)}</b></div><div><small>Chọn 1 trong</small><b>${fmt(r.choice)}</b></div></div><div style="color:var(--muted)">Đợt mới nhất: ${{flash_chon1:"có flash sale nên PMH = khoản “Chọn 1 trong”",den_tru_do:"không flash sale, giá đen − giá đỏ lớn hơn khoản “Chọn 1 trong”",chon1:"không flash sale, khoản “Chọn 1 trong” lớn hơn giá đen − giá đỏ",khong_banner:"không có banner (quy tắc cũ)",banner_a:"banner loại A (quy tắc cũ)",banner_b:"banner loại B (quy tắc cũ)"}[r.rule]||"–"}.</div>`:""}
   ${r.status==="ngung_kd"?`<div class="note">TGDĐ đã gỡ SKU này (trang trả về 404).</div>`:""}
