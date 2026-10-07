@@ -191,7 +191,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 </section>
 
 <section class="pane" id="p-history" hidden>
-  <div class="legend"><span><i class="lg-up"></i>PMH tăng so với đợt trước</span><span><i class="lg-down"></i>PMH giảm so với đợt trước</span><span><i class="lg-rrp"></i>Giá đen (RRP) tăng</span><span>Ô trống: chưa có dữ liệu</span></div>
+  <div class="legend"><span><i class="lg-up"></i>PMH tăng so với đợt trước</span><span><i class="lg-down"></i>PMH giảm so với đợt trước</span><span><i class="lg-rrp"></i>RRP tăng</span><span>Ô trống: chưa có dữ liệu</span></div>
   <div class="panel tablewrap"><table class="matrix" id="mtx"></table></div>
 </section>
 
@@ -367,7 +367,7 @@ function filtered(){
 }
 
 /* ---- latest table ---- */
-const COLS = [["brand","Hãng"],["model","Model"],["ch","Kênh"],["seg","Phân khúc"],["kind","Loại KM"],["rrp","Giá đen (RRP)",1],["pmh","KM base (PMH)",1],["tot","KM online (tổng)",1],["delta","So đợt trước",1],["pct","% giảm",1],["trend","Xu hướng"]];
+const COLS = [["brand","Hãng"],["model","Model"],["ch","Kênh"],["seg","Phân khúc"],["kind","Loại KM"],["rrp","RRP",1],["pmh","KM base (PMH)",1],["tot","KM online (tổng)",1],["delta","So đợt trước",1],["pct","% giảm",1],["trend","Xu hướng"]];
 function spark(v){
   const pts=v.map((x,i)=>[i,x]).filter(p=>p[1]!=null);
   if(pts.length<2) return "";
@@ -472,7 +472,7 @@ function calc(){
 /* ---- export (tải file trực tiếp trên trình duyệt) ---- */
 function sheetAoa(){
   // Cột chính là PMH (KM base) theo quy tắc; thông tin flash sale để cuối, chỉ tham khảo.
-  const head=["Hãng","Model","Giá đen (RRP)","Kênh","Phân khúc",...S.dates.map(d=>"KM base "+d),
+  const head=["Hãng","Model","RRP","Kênh","Phân khúc",...S.dates.map(d=>"KM base "+d),
               "Loại KM (tham khảo)","KM online tổng (tham khảo)"];
   const v=x=>x==null?"":x;
   return [head,...S.rows.map(r=>[r.brand,r.model,r.rrp,r.channel==="TGDD"?"Độc quyền TGDĐ":"Mass",r.segment,
