@@ -644,7 +644,7 @@ function renderMarket(){
   const D=mkData();
   if(!D.cur){ $("mk-sub").textContent="Chưa có đợt quét toàn thị trường. Đợt đầu tiên sẽ có sau lần chạy bộ quét kế tiếp."; $("mk-kpi").innerHTML=""; $("mk-body").innerHTML=""; $("mk-head").innerHTML=""; $("mk-count").textContent=""; return; }
   const errs=Object.entries(D.cur.report||{}).filter(([,v])=>typeof v!=="number").map(([k])=>k);
-  $("mk-sub").textContent=`Đợt quét ${D.cur.date} lúc ${D.cur.at}${D.prev?`, so với đợt ${D.prev.date}`:""}. Giá lấy từ trang danh sách của từng sàn, chỉ 6 hãng đang theo dõi, chỉ để tham khảo.${errs.length?` Lỗi đợt này: ${errs.join(", ")}.`:""}`;
+  $("mk-sub").textContent=`Đợt quét ${D.cur.date} lúc ${D.cur.at}${D.prev?`, so với đợt ${D.prev.date}`:""}. Giá lấy từ trang danh sách của từng sàn, chỉ 6 hãng đang theo dõi, chỉ để tham khảo.${D.cur.src==="erp"?" Nguồn: file Excel của hệ thống ERP, không phải bộ quét này — cách họ tính khuyến mãi khác quy tắc KM base nên đừng dùng để so sánh.":""}${errs.length?` Lỗi đợt này: ${errs.join(", ")}.`:""}`;
   $("mk-kpi").innerHTML=MK_RET.map(r=>{ const L=D.rows.filter(x=>x.r===r), withKM=L.filter(x=>x.v>0), avg=withKM.length?withKM.reduce((t,x)=>t+x.pct,0)/withKM.length*100:0;
     return `<div class="rk"><small><span class="rtl" data-r="${r}">${r}</span></small><b>${L.length} máy</b><span>${withKM.length} máy đang giảm giá, trung bình ${avg.toFixed(1)}%</span><span>${L.filter(x=>x.focus).length} máy thuộc 86 SKU</span></div>`; }).join("");
   mkChips($("mk-f-r"),["Tất cả",...MK_RET],"r");
