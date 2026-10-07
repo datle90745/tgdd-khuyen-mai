@@ -52,6 +52,8 @@ CF_PROXY_TOKEN = os.environ.get("CF_PROXY_TOKEN", "")
 BASE_RE = re.compile(r"Chọn 1 trong[^:]{0,30}:\s*Giảm giá\s*([\d.,]+)\s*[₫đ]", re.I)
 BANNER_RE = re.compile(r"Online Giá Rẻ Quá", re.I)
 SLOTS_RE = re.compile(r"Còn\s*\d+\s*/\s*\d+\s*suất", re.I)  # flash sale ở bố cục mới: "Còn 2/5 suất"
+# Dạng flash sale thứ hai ở bố cục mới: dải đỏ "Ưu đãi ONLINE — Kết thúc sau 09 : 07 : 58".
+ONLINE_DEAL_RE = re.compile(r"Ưu đãi ONLINE|Kết thúc sau\s*\d", re.I)
 DISCONTINUED_RE = re.compile(r"ngừng kinh doanh|ngưng kinh doanh", re.I)
 
 
@@ -114,7 +116,8 @@ def parse_next_layout(soup):
     for _ in range(4):
         box = box.parent if box.parent is not None else box
     box_text = box.get_text(" ", strip=True)
-    banner = bool(SLOTS_RE.search(box_text) or BANNER_RE.search(box_text))
+    banner = bool(SLOTS_RE.search(box_text) or BANNER_RE.search(box_text)
+                  or ONLINE_DEAL_RE.search(box_text))
     # Bố cục mới hiển thị giá đỏ chưa trừ khoản "Chọn 1 trong" (bấm chọn mới trừ tiếp).
     return build_result(rrp, red, banner, choice, "moi-banner" if banner else "moi",
                         choice_in_red=False)
