@@ -76,6 +76,8 @@ td.model{white-space:normal;min-width:220px;font-weight:500}
 .focus-dot{display:inline-block;border-radius:5px;padding:0 6px;font-size:11px;font-weight:700;background:var(--accent);color:#fff;margin-left:6px;vertical-align:1px}
 #mk-tbl td.n,#mk-tbl th.n{text-align:right}
 .d-up{color:var(--up);font-weight:600} .d-down{color:var(--down);font-weight:600} .d-flat{color:var(--flat)}
+/* Ô Flash sale: có số tức là đang chạy flash sale online, tô đỏ cho dễ nhận ra. */
+#tbl td.fscell{color:#d81f2a;font-weight:600}
 .spark{display:block}
 .count{color:var(--muted);margin:2px 2px 10px}
 /* matrix */
@@ -378,7 +380,7 @@ function filtered(){
 }
 
 /* ---- latest table ---- */
-const COLS = [["brand","Hãng"],["model","Model"],["ch","Kênh"],["seg","Phân khúc"],["kind","Loại KM"],["rrp","RRP",1],["pmh","KM base (PMH)",1],["tot","Flash sale",1],["delta","So đợt trước",1],["pct","% giảm",1],["trend","Xu hướng"]];
+const COLS = [["brand","Hãng"],["model","Model"],["ch","Kênh"],["seg","Phân khúc"],["rrp","RRP",1],["pmh","KM base (PMH)",1],["tot","Flash sale",1],["delta","So đợt trước",1],["pct","% giảm",1],["trend","Xu hướng"]];
 function spark(v){
   const pts=v.map((x,i)=>[i,x]).filter(p=>p[1]!=null);
   if(pts.length<2) return "";
@@ -405,9 +407,8 @@ function renderTable(){
     const flag = r.flags.length?` <span class="badge ${rrpUp(r)?"rrp":"warn"}" title="${esc(r.flags.join("; "))}">RRP${rrpUp(r)?" tăng":""}</span>`:"";
     return `<tr tabindex="0" data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${flag}</td>
     <td><span class="badge ${r.channel==="TGDD"?"tgdd":"mass"}">${r.channel==="TGDD"?"Độc quyền":"Mass"}</span></td><td>${esc(r.segment)}</td>
-    <td>${kindOf(r)?`<span class="badge ${kindOf(r)===KIND_FS?"fs":"mass"}">${kindOf(r)}</span>`:"–"}</td>
-    <td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td><td class="num"><strong>${r.status==="active"?fmt(p):"–"}</strong></td><td class="num" title="Tham khảo: tổng khuyến mãi online khách thấy trên trang, gồm cả flash sale. Không dùng để so sánh hay xuất file.">${r.tot?fmt(r.tot):"–"}</td><td class="num">${deltaCell(r)}</td><td class="num">${pct}</td><td>${spark(r.pmh)}</td></tr>`;
-  }).join("") || `<tr><td colspan="12">Không có SKU nào khớp bộ lọc. Bỏ bớt một bộ lọc để xem lại danh sách.</td></tr>`;
+    <td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td><td class="num"><strong>${r.status==="active"?fmt(p):"–"}</strong></td><td class="num${r.tot?" fscell":""}"${r.tot?` title="Máy đang chạy flash sale online. Số đỏ là tổng tiền giảm khách thấy trên trang, chỉ để tham khảo."`:""}>${r.tot?fmt(r.tot):"–"}</td><td class="num">${deltaCell(r)}</td><td class="num">${pct}</td><td>${spark(r.pmh)}</td></tr>`;
+  }).join("") || `<tr><td colspan="11">Không có SKU nào khớp bộ lọc. Bỏ bớt một bộ lọc để xem lại danh sách.</td></tr>`;
 }
 function renderBar(){
   const c={up:0,down:0,flat:0,na:0}; S.rows.forEach(r=>c[cat(r)]++);
