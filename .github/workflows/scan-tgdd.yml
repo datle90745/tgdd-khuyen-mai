@@ -45,7 +45,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          for f in data/scans data/scans.js data/market.js data/alerts.js data/market_last.json; do
+          for f in data/scans data/scans.js data/latest.js data/market.js data/alerts.js data/market_last.json; do
             if [ -e "$f" ]; then git add "$f"; fi
           done
           if git diff --cached --quiet; then
