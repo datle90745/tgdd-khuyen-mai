@@ -34,6 +34,7 @@ PRODUCTS = ROOT / "scraper" / "products.csv"
 SCAN_DIR = ROOT / "data" / "scans"
 SCANS_JS = ROOT / "data" / "scans.js"
 LATEST_JS = ROOT / "data" / "latest.js"
+LINKS_JS = ROOT / "data" / "links.js"
 
 HEADERS = {
     "User-Agent": (
@@ -259,6 +260,15 @@ def merge_into_today(rows, now):
     return scan
 
 
+def write_links_js(all_products):
+    """Link trang sản phẩm để bấm thẳng từ web sang TGDĐ mà tra cứu."""
+    links = {p["model"]: p["url"].strip() for p in all_products if p["url"].strip()}
+    LINKS_JS.write_text(
+        "/* Tự sinh bởi scraper/scan_tgdd.py, đừng sửa tay. */\n"
+        "window.LINKS = " + json.dumps(links, ensure_ascii=False) + ";\n",
+        encoding="utf-8")
+
+
 def main():
     now = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh"))
     parser = argparse.ArgumentParser(description="Quét PMH của các SKU đang theo dõi trên TGDĐ.")
@@ -268,6 +278,7 @@ def main():
 
     with PRODUCTS.open(encoding="utf-8-sig", newline="") as f:
         all_products = [p for p in csv.DictReader(f) if p["url"].strip()]
+    write_links_js(all_products)
     products = pick_products(all_products, args.only)
     partial = len(products) != len(all_products)
     if not products:
