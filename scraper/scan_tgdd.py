@@ -131,7 +131,13 @@ def parse_page(html):
         result = parse_next_layout(soup)
         if result is not None:
             return result
-        text = soup.get_text(" ", strip=True)
+        page = soup.select_one("main")
+        if page is None:
+            # Không có khối sản phẩm: trang lỗi/chặn chứ không phải TGDĐ gỡ SKU.
+            # Không được kết luận "ngừng kinh doanh" từ một trang mình còn không đọc được.
+            return {"status": "no_price", "debug": "khong-co-main"}
+        # Chỉ xét chữ trong khối sản phẩm, tránh bắt nhầm chữ ở mục "sản phẩm tương tự".
+        text = page.get_text(" ", strip=True)
         if DISCONTINUED_RE.search(text):
             return {"status": "ngung_kd"}
         if re.search(r"đăng ký nhận tin|sắp ra mắt", text, re.I):
@@ -180,10 +186,12 @@ def scan_one(url, attempts=3):
             resp.encoding = "utf-8"
             result = parse_page(resp.text)
             last_error = None
-            if result["status"] == "no_price" and attempt < attempts - 1:
-                time.sleep(2)  # bố cục trang trả về ngẫu nhiên: tải lại một lần
+            # Bố cục trang trả về ngẫu nhiên, và đôi khi TGDĐ trả trang "ngừng kinh doanh"
+            # cho máy chủ dù trang thật vẫn bán: tải lại trước khi tin kết quả xấu.
+            if result["status"] in ("no_price", "ngung_kd") and attempt < attempts - 1:
+                time.sleep(2)
                 continue
-            if result["status"] == "no_price":
+            if result["status"] in ("no_price", "ngung_kd"):
                 soup = BeautifulSoup(resp.text, "html.parser")
                 h1 = soup.select_one("h1")
                 result["debug"] = (f"len={len(resp.text)} box_main={bool(soup.select_one('.box_main'))} "
@@ -221,7 +229,7 @@ def write_latest_js(scan):
     """Đợt quét mới nhất, quét ngày nào cũng ghi, để web có cột "hôm nay" và các cột tham khảo.
     Trùng ngày với một cột đã lưu (thứ Hai/thứ Sáu) thì web ghi đè chính cột đó, không thêm cột mới."""
     keys = ("model", "rrp", "red", "pmh", "status", "online", "total_online",
-            "choice", "kind", "rule", "at")
+            "choice", "kind", "rule")
     latest = {"date": scan["date"], "rows": [
         {k: r[k] for k in keys if k in r} for r in scan["rows"]]}
     LATEST_JS.write_text(
