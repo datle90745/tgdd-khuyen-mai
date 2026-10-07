@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Theo dõi khuyến mãi TGDĐ — 86 SKU</title>
+<title>GTMVN — Theo dõi khuyến mãi</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="data/data.js"></script>
@@ -11,23 +11,13 @@
 <script src="data/market.js"></script>
 <style>
 :root{
-  --bg:#eceff4; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
+  --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
   --up:#0a7d5c; --up-bg:#d8f0e6; --down:#b83250; --down-bg:#f9dde4; --flat:#8793a8;
   --tgdd:#f4c20d; --tgdd-ink:#3d3000; --mass-bg:#e3e8f0; --accent:#2446a8; --warn:#c77700; --warn-bg:#fff0d6;
   box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#0e1523; --panel:#162033; --ink:#e8edf5; --muted:#9aa8bf; --line:#27344c; --soft:#1b2740;
-    --up:#4cd0a2; --up-bg:#123a30; --down:#ff8da3; --down-bg:#4a1d2a; --flat:#7482a0;
-    --mass-bg:#26334d; --accent:#8aa6ff; --warn:#ffb84d; --warn-bg:#3d2b0c;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0e1523; --panel:#162033; --ink:#e8edf5; --muted:#9aa8bf; --line:#27344c; --soft:#1b2740;
-  --up:#4cd0a2; --up-bg:#123a30; --down:#ff8da3; --down-bg:#4a1d2a; --flat:#7482a0;
-  --mass-bg:#26334d; --accent:#8aa6ff; --warn:#ffb84d; --warn-bg:#3d2b0c;
-}
+/* Luôn dùng nền sáng, kể cả khi máy đang để chế độ tối. */
+:root{color-scheme:light}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
@@ -165,7 +155,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 <div class="wrap">
 <header class="top">
   <div>
-    <h1>Theo dõi khuyến mãi TGDĐ</h1>
+    <h1>GTMVN — Theo dõi khuyến mãi</h1>
     <p class="sub" id="subline"></p>
   </div>
   <div class="actions">
@@ -456,7 +446,7 @@ function openDrawer(model){
   ${r.status==="chua_mo_ban"?`<div class="note">SKU mới có trang đăng ký nhận tin, chưa mở bán. Giá hiển thị là giá dự kiến.</div>`:""}
   ${chart(r)}
   <div class="kv"><div><small>PMH trung bình</small><b>${fmt(avg)}</b></div><div><small>Đợt có khuyến mãi</small><b>${runs}/${vals.length}</b></div><div><small>% giảm hiện tại</small><b>${p==null||r.status!=="active"?"–":(p/r.rrp*100).toFixed(1)+"%"}</b></div></div>
-  <table><thead><tr><th>Đợt quét</th><th class="num">PMH</th><th class="num">So đợt trước</th></tr></thead><tbody>${r.pmh.map((x,i)=>{const pv=i?r.pmh[i-1]:null;const d=x!=null&&pv!=null?x-pv:null;return `<tr><td>${esc(S.dates[i])}</td><td class="num">${fmt(x)}</td><td class="num">${d==null?"–":d===0?"không đổi":d>0?`<span class="d-up">▲ ${fmt(d)}</span>`:`<span class="d-down">▼ ${fmt(-d)}</span>`}</td></tr>`}).join("")}</tbody></table>`;
+  <table><thead><tr><th>Đợt quét</th><th class="num">PMH</th><th class="num">So đợt trước</th></tr></thead><tbody>${r.pmh.map((x,i)=>{const pv=i?r.pmh[i-1]:null;const d=x!=null&&pv!=null?x-pv:null;return `<tr><td>${esc(S.dates[i])}</td><td class="num">${fmt(x)}</td><td class="num">${d==null?"–":d===0?"không đổi":d>0?`<span class="d-up">▲ ${fmt(d)}</span>`:`<span class="d-down">▼ ${fmt(-d)}</span>`}</td></tr>`}).reverse().join("")}</tbody></table>`;
   $("drawer").classList.add("open"); $("drawer").setAttribute("aria-hidden","false"); $("dx").focus();
 }
 function closeDrawer(){ $("drawer").classList.remove("open"); $("drawer").setAttribute("aria-hidden","true"); if(lastFocus) lastFocus.focus(); }
@@ -589,7 +579,7 @@ function renderAll(){
   const act=S.rows.filter(r=>r.status==="active"&&r.pmh[r.pmh.length-1]>0).length;
   const nb=new Set(S.rows.map(r=>r.brand)).size;
   $("subline").textContent=`${S.rows.length} SKU của ${nb} hãng, quét theo master list. Đợt mới nhất ${S.dates[S.dates.length-1]}: ${act} SKU đang có PMH.`;
-  document.title=`Theo dõi khuyến mãi TGDĐ — ${S.rows.length} SKU`;
+  document.title=`GTMVN — Theo dõi khuyến mãi (${S.rows.length} SKU)`;
 }
 document.addEventListener("click",e=>{
   const chip=e.target.closest(".chip:not([data-mk])"); if(chip){ F[chip.dataset.k]=chip.dataset.v; renderFilters(); renderTable(); return; }
