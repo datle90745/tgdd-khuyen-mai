@@ -223,21 +223,21 @@ def fpt_rows_via_browser():
 
         for slug in FPT_BRAND_PAGES:
             items = []
-            for attempt in range(2):
+            # Mỗi lần sang trang hãng khác, FPT lại bắt vượt kiểm tra chống bot một lần nữa,
+            # nên trang nào cũng phải kiên nhẫn như trang đầu chứ không thử qua loa 2 lần.
+            for attempt in range(5):
                 try:
-                    # Chuyển trang thật trong chính trình duyệt đã có cookie hợp lệ.
-                    # (Trước đây dùng fetch rồi bóc "currentPrice" trong HTML, nhưng FPT đã đổi
-                    # cấu trúc nên HTML không còn trường đó — đọc thẳng trên giao diện mới chắc.)
                     page.goto(f"https://fptshop.com.vn/dien-thoai/{slug}",
                               wait_until="domcontentloaded", timeout=90000)
-                    page.wait_for_selector('a[href^="/dien-thoai/"] h3', timeout=40000)
+                    page.wait_for_selector('a[href^="/dien-thoai/"] h3', timeout=45000)
                     page.evaluate(FPT_SHOW_ALL_JS)
                     items = page.evaluate(FPT_EXTRACT_JS)
                 except Exception as error:
-                    print(f"  FPT {slug} lần {attempt + 1}: {str(error)[:100]}", flush=True)
+                    print(f"  FPT {slug} lần {attempt + 1}: [{page.title()[:40]}] "
+                          f"{str(error)[:80]}", flush=True)
                 if items:
                     break
-                page.wait_for_timeout(4000)
+                page.wait_for_timeout(8000)
             print(f"  FPT {slug}: {len(items)} máy", flush=True)
             if not items:
                 failed.append(slug)
