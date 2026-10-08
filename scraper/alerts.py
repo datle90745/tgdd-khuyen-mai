@@ -47,7 +47,7 @@ def load_rises():
 def record_rises(day, items):
     """Thêm các lần tăng giá vừa dò được vào Lịch sử tăng giá.
 
-    Mỗi dòng theo đúng dạng của bảng có sẵn: [tháng, hãng, model, giá cũ, giá mới, ngày, % đổi].
+    Mỗi dòng: [tháng, hãng, model, giá cũ, giá mới, ngày, % đổi, kênh phát hiện].
     Bỏ qua dòng đã có sẵn trong dữ liệu gốc hoặc đã ghi ở lần quét trước, để không nhân đôi.
     """
     if not items:
@@ -68,7 +68,8 @@ def record_rises(day, items):
         if key in seen:
             continue
         seen.add(key)
-        rises.append([month, brand, model, old, new, day, round((new - old) / old * 100, 1)])
+        rises.append([month, brand, model, old, new, day,
+                      round((new - old) / old * 100, 1), it.get("r") or ""])
         added += 1
     rises.sort(key=lambda r: r[5])
     RISES_JS.parent.mkdir(parents=True, exist_ok=True)
