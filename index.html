@@ -12,6 +12,8 @@
 <script src="data/latest.js?v=20261007c"></script>
 <script src="data/links.js?v=20261007c"></script>
 <script src="data/rises.js?v=20261007c"></script>
+<script src="data/fpt.js?v=20261007c"></script>
+<script src="data/alerts.js?v=20261007c"></script>
 <script src="data/market.js?v=20261007c"></script>
 <style>
 :root{
@@ -563,6 +565,18 @@ const rkey = (b,m) => { let s=m.toLowerCase().replace(/[:()]/g," ").replace(/\s+
 // Các chuỗi giá đã kiểm tra: biết là thiếu một nấc nhưng không còn nguồn để bổ sung,
 // nên thôi không cảnh báo nữa — để dành cảnh báo cho lỗi thật. Khai trong data.js.
 const GAP_OK = new Set((window.RISE_GAP_OK||[]).map(x=>rkey(x[0],x[1])));
+// Báo ngay khi đợt quét gần nhất phát hiện giá đen tăng; không có thì không hiện gì.
+function riseAlertBox(){
+  const A = Array.isArray(window.ALERTS) ? window.ALERTS : [];
+  const hit = A.filter(e=>Array.isArray(e.items) && e.items.length);
+  if(!hit.length) return "";
+  const last = hit[hit.length-1].day;
+  const items = hit.filter(e=>e.day===last).flatMap(e=>e.items);
+  if(!items.length) return "";
+  const li = items.slice(0,20).map(x=>`<li>${esc(x.b||x.r||"")} ${esc(x.n)}: ${fmt(x.old)} → <b>${fmt(x.new)}</b> (+${(((x.new-x.old)/x.old)*100).toFixed(1)}%)</li>`).join("");
+  return `<div class="rwarn"><b>Đợt quét ${esc(rd(last))} phát hiện ${items.length} máy tăng giá đen.</b><ul>${li}`
+       + (items.length>20?`<li>… và ${items.length-20} máy nữa.</li>`:"") + `</ul></div>`;
+}
 const RISE = RISE_RAW.map((r,i)=>{ const [mo,b,m,o,n,d,p]=r; return {i,mo,b,m,o,n,v:n-o,p,seg:rseg(n),d,k:rkey(b,m)}; });
 const mnum = m => +m.slice(1);
 const RB_CELL = b => `<td class="bcell" data-b="${RBD[b]||b}">${b}</td>`;
@@ -597,11 +611,10 @@ function renderRiseTop(){
   $("rmatrix").innerHTML=`<thead><tr><th>Hãng</th>${months.map(m=>`<th class="n">${m}</th>`).join("")}<th class="n">Tổng tăng</th></tr></thead><tbody>`+
     st.map(s=>`<tr>${RB_CELL(s.b)}${months.map(m=>{ const u=RISE.filter(r=>r.b===s.b&&r.mo===m&&r.v>0).length, dn=RISE.filter(r=>r.b===s.b&&r.mo===m&&r.v<0).length;
       return `<td class="hm" ${u?`style="background:rgba(184,50,80,${(0.12+0.55*u/mx).toFixed(2)})"`:""}>${u||(dn?"":"·")}${dn?` <span class="r-dec">↓${dn}</span>`:""}</td>`; }).join("")}<td class="n"><b>${s.ups}</b></td></tr>`).join("")+`</tbody>`;
-  const all=RMODELS.filter(x=>x.gaps);
-  const gapL=all.filter(x=>!GAP_OK.has(rkey(x.b,x.m))), okL=all.filter(x=>GAP_OK.has(rkey(x.b,x.m)));
-  const okNote=okL.length?`<div class="rwarn ok"><b>${okL.length} chuỗi đã kiểm tra, chấp nhận thiếu nấc.</b> Không tìm được dữ liệu của lần tăng còn thiếu, giữ nguyên để khỏi bịa số: ${okL.map(x=>esc(x.b+" "+x.m)).join("; ")}.</div>`:"";
-  $("rwarn").innerHTML=(gapL.length?`<div class="rwarn"><b>${gapL.length} model có chuỗi giá không khớp.</b> Giá cũ của lần đổi sau khác giá mới của lần trước: có thể trùng dòng hoặc thiếu một đợt. Bạn kiểm tra lại các dòng này:<ul>`+
-    gapL.map(x=>`<li>${x.b} ${esc(x.m)}: ${x.chain.map(r=>`${r.mo} ${fmt(r.o)} → ${fmt(r.n)}`).join("; ")}</li>`).join("")+`</ul></div>`:"")+okNote;
+  // Chuỗi đã khai trong RISE_GAP_OK thì không nhắc nữa, khỏi làm rối người xem.
+  const gapL=RMODELS.filter(x=>x.gaps && !GAP_OK.has(rkey(x.b,x.m)));
+  $("rwarn").innerHTML=riseAlertBox()+(gapL.length?`<div class="rwarn"><b>${gapL.length} model có chuỗi giá không khớp.</b> Giá cũ của lần đổi sau khác giá mới của lần trước: có thể trùng dòng hoặc thiếu một đợt. Bạn kiểm tra lại các dòng này:<ul>`+
+    gapL.map(x=>`<li>${x.b} ${esc(x.m)}: ${x.chain.map(r=>`${r.mo} ${fmt(r.o)} → ${fmt(r.n)}`).join("; ")}</li>`).join("")+`</ul></div>`:"");
 }
 function renderRiseModels(){
   const b=$("rm-brand").value, sort=$("rm-sort").value, multi=$("rm-multi").checked, q=$("rm-q").value.trim().toLowerCase();
@@ -677,8 +690,17 @@ const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]
   .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|5g|4g|nfc)\b/g," ")
   .replace(/[^a-z0-9]/g,"");
 const MK_FOCUS = new Set(BASE.rows.map(r=>mkKey(r.model)));
+// FPT chặn máy chủ nên bộ quét tự động chỉ lấy được một phần. Khi có bản quét FPT chạy từ
+// máy nhà (data/fpt.js) thì thay toàn bộ phần FPT bằng bản đó.
+function mkMergeFpt(scan){
+  const L = window.FPT_LOCAL;
+  if(!scan || !L || !Array.isArray(L.rows) || L.rows.length <= scan.rows.filter(x=>x.r==="FPT Shop").length) return scan;
+  const rows = scan.rows.filter(x=>x.r!=="FPT Shop").concat(L.rows);
+  const report = {...(scan.report||{}), "FPT Shop": L.rows.length};
+  return {...scan, rows, report, fptLocal:`${L.date} ${L.at}`};
+}
 function mkData(){
-  const n=MK.scans.length, cur=n?MK.scans[n-1]:null, prev=n>1?MK.scans[n-2]:null;
+  const n=MK.scans.length, cur=n?mkMergeFpt(MK.scans[n-1]):null, prev=n>1?mkMergeFpt(MK.scans[n-2]):null;
   if(!cur) return {cur:null, rows:[]};
   const pm=new Map((prev?prev.rows:[]).map(x=>[x.r+"|"+mkKey(x.n), x]));
   return {cur, prev, rows:cur.rows.map(x=>{ const k=mkKey(x.n), v=Math.max((x.o||x.p)-x.p,0), pv=pm.get(x.r+"|"+k);
@@ -691,7 +713,7 @@ function renderMarket(){
   const D=mkData();
   if(!D.cur){ $("mk-sub").textContent="Chưa có đợt quét toàn thị trường. Đợt đầu tiên sẽ có sau lần chạy bộ quét kế tiếp."; $("mk-kpi").innerHTML=""; $("mk-body").innerHTML=""; $("mk-head").innerHTML=""; $("mk-count").textContent=""; return; }
   const errs=Object.entries(D.cur.report||{}).filter(([,v])=>typeof v!=="number").map(([k])=>k);
-  $("mk-sub").textContent=`Đợt quét ${D.cur.date} lúc ${D.cur.at}${D.prev?`, so với đợt ${D.prev.date}`:""}. Giá lấy từ trang danh sách của từng sàn, chỉ 6 hãng đang theo dõi, chỉ để tham khảo.${D.cur.src==="erp"?" Nguồn: file Excel của hệ thống ERP, không phải bộ quét này — cách họ tính khuyến mãi khác quy tắc KM base nên đừng dùng để so sánh.":""}${errs.length?` Lỗi đợt này: ${errs.join(", ")}.`:""}`;
+  $("mk-sub").textContent=`Đợt quét ${D.cur.date} lúc ${D.cur.at}${D.prev?`, so với đợt ${D.prev.date}`:""}. Giá lấy từ trang danh sách của từng sàn, chỉ 6 hãng đang theo dõi, chỉ để tham khảo.${D.cur.src==="erp"?" Nguồn: file Excel của hệ thống ERP, không phải bộ quét này — cách họ tính khuyến mãi khác quy tắc KM base nên đừng dùng để so sánh.":""}${D.cur.fptLocal?` Riêng FPT Shop lấy từ máy nhà lúc ${D.cur.fptLocal} vì FPT chặn máy chủ.`:""}${errs.length?` Lỗi đợt này: ${errs.join(", ")}.`:""}`;
   $("mk-kpi").innerHTML=MK_RET.map(r=>{ const L=D.rows.filter(x=>x.r===r), withKM=L.filter(x=>x.v>0), avg=withKM.length?withKM.reduce((t,x)=>t+x.pct,0)/withKM.length*100:0;
     return `<div class="rk"><small><span class="rtl" data-r="${r}">${r}</span></small><b>${L.length} máy</b><span>${withKM.length} máy đang giảm giá, trung bình ${avg.toFixed(1)}%</span><span>${L.filter(x=>x.focus).length} máy thuộc 86 SKU</span></div>`; }).join("");
   mkChips($("mk-f-r"),["Tất cả",...MK_RET],"r");
