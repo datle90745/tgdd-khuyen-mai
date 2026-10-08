@@ -573,11 +573,12 @@ function riseAlertBox(){
   const last = hit[hit.length-1].day;
   const items = hit.filter(e=>e.day===last).flatMap(e=>e.items);
   if(!items.length) return "";
-  const li = items.slice(0,20).map(x=>`<li>${esc(x.b||x.r||"")} ${esc(x.n)}: ${fmt(x.old)} → <b>${fmt(x.new)}</b> (+${(((x.new-x.old)/x.old)*100).toFixed(1)}%)</li>`).join("");
+  const li = items.slice(0,20).map(x=>`<li>${esc(x.b||"")} ${esc(x.n)}: ${fmt(x.old)} → <b>${fmt(x.new)}</b> (+${(((x.new-x.old)/x.old)*100).toFixed(1)}%)${x.r?` — <b>${esc(x.r)}</b>`:""}</li>`).join("");
   return `<div class="rwarn"><b>Đợt quét ${esc(rd(last))} phát hiện ${items.length} máy tăng giá đen.</b><ul>${li}`
        + (items.length>20?`<li>… và ${items.length-20} máy nữa.</li>`:"") + `</ul></div>`;
 }
-const RISE = RISE_RAW.map((r,i)=>{ const [mo,b,m,o,n,d,p]=r; return {i,mo,b,m,o,n,v:n-o,p,seg:rseg(n),d,k:rkey(b,m)}; });
+// Phần tử thứ 8 là kênh phát hiện tăng giá; các dòng nhập tay cũ không có nên để trống.
+const RISE = RISE_RAW.map((r,i)=>{ const [mo,b,m,o,n,d,p,ch]=r; return {i,mo,b,m,o,n,v:n-o,p,seg:rseg(n),d,ch:ch||"",k:rkey(b,m)}; });
 const mnum = m => +m.slice(1);
 const RB_CELL = b => `<td class="bcell" data-b="${RBD[b]||b}">${b}</td>`;
 const rpct = p => (p>0?"+":"")+p.toFixed(1)+"%";
@@ -630,8 +631,8 @@ function renderRiseLog(){
   const l=RISE.filter(r=>(m==="all"||r.mo===m)&&(b==="all"||r.b===b)&&(sg==="all"||r.seg===sg)&&(d==="all"||(d==="up"?r.v>0:r.v<0))&&(!q||r.m.toLowerCase().includes(q)))
     .sort((a,c)=>c.d.localeCompare(a.d)||Math.abs(c.p)-Math.abs(a.p));
   $("rl-count").textContent=`Hiển thị ${l.length} / ${RISE.length} lượt đổi giá`;
-  $("rlog").innerHTML=`<thead><tr><th>Month</th><th>Brand</th><th>Model</th><th class="n">Old Price</th><th class="n">New Price</th><th class="n">Variance</th><th class="n">% Change</th><th>Segment</th><th>Change Date</th></tr></thead><tbody>`+
-    l.map(r=>`<tr><td>${r.mo}</td>${RB_CELL(r.b)}<td class="mdl">${esc(r.m)}</td><td class="n">${fmt(r.o)}</td><td class="n"><b>${fmt(r.n)}</b></td><td class="n ${r.v>0?"r-inc":"r-dec"}">${r.v>0?"▲":"▼"} ${fmt(Math.abs(r.v))}</td><td class="n ${r.v>0?"r-inc":"r-dec"}">${r.p>0?"":"-"}${Math.abs(r.p).toFixed(1)}%</td><td>${r.seg}</td><td>${rd(r.d)}</td></tr>`).join("")+`</tbody>`;
+  $("rlog").innerHTML=`<thead><tr><th>Month</th><th>Brand</th><th>Model</th><th class="n">Old Price</th><th class="n">New Price</th><th class="n">Variance</th><th class="n">% Change</th><th>Segment</th><th>Kênh</th><th>Change Date</th></tr></thead><tbody>`+
+    l.map(r=>`<tr><td>${r.mo}</td>${RB_CELL(r.b)}<td class="mdl">${esc(r.m)}</td><td class="n">${fmt(r.o)}</td><td class="n"><b>${fmt(r.n)}</b></td><td class="n ${r.v>0?"r-inc":"r-dec"}">${r.v>0?"▲":"▼"} ${fmt(Math.abs(r.v))}</td><td class="n ${r.v>0?"r-inc":"r-dec"}">${r.p>0?"":"-"}${Math.abs(r.p).toFixed(1)}%</td><td>${r.seg}</td><td>${r.ch?esc(r.ch):"–"}</td><td>${rd(r.d)}</td></tr>`).join("")+`</tbody>`;
 }
 function riseInit(){
   RMODELS=rModels();
