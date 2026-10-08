@@ -210,6 +210,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 <section class="pane" id="p-rise" hidden>
   <div class="panel rise-kpi" id="rkpi"></div>
   <div id="rwarn"></div>
+  <div id="rch"></div>
   <h3 class="rh">Hãng nào tăng giá <small>(bấm vào hãng để lọc hai bảng bên dưới)</small></h3>
   <div class="panel tablewrap"><table class="rtab" id="rbrand"></table></div>
   <h3 class="rh">Hãng theo tháng <small>(số model tăng giá, ↓ là số model giảm)</small></h3>
@@ -549,7 +550,8 @@ function initExports(){
 const RISE_RAW = (()=>{
   const base = window.RISE_RAW || [];
   const auto = Array.isArray(window.RISE_AUTO) ? window.RISE_AUTO : [];
-  const key = r => `${String(r[1]).toUpperCase()}|${r[2]}|${r[3]}|${r[4]}`;
+  // Kênh nằm trong khoá: cùng một máy tăng ở nhiều kênh là nhiều dòng, không phải trùng.
+  const key = r => `${String(r[1]).toUpperCase()}|${r[2]}|${r[3]}|${r[4]}|${r[7]||""}`;
   const seen = new Set(base.map(key));
   return base.concat(auto.filter(r=>{ const k=key(r); if(seen.has(k)) return false; seen.add(k); return true; }));
 })();
@@ -614,8 +616,31 @@ function renderRiseTop(){
       return `<td class="hm" ${u?`style="background:rgba(184,50,80,${(0.12+0.55*u/mx).toFixed(2)})"`:""}>${u||(dn?"":"·")}${dn?` <span class="r-dec">↓${dn}</span>`:""}</td>`; }).join("")}<td class="n"><b>${s.ups}</b></td></tr>`).join("")+`</tbody>`;
   // Chuỗi đã khai trong RISE_GAP_OK thì không nhắc nữa, khỏi làm rối người xem.
   const gapL=RMODELS.filter(x=>x.gaps && !GAP_OK.has(rkey(x.b,x.m)));
+  renderRiseByChannel();
   $("rwarn").innerHTML=riseAlertBox()+(gapL.length?`<div class="rwarn"><b>${gapL.length} model có chuỗi giá không khớp.</b> Giá cũ của lần đổi sau khác giá mới của lần trước: có thể trùng dòng hoặc thiếu một đợt. Bạn kiểm tra lại các dòng này:<ul>`+
     gapL.map(x=>`<li>${x.b} ${esc(x.m)}: ${x.chain.map(r=>`${r.mo} ${fmt(r.o)} → ${fmt(r.n)}`).join("; ")}</li>`).join("")+`</ul></div>`:"");
+}
+// Bảng theo dõi: ngày nào, máy nào tăng giá đen, và tăng ở kênh nào — vì thường có kênh
+// tăng trước, kênh chưa tăng. Ô trống nghĩa là kênh đó chưa ghi nhận tăng cho máy đó.
+const RISE_CH = ["TGDĐ","CellphoneS","FPT Shop","Viettel Store"];
+function renderRiseByChannel(){
+  const l = RISE.filter(r=>r.ch && r.v>0);
+  if(!l.length){
+    $("rch").innerHTML = `<h3 class="rh">Tăng giá theo kênh <small>(máy nào, ngày nào, kênh nào)</small></h3>`
+      + `<div class="panel" style="padding:14px;color:var(--muted)">Chưa ghi nhận lần tăng giá đen nào kể từ khi bật theo dõi theo kênh. Có là hiện ngay ở đây.</div>`;
+    return;
+  }
+  const g = new Map();
+  l.forEach(r=>{ const k=r.d+"|"+r.k;
+    if(!g.has(k)) g.set(k,{d:r.d,b:r.b,m:r.m,old:r.o,ch:{}});
+    g.get(k).ch[r.ch]=r.n; });
+  const rows=[...g.values()].sort((a,c)=>c.d.localeCompare(a.d)).slice(0,60);
+  $("rch").innerHTML = `<h3 class="rh">Tăng giá theo kênh <small>(máy nào, ngày nào, kênh nào — ô trống là kênh đó chưa tăng)</small></h3>`
+    + `<div class="panel tablewrap"><table class="rtab"><thead><tr><th>Ngày</th><th>Hãng</th><th>Model</th><th class="n">Giá cũ</th>`
+    + RISE_CH.map(c=>`<th class="n">${esc(c)}</th>`).join("") + `</tr></thead><tbody>`
+    + rows.map(x=>`<tr><td>${rd(x.d)}</td>${RB_CELL(x.b)}<td class="mdl">${esc(x.m)}</td><td class="n">${fmt(x.old)}</td>`
+        + RISE_CH.map(c=>x.ch[c]?`<td class="n r-inc"><b>${fmt(x.ch[c])}</b></td>`:`<td class="n" style="color:var(--muted)">–</td>`).join("")
+        + `</tr>`).join("") + `</tbody></table></div>`;
 }
 function renderRiseModels(){
   const b=$("rm-brand").value, sort=$("rm-sort").value, multi=$("rm-multi").checked, q=$("rm-q").value.trim().toLowerCase();
