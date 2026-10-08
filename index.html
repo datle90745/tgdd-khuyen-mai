@@ -210,7 +210,6 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 <section class="pane" id="p-rise" hidden>
   <div class="panel rise-kpi" id="rkpi"></div>
   <div id="rwarn"></div>
-  <div id="rch"></div>
   <h3 class="rh">Hãng nào tăng giá <small>(bấm vào hãng để lọc hai bảng bên dưới)</small></h3>
   <div class="panel tablewrap"><table class="rtab" id="rbrand"></table></div>
   <h3 class="rh">Hãng theo tháng <small>(số model tăng giá, ↓ là số model giảm)</small></h3>
@@ -607,7 +606,8 @@ function renderRiseTop(){
     <div class="rk"><small>Lượt đổi giá ghi nhận</small><b>${RISE.length}</b><span>${ups.length} lần tăng, ${dns.length} lần giảm</span></div>
     <div class="rk"><small>Model đã từng tăng giá</small><b>${mods}</b><span>${RMODELS.filter(x=>x.ups>=2).length} model tăng từ 2 lần</span></div>
     <div class="rk"><small>Hãng tăng nhiều lượt nhất</small><b>${top.b}</b><span>${top.ups} lượt, ${top.models} model, trung bình ${top.avg.toFixed(1)}%</span></div>
-    <div class="rk"><small>Đợt tăng gần nhất</small><b>${rd(lastD)}</b><span>${lastWave.length} lượt, ${[...new Set(lastWave.map(r=>r.b))].join(", ")}</span></div>`;
+    <div class="rk"><small>Đợt tăng gần nhất</small><b>${rd(lastD)}</b><span>${lastWave.length} lượt, ${[...new Set(lastWave.map(r=>r.b))].join(", ")}</span></div>
+    ${riseTodayCard()}`;
   $("rbrand").innerHTML=`<thead><tr><th>Hãng</th><th class="n">Lượt tăng</th><th class="n">Lượt giảm</th><th class="n">Model tăng</th><th class="n">% tăng TB</th><th class="n">Số đợt tăng</th><th>Các tháng có tăng</th><th>Tăng mạnh nhất</th></tr></thead><tbody>`+
     st.map(s=>`<tr class="rclick" data-rb="${s.b}">${RB_CELL(s.b)}<td class="n"><b>${s.ups}</b></td><td class="n">${s.downs||"–"}</td><td class="n">${s.models}</td><td class="n">${s.avg==null?"–":s.avg.toFixed(1)+"%"}</td><td class="n">${s.waves}</td><td>${s.months.join(", ")||"–"}</td><td>${s.max?`<span class="r-inc">${rpct(s.max.p)}</span> ${esc(s.max.m)} (${s.max.mo})`:"–"}</td></tr>`).join("")+`</tbody>`;
   const months=[...new Set(RISE.map(r=>r.mo))].sort((a,c)=>mnum(a)-mnum(c)), mx=Math.max(...st.flatMap(s=>months.map(m=>RISE.filter(r=>r.b===s.b&&r.mo===m&&r.v>0).length)),1);
@@ -616,31 +616,21 @@ function renderRiseTop(){
       return `<td class="hm" ${u?`style="background:rgba(184,50,80,${(0.12+0.55*u/mx).toFixed(2)})"`:""}>${u||(dn?"":"·")}${dn?` <span class="r-dec">↓${dn}</span>`:""}</td>`; }).join("")}<td class="n"><b>${s.ups}</b></td></tr>`).join("")+`</tbody>`;
   // Chuỗi đã khai trong RISE_GAP_OK thì không nhắc nữa, khỏi làm rối người xem.
   const gapL=RMODELS.filter(x=>x.gaps && !GAP_OK.has(rkey(x.b,x.m)));
-  renderRiseByChannel();
   $("rwarn").innerHTML=riseAlertBox()+(gapL.length?`<div class="rwarn"><b>${gapL.length} model có chuỗi giá không khớp.</b> Giá cũ của lần đổi sau khác giá mới của lần trước: có thể trùng dòng hoặc thiếu một đợt. Bạn kiểm tra lại các dòng này:<ul>`+
     gapL.map(x=>`<li>${x.b} ${esc(x.m)}: ${x.chain.map(r=>`${r.mo} ${fmt(r.o)} → ${fmt(r.n)}`).join("; ")}</li>`).join("")+`</ul></div>`:"");
 }
-// Bảng theo dõi: ngày nào, máy nào tăng giá đen, và tăng ở kênh nào — vì thường có kênh
-// tăng trước, kênh chưa tăng. Ô trống nghĩa là kênh đó chưa ghi nhận tăng cho máy đó.
-const RISE_CH = ["TGDĐ","CellphoneS","FPT Shop","Viettel Store"];
-function renderRiseByChannel(){
+// Ô thống kê: đợt quét gần nhất có máy nào tăng giá đen, hãng gì, ở kênh nào.
+// Cùng một máy thường chỉ tăng ở vài kênh nên gộp các kênh lại trong ngoặc.
+function riseTodayCard(){
   const l = RISE.filter(r=>r.ch && r.v>0);
-  if(!l.length){
-    $("rch").innerHTML = `<h3 class="rh">Tăng giá theo kênh <small>(máy nào, ngày nào, kênh nào)</small></h3>`
-      + `<div class="panel" style="padding:14px;color:var(--muted)">Chưa ghi nhận lần tăng giá đen nào kể từ khi bật theo dõi theo kênh. Có là hiện ngay ở đây.</div>`;
-    return;
-  }
+  if(!l.length) return `<div class="rk"><small>Tăng giá mới nhất</small><b>0</b><span>Chưa ghi nhận máy nào tăng giá đen</span></div>`;
+  const day = l.map(r=>r.d).sort().pop();
   const g = new Map();
-  l.forEach(r=>{ const k=r.d+"|"+r.k;
-    if(!g.has(k)) g.set(k,{d:r.d,b:r.b,m:r.m,old:r.o,ch:{}});
-    g.get(k).ch[r.ch]=r.n; });
-  const rows=[...g.values()].sort((a,c)=>c.d.localeCompare(a.d)).slice(0,60);
-  $("rch").innerHTML = `<h3 class="rh">Tăng giá theo kênh <small>(máy nào, ngày nào, kênh nào — ô trống là kênh đó chưa tăng)</small></h3>`
-    + `<div class="panel tablewrap"><table class="rtab"><thead><tr><th>Ngày</th><th>Hãng</th><th>Model</th><th class="n">Giá cũ</th>`
-    + RISE_CH.map(c=>`<th class="n">${esc(c)}</th>`).join("") + `</tr></thead><tbody>`
-    + rows.map(x=>`<tr><td>${rd(x.d)}</td>${RB_CELL(x.b)}<td class="mdl">${esc(x.m)}</td><td class="n">${fmt(x.old)}</td>`
-        + RISE_CH.map(c=>x.ch[c]?`<td class="n r-inc"><b>${fmt(x.ch[c])}</b></td>`:`<td class="n" style="color:var(--muted)">–</td>`).join("")
-        + `</tr>`).join("") + `</tbody></table></div>`;
+  l.filter(r=>r.d===day).forEach(r=>{
+    if(!g.has(r.k)) g.set(r.k,{b:r.b,m:r.m,ch:new Set()});
+    g.get(r.k).ch.add(r.ch); });
+  const txt=[...g.values()].map(x=>`${x.b} ${x.m} (${[...x.ch].join(", ")})`).join("; ");
+  return `<div class="rk"><small>Tăng giá ngày ${rd(day)}</small><b>${g.size}</b><span>${esc(txt)}</span></div>`;
 }
 function renderRiseModels(){
   const b=$("rm-brand").value, sort=$("rm-sort").value, multi=$("rm-multi").checked, q=$("rm-q").value.trim().toLowerCase();
@@ -656,8 +646,8 @@ function renderRiseLog(){
   const l=RISE.filter(r=>(m==="all"||r.mo===m)&&(b==="all"||r.b===b)&&(sg==="all"||r.seg===sg)&&(d==="all"||(d==="up"?r.v>0:r.v<0))&&(!q||r.m.toLowerCase().includes(q)))
     .sort((a,c)=>c.d.localeCompare(a.d)||Math.abs(c.p)-Math.abs(a.p));
   $("rl-count").textContent=`Hiển thị ${l.length} / ${RISE.length} lượt đổi giá`;
-  $("rlog").innerHTML=`<thead><tr><th>Month</th><th>Brand</th><th>Model</th><th class="n">Old Price</th><th class="n">New Price</th><th class="n">Variance</th><th class="n">% Change</th><th>Segment</th><th>Kênh</th><th>Change Date</th></tr></thead><tbody>`+
-    l.map(r=>`<tr><td>${r.mo}</td>${RB_CELL(r.b)}<td class="mdl">${esc(r.m)}</td><td class="n">${fmt(r.o)}</td><td class="n"><b>${fmt(r.n)}</b></td><td class="n ${r.v>0?"r-inc":"r-dec"}">${r.v>0?"▲":"▼"} ${fmt(Math.abs(r.v))}</td><td class="n ${r.v>0?"r-inc":"r-dec"}">${r.p>0?"":"-"}${Math.abs(r.p).toFixed(1)}%</td><td>${r.seg}</td><td>${r.ch?esc(r.ch):"–"}</td><td>${rd(r.d)}</td></tr>`).join("")+`</tbody>`;
+  $("rlog").innerHTML=`<thead><tr><th>Month</th><th>Brand</th><th>Model</th><th class="n">Old Price</th><th class="n">New Price</th><th class="n">Variance</th><th class="n">% Change</th><th>Segment</th><th>Change Date</th></tr></thead><tbody>`+
+    l.map(r=>`<tr><td>${r.mo}</td>${RB_CELL(r.b)}<td class="mdl">${esc(r.m)}</td><td class="n">${fmt(r.o)}</td><td class="n"><b>${fmt(r.n)}</b></td><td class="n ${r.v>0?"r-inc":"r-dec"}">${r.v>0?"▲":"▼"} ${fmt(Math.abs(r.v))}</td><td class="n ${r.v>0?"r-inc":"r-dec"}">${r.p>0?"":"-"}${Math.abs(r.p).toFixed(1)}%</td><td>${r.seg}</td><td>${rd(r.d)}</td></tr>`).join("")+`</tbody>`;
 }
 function riseInit(){
   RMODELS=rModels();
