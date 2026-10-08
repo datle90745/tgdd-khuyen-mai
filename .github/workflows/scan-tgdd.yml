@@ -55,11 +55,17 @@ jobs:
             exit 0
           fi
           git commit -m "Đợt quét PMH $(TZ=Asia/Ho_Chi_Minh date +%d-%m-%Y)"
-          # Có thể có commit mới trong lúc quét: đồng bộ lại rồi mới đẩy.
-          for i in 1 2 3; do
+          # Có thể có commit mới trong lúc quét. Các file dữ liệu đều do bộ quét sinh lại
+          # toàn bộ nên khi đụng nhau cứ lấy bản vừa quét (-X theirs: bản đang replay).
+          for i in 1 2 3 4 5; do
             if git push; then exit 0; fi
-            git pull --rebase origin main || exit 1
-            sleep 5
+            git fetch origin main
+            if ! git rebase -X theirs origin/main; then
+              git checkout --theirs . || true
+              git add -A
+              GIT_EDITOR=true git rebase --continue || git rebase --abort
+            fi
+            sleep 10
           done
           echo "::error::Không đẩy được kết quả sau 3 lần thử."
           exit 1
