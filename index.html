@@ -161,7 +161,36 @@ td.bcell[data-b="Honor"]{background:#7030a0}
 pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0;font-size:12px}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:9px 16px;border-radius:8px;z-index:30}
 .toast[hidden]{display:none}
-@media (max-width:640px){.wrap{padding:14px 12px 50px}h1{font-size:20px}.calc .f{grid-template-columns:1fr}.kv{grid-template-columns:1fr 1fr}}
+/* ---- B1: Ma trận đối đầu 4 sàn ---- */
+.h2h-best{background:#d8f0e6!important;color:#0a7d5c!important;font-weight:700}
+.h2h-worst{color:var(--down);font-weight:600}
+.h2h-badge{display:inline-block;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700}
+.h2h-badge.crown{background:#0a7d5c;color:#fff}
+.h2h-diff{font-weight:700}
+.h2h-diff.high{color:var(--down)}
+.h2h-diff.med{color:var(--warn)}
+.h2h-diff.low{color:var(--muted)}
+.sub-nav{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+
+/* ---- B2: Cảnh báo khuyến mãi ảo ---- */
+.fake-alert{border-left:4px solid var(--warn);background:var(--warn-bg);padding:12px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.fake-alert h4{margin:0 0 6px;font-size:14px;display:flex;align-items:center;gap:6px}
+.fake-alert ul{margin:4px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink)}
+.fake-badge{display:inline-block;background:#b83250;color:#fff;border-radius:4px;padding:0 6px;font-size:11px;font-weight:700;margin-left:6px}
+
+/* ---- B3: So sánh 2 SKU ---- */
+.cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0}
+.cmp-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
+.cmp-box h3{margin:0 0 10px;font-size:17px;display:flex;align-items:center;justify-content:space-between}
+.cmp-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--soft);font-size:13px}
+.cmp-row:last-child{border-bottom:0}
+.cmp-row span.k{color:var(--muted)}
+.cmp-row span.v{font-weight:600}
+.cmp-verdict{background:var(--soft);border-radius:8px;padding:14px;margin:16px 0;font-size:13.5px;line-height:1.6}
+.cmp-verdict b{color:var(--ink)}
+.cmp-legend{display:flex;gap:18px;margin-bottom:8px;font-weight:600;font-size:13px}
+.cmp-legend span{display:flex;align-items:center;gap:6px}
+.cmp-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
 </style>
 </head>
 <body>
@@ -183,6 +212,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
   <button role="tab" aria-selected="false" data-tab="history">Lịch sử theo đợt quét</button>
   <button role="tab" aria-selected="false" data-tab="rise">Lịch sử tăng giá</button>
   <button role="tab" aria-selected="false" data-tab="market">Toàn thị trường</button>
+  <button role="tab" aria-selected="false" data-tab="compare">So sánh 2 máy</button>
   <button role="tab" aria-selected="false" data-tab="rules" data-admin hidden>Quy tắc tính PMH</button>
   <button role="tab" aria-selected="false" data-tab="import" data-admin hidden>Nhập đợt quét mới</button>
 </nav>
@@ -239,15 +269,54 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 <section class="pane" id="p-market" hidden>
   <div class="move-head" style="margin:0 2px 8px"><span id="mk-sub" style="color:var(--muted)"></span><button class="btn" id="mk-xlsx" style="padding:4px 12px">Xuất Excel tab này</button></div>
   <div class="panel rise-kpi" id="mk-kpi"></div>
-  <div class="panel filters" style="margin-top:12px">
-    <div class="row"><label class="t">Sàn</label><span id="mk-f-r" class="row"></span></div>
-    <div class="row"><label class="t">Hãng</label><span id="mk-f-b" class="row"></span></div>
-    <div class="row"><label class="t">Loại KM</label><span id="mk-f-k" class="row"></span>
-      <label style="display:flex;gap:6px;align-items:center;color:var(--muted);margin-left:8px"><input type="checkbox" id="mk-focus"> Chỉ máy thuộc 86 SKU</label></div>
-    <div class="row"><label class="t">Tìm</label><input class="search" id="mk-q" type="search" placeholder="Tên máy, ví dụ: A57 8GB" aria-label="Tìm theo tên máy"></div>
+  <div id="mk-fake-alerts"></div>
+  <div class="sub-nav" style="margin-top:14px">
+    <button class="btn primary" id="mk-tab-h2h">Ma trận đối đầu 4 sàn (86 SKU)</button>
+    <button class="btn" id="mk-tab-list">Toàn bộ danh sách 4 sàn</button>
   </div>
-  <div class="count" id="mk-count"></div>
-  <div class="panel tablewrap"><table id="mk-tbl"><thead><tr id="mk-head"></tr></thead><tbody id="mk-body"></tbody></table></div>
+  
+  <div id="mk-view-h2h">
+    <div class="panel filters">
+      <div class="row"><label class="t">Hãng</label><span id="h2h-f-b" class="row"></span></div>
+      <div class="row"><label class="t">Phân khúc</label><span id="h2h-f-s" class="row"></span></div>
+      <div class="row"><label class="t">Chênh lệch</label><span id="h2h-f-d" class="row"></span></div>
+      <div class="row"><label class="t">Tìm</label><input class="search" id="h2h-q" type="search" placeholder="Tên máy, viết tắt: s26 u, ip 17 pm, a57..." aria-label="Tìm theo tên máy"></div>
+    </div>
+    <div class="count" id="h2h-count"></div>
+    <div class="panel tablewrap"><table id="h2h-tbl"><thead><tr id="h2h-head"></tr></thead><tbody id="h2h-body"></tbody></table></div>
+  </div>
+
+  <div id="mk-view-list" hidden>
+    <div class="panel filters" style="margin-top:4px">
+      <div class="row"><label class="t">Sàn</label><span id="mk-f-r" class="row"></span></div>
+      <div class="row"><label class="t">Hãng</label><span id="mk-f-b" class="row"></span></div>
+      <div class="row"><label class="t">Loại KM</label><span id="mk-f-k" class="row"></span>
+        <label style="display:flex;gap:6px;align-items:center;color:var(--muted);margin-left:8px"><input type="checkbox" id="mk-focus"> Chỉ máy thuộc 86 SKU</label></div>
+      <div class="row"><label class="t">Tìm</label><input class="search" id="mk-q" type="search" placeholder="Tên máy, viết tắt: a57, reno 16..." aria-label="Tìm theo tên máy"></div>
+    </div>
+    <div class="count" id="mk-count"></div>
+    <div class="panel tablewrap"><table id="mk-tbl"><thead><tr id="mk-head"></tr></thead><tbody id="mk-body"></tbody></table></div>
+  </div>
+</section>
+
+<section class="pane" id="p-compare" hidden>
+  <div class="panel" style="padding:16px 20px;margin-bottom:14px">
+    <h2 style="margin:0 0 6px;font-size:18px">So sánh trực tiếp 2 sản phẩm (Head-to-Head)</h2>
+    <p style="margin:0 0 14px;color:var(--muted)">Chọn 2 model bất kỳ để so sánh thông số giá, khuyến mãi và đường diễn biến PMH qua các đợt quét.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px">
+      <div>
+        <label style="display:block;font-weight:600;margin-bottom:6px">Máy thứ nhất (Máy A):</label>
+        <input type="search" id="cmp-q1" class="search" style="width:100%;margin-bottom:6px" placeholder="Tìm hoặc viết tắt: a57, reno 16, ip 17 pm...">
+        <select id="cmp-sel1" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)"></select>
+      </div>
+      <div>
+        <label style="display:block;font-weight:600;margin-bottom:6px">Máy thứ hai (Máy B):</label>
+        <input type="search" id="cmp-q2" class="search" style="width:100%;margin-bottom:6px" placeholder="Tìm hoặc viết tắt: s26 u, find x9, note 17...">
+        <select id="cmp-sel2" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)"></select>
+      </div>
+    </div>
+  </div>
+  <div id="cmp-body"></div>
 </section>
 
 <section class="pane" id="p-rules" hidden>
@@ -300,6 +369,35 @@ const bdisp=b=>BDISP[b]||b;
 const bcell=b=>`<td class="bcell" data-b="${esc(b)}">${esc(bdisp(b))}</td>`;
 const rrpUp=r=>r.flags.some(f=>{ if(/tăng/.test(f)) return true; const m=f.match(/([\d.]+) → ([\d.]+)/); return !!m && +m[2].replace(/\./g,"") > +m[1].replace(/\./g,""); });
 const $ = id => document.getElementById(id);
+const removeAccents = s => String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9\s]/g," ").trim();
+function matchSmart(q, text){
+  if(!q) return true;
+  const nq = removeAccents(q), nt = removeAccents(text);
+  if(!nq) return true;
+  if(nt.includes(nq)) return true;
+  const qw = nq.split(/\s+/).filter(Boolean);
+  const tw = nt.split(/\s+/).filter(Boolean);
+  if(qw.every(w=>nt.includes(w))) return true;
+  const cQ = nq.replace(/\s+/g,""), cT = nt.replace(/\s+/g,"");
+  if(cT.includes(cQ)) return true;
+  let tIdx = 0;
+  for(let i=0; i<qw.length; i++){
+    const curQ = qw[i];
+    let matched = false;
+    while(tIdx < tw.length){
+      const curT = tw[tIdx++];
+      if(curT.startsWith(curQ) || (curQ==="ip"&&curT.startsWith("iphone")) ||
+         (curQ==="pm"&&curT==="pro"&&tw[tIdx]&&tw[tIdx].startsWith("max")) ||
+         (curQ==="u"&&curT.startsWith("ultra")) || (curQ==="fe"&&curT.startsWith("fe"))){
+        if(curQ==="pm") tIdx++;
+        matched = true;
+        break;
+      }
+    }
+    if(!matched) return false;
+  }
+  return true;
+}
 
 /* ---- state: base + published scans + scans imported in this browser ---- */
 let imports = [];
@@ -385,7 +483,7 @@ function renderFilters(){
 function filtered(){
   let rows = S.rows.filter(r=>
     (F.brand==="Tất cả"||r.brand===F.brand)&&(F.seg==="Tất cả"||r.segment===F.seg)&&
-    (F.ch==="Tất cả"||r.channel===F.ch)&&(F.kind==="Tất cả"||kindOf(r)===F.kind)&&(!F.q||r.model.toLowerCase().includes(F.q))&&(!F.move||cat(r)===F.move));
+    (F.ch==="Tất cả"||r.channel===F.ch)&&(F.kind==="Tất cả"||kindOf(r)===F.kind)&&(!F.q||matchSmart(F.q, r.brand+" "+r.model))&&(!F.move||cat(r)===F.move));
   if(F.sort!=="master"){
     const k = {pmh:r=>r.pmh[r.pmh.length-1], rrp:r=>r.rrp, off:r=>offPrice(r), tot:r=>r.tot??null, delta:r=>delta(r), model:r=>r.model, pct:r=>{const p=r.pmh[r.pmh.length-1];return p==null?null:p/r.rrp}}[F.sort];
     rows = [...rows].sort((a,b)=>{const x=k(a),y=k(b); if(x==null&&y==null) return 0; if(x==null) return 1; if(y==null) return -1; return (x>y?1:x<y?-1:0)*F.dir;});
@@ -538,10 +636,28 @@ function initExports(){
   $("json").onclick=()=>save(`promotion_${day()}.json`,JSON.stringify({dates:S.dates,rows:S.rows},null,1),"application/json");
   $("xlsx").onclick=()=>{
     if(!window.XLSX){ toast("Chưa tải được thư viện Excel, kiểm tra kết nối mạng"); return; }
-    const ws=XLSX.utils.aoa_to_sheet(sheetAoa());
-    ws["!cols"]=[{wch:9},{wch:38},{wch:14},{wch:16},{wch:11},...S.dates.map(()=>({wch:12})),{wch:18},{wch:20},{wch:20}];
-    const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Promotion");
-    save(`promotion_${day()}.xlsx`,XLSX.write(wb,{type:"array",bookType:"xlsx"}),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    const wb=XLSX.utils.book_new();
+    const ws1=XLSX.utils.aoa_to_sheet(sheetAoa());
+    ws1["!cols"]=[{wch:10},{wch:38},{wch:14},{wch:16},{wch:11},...S.dates.map(()=>({wch:12})),{wch:18},{wch:20},{wch:20},{wch:40}];
+    XLSX.utils.book_append_sheet(wb,ws1,"KM_86_SKU_TGDD");
+    try{
+      if(typeof buildH2HData==="function"){
+        const h2h=buildH2HData();
+        const h2hHead=["Hãng","Model","Phân khúc","Kênh","RRP","Giá TGDĐ","Giá CellphoneS","Giá FPT Shop","Giá Viettel Store","Sàn rẻ nhất","Chênh lệch cao nhất (đ)","% Chênh lệch"];
+        const h2hRows=h2h.map(x=>[x.brand,x.model,x.segment,x.channel==="TGDD"?"Độc quyền":"Mass",x.rrp,x.p_tgdd||"",x.p_cps||"",x.p_fpt||"",x.p_vt||"",x.bests.join(", "),x.spread||0,x.spreadPct?x.spreadPct.toFixed(1)+"%":"0%"]);
+        const ws2=XLSX.utils.aoa_to_sheet([h2hHead,...h2hRows]);
+        ws2["!cols"]=[{wch:10},{wch:36},{wch:12},{wch:12},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:18},{wch:22},{wch:14}];
+        XLSX.utils.book_append_sheet(wb,ws2,"Ma_Tran_4_San");
+      }
+      if(Array.isArray(window.RISE)){
+        const riseHead=["Tháng","Hãng","Model","Giá cũ","Giá mới","Mức tăng (đ)","% Thay đổi","Phân khúc","Ngày đổi"];
+        const riseRows=RISE.map(r=>[r.mo,r.b,r.m,r.o,r.n,r.v,(r.p>0?"+":"")+r.p.toFixed(1)+"%",r.seg,rd(r.d)]);
+        const ws3=XLSX.utils.aoa_to_sheet([riseHead,...riseRows]);
+        ws3["!cols"]=[{wch:8},{wch:10},{wch:36},{wch:14},{wch:14},{wch:14},{wch:12},{wch:12},{wch:14}];
+        XLSX.utils.book_append_sheet(wb,ws3,"Lich_Su_Tang_Gia");
+      }
+    }catch(err){ console.error("Export multi-sheet error:",err); }
+    save(`Bao_Cao_GTM_Khuyen_Mai_${day()}.xlsx`,XLSX.write(wb,{type:"array",bookType:"xlsx"}),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
   };
 }
 
@@ -634,8 +750,8 @@ function riseTodayCard(){
   return `<div class="rk"><small>Tăng giá ngày ${rd(day)}</small><b>${g.size}</b><span>${esc(txt)}</span></div>`;
 }
 function renderRiseModels(){
-  const b=$("rm-brand").value, sort=$("rm-sort").value, multi=$("rm-multi").checked, q=$("rm-q").value.trim().toLowerCase();
-  let l=RMODELS.filter(x=>(b==="all"||x.b===b)&&(!multi||x.ups>=2)&&(!q||x.m.toLowerCase().includes(q)));
+  const b=$("rm-brand").value, sort=$("rm-sort").value, multi=$("rm-multi").checked, q=$("rm-q").value.trim();
+  let l=RMODELS.filter(x=>(b==="all"||x.b===b)&&(!multi||x.ups>=2)&&(!q||matchSmart(q, x.b+" "+x.m)));
   l.sort((a,c)=>sort==="d"?c.d.localeCompare(a.d):(c[sort]-a[sort])||c.p-a.p);
   $("rm-count").textContent=`Hiển thị ${l.length} model đã từng tăng giá`;
   $("rmodel").innerHTML=`<thead><tr><th>Hãng</th><th>Model</th><th class="n">Lần tăng</th><th class="n">Giá đầu</th><th class="n">Giá hiện tại</th><th class="n">Tăng tích lũy</th><th class="n">%</th><th>Lần đổi gần nhất</th><th>Các lần đổi</th></tr></thead><tbody>`+
@@ -643,8 +759,8 @@ function renderRiseModels(){
       <td class="n ${x.v>0?"r-inc":"r-dec"}">${x.v>0?"▲":"▼"} ${fmt(Math.abs(x.v))}</td><td class="n ${x.v>0?"r-inc":"r-dec"}">${rpct(x.p)}</td><td>${rd(x.d)}</td><td>${x.chain.map(r=>r.mo+(r.v<0?"↓":"")).join(" → ")}</td></tr>`).join("")+`</tbody>`;
 }
 function renderRiseLog(){
-  const m=$("rl-month").value, b=$("rl-brand").value, d=$("rl-dir").value, sg=$("rl-seg").value, q=$("rl-q").value.trim().toLowerCase();
-  const l=RISE.filter(r=>(m==="all"||r.mo===m)&&(b==="all"||r.b===b)&&(sg==="all"||r.seg===sg)&&(d==="all"||(d==="up"?r.v>0:r.v<0))&&(!q||r.m.toLowerCase().includes(q)))
+  const m=$("rl-month").value, b=$("rl-brand").value, d=$("rl-dir").value, sg=$("rl-seg").value, q=$("rl-q").value.trim();
+  const l=RISE.filter(r=>(m==="all"||r.mo===m)&&(b==="all"||r.b===b)&&(sg==="all"||r.seg===sg)&&(d==="all"||(d==="up"?r.v>0:r.v<0))&&(!q||matchSmart(q, r.b+" "+r.m)))
     .sort((a,c)=>c.d.localeCompare(a.d)||Math.abs(c.p)-Math.abs(a.p));
   $("rl-count").textContent=`Hiển thị ${l.length} / ${RISE.length} lượt đổi giá`;
   $("rlog").innerHTML=`<thead><tr><th>Month</th><th>Brand</th><th>Model</th><th class="n">Old Price</th><th class="n">New Price</th><th class="n">Variance</th><th class="n">% Change</th><th>Segment</th><th>Change Date</th></tr></thead><tbody>`+
@@ -677,7 +793,10 @@ document.addEventListener("click",e=>{
   const tr=e.target.closest("tr[data-m]"); if(tr){ openDrawer(tr.dataset.m); return; }
   const tab=e.target.closest("nav.tabs button"); if(tab){
     document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b===tab));
-    document.querySelectorAll(".pane").forEach(p=>p.hidden=p.id!=="p-"+tab.dataset.tab); }
+    document.querySelectorAll(".pane").forEach(p=>p.hidden=p.id!=="p-"+tab.dataset.tab);
+    if(tab.dataset.tab==="compare") compareInit();
+    if(tab.dataset.tab==="market"){ renderMarket(); renderMarketH2H(); renderFakePromoAlerts(); }
+  }
 });
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape") closeDrawer();
@@ -703,7 +822,7 @@ const MK = window.MARKET && Array.isArray(window.MARKET.scans) ? window.MARKET :
 const MK_RET = ["TGDĐ","CellphoneS","FPT Shop","Viettel Store"];
 const MF = {r:"Tất cả", b:"Tất cả", k:"Tất cả", q:"", focus:false, sort:"v", dir:-1};
 // Khoá so khớp tên máy giữa các sàn và danh sách 86 SKU: bỏ dấu, tên hãng, 5G/4G, ký tự đặc biệt.
-const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d")
+const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d").replace(/\+/g,"plus")
   .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|5g|4g|nfc)\b/g," ")
   .replace(/[^a-z0-9]/g,"");
 const MK_FOCUS = new Set(BASE.rows.map(r=>mkKey(r.model)));
@@ -726,6 +845,175 @@ function mkData(){
 function mkChips(el, vals, key){
   el.innerHTML = vals.map(v=>`<button class="chip" data-mk="${key}" data-v="${esc(v)}" aria-pressed="${MF[key]===v}"${key==="b"&&v!=="Tất cả"?` data-b="${esc(v)}"`:""}>${esc(key==="b"?bdisp(v):v)}</button>`).join("");
 }
+/* ---- B1 & B2: Ma trận đối đầu 4 sàn (Head-to-Head) & Cảnh báo khuyến mãi ảo ---- */
+const H2H_F = {b:"Tất cả", s:"Tất cả", d:"all", q:"", sort:"spread", dir:-1};
+
+function buildH2HData(){
+  const D = mkData();
+  const curRows = (D.cur && D.cur.rows) || [];
+  const mkMap = new Map();
+  curRows.forEach(x => {
+    const k = x.r + "|" + mkKey(x.n);
+    if (!mkMap.has(k) || (x.p && (!mkMap.get(k).p || x.p < mkMap.get(k).p))) {
+      mkMap.set(k, x);
+    }
+  });
+
+  return S.rows.map(r => {
+    const k = mkKey(r.model);
+    const tgddItem = mkMap.get("TGDĐ|" + k);
+    const p_tgdd = tgddItem ? tgddItem.p : onPrice(r);
+    const u_tgdd = tgddItem ? tgddItem.u : (LINKS[r.model] || null);
+
+    const cpsItem = mkMap.get("CellphoneS|" + k);
+    const p_cps = cpsItem ? cpsItem.p : null;
+    const u_cps = cpsItem ? cpsItem.u : null;
+
+    const fptItem = mkMap.get("FPT Shop|" + k);
+    const p_fpt = fptItem ? fptItem.p : null;
+    const u_fpt = fptItem ? fptItem.u : null;
+
+    const vtItem = mkMap.get("Viettel Store|" + k);
+    const p_vt = vtItem ? vtItem.p : null;
+    const u_vt = vtItem ? vtItem.u : null;
+
+    const prices = [
+      {r: "TGDĐ", p: p_tgdd, u: u_tgdd},
+      {r: "CellphoneS", p: p_cps, u: u_cps},
+      {r: "FPT Shop", p: p_fpt, u: u_fpt},
+      {r: "Viettel Store", p: p_vt, u: u_vt}
+    ].filter(x => x.p && x.p > 0);
+
+    const minP = prices.length ? Math.min(...prices.map(x => x.p)) : null;
+    const maxP = prices.length ? Math.max(...prices.map(x => x.p)) : null;
+    const bests = prices.filter(x => x.p === minP).map(x => x.r);
+    const spread = (minP && maxP) ? maxP - minP : 0;
+    const spreadPct = (minP && spread) ? (spread / minP * 100) : 0;
+
+    return {
+      brand: r.brand,
+      model: r.model,
+      segment: r.segment,
+      channel: r.channel,
+      rrp: r.rrp,
+      p_tgdd, p_cps, p_fpt, p_vt,
+      minP, maxP, bests,
+      spread, spreadPct,
+      count: prices.length,
+      u_tgdd, u_cps, u_fpt, u_vt
+    };
+  });
+}
+
+function renderFakePromoAlerts(){
+  const h2h = buildH2HData();
+  const riseRecent = RISE.filter(r => r.v > 0 && (!r.mo || /T10|T9|T8/.test(r.mo)));
+  const riseMap = new Map();
+  riseRecent.forEach(r => riseMap.set(r.k, r));
+
+  const fakePromos = [];
+  S.rows.forEach(r => {
+    const rk = rkey(r.brand, r.model);
+    const rise = riseMap.get(rk);
+    if(rise){
+      const curOnPrice = onPrice(r);
+      if(curOnPrice && curOnPrice >= rise.o){
+        fakePromos.push({
+          model: r.model,
+          brand: r.brand,
+          oldRRP: rise.o,
+          newRRP: rise.n,
+          curPrice: curOnPrice,
+          pmh: r.pmh[r.pmh.length - 1]
+        });
+      }
+    }
+  });
+
+  const priceWars = h2h.filter(x => x.count >= 2 && x.spread >= 500000);
+  const bestCount = {"TGDĐ": 0, "CellphoneS": 0, "FPT Shop": 0, "Viettel Store": 0};
+  h2h.filter(x => x.count >= 2).forEach(x => {
+    x.bests.forEach(r => { if(bestCount[r] !== undefined) bestCount[r]++; });
+  });
+
+  let html = "";
+  if(fakePromos.length){
+    html += `<div class="fake-alert">
+      <h4>⚠ Cảnh báo Khuyến mãi ảo (${fakePromos.length} model): Tăng giá niêm yết rồi giảm giá đỏ</h4>
+      <p style="margin:2px 0 6px;color:var(--muted);font-size:12.5px">Các model này vừa tăng giá đen gần đây; giá sau khuyến mãi hiện tại vẫn cao hơn hoặc bằng giá đen cũ trước khi tăng:</p>
+      <ul>${fakePromos.map(x => `<li><b>${esc(x.brand)} ${esc(x.model)}</b>: Giá đen tăng ${fmt(x.oldRRP)} → <b>${fmt(x.newRRP)}</b>, ghi giảm ${fmt(x.pmh)} nhưng giá bán (${fmt(x.curPrice)}) không hề rẻ hơn giá niêm yết cũ!</li>`).join("")}</ul>
+    </div>`;
+  }
+
+  if(priceWars.length){
+    html += `<div class="fake-alert" style="border-left-color:var(--accent);background:var(--soft)">
+      <h4>⚔ Cuộc chiến giá giữa 4 sàn: ${priceWars.length} SKU chênh lệch từ 500.000₫ trở lên</h4>
+      <p style="margin:2px 0 4px;color:var(--muted);font-size:12.5px">
+        Thống kê sàn nắm giữ giá tốt nhất trong 86 SKU: 
+        <b>CellphoneS</b>: ${bestCount["CellphoneS"]} SKU | 
+        <b>TGDĐ</b>: ${bestCount["TGDĐ"]} SKU | 
+        <b>Viettel Store</b>: ${bestCount["Viettel Store"]} SKU | 
+        <b>FPT Shop</b>: ${bestCount["FPT Shop"]} SKU.
+      </p>
+    </div>`;
+  }
+  const el = $("mk-fake-alerts");
+  if(el) el.innerHTML = html;
+}
+
+function renderMarketH2H(){
+  const allH2H = buildH2HData();
+  const brands = ["Tất cả", ...new Set(allH2H.map(x=>x.brand))];
+  const segs = ["Tất cả", ...SEG_ORDER.filter(s=>allH2H.some(x=>x.segment===s))];
+
+  $("h2h-f-b").innerHTML = brands.map(b=>`<button class="chip" data-h2hb="${esc(b)}" aria-pressed="${H2H_F.b===b}">${esc(bdisp(b))}</button>`).join("");
+  $("h2h-f-s").innerHTML = segs.map(s=>`<button class="chip" data-h2hs="${esc(s)}" aria-pressed="${H2H_F.s===s}">${esc(s)}</button>`).join("");
+  $("h2h-f-d").innerHTML = [["all","Tất cả"],["diff","Có chênh lệch (>0đ)"],["big","Chênh lệch lớn (≥500k)"]]
+    .map(([k,l])=>`<button class="chip" data-h2hd="${k}" aria-pressed="${H2H_F.d===k}">${l}</button>`).join("");
+
+  let rows = allH2H.filter(x =>
+    (H2H_F.b==="Tất cả" || x.brand===H2H_F.b) &&
+    (H2H_F.s==="Tất cả" || x.segment===H2H_F.s) &&
+    (H2H_F.d==="all" || (H2H_F.d==="diff" && x.spread>0) || (H2H_F.d==="big" && x.spread>=500000)) &&
+    (!H2H_F.q || matchSmart(H2H_F.q, x.brand + " " + x.model))
+  );
+
+  const kMap = {model: x=>x.model, rrp: x=>x.rrp, spread: x=>x.spread, tgdd: x=>x.p_tgdd, cps: x=>x.p_cps, fpt: x=>x.p_fpt, vt: x=>x.p_vt};
+  if(kMap[H2H_F.sort]){
+    const k = kMap[H2H_F.sort];
+    rows.sort((a,b)=>{ const va=k(a), vb=k(b); if(va==null&&vb==null) return 0; if(va==null) return 1; if(vb==null) return -1; return (va>vb?1:va<vb?-1:0)*H2H_F.dir; });
+  }
+
+  const h2hCols = [["b","Hãng"],["model","Model"],["seg","Phân khúc"],["rrp","RRP",1],["tgdd","TGDĐ",1],["cps","CellphoneS",1],["fpt","FPT Shop",1],["vt","Viettel Store",1],["best","Sàn rẻ nhất"],["spread","Chênh lệch giá",1]];
+
+  $("h2h-head").innerHTML = h2hCols.map(([k,l,n])=>`<th class="${n?"n":""}" data-h2hsort="${k}">${l}${H2H_F.sort===k?(H2H_F.dir>0?" ▲":" ▼"):""}</th>`).join("");
+  $("h2h-count").textContent = `Hiển thị ${rows.length} / ${allH2H.length} SKU trong ma trận đối đầu`;
+
+  const cell = (p, minP, count, url) => {
+    if(!p) return `<td class="n" style="color:var(--muted)">–</td>`;
+    const isBest = count>=2 && p===minP;
+    const body = fmt(p);
+    return `<td class="n ${isBest?"h2h-best":""}" ${isBest?`title="Giá tốt nhất trong 4 sàn"`:""}>${url?`<a href="${esc(url)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">${body}</a>`:body}</td>`;
+  };
+
+  $("h2h-body").innerHTML = rows.map(x => {
+    const bestLabel = x.count<2 ? `<span class="badge ${x.channel==="TGDD"?"tgdd":"mass"}">${x.channel==="TGDD"?"Độc quyền":"1 sàn bán"}</span>`
+      : (x.bests.length===4 ? `<span style="color:var(--muted)">4 sàn bằng giá</span>` : `<span class="h2h-badge crown">👑 ${esc(x.bests.join(", "))}</span>`);
+
+    const diffCls = x.spread>=500000 ? "high" : x.spread>0 ? "med" : "low";
+    const diffText = x.count<2 ? "–" : (x.spread>0 ? `<span class="h2h-diff ${diffCls}">▲ ${fmt(x.spread)} <small>(${x.spreadPct.toFixed(1)}%)</small></span>` : `<span style="color:var(--muted)">0₫</span>`);
+
+    return `<tr tabindex="0" data-m="${esc(x.model)}">${bcell(x.brand)}<td class="model">${esc(x.model)}</td><td>${esc(x.segment)}</td>
+      <td class="n">${fmt(x.rrp)}</td>
+      ${cell(x.p_tgdd, x.minP, x.count, x.u_tgdd)}
+      ${cell(x.p_cps, x.minP, x.count, x.u_cps)}
+      ${cell(x.p_fpt, x.minP, x.count, x.u_fpt)}
+      ${cell(x.p_vt, x.minP, x.count, x.u_vt)}
+      <td>${bestLabel}</td>
+      <td class="n">${diffText}</td></tr>`;
+  }).join("") || `<tr><td colspan="10">Không có model nào khớp bộ lọc.</td></tr>`;
+}
+
 function renderMarket(){
   const D=mkData();
   if(!D.cur){ $("mk-sub").textContent="Chưa có đợt quét toàn thị trường. Đợt đầu tiên sẽ có sau lần chạy bộ quét kế tiếp."; $("mk-kpi").innerHTML=""; $("mk-body").innerHTML=""; $("mk-head").innerHTML=""; $("mk-count").textContent=""; return; }
@@ -733,11 +1021,15 @@ function renderMarket(){
   $("mk-sub").textContent=`Đợt quét ${D.cur.date} lúc ${D.cur.at}${D.prev?`, so với đợt ${D.prev.date}`:""}. Giá lấy từ trang danh sách của từng sàn, chỉ 6 hãng đang theo dõi, chỉ để tham khảo.${D.cur.src==="erp"?" Nguồn: file Excel của hệ thống ERP, không phải bộ quét này — cách họ tính khuyến mãi khác quy tắc KM base nên đừng dùng để so sánh.":""}${D.cur.fptLocal?` Riêng FPT Shop lấy từ máy nhà lúc ${D.cur.fptLocal} vì FPT chặn máy chủ.`:""}${errs.length?` Lỗi đợt này: ${errs.join(", ")}.`:""}`;
   $("mk-kpi").innerHTML=MK_RET.map(r=>{ const L=D.rows.filter(x=>x.r===r), withKM=L.filter(x=>x.v>0), avg=withKM.length?withKM.reduce((t,x)=>t+x.pct,0)/withKM.length*100:0;
     return `<div class="rk"><small><span class="rtl" data-r="${r}">${r}</span></small><b>${L.length} máy</b><span>${withKM.length} máy đang giảm giá, trung bình ${avg.toFixed(1)}%</span><span>${L.filter(x=>x.focus).length} máy thuộc 86 SKU</span></div>`; }).join("");
+
+  renderFakePromoAlerts();
+  renderMarketH2H();
+
   mkChips($("mk-f-r"),["Tất cả",...MK_RET],"r");
   mkChips($("mk-f-b"),["Tất cả",...["Apple","Samsung","OPPO","Xiaomi","Vivo","Realme"].filter(b=>D.rows.some(x=>x.b===b))],"b");
   mkChips($("mk-f-k"),["Tất cả","Flash Sale Online","Khuyến mãi"],"k");
-  const q=MF.q.toLowerCase();
-  let L=D.rows.filter(x=>(MF.r==="Tất cả"||x.r===MF.r)&&(MF.b==="Tất cả"||x.b===MF.b)&&(MF.k==="Tất cả"||x.k===MF.k)&&(!MF.focus||x.focus)&&(!q||x.n.toLowerCase().includes(q)));
+  const q=MF.q;
+  let L=D.rows.filter(x=>(MF.r==="Tất cả"||x.r===MF.r)&&(MF.b==="Tất cả"||x.b===MF.b)&&(MF.k==="Tất cả"||x.k===MF.k)&&(!MF.focus||x.focus)&&(!q||matchSmart(q, x.r+" "+x.b+" "+x.n)));
   const key={r:x=>x.r,b:x=>x.b,n:x=>x.n,o:x=>x.o,p:x=>x.p,v:x=>x.v,pct:x=>x.pct,dv:x=>x.dv}[MF.sort];
   L.sort((a,c)=>{const x=key(a),y=key(c); if(x==null&&y==null) return 0; if(x==null) return 1; if(y==null) return -1; return (x>y?1:x<y?-1:0)*MF.dir;});
   const cols=[["r","Sàn"],["b","Hãng"],["n","Tên sản phẩm"],["k","Loại KM"],["o","Giá gốc",1],["p","Giá online",1],["v","Giá trị KM",1],["pct","% giảm",1],["dv","So đợt trước",1],["u","Xem"]];
@@ -750,27 +1042,163 @@ function renderMarket(){
     <td><a href="${esc(x.u)}" target="_blank" rel="noopener">Link</a></td></tr>`).join("") || `<tr><td colspan="10">Không có máy nào khớp bộ lọc.</td></tr>`;
   renderMarket.rows=L;
 }
+
+/* ---- B3: So sánh 2 SKU ---- */
+let CMP_M1 = null, CMP_M2 = null;
+function compareInit(){
+  const models = S.rows.map(r=>r.model);
+  if(!models.length) return;
+  if(!CMP_M1) CMP_M1 = models[0];
+  if(!CMP_M2) CMP_M2 = models[Math.min(1, models.length - 1)];
+
+  const populate = (selId, filterQ) => {
+    const sel = $(selId); if(!sel) return;
+    const cur = sel.value;
+    const matched = models.filter(m => matchSmart(filterQ, m));
+    sel.innerHTML = matched.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join("");
+    if(matched.includes(cur)) sel.value = cur;
+    else if(matched.length) sel.value = matched[0];
+  };
+
+  populate("cmp-sel1", "");
+  populate("cmp-sel2", "");
+  if($("cmp-sel1")) $("cmp-sel1").value = CMP_M1;
+  if($("cmp-sel2")) $("cmp-sel2").value = CMP_M2;
+
+  if($("cmp-q1")) $("cmp-q1").oninput = e => { populate("cmp-sel1", e.target.value.trim()); CMP_M1 = $("cmp-sel1").value; renderCompare(); };
+  if($("cmp-q2")) $("cmp-q2").oninput = e => { populate("cmp-sel2", e.target.value.trim()); CMP_M2 = $("cmp-sel2").value; renderCompare(); };
+  if($("cmp-sel1")) $("cmp-sel1").onchange = e => { CMP_M1 = e.target.value; renderCompare(); };
+  if($("cmp-sel2")) $("cmp-sel2").onchange = e => { CMP_M2 = e.target.value; renderCompare(); };
+  renderCompare();
+}
+
+function cmpDualChart(r1, r2){
+  const W=620,H=220,L=50,B=30,T=16,R=20;
+  const v1=r1.pmh, v2=r2.pmh;
+  const allV = [...v1, ...v2].filter(x=>x!=null);
+  if(!allV.length) return "<p style='color:var(--muted)'>Chưa có dữ liệu PMH để vẽ biểu đồ.</p>";
+  const max = Math.max(...allV, 1);
+  const n = S.dates.length - 1 || 1;
+  const X=i=>L+(n===1?0:i/n)*(W-L-R);
+  const Y=x=>T+(1-x/max)*(H-T-B);
+
+  let p1="", s1=false;
+  v1.forEach((x,i)=>{ if(x==null){s1=false;return;} p1+=`${s1?"L":"M"}${X(i).toFixed(1)} ${Y(x).toFixed(1)} `; s1=true; });
+  let p2="", s2=false;
+  v2.forEach((x,i)=>{ if(x==null){s2=false;return;} p2+=`${s2?"L":"M"}${X(i).toFixed(1)} ${Y(x).toFixed(1)} `; s2=true; });
+
+  const grid=[0,.5,1].map(t=>`<line x1="${L}" x2="${W-R}" y1="${Y(max*t)}" y2="${Y(max*t)}" stroke="var(--line)"/><text x="${L-8}" y="${Y(max*t)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${fmt(Math.round(max*t/1000))}k</text>`).join("");
+  const dots1=v1.map((x,i)=>x==null?"":`<circle cx="${X(i)}" cy="${Y(x)}" r="4" fill="var(--accent)"><title>${esc(r1.model)} (${S.dates[i]}): ${fmt(x)}</title></circle>`).join("");
+  const dots2=v2.map((x,i)=>x==null?"":`<circle cx="${X(i)}" cy="${Y(x)}" r="4" fill="var(--down)"><title>${esc(r2.model)} (${S.dates[i]}): ${fmt(x)}</title></circle>`).join("");
+  const xl=S.dates.map((d,i)=>`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${esc(d)}</text>`).join("");
+
+  return `
+    <div class="cmp-legend">
+      <span><i class="cmp-dot" style="background:var(--accent)"></i> ${esc(r1.model)}</span>
+      <span><i class="cmp-dot" style="background:var(--down)"></i> ${esc(r2.model)}</span>
+    </div>
+    <div style="background:var(--soft);border-radius:8px;padding:12px 14px">
+      <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Biểu đồ so sánh PMH">${grid}
+        <path d="${p1}" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linejoin="round"/>
+        <path d="${p2}" fill="none" stroke="var(--down)" stroke-width="2.6" stroke-linejoin="round" stroke-dasharray="5 3"/>
+        ${dots1}${dots2}${xl}
+      </svg>
+    </div>`;
+}
+
+function renderCompare(){
+  const r1 = S.rows.find(x => x.model === CMP_M1);
+  const r2 = S.rows.find(x => x.model === CMP_M2);
+  const body = $("cmp-body");
+  if(!body) return;
+  if(!r1 || !r2){ body.innerHTML = "<p>Vui lòng chọn 2 máy để so sánh.</p>"; return; }
+
+  const p1 = r1.pmh[r1.pmh.length - 1] || 0;
+  const p2 = r2.pmh[r2.pmh.length - 1] || 0;
+  const pct1 = r1.rrp ? (p1 / r1.rrp * 100) : 0;
+  const pct2 = r2.rrp ? (p2 / r2.rrp * 100) : 0;
+
+  const cardHtml = (r, p, pct, color) => `
+    <div class="cmp-box" style="border-top:4px solid ${color}">
+      <h3><span>${esc(r.model)}</span><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span></h3>
+      <div class="cmp-row"><span class="k">Phân khúc</span><span class="v">${esc(r.segment)}</span></div>
+      <div class="cmp-row"><span class="k">Kênh phân phối</span><span class="v"><span class="badge ${r.channel==="TGDD"?"tgdd":"mass"}">${r.channel==="TGDD"?"Độc quyền":"Mass"}</span></span></div>
+      <div class="cmp-row"><span class="k">Giá niêm yết (RRP)</span><span class="v" style="font-size:15px">${fmt(r.rrp)}</span></div>
+      <div class="cmp-row"><span class="k">Giá Offline</span><span class="v">${fmt(offPrice(r))}</span></div>
+      <div class="cmp-row"><span class="k">KM base (PMH)</span><span class="v" style="color:${color};font-weight:700">${fmt(p)}</span></div>
+      <div class="cmp-row"><span class="k">Flash Sale Online</span><span class="v">${r.tot ? fmt(r.tot) : "–"}</span></div>
+      <div class="cmp-row"><span class="k">Giá Online cuối</span><span class="v" style="font-size:15px;color:var(--ink)">${fmt(onPrice(r))}</span></div>
+      <div class="cmp-row"><span class="k">% Giảm hiện tại</span><span class="v">${pct.toFixed(1)}%</span></div>
+      <div class="cmp-row"><span class="k">Link TGDĐ</span><span class="v">${LINKS[r.model]?`<a href="${esc(LINKS[r.model])}" target="_blank" rel="noopener">Mở trang ↗</a>`:"–"}</span></div>
+    </div>`;
+
+  const diffRRP = Math.abs(r1.rrp - r2.rrp);
+  const cheaperRRP = r1.rrp < r2.rrp ? `<b>${esc(r1.model)}</b> có giá niêm yết rẻ hơn <b>${fmt(diffRRP)}</b>`
+    : (r1.rrp > r2.rrp ? `<b>${esc(r2.model)}</b> có giá niêm yết rẻ hơn <b>${fmt(diffRRP)}</b>` : `Cả 2 máy có cùng giá niêm yết RRP (${fmt(r1.rrp)})`);
+
+  const discountVerdict = pct1 > pct2
+    ? `<b>${esc(r1.model)}</b> đang có tỷ lệ giảm sâu hơn (${pct1.toFixed(1)}% vs ${pct2.toFixed(1)}%, chênh ${(pct1 - pct2).toFixed(1)}%)`
+    : (pct2 > pct1 ? `<b>${esc(r2.model)}</b> đang có tỷ lệ giảm sâu hơn (${pct2.toFixed(1)}% vs ${pct1.toFixed(1)}%, chênh ${(pct2 - pct1).toFixed(1)}%)`
+      : `Cả 2 máy đang có cùng tỷ lệ chiết khấu (${pct1.toFixed(1)}%)`);
+
+  body.innerHTML = `
+    <div class="cmp-grid">
+      ${cardHtml(r1, p1, pct1, "var(--accent)")}
+      ${cardHtml(r2, p2, pct2, "var(--down)")}
+    </div>
+    <div class="cmp-verdict">
+      <h4 style="margin:0 0 6px;font-size:14px">📊 Nhận định đối đầu:</h4>
+      • ${cheaperRRP}.<br>
+      • ${discountVerdict}.<br>
+      • Chênh lệch giá mua Online thực tế: <b>${fmt(Math.abs((onPrice(r1)||0) - (onPrice(r2)||0)))}</b>.
+    </div>
+    <h3 style="margin:20px 0 10px;font-size:16px">Diễn biến khuyến mãi PMH qua các đợt quét</h3>
+    ${cmpDualChart(r1, r2)}`;
+}
+
 document.addEventListener("click",e=>{
   const chip=e.target.closest(".chip[data-mk]"); if(chip){ MF[chip.dataset.mk]=chip.dataset.v; renderMarket(); return; }
-  const th=e.target.closest("#mk-head th[data-mksort]"); if(th&&th.dataset.mksort!=="u"&&th.dataset.mksort!=="k"){ const k=th.dataset.mksort; if(MF.sort===k) MF.dir=-MF.dir; else {MF.sort=k; MF.dir=(k==="n"||k==="r"||k==="b")?1:-1;} renderMarket(); }
+  const b=e.target.closest("[data-h2hb]"); if(b){ H2H_F.b=b.dataset.h2hb; renderMarketH2H(); return; }
+  const s=e.target.closest("[data-h2hs]"); if(s){ H2H_F.s=s.dataset.h2hs; renderMarketH2H(); return; }
+  const d=e.target.closest("[data-h2hd]"); if(d){ H2H_F.d=d.dataset.h2hd; renderMarketH2H(); return; }
+  const th1=e.target.closest("#h2h-head th[data-h2hsort]"); if(th1&&th1.dataset.h2hsort!=="best"){ const k=th1.dataset.h2hsort; if(H2H_F.sort===k) H2H_F.dir=-H2H_F.dir; else {H2H_F.sort=k; H2H_F.dir=(k==="model"||k==="b")?1:-1;} renderMarketH2H(); return; }
+  const th2=e.target.closest("#mk-head th[data-mksort]"); if(th2&&th2.dataset.mksort!=="u"&&th2.dataset.mksort!=="k"){ const k=th2.dataset.mksort; if(MF.sort===k) MF.dir=-MF.dir; else {MF.sort=k; MF.dir=(k==="n"||k==="r"||k==="b")?1:-1;} renderMarket(); return; }
 });
-$("mk-q").addEventListener("input",e=>{ MF.q=e.target.value.trim(); renderMarket(); });
-$("mk-focus").addEventListener("change",e=>{ MF.focus=e.target.checked; renderMarket(); });
-$("mk-xlsx").onclick=()=>{
+
+if($("mk-tab-h2h")) $("mk-tab-h2h").onclick=()=>{ $("mk-tab-h2h").classList.add("primary"); $("mk-tab-list").classList.remove("primary"); $("mk-view-h2h").hidden=false; $("mk-view-list").hidden=true; };
+if($("mk-tab-list")) $("mk-tab-list").onclick=()=>{ $("mk-tab-list").classList.add("primary"); $("mk-tab-h2h").classList.remove("primary"); $("mk-view-list").hidden=false; $("mk-view-h2h").hidden=true; };
+if($("h2h-q")) $("h2h-q").addEventListener("input",e=>{ H2H_F.q=e.target.value.trim(); renderMarketH2H(); });
+if($("mk-q")) $("mk-q").addEventListener("input",e=>{ MF.q=e.target.value.trim(); renderMarket(); });
+if($("mk-focus")) $("mk-focus").addEventListener("change",e=>{ MF.focus=e.target.checked; renderMarket(); });
+
+if($("mk-xlsx")) $("mk-xlsx").onclick=()=>{
   if(!window.XLSX){ toast("Chưa tải được thư viện Excel, kiểm tra kết nối mạng"); return; }
   const D=mkData(), L=renderMarket.rows||[];
+  const wb=XLSX.utils.book_new();
+
+  // Sheet 1: Ma trận đối đầu 4 sàn
+  const h2h=buildH2HData();
+  const h2hHead=["Hãng","Model","Phân khúc","Kênh","RRP","Giá TGDĐ","Giá CellphoneS","Giá FPT Shop","Giá Viettel Store","Sàn rẻ nhất","Chênh lệch cao nhất (đ)","% Chênh lệch"];
+  const h2hRows=h2h.map(x=>[x.brand,x.model,x.segment,x.channel==="TGDD"?"Độc quyền":"Mass",x.rrp,x.p_tgdd||"",x.p_cps||"",x.p_fpt||"",x.p_vt||"",x.bests.join(", "),x.spread||0,x.spreadPct?x.spreadPct.toFixed(1)+"%":"0%"]);
+  const ws1=XLSX.utils.aoa_to_sheet([h2hHead,...h2hRows]);
+  ws1["!cols"]=[{wch:10},{wch:36},{wch:12},{wch:12},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:18},{wch:22},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws1,"Ma_Tran_Doi_Dau");
+
+  // Sheet 2: Danh sách phẳng toàn bộ sản phẩm
   const aoa=[["Sàn","Hãng","Tên sản phẩm","Loại KM","Giá gốc","Giá online","Giá trị KM","% giảm","So đợt trước","Thuộc 86 SKU","Link"],
     ...L.map(x=>[x.r,x.b,x.n,x.k,x.o,x.p,x.v,Math.round(x.pct*1000)/10,x.dv==null?"":x.dv,x.focus?"Có":"",x.u])];
-  const ws=XLSX.utils.aoa_to_sheet(aoa); ws["!cols"]=[{wch:13},{wch:9},{wch:42},{wch:16},{wch:12},{wch:12},{wch:12},{wch:8},{wch:12},{wch:8},{wch:50}];
-  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Toan thi truong");
+  const ws2=XLSX.utils.aoa_to_sheet(aoa); ws2["!cols"]=[{wch:13},{wch:9},{wch:42},{wch:16},{wch:12},{wch:12},{wch:12},{wch:8},{wch:12},{wch:8},{wch:50}];
+  XLSX.utils.book_append_sheet(wb,ws2,"Toan_Bo_Danh_Sach");
+
   save(`toan_thi_truong_${D.cur?D.cur.date:"chua_co"}.xlsx`,XLSX.write(wb,{type:"array",bookType:"xlsx"}),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 };
+
 try{ renderMarket(); }catch(e){ console.error("market",e); }
 
 // Tab nội bộ (Quy tắc, Nhập đợt quét) chỉ hiện khi link có ?admin
 if(new URLSearchParams(location.search).has("admin")) document.querySelectorAll("nav.tabs [data-admin]").forEach(b=>b.hidden=false);
 try{ riseInit(); }catch(e){ console.error("rise",e); }
-renderAll(); initExports(); calc();
+renderAll(); initExports(); compareInit(); calc();
 </script>
 </body>
 </html>

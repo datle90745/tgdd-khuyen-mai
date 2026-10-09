@@ -32,6 +32,7 @@ KEEP_SCANS = 20
 
 CF_PROXY_URL = os.environ.get("CF_PROXY_URL", "").rstrip("/")
 CF_PROXY_TOKEN = os.environ.get("CF_PROXY_TOKEN", "")
+ERP_PORTAL_COOKIE = os.environ.get("ERP_PORTAL_COOKIE", "").strip()
 # Trình duyệt cho FPT: có màn hình ảo (xvfb-run) thì để hiện, chạy máy thường thì ẩn.
 HEADLESS = os.environ.get("DISPLAY", "") == ""
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -190,20 +191,99 @@ FPT_SHOW_ALL_JS = """async () => {
 }"""
 
 
+def parse_fpt_nextjs(html):
+    """Trích xuất dữ liệu sản phẩm từ khối Next.js nhúng sẵn trong HTML của FPT Shop."""
+    clean_html = html.replace(r'\"', '"')
+    items = []
+    seen = set()
+    for m in re.finditer(r'"currentPrice":(\d+)', clean_html):
+        pos = m.start()
+        start = max(0, pos - 2500)
+        back = clean_html[start:pos]
+        slug_matches = list(re.finditer(r'"slug":"(dien-thoai/[a-z0-9-]+)(?:\?sku=\d+)?"', back))
+        if not slug_matches:
+            continue
+        last_slug = slug_matches[-1].group(1)
+        if last_slug in seen:
+            continue
+        seen.add(last_slug)
+        after = back[slug_matches[-1].start():]
+        orig_m = re.findall(r'"originalPrice":(\d+)', after)
+        orig = int(orig_m[-1]) if orig_m else 0
+        before = back[:slug_matches[-1].start()]
+        names = re.findall(r'"(?:displayName|name)":"([^"]{3,80})"', before)
+        name = names[-1] if names else last_slug.split("/")[-1]
+        items.append({
+            "n": name,
+            "u": f"https://fptshop.com.vn/{last_slug}",
+            "p": int(m.group(1)),
+            "o": orig
+        })
+    return items
+
+
+def fpt_rows_via_http():
+    """Tải nhanh danh mục FPT Shop bằng HTTP request (qua Cloudflare proxy nếu có).
+    Cực nhanh (1-2s/trang), không tốn RAM và tránh tải nặng Playwright."""
+    rows, seen = [], set()
+    fpt_headers = {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Referer": "https://fptshop.com.vn/",
+        "sec-ch-ua": '"Chromium";v="138", "Not?A_Brand";v="8", "Google Chrome";v="138"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"Windows"',
+        "sec-fetch-dest": "document",
+        "sec-fetch-mode": "navigate",
+        "sec-fetch-site": "same-origin",
+        "upgrade-insecure-requests": "1",
+    }
+    for slug in FPT_BRAND_PAGES:
+        url = f"https://fptshop.com.vn/dien-thoai/{slug}"
+        items = []
+        for attempt in range(2):
+            try:
+                resp = request("GET", url, headers=fpt_headers, timeout=30)
+                if resp.status_code == 200 and "currentPrice" in resp.text:
+                    items = parse_fpt_nextjs(resp.text)
+                    if items:
+                        break
+            except Exception as e:
+                if attempt == 1:
+                    print(f"  FPT HTTP {slug} không thành công: {e}", flush=True)
+                time.sleep(2)
+        print(f"  FPT HTTP {slug}: {len(items)} máy", flush=True)
+        for it in items:
+            brand = brand_of(it["n"], it["u"])
+            if not brand or not it["p"] or it["u"] in seen:
+                continue
+            seen.add(it["u"])
+            rows.append(row("FPT Shop", brand, it["n"], it["u"], it["p"], it["o"]))
+        time.sleep(1)
+    return rows
+
+
 def fpt_rows_via_browser():
     """FPT chặn mọi kết nối từ máy chủ bằng trang kiểm tra chống bot ("Just a moment").
-    Mở bằng trình duyệt thật một lần để lấy cookie hợp lệ, rồi tải 6 trang hãng ngay
-    trong trình duyệt đó. Chạy có màn hình ảo (xvfb-run) để vượt qua dễ hơn."""
+    Mở bằng trình duyệt thật một lần để lấy cookie hợp lệ, kèm stealth script chống phát hiện
+    automation, rồi tải 6 trang hãng."""
     from playwright.sync_api import sync_playwright
 
     rows, seen, failed = [], set(), []
     with sync_playwright() as pw:
         browser = pw.chromium.launch(headless=HEADLESS, args=[
-            "--disable-blink-features=AutomationControlled", "--no-sandbox"])
+            "--disable-blink-features=AutomationControlled", "--no-sandbox",
+            "--disable-infobars", "--disable-dev-shm-usage"])
         context = browser.new_context(user_agent=UA, locale="vi-VN",
                                       timezone_id="Asia/Ho_Chi_Minh",
                                       viewport={"width": 1366, "height": 900})
         page = context.new_page()
+        page.add_init_script("""
+            Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+            window.chrome = { runtime: {} };
+            Object.defineProperty(navigator, 'languages', { get: () => ['vi-VN', 'vi', 'en-US', 'en'] });
+            Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
+        """)
 
         passed = False
         for attempt in range(6):  # vượt trang kiểm tra, mỗi lần chờ tối đa 40 giây
@@ -223,8 +303,6 @@ def fpt_rows_via_browser():
 
         for slug in FPT_BRAND_PAGES:
             items = []
-            # Mỗi lần sang trang hãng khác, FPT lại bắt vượt kiểm tra chống bot một lần nữa,
-            # nên trang nào cũng phải kiên nhẫn như trang đầu chứ không thử qua loa 2 lần.
             for attempt in range(5):
                 try:
                     page.goto(f"https://fptshop.com.vn/dien-thoai/{slug}",
@@ -238,7 +316,7 @@ def fpt_rows_via_browser():
                 if items:
                     break
                 page.wait_for_timeout(8000)
-            print(f"  FPT {slug}: {len(items)} máy", flush=True)
+            print(f"  FPT Browser {slug}: {len(items)} máy", flush=True)
             if not items:
                 failed.append(slug)
             for it in items:
@@ -251,15 +329,89 @@ def fpt_rows_via_browser():
             page.wait_for_timeout(2000)
         browser.close()
     if failed:
-        print(f"  FPT không đọc được trang: {', '.join(failed)}", flush=True)
+        print(f"  FPT Browser không đọc được trang: {', '.join(failed)}", flush=True)
     return rows
+
+
+def _parse_erp_portal_deals(deals):
+    rows, seen = [], set()
+    for it in deals:
+        if it.get("category") != "Điện thoại":
+            continue
+        p = int(it.get("sale_price") or 0)
+        o = int(it.get("original_price") or 0)
+        u = it.get("url") or ""
+        name = (it.get("name") or "").strip()
+        brand = brand_of(name, u) or it.get("brand") or "Khác"
+        if not u or not p or u in seen:
+            continue
+        seen.add(u)
+        rows.append(row("FPT Shop", brand, name, u, p, o, it.get("promo_type") or "Khuyến mãi"))
+    return rows
+
+
+def fpt_rows_via_erp_api():
+    """Tải dữ liệu FPT Shop từ API nội bộ promotion.erp-portal.vn nếu có ERP_PORTAL_COOKIE."""
+    cookie = ERP_PORTAL_COOKIE
+    if not cookie:
+        local_file = ROOT / "data" / "fpt_portal_deals.json"
+        if local_file.exists():
+            try:
+                deals = json.loads(local_file.read_text(encoding="utf-8"))
+                return _parse_erp_portal_deals(deals)
+            except Exception:
+                pass
+        return []
+
+    url = "https://promotion.erp-portal.vn/api/deals?retailer=FPT%20Shop"
+    headers = {
+        "User-Agent": UA,
+        "Accept": "application/json",
+        "Cookie": cookie if "auth" in cookie else f"auth-token={cookie}",
+    }
+    resp = requests.get(url, headers=headers, timeout=30)
+    if resp.status_code == 200:
+        return _parse_erp_portal_deals(resp.json())
+    print(f"  FPT ERP Portal trả về HTTP {resp.status_code}", flush=True)
+    return []
 
 
 def scan_fpt():
-    rows = fpt_rows_via_browser()
-    if not rows:
-        raise RuntimeError("không đọc được máy nào (trang kiểm tra chống bot).")
-    return rows
+    """Chỉ lấy dữ liệu LIVE trong đợt quét này:
+    1. Thử Retail Deal Crawler API nội bộ (promotion.erp-portal.vn) nếu có cookie/token.
+    2. Thử HTTP NextJS request (nhanh, qua proxy nếu có cấu hình).
+    3. Thử Playwright trình duyệt thật có stealth script.
+    Nếu cả 3 cách live đều bị chặn, báo lỗi rõ ràng và để trống dữ liệu đợt này.
+    Tuyệt đối KHÔNG lấy số cũ từ các ngày trước để tránh gây hiểu lầm về giá thực tế."""
+    # 1. Thử Retail Deal Crawler API nội bộ
+    try:
+        rows = fpt_rows_via_erp_api()
+        if len(rows) >= 15:
+            print(f"  FPT thành công qua Retail Deal API: {len(rows)} máy", flush=True)
+            return rows
+    except Exception as e:
+        print(f"  FPT Retail Deal API không thành công: {e}", flush=True)
+
+    # 2. Thử HTTP NextJS request trực tiếp / qua proxy
+    try:
+        rows = fpt_rows_via_http()
+        if len(rows) >= 15:
+            print(f"  FPT thành công qua HTTP: {len(rows)} máy", flush=True)
+            return rows
+    except Exception as e:
+        print(f"  FPT HTTP không thành công: {e}", flush=True)
+
+    # 3. Thử Playwright trình duyệt thật có stealth chống bot
+    try:
+        rows = fpt_rows_via_browser()
+        if len(rows) >= 15:
+            print(f"  FPT thành công qua Browser: {len(rows)} máy", flush=True)
+            return rows
+    except Exception as e:
+        print(f"  FPT Browser không thành công: {e}", flush=True)
+
+    # Không đoán số, không dùng số cũ: để trống và báo lỗi đợt quét
+    raise RuntimeError("FPT Shop chặn chống bot trong đợt này (không dùng dữ liệu cũ để tránh gây hiểu lầm)")
 
 
 def scan_viettel():

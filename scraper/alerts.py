@@ -33,8 +33,8 @@ def brand_of(model):
     return match.group(1).upper() if match else ""
 
 
-def _rise_key(brand, model, old, new):
-    return f"{str(brand).upper()}|{model}|{old}|{new}"
+def _rise_key(brand, model, old, new, channel=""):
+    return f"{str(brand).upper()}|{model}|{old}|{new}|{channel}"
 
 
 def load_rises():
@@ -54,9 +54,11 @@ def record_rises(day, items):
         return load_rises()
     base = _base_text()
     rises = load_rises()
-    seen = {_rise_key(r[1], r[2], r[3], r[4]) for r in rises}
+    seen = {_rise_key(r[1], r[2], r[3], r[4], r[7] if len(r) > 7 else "") for r in rises}
+    # Dòng nhập tay trong data.js không ghi kênh; coi như đã có để khỏi ghi lại lần nữa.
     for row in re.findall(r'\["T\d+","([^"]+)","([^"]+)",(\d+),(\d+),', base):
-        seen.add(_rise_key(row[0], row[1], int(row[2]), int(row[3])))
+        for ch in ("", "TGDĐ", "CellphoneS", "FPT Shop", "Viettel Store"):
+            seen.add(_rise_key(row[0], row[1], int(row[2]), int(row[3]), ch))
     month = f"T{int(day[5:7])}"
     added = 0
     for it in items:
@@ -64,7 +66,7 @@ def record_rises(day, items):
         if not model or not old or not new or new <= old:
             continue
         brand = (it.get("b") or brand_of(model) or "").upper()
-        key = _rise_key(brand, model, old, new)
+        key = _rise_key(brand, model, old, new, it.get("r") or "")
         if key in seen:
             continue
         seen.add(key)
