@@ -1,0 +1,2 @@
+/* Tự sinh bởi bộ quét, đừng sửa tay. Các lần giá đen tăng theo từng ngày quét. */
+window.ALERTS = [{"source": "tgdd-86", "day": "2026-10-07", "at": "20:45", "items": []}, {"source": "market", "day": "2026-10-07", "at": "20:50", "items": []}, {"source": "tgdd-86", "day": "2026-10-08", "at": "07:47", "items": []}, {"source": "market", "day": "2026-10-08", "at": "07:51", "items": []}];
