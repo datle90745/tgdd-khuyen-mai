@@ -993,11 +993,60 @@ function buildH2HData(){
   });
 }
 
+function getIsoWeek(dateStr){
+  if(!dateStr) return "";
+  let d;
+  if(typeof dateStr === "string" && dateStr.includes("-")){
+    const p = dateStr.split("-");
+    if(p[0].length === 4){
+      d = new Date(+p[0], +p[1] - 1, +p[2]);
+    } else {
+      const mNames = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+      const m = mNames[p[1].toLowerCase()] ?? 9;
+      d = new Date(2026, m, +p[0]);
+    }
+  } else {
+    d = new Date(dateStr);
+  }
+  if(isNaN(d.getTime())) return "";
+  const target = new Date(d.valueOf());
+  const dayNr = (d.getDay() + 6) % 7;
+  target.setDate(target.getDate() - dayNr + 3);
+  const firstThursday = target.valueOf();
+  target.setMonth(0, 1);
+  if(target.getDay() !== 4){
+    target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
+  }
+  const weekNr = 1 + Math.ceil((firstThursday - target) / 604800000);
+  return "W" + weekNr;
+}
+
+function fmtDateWeek(isoStr, mo){
+  if(!isoStr) return mo || "";
+  const parts = isoStr.split("-");
+  if(parts.length === 3 && parts[0].length === 4){
+    const [y, m, d] = parts;
+    const w = getIsoWeek(isoStr);
+    const mStr = mo ? ` / ${mo}` : "";
+    return `ngày ${d}/${m}/${y} (Tuần ${w}${mStr})`;
+  }
+  return isoStr;
+}
+
+function fmtScanDateWeek(scanD){
+  if(!scanD) return "đợt mới nhất";
+  const w = getIsoWeek(scanD);
+  return `đợt quét ${scanD} (${w ? 'Tuần ' + w : ''})`;
+}
+
 function renderFakePromoAlerts(){
   const h2h = buildH2HData();
   const riseRecent = RISE.filter(r => r.v > 0 && (!r.mo || /T10|T9|T8/.test(r.mo)));
   const riseMap = new Map();
   riseRecent.forEach(r => riseMap.set(r.k, r));
+
+  const latestScanDate = S.dates[S.dates.length - 1];
+  const scanLabel = fmtScanDateWeek(latestScanDate);
 
   const fakePromos = [];
   S.rows.forEach(r => {
@@ -1006,13 +1055,18 @@ function renderFakePromoAlerts(){
     if(rise){
       const curOnPrice = onPrice(r);
       if(curOnPrice && curOnPrice >= rise.o){
+        const disc = pmhOnline(r) || r.pmh[r.pmh.length - 1] || 0;
         fakePromos.push({
           model: r.model,
           brand: r.brand,
           oldRRP: rise.o,
           newRRP: rise.n,
           curPrice: curOnPrice,
-          pmh: r.pmh[r.pmh.length - 1]
+          disc: disc,
+          pmh: r.pmh[r.pmh.length - 1],
+          riseDate: rise.d,
+          riseMo: rise.mo,
+          channel: rise.ch
         });
       }
     }
@@ -1028,8 +1082,19 @@ function renderFakePromoAlerts(){
   if(fakePromos.length){
     html += `<div class="fake-alert">
       <h4>⚠ Cảnh báo Khuyến mãi ảo (${fakePromos.length} model): Tăng giá niêm yết rồi giảm giá đỏ</h4>
-      <p style="margin:2px 0 6px;color:var(--muted);font-size:12.5px">Các model này vừa tăng giá đen gần đây; giá sau khuyến mãi hiện tại vẫn cao hơn hoặc bằng giá đen cũ trước khi tăng:</p>
-      <ul>${fakePromos.map(x => `<li><b>${esc(x.brand)} ${esc(x.model)}</b>: Giá đen tăng ${fmt(x.oldRRP)} → <b>${fmt(x.newRRP)}</b>, ghi giảm ${fmt(x.pmh)} nhưng giá bán (${fmt(x.curPrice)}) không hề rẻ hơn giá niêm yết cũ!</li>`).join("")}</ul>
+      <p style="margin:2px 0 6px;color:var(--muted);font-size:12.5px">
+        Lịch sử ghi nhận các model này đã tăng giá đen theo ngày & tuần cụ thể; đến <b>${esc(scanLabel)}</b>, chuỗi áp dụng khuyến mãi giảm giá nhưng giá bán thực tế vẫn cao hơn giá niêm yết cũ trước đợt tăng:
+      </p>
+      <ul>${fakePromos.map(x => {
+        const overOld = x.curPrice - x.oldRRP;
+        const pctUp = (((x.newRRP - x.oldRRP) / x.oldRRP) * 100).toFixed(1);
+        const discText = x.disc > 0 ? `treo biển giảm <b>${fmt(x.disc)}</b>` : `không áp dụng giảm`;
+        return `<li>
+          <b>${esc(x.brand)} ${esc(x.model)}</b>: 
+          Đã tăng giá đen vào <b>${fmtDateWeek(x.riseDate, x.riseMo)}</b> từ ${fmt(x.oldRRP)} → <b>${fmt(x.newRRP)}</b> (+${pctUp}%). 
+          Đến <b>${esc(scanLabel)}</b>: ${discText} nhưng giá bán thực tế (<b>${fmt(x.curPrice)}</b>) vẫn đắt hơn giá niêm yết cũ <b>${overOld > 0 ? fmt(overOld) : 'bằng giá cũ'}</b>!
+        </li>`;
+      }).join("")}</ul>
     </div>`;
   }
 
