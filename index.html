@@ -165,8 +165,12 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 /* ---- B1: Ma trận đối đầu 4 sàn ---- */
 .h2h-best{background:#d8f0e6!important;color:#0a7d5c!important;font-weight:700}
 .h2h-worst{color:var(--down);font-weight:600}
-.h2h-badge{display:inline-block;border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700}
+.h2h-badge{display:inline-block;border-radius:4px;padding:2px 8px;font-size:11.5px;font-weight:700;white-space:nowrap;line-height:1.25;margin:1px 2px;vertical-align:middle;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 .h2h-badge.crown{background:#0a7d5c;color:#fff}
+.h2h-badge.crown[data-r="TGDĐ"],.h2h-badge.crown[data-r="Thế Giới Di Động"]{background:#ffd400;color:#241d00;border:1px solid #d4a700}
+.h2h-badge.crown[data-r="CellphoneS"]{background:#d70018;color:#fff;border:1px solid #b30014}
+.h2h-badge.crown[data-r="FPT Shop"]{background:#cb1c22;background:linear-gradient(90deg,#cb1c22,#ea580c);color:#fff;border:1px solid #b9151b}
+.h2h-badge.crown[data-r="Viettel Store"]{background:#00918e;color:#fff;border:1px solid #007775}
 .h2h-diff{font-weight:700}
 .h2h-diff.high{color:var(--down)}
 .h2h-diff.med{color:var(--warn)}
@@ -255,6 +259,10 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 .cmp-retail-table th,.cmp-retail-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
 .cmp-retail-table th.num,.cmp-retail-table td.num{text-align:right}
 .cmp-best-badge{display:inline-block;background:#ffd400;color:#2b2400;font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:1px}
+.cmp-best-badge[data-r="Thế Giới Di Động"],.cmp-best-badge[data-r="TGDĐ"]{background:#ffd400;color:#241d00}
+.cmp-best-badge[data-r="CellphoneS"]{background:#d70018;color:#fff}
+.cmp-best-badge[data-r="FPT Shop"]{background:#cb1c22;background:linear-gradient(90deg,#cb1c22,#ea580c);color:#fff}
+.cmp-best-badge[data-r="Viettel Store"]{background:#00918e;color:#fff}
 </style>
 </head>
 <body>
@@ -1223,7 +1231,7 @@ function renderMarketH2H(){
 
   $("h2h-body").innerHTML = rows.map(x => {
     const bestLabel = x.count<2 ? `<span class="badge ${x.channel==="TGDD"?"tgdd":"mass"}">${x.channel==="TGDD"?"Độc quyền":"1 sàn bán"}</span>`
-      : (x.bests.length===4 ? `<span style="color:var(--muted)">4 sàn bằng giá</span>` : `<span class="h2h-badge crown">👑 ${esc(x.bests.join(", "))}</span>`);
+      : (x.bests.length===4 ? `<span style="color:var(--muted)">4 sàn bằng giá</span>` : x.bests.map(r => `<span class="h2h-badge crown" data-r="${esc(r)}">👑 ${esc(r)}</span>`).join(" "));
 
     const diffCls = x.spread>=500000 ? "high" : x.spread>0 ? "med" : "low";
     const diffText = x.count<2 ? "–" : (x.spread>0 ? `<span class="h2h-diff ${diffCls}">▲ ${fmt(x.spread)} <small>(${x.spreadPct.toFixed(1)}%)</small></span>` : `<span style="color:var(--muted)">0₫</span>`);
@@ -1684,8 +1692,8 @@ function cmpMarketTable(r1, r2){
   const rowsHtml = retailers.map(rtl => {
     const isBest1 = rtl.p1 && min1 && rtl.p1 === min1;
     const isBest2 = rtl.p2 && min2 && rtl.p2 === min2;
-    const cell1 = rtl.p1 ? `${fmt(rtl.p1)}${isBest1 ? ' <span class="cmp-best-badge">👑 Rẻ nhất</span>' : ''}${rtl.u1 ? ` <a href="${esc(rtl.u1)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}` : '–';
-    const cell2 = rtl.p2 ? `${fmt(rtl.p2)}${isBest2 ? ' <span class="cmp-best-badge">👑 Rẻ nhất</span>' : ''}${rtl.u2 ? ` <a href="${esc(rtl.u2)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}` : '–';
+    const cell1 = rtl.p1 ? `${fmt(rtl.p1)}${isBest1 ? ` <span class="cmp-best-badge" data-r="${esc(rtl.name)}">👑 Rẻ nhất</span>` : ''}${rtl.u1 ? ` <a href="${esc(rtl.u1)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}` : '–';
+    const cell2 = rtl.p2 ? `${fmt(rtl.p2)}${isBest2 ? ` <span class="cmp-best-badge" data-r="${esc(rtl.name)}">👑 Rẻ nhất</span>` : ''}${rtl.u2 ? ` <a href="${esc(rtl.u2)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}` : '–';
     const diff = (rtl.p1 && rtl.p2) ? fmt(Math.abs(rtl.p1 - rtl.p2)) : '–';
     const diffDir = (rtl.p1 && rtl.p2) ? (rtl.p1 < rtl.p2 ? ` (A rẻ hơn ${diff})` : rtl.p1 > rtl.p2 ? ` (B rẻ hơn ${diff})` : ' (Bằng nhau)') : '';
 
