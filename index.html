@@ -178,6 +178,10 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 .fake-alert h4{margin:0 0 6px;font-size:14px;display:flex;align-items:center;gap:6px}
 .fake-alert ul{margin:4px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink)}
 .fake-badge{display:inline-block;background:#b83250;color:#fff;border-radius:4px;padding:0 6px;font-size:11px;font-weight:700;margin-left:6px}
+.fake-chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:2px 10px;cursor:pointer;font-size:11.5px;color:var(--ink);transition:all .15s}
+.fake-chip[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.btn-fake-ack{background:var(--panel);border:1px solid #d97706;color:#d97706;border-radius:5px;padding:2px 8px;font-size:11.5px;cursor:pointer;font-weight:600;white-space:nowrap;transition:all .15s}
+.btn-fake-ack:hover{background:#d97706;color:#fff}
 
 /* ---- B3: So sánh 2 SKU & Khuyến mãi thêm ---- */
 .cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin:16px 0}
@@ -1027,8 +1031,7 @@ function fmtDateWeek(isoStr, mo){
   if(parts.length === 3 && parts[0].length === 4){
     const [y, m, d] = parts;
     const w = getIsoWeek(isoStr);
-    const mStr = mo ? ` / ${mo}` : "";
-    return `ngày ${d}/${m}/${y} (Tuần ${w}${mStr})`;
+    return `ngày ${d}/${m} (Tuần ${w})`;
   }
   return isoStr;
 }
@@ -1039,16 +1042,40 @@ function fmtScanDateWeek(scanD){
   return `đợt quét ${scanD} (${w ? 'Tuần ' + w : ''})`;
 }
 
+function scanToMonthTag(dateStr){
+  if(!dateStr) return "T10";
+  const m = String(dateStr).match(/(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i);
+  if(m){
+    const idx = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"].indexOf(m[0].toLowerCase());
+    return "T" + (idx + 1);
+  }
+  const p = String(dateStr).split("-");
+  if(p.length >= 2 && !isNaN(+p[1])){
+    return "T" + (+p[1]);
+  }
+  return "T10";
+}
+
+let FAKE_SCOPE = "month";
+let ACK_FAKES = new Set();
+try {
+  ACK_FAKES = new Set(JSON.parse(localStorage.getItem("tp_ack_fakes") || "[]"));
+} catch(e){
+  ACK_FAKES = new Set();
+}
+
 function renderFakePromoAlerts(){
   const h2h = buildH2HData();
-  const riseRecent = RISE.filter(r => r.v > 0 && (!r.mo || /T10|T9|T8/.test(r.mo)));
+  const latestScanDate = S.dates[S.dates.length - 1];
+  const scanLabel = fmtScanDateWeek(latestScanDate);
+  const curMo = scanToMonthTag(latestScanDate);
+
+  // Mặc định chỉ lọc các đợt tăng giá đen trong tháng hiện tại của đợt quét
+  const riseRecent = RISE.filter(r => r.v > 0 && (FAKE_SCOPE === "all" ? true : r.mo === curMo));
   const riseMap = new Map();
   riseRecent.forEach(r => riseMap.set(r.k, r));
 
-  const latestScanDate = S.dates[S.dates.length - 1];
-  const scanLabel = fmtScanDateWeek(latestScanDate);
-
-  const fakePromos = [];
+  const allFakePromos = [];
   S.rows.forEach(r => {
     const rk = rkey(r.brand, r.model);
     const rise = riseMap.get(rk);
@@ -1056,7 +1083,8 @@ function renderFakePromoAlerts(){
       const curOnPrice = onPrice(r);
       if(curOnPrice && curOnPrice >= rise.o){
         const disc = pmhOnline(r) || r.pmh[r.pmh.length - 1] || 0;
-        fakePromos.push({
+        allFakePromos.push({
+          rk: rk,
           model: r.model,
           brand: r.brand,
           oldRRP: rise.o,
@@ -1072,6 +1100,9 @@ function renderFakePromoAlerts(){
     }
   });
 
+  const visiblePromos = allFakePromos.filter(x => !ACK_FAKES.has(x.rk));
+  const hiddenCount = allFakePromos.length - visiblePromos.length;
+
   const priceWars = h2h.filter(x => x.count >= 2 && x.spread >= 500000);
   const bestCount = {"TGDĐ": 0, "CellphoneS": 0, "FPT Shop": 0, "Viettel Store": 0};
   h2h.filter(x => x.count >= 2).forEach(x => {
@@ -1079,22 +1110,41 @@ function renderFakePromoAlerts(){
   });
 
   let html = "";
-  if(fakePromos.length){
+  if(allFakePromos.length){
     html += `<div class="fake-alert">
-      <h4>⚠ Cảnh báo Khuyến mãi ảo (${fakePromos.length} model): Tăng giá niêm yết rồi giảm giá đỏ</h4>
-      <p style="margin:2px 0 6px;color:var(--muted);font-size:12.5px">
-        Lịch sử ghi nhận các model này đã tăng giá đen theo ngày & tuần cụ thể; đến <b>${esc(scanLabel)}</b>, chuỗi áp dụng khuyến mãi giảm giá nhưng giá bán thực tế vẫn cao hơn giá niêm yết cũ trước đợt tăng:
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+        <h4 style="margin:0">⚠ Cảnh báo Khuyến mãi ảo (${visiblePromos.length} model): Tăng giá niêm yết rồi giảm giá đỏ</h4>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="fake-chip" id="btn-fake-mo" aria-pressed="${FAKE_SCOPE==='month'}" title="Chỉ kiểm tra các model tăng giá trong tháng này">Chỉ tháng này (${curMo})</button>
+          <button class="fake-chip" id="btn-fake-all" aria-pressed="${FAKE_SCOPE==='all'}" title="Xem tất cả các tháng">Tất cả các tháng</button>
+          ${hiddenCount > 0 ? `<button class="fake-chip" id="btn-fake-unack" style="color:var(--muted)" title="Khôi phục các model đã ẩn">Hiện ${hiddenCount} đã ẩn</button>` : ''}
+        </div>
+      </div>
+      <p style="margin:2px 0 8px;color:var(--muted);font-size:12.5px">
+        ${FAKE_SCOPE === 'month' 
+          ? `Chỉ hiển thị các model vừa tăng giá đen trong <b>${curMo}</b> để đối chiếu với <b>${esc(scanLabel)}</b> (bấm <i>"✓ Đã biết"</i> khi đã kiểm tra xong để ẩn):` 
+          : `Lịch sử các model tăng giá đen qua các đợt đối chiếu với <b>${esc(scanLabel)}</b>:`}
       </p>
-      <ul>${fakePromos.map(x => {
+      ${visiblePromos.length ? `<ul>${visiblePromos.map(x => {
         const overOld = x.curPrice - x.oldRRP;
         const pctUp = (((x.newRRP - x.oldRRP) / x.oldRRP) * 100).toFixed(1);
         const discText = x.disc > 0 ? `treo biển giảm <b>${fmt(x.disc)}</b>` : `không áp dụng giảm`;
-        return `<li>
-          <b>${esc(x.brand)} ${esc(x.model)}</b>: 
-          Đã tăng giá đen vào <b>${fmtDateWeek(x.riseDate, x.riseMo)}</b> từ ${fmt(x.oldRRP)} → <b>${fmt(x.newRRP)}</b> (+${pctUp}%). 
-          Đến <b>${esc(scanLabel)}</b>: ${discText} nhưng giá bán thực tế (<b>${fmt(x.curPrice)}</b>) vẫn đắt hơn giá niêm yết cũ <b>${overOld > 0 ? fmt(overOld) : 'bằng giá cũ'}</b>!
+        return `<li style="margin-bottom:6px;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px">
+          <div style="flex:1;min-width:280px">
+            <b>${esc(x.brand)} ${esc(x.model)}</b>: 
+            Đã tăng giá đen vào <b>${fmtDateWeek(x.riseDate, x.riseMo)}</b> từ ${fmt(x.oldRRP)} → <b>${fmt(x.newRRP)}</b> (+${pctUp}%). 
+            Đến <b>${esc(scanLabel)}</b>: ${discText} nhưng giá bán thực tế (<b>${fmt(x.curPrice)}</b>) vẫn đắt hơn giá niêm yết cũ <b>${overOld > 0 ? fmt(overOld) : 'bằng giá cũ'}</b>!
+          </div>
+          <button class="btn-fake-ack" data-rk="${esc(x.rk)}" title="Đã kiểm tra, không cần nhắc lại">✓ Đã biết</button>
         </li>`;
-      }).join("")}</ul>
+      }).join("")}</ul>` : `<div style="font-size:12.5px;color:var(--muted);padding:4px 0">✓ Bạn đã đánh dấu kiểm tra xong tất cả model trong đợt này. ${hiddenCount ? `<a href="javascript:void(0)" id="link-fake-unack" style="color:var(--accent);margin-left:6px;text-decoration:underline">Hiện lại ${hiddenCount} model</a>` : ''}</div>`}
+    </div>`;
+  } else if(FAKE_SCOPE === "month") {
+    html += `<div class="fake-alert" style="border-left-color:var(--good);background:var(--soft);padding:10px 14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <span style="font-size:13px;color:var(--text)">✓ Không có khuyến mãi ảo mới phát sinh trong <b>${curMo}</b>.</span>
+        <button class="fake-chip" id="btn-fake-all" aria-pressed="false">Xem các tháng trước</button>
+      </div>
     </div>`;
   }
 
@@ -1111,7 +1161,29 @@ function renderFakePromoAlerts(){
     </div>`;
   }
   const el = $("mk-fake-alerts");
-  if(el) el.innerHTML = html;
+  if(el){
+    el.innerHTML = html;
+    const btnMo = $("btn-fake-mo");
+    if(btnMo) btnMo.onclick = () => { FAKE_SCOPE = "month"; renderFakePromoAlerts(); };
+    const btnAll = $("btn-fake-all");
+    if(btnAll) btnAll.onclick = () => { FAKE_SCOPE = "all"; renderFakePromoAlerts(); };
+    const btnUnack = $("btn-fake-unack") || $("link-fake-unack");
+    if(btnUnack) btnUnack.onclick = () => {
+      ACK_FAKES.clear();
+      try{ localStorage.removeItem("tp_ack_fakes"); }catch(e){}
+      renderFakePromoAlerts();
+    };
+    el.querySelectorAll(".btn-fake-ack").forEach(btn => {
+      btn.onclick = () => {
+        const rk = btn.dataset.rk;
+        if(rk){
+          ACK_FAKES.add(rk);
+          try{ localStorage.setItem("tp_ack_fakes", JSON.stringify([...ACK_FAKES])); }catch(e){}
+          renderFakePromoAlerts();
+        }
+      };
+    });
+  }
 }
 
 function renderMarketH2H(){
