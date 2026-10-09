@@ -8,15 +8,15 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <!-- ?v= đổi mỗi lần cập nhật dữ liệu để trình duyệt khỏi dùng bản cũ trong bộ nhớ đệm. -->
-<script src="data/data.js?v=20261007c"></script>
-<script src="data/scans.js?v=20261007c"></script>
-<script src="data/latest.js?v=20261007c"></script>
-<script src="data/links.js?v=20261007c"></script>
-<script src="data/rises.js?v=20261007c"></script>
-<script src="data/fpt.js?v=20261007c"></script>
-<script src="data/alerts.js?v=20261007c"></script>
-<script src="data/market.js?v=20261009"></script>
-<script src="data/promos.js?v=20261009"></script>
+<script src="data/data.js?v=20261009c"></script>
+<script src="data/scans.js?v=20261009c"></script>
+<script src="data/latest.js?v=20261009c"></script>
+<script src="data/links.js?v=20261009c"></script>
+<script src="data/rises.js?v=20261009c"></script>
+<script src="data/fpt.js?v=20261009c"></script>
+<script src="data/alerts.js?v=20261009c"></script>
+<script src="data/market.js?v=20261009c"></script>
+<script src="data/promos.js?v=20261009c"></script>
 <style>
 :root{
   --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
@@ -164,13 +164,17 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 .toast[hidden]{display:none}
 /* ---- B1: Ma trận đối đầu 4 sàn ---- */
 .h2h-best{background:#d8f0e6!important;color:#0a7d5c!important;font-weight:700}
+.h2h-best[data-r="TGDĐ"],.h2h-best[data-r="Thế Giới Di Động"]{background:#fef9c3!important;color:#854d0e!important}
+.h2h-best[data-r="CellphoneS"]{background:#fee2e2!important;color:#b91c1c!important}
+.h2h-best[data-r="FPT Shop"]{background:#ffedd5!important;color:#c2410c!important}
+.h2h-best[data-r="Viettel Store"]{background:#ccfbf1!important;color:#0f766e!important}
 .h2h-worst{color:var(--down);font-weight:600}
 .h2h-badge{display:inline-block;border-radius:4px;padding:2px 8px;font-size:11.5px;font-weight:700;white-space:nowrap;line-height:1.25;margin:1px 2px;vertical-align:middle;box-shadow:0 1px 2px rgba(0,0,0,.06)}
 .h2h-badge.crown{background:#0a7d5c;color:#fff}
-.h2h-badge.crown[data-r="TGDĐ"],.h2h-badge.crown[data-r="Thế Giới Di Động"]{background:#ffd400;color:#241d00;border:1px solid #d4a700}
-.h2h-badge.crown[data-r="CellphoneS"]{background:#d70018;color:#fff;border:1px solid #b30014}
-.h2h-badge.crown[data-r="FPT Shop"]{background:#cb1c22;background:linear-gradient(90deg,#cb1c22,#ea580c);color:#fff;border:1px solid #b9151b}
-.h2h-badge.crown[data-r="Viettel Store"]{background:#00918e;color:#fff;border:1px solid #007775}
+.h2h-badge.crown[data-r="TGDĐ"],.h2h-badge.crown[data-r="Thế Giới Di Động"]{background:#ffd400!important;color:#241d00!important;border:1px solid #d4a700!important}
+.h2h-badge.crown[data-r="CellphoneS"]{background:#d70018!important;color:#fff!important;border:1px solid #b30014!important}
+.h2h-badge.crown[data-r="FPT Shop"]{background:#cb1c22!important;background:linear-gradient(90deg,#cb1c22,#ea580c)!important;color:#fff!important;border:1px solid #b9151b!important}
+.h2h-badge.crown[data-r="Viettel Store"]{background:#00918e!important;color:#fff!important;border:1px solid #007775!important}
 .h2h-diff{font-weight:700}
 .h2h-diff.high{color:var(--down)}
 .h2h-diff.med{color:var(--warn)}
@@ -1222,26 +1226,40 @@ function renderMarketH2H(){
   $("h2h-head").innerHTML = h2hCols.map(([k,l,n])=>`<th class="${n?"n":""}" data-h2hsort="${k}">${l}${H2H_F.sort===k?(H2H_F.dir>0?" ▲":" ▼"):""}</th>`).join("");
   $("h2h-count").textContent = `Hiển thị ${rows.length} / ${allH2H.length} SKU trong ma trận đối đầu`;
 
-  const cell = (p, minP, count, url) => {
+  const RET_COLORS = {
+    "TGDĐ": { badge: "background:#ffd400;color:#241d00;border:1px solid #d4a700", cell: "background:#fef9c3!important;color:#854d0e!important;font-weight:700" },
+    "Thế Giới Di Động": { badge: "background:#ffd400;color:#241d00;border:1px solid #d4a700", cell: "background:#fef9c3!important;color:#854d0e!important;font-weight:700" },
+    "CellphoneS": { badge: "background:#d70018;color:#fff;border:1px solid #b30014", cell: "background:#fee2e2!important;color:#b91c1c!important;font-weight:700" },
+    "FPT Shop": { badge: "background:#cb1c22;background:linear-gradient(90deg,#cb1c22,#ea580c);color:#fff;border:1px solid #b9151b", cell: "background:#ffedd5!important;color:#c2410c!important;font-weight:700" },
+    "Viettel Store": { badge: "background:#00918e;color:#fff;border:1px solid #007775", cell: "background:#ccfbf1!important;color:#0f766e!important;font-weight:700" }
+  };
+
+  const cell = (p, minP, count, url, ret) => {
     if(!p) return `<td class="n" style="color:var(--muted)">–</td>`;
     const isBest = count>=2 && p===minP;
     const body = fmt(p);
-    return `<td class="n ${isBest?"h2h-best":""}" ${isBest?`title="Giá tốt nhất trong 4 sàn"`:""}>${url?`<a href="${esc(url)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">${body}</a>`:body}</td>`;
+    const rc = RET_COLORS[ret];
+    const cellSt = (isBest && rc) ? ` style="${rc.cell}"` : "";
+    return `<td class="n ${isBest?"h2h-best":""}" ${isBest?`data-r="${esc(ret)}"${cellSt} title="Giá tốt nhất tại ${esc(ret)}"`:""}>${url?`<a href="${esc(url)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">${body}</a>`:body}</td>`;
   };
 
   $("h2h-body").innerHTML = rows.map(x => {
     const bestLabel = x.count<2 ? `<span class="badge ${x.channel==="TGDD"?"tgdd":"mass"}">${x.channel==="TGDD"?"Độc quyền":"1 sàn bán"}</span>`
-      : (x.bests.length===4 ? `<span style="color:var(--muted)">4 sàn bằng giá</span>` : x.bests.map(r => `<span class="h2h-badge crown" data-r="${esc(r)}">👑 ${esc(r)}</span>`).join(" "));
+      : (x.bests.length===4 ? `<span style="color:var(--muted)">4 sàn bằng giá</span>` : x.bests.map(r => {
+          const rc = RET_COLORS[r];
+          const st = rc ? ` style="${rc.badge}"` : "";
+          return `<span class="h2h-badge crown" data-r="${esc(r)}"${st}>👑 ${esc(r)}</span>`;
+        }).join(" "));
 
     const diffCls = x.spread>=500000 ? "high" : x.spread>0 ? "med" : "low";
     const diffText = x.count<2 ? "–" : (x.spread>0 ? `<span class="h2h-diff ${diffCls}">▲ ${fmt(x.spread)} <small>(${x.spreadPct.toFixed(1)}%)</small></span>` : `<span style="color:var(--muted)">0₫</span>`);
 
     return `<tr tabindex="0" data-m="${esc(x.model)}">${bcell(x.brand)}<td class="model">${esc(x.model)}</td><td>${esc(x.segment)}</td>
       <td class="n">${fmt(x.rrp)}</td>
-      ${cell(x.p_tgdd, x.minP, x.count, x.u_tgdd)}
-      ${cell(x.p_cps, x.minP, x.count, x.u_cps)}
-      ${cell(x.p_fpt, x.minP, x.count, x.u_fpt)}
-      ${cell(x.p_vt, x.minP, x.count, x.u_vt)}
+      ${cell(x.p_tgdd, x.minP, x.count, x.u_tgdd, "TGDĐ")}
+      ${cell(x.p_cps, x.minP, x.count, x.u_cps, "CellphoneS")}
+      ${cell(x.p_fpt, x.minP, x.count, x.u_fpt, "FPT Shop")}
+      ${cell(x.p_vt, x.minP, x.count, x.u_vt, "Viettel Store")}
       <td>${bestLabel}</td>
       <td class="n">${diffText}</td></tr>`;
   }).join("") || `<tr><td colspan="10">Không có model nào khớp bộ lọc.</td></tr>`;
@@ -1692,8 +1710,16 @@ function cmpMarketTable(r1, r2){
   const rowsHtml = retailers.map(rtl => {
     const isBest1 = rtl.p1 && min1 && rtl.p1 === min1;
     const isBest2 = rtl.p2 && min2 && rtl.p2 === min2;
-    const cell1 = rtl.p1 ? `${fmt(rtl.p1)}${isBest1 ? ` <span class="cmp-best-badge" data-r="${esc(rtl.name)}">👑 Rẻ nhất</span>` : ''}${rtl.u1 ? ` <a href="${esc(rtl.u1)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}` : '–';
-    const cell2 = rtl.p2 ? `${fmt(rtl.p2)}${isBest2 ? ` <span class="cmp-best-badge" data-r="${esc(rtl.name)}">👑 Rẻ nhất</span>` : ''}${rtl.u2 ? ` <a href="${esc(rtl.u2)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}` : '–';
+    const cmpBadgeStyles = {
+      "Thế Giới Di Động": "background:#ffd400;color:#241d00;border:1px solid #d4a700",
+      "TGDĐ": "background:#ffd400;color:#241d00;border:1px solid #d4a700",
+      "CellphoneS": "background:#d70018;color:#fff;border:1px solid #b30014",
+      "FPT Shop": "background:#cb1c22;background:linear-gradient(90deg,#cb1c22,#ea580c);color:#fff;border:1px solid #b9151b",
+      "Viettel Store": "background:#00918e;color:#fff;border:1px solid #007775"
+    };
+    const bSt = cmpBadgeStyles[rtl.name] || "";
+    const cell1 = rtl.p1 ? `${fmt(rtl.p1)}${isBest1 ? ` <span class="cmp-best-badge" data-r="${esc(rtl.name)}" style="${bSt}">👑 Rẻ nhất</span>` : ''}${rtl.u1 ? ` <a href="${esc(rtl.u1)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}` : '–';
+    const cell2 = rtl.p2 ? `${fmt(rtl.p2)}${isBest2 ? ` <span class="cmp-best-badge" data-r="${esc(rtl.name)}" style="${bSt}">👑 Rẻ nhất</span>` : ''}${rtl.u2 ? ` <a href="${esc(rtl.u2)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}` : '–';
     const diff = (rtl.p1 && rtl.p2) ? fmt(Math.abs(rtl.p1 - rtl.p2)) : '–';
     const diffDir = (rtl.p1 && rtl.p2) ? (rtl.p1 < rtl.p2 ? ` (A rẻ hơn ${diff})` : rtl.p1 > rtl.p2 ? ` (B rẻ hơn ${diff})` : ' (Bằng nhau)') : '';
 
