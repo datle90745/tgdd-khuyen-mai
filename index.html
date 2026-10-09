@@ -15,7 +15,8 @@
 <script src="data/rises.js?v=20261007c"></script>
 <script src="data/fpt.js?v=20261007c"></script>
 <script src="data/alerts.js?v=20261007c"></script>
-<script src="data/market.js?v=20261007c"></script>
+<script src="data/market.js?v=20261009"></script>
+<script src="data/promos.js?v=20261009"></script>
 <style>
 :root{
   --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
@@ -178,19 +179,43 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 .fake-alert ul{margin:4px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink)}
 .fake-badge{display:inline-block;background:#b83250;color:#fff;border-radius:4px;padding:0 6px;font-size:11px;font-weight:700;margin-left:6px}
 
-/* ---- B3: So sánh 2 SKU ---- */
-.cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0}
-.cmp-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px}
-.cmp-box h3{margin:0 0 10px;font-size:17px;display:flex;align-items:center;justify-content:space-between}
+/* ---- B3: So sánh 2 SKU & Khuyến mãi thêm ---- */
+.cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin:16px 0}
+.cmp-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column}
+.cmp-box h3{margin:0 0 10px;font-size:16px;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .cmp-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--soft);font-size:13px}
 .cmp-row:last-child{border-bottom:0}
 .cmp-row span.k{color:var(--muted)}
 .cmp-row span.v{font-weight:600}
-.cmp-verdict{background:var(--soft);border-radius:8px;padding:14px;margin:16px 0;font-size:13.5px;line-height:1.6}
+.cmp-verdict{background:var(--soft);border-radius:8px;padding:14px 16px;margin:16px 0;font-size:13.5px;line-height:1.6}
 .cmp-verdict b{color:var(--ink)}
+.cmp-verdict h4{margin:0 0 8px;font-size:14.5px}
 .cmp-legend{display:flex;gap:18px;margin-bottom:8px;font-weight:600;font-size:13px}
 .cmp-legend span{display:flex;align-items:center;gap:6px}
 .cmp-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+/* Khuyến mãi thêm & Quà tặng kèm */
+.cmp-promo-sec{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
+.cmp-promo-sec h4{margin:0 0 10px;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--ink)}
+.cmp-promo-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.cmp-promo-item{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.45;background:var(--soft);border-radius:6px;padding:8px 10px}
+.cmp-promo-check{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#0a7d5c;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+.cmp-promo-empty{color:var(--muted);font-size:12.5px;font-style:italic;padding:8px 4px}
+.cmp-promo-tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px;margin-right:4px;vertical-align:1px}
+.cmp-promo-tag.tradein{background:#e8f4fd;color:#0b66c2}
+.cmp-promo-tag.finance{background:#fef3e6;color:#c05621}
+.cmp-promo-tag.card{background:#edf7ed;color:#2e7d32}
+.cmp-promo-tag.gift{background:#fdf2f8;color:#be185d}
+.cmp-promo-tag.warranty{background:#f0fdf4;color:#15803d}
+.cmp-promo-tag.store{background:#f3e8ff;color:#6b21a8}
+
+/* Bảng đối đầu 4 sàn */
+.cmp-market-box{margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.cmp-market-box h4{margin:0 0 10px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.cmp-retail-table{width:100%;border-collapse:collapse;font-size:13px}
+.cmp-retail-table th,.cmp-retail-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+.cmp-retail-table th.num,.cmp-retail-table td.num{text-align:right}
+.cmp-best-badge{display:inline-block;background:#ffd400;color:#2b2400;font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:1px}
 </style>
 </head>
 <body>
@@ -818,7 +843,7 @@ $("file").onchange=async e=>{
 };
 $("reset").onclick=()=>{ imports=[]; try{localStorage.removeItem("tp_imports");}catch(_){} renderAll(); $("imsg").textContent="Đã xóa các đợt nhập. Còn lại dữ liệu gốc."; };
 /* ---- Toàn thị trường (tham khảo, từ trang danh sách của 4 sàn) ---- */
-const MK = window.MARKET && Array.isArray(window.MARKET.scans) ? window.MARKET : {scans:[]};
+const MK = window.MARKET || {scans:[]};
 const MK_RET = ["TGDĐ","CellphoneS","FPT Shop","Viettel Store"];
 const MF = {r:"Tất cả", b:"Tất cả", k:"Tất cả", q:"", focus:false, sort:"v", dir:-1};
 // Khoá so khớp tên máy giữa các sàn và danh sách 86 SKU: bỏ dấu, tên hãng, 5G/4G, ký tự đặc biệt.
@@ -836,7 +861,9 @@ function mkMergeFpt(scan){
   return {...scan, rows, report, fptLocal:`${L.date} ${L.at}`};
 }
 function mkData(){
-  const n=MK.scans.length, cur=n?mkMergeFpt(MK.scans[n-1]):null, prev=n>1?mkMergeFpt(MK.scans[n-2]):null;
+  const scans = Array.isArray(MK.scans) ? MK.scans : (MK.scans && Array.isArray(MK.scans.value) ? MK.scans.value : []);
+  const validScans = scans.filter(s => s && s.rows && Array.isArray(s.rows) && s.rows.length > 0);
+  const n = validScans.length, cur = n ? mkMergeFpt(validScans[n-1]) : null, prev = n > 1 ? mkMergeFpt(validScans[n-2]) : null;
   if(!cur) return {cur:null, rows:[]};
   const pm=new Map((prev?prev.rows:[]).map(x=>[x.r+"|"+mkKey(x.n), x]));
   return {cur, prev, rows:cur.rows.map(x=>{ const k=mkKey(x.n), v=Math.max((x.o||x.p)-x.p,0), pv=pm.get(x.r+"|"+k);
@@ -1106,6 +1133,135 @@ function cmpDualChart(r1, r2){
     </div>`;
 }
 
+function getPromoTag(text){
+  const t = text.toLowerCase();
+  if(/thu cũ|đổi mới|trade-in|trợ giá/i.test(t)) return `<span class="cmp-promo-tag tradein">Thu cũ đổi mới</span>`;
+  if(/trả chậm|trả góp|finance\+|home credit|fe credit|kredivo/i.test(t)) return `<span class="cmp-promo-tag finance">Trả góp 0%</span>`;
+  if(/thẻ tín dụng|vpbank|vnpay|hoàn ngay|hoàn tiền|ngân hàng|mở thẻ/i.test(t)) return `<span class="cmp-promo-tag card">Ưu đãi thẻ</span>`;
+  if(/chọn 1 trong/i.test(t)) return `<span class="cmp-promo-tag gift">Chọn 1 trong</span>`;
+  if(/bảo hành|bảo hiểm|rơi vỡ|1 đổi 1/i.test(t)) return `<span class="cmp-promo-tag warranty">Bảo hành</span>`;
+  if(/phiếu mua hàng|pmh|tặng|tai nghe|tablet|máy lọc/i.test(t)) return `<span class="cmp-promo-tag gift">Quà tặng kèm</span>`;
+  return `<span class="cmp-promo-tag store">Ưu đãi kèm</span>`;
+}
+
+function cleanPromoText(t){
+  if(!t) return "";
+  let s = t.replace(/^\d+[\.\s\-]+/, "").trim();
+  s = s.replace(/\s*\(?\s*Xem chi tiết(?:\s+tại đây)?\s*\)?$/i, "").trim();
+  return s;
+}
+
+function renderSubPromos(model, r){
+  const PROMOS = window.PROMOS || {};
+  const pInfo = PROMOS[model] || { subs: [], offline_note: "" };
+  const items = [];
+
+  // Offline note if any
+  if(pInfo.offline_note && pInfo.offline_note.trim()){
+    items.push({
+      tag: `<span class="cmp-promo-tag store">Tại siêu thị</span>`,
+      text: cleanPromoText(pInfo.offline_note)
+    });
+  }
+
+  // Sub promotions from API
+  if(Array.isArray(pInfo.subs)){
+    pInfo.subs.forEach(s => {
+      const cleaned = cleanPromoText(s);
+      if(cleaned && !items.some(it => it.text === cleaned)){
+        items.push({
+          tag: getPromoTag(cleaned),
+          text: cleaned
+        });
+      }
+    });
+  }
+
+  if(!items.length){
+    return `
+      <div class="cmp-promo-sec">
+        <h4>🎁 Ưu đãi & Quà tặng kèm trong đợt này:</h4>
+        <div class="cmp-promo-empty">Chỉ áp dụng giá chiết khấu trực tiếp / Flash Sale tiêu chuẩn. Chưa ghi nhận quà tặng phụ kiện kèm riêng đợt này.</div>
+      </div>`;
+  }
+
+  const listHtml = items.map(it => `
+    <li class="cmp-promo-item">
+      <span class="cmp-promo-check">✓</span>
+      <div>${it.tag} ${esc(it.text)}</div>
+    </li>
+  `).join("");
+
+  return `
+    <div class="cmp-promo-sec">
+      <h4>🎁 Ưu đãi & Quà tặng kèm trong đợt này (${items.length}):</h4>
+      <ul class="cmp-promo-list">
+        ${listHtml}
+      </ul>
+    </div>`;
+}
+
+function cmpMarketTable(r1, r2){
+  const allH2H = (typeof buildH2HData === "function") ? buildH2HData() : [];
+  const h1 = allH2H.find(x => x.model === r1.model);
+  const h2 = allH2H.find(x => x.model === r2.model);
+  if(!h1 && !h2) return "";
+
+  const retailers = [
+    { name: "Thế Giới Di Động", p1: h1 ? h1.p_tgdd : null, u1: h1 ? h1.u_tgdd : null, p2: h2 ? h2.p_tgdd : null, u2: h2 ? h2.u_tgdd : null },
+    { name: "CellphoneS", p1: h1 ? h1.p_cps : null, u1: h1 ? h1.u_cps : null, p2: h2 ? h2.p_cps : null, u2: h2 ? h2.u_cps : null },
+    { name: "FPT Shop", p1: h1 ? h1.p_fpt : null, u1: h1 ? h1.u_fpt : null, p2: h2 ? h2.p_fpt : null, u2: h2 ? h2.u_fpt : null },
+    { name: "Viettel Store", p1: h1 ? h1.p_vt : null, u1: h1 ? h1.u_vt : null, p2: h2 ? h2.p_vt : null, u2: h2 ? h2.u_vt : null }
+  ];
+
+  const min1 = h1 ? h1.minP : null;
+  const min2 = h2 ? h2.minP : null;
+
+  const rowsHtml = retailers.map(rtl => {
+    const isBest1 = rtl.p1 && min1 && rtl.p1 === min1;
+    const isBest2 = rtl.p2 && min2 && rtl.p2 === min2;
+    const cell1 = rtl.p1 ? `${fmt(rtl.p1)}${isBest1 ? ' <span class="cmp-best-badge">👑 Rẻ nhất</span>' : ''}${rtl.u1 ? ` <a href="${esc(rtl.u1)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}` : '–';
+    const cell2 = rtl.p2 ? `${fmt(rtl.p2)}${isBest2 ? ' <span class="cmp-best-badge">👑 Rẻ nhất</span>' : ''}${rtl.u2 ? ` <a href="${esc(rtl.u2)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}` : '–';
+    const diff = (rtl.p1 && rtl.p2) ? fmt(Math.abs(rtl.p1 - rtl.p2)) : '–';
+    const diffDir = (rtl.p1 && rtl.p2) ? (rtl.p1 < rtl.p2 ? ` (A rẻ hơn ${diff})` : rtl.p1 > rtl.p2 ? ` (B rẻ hơn ${diff})` : ' (Bằng nhau)') : '';
+
+    return `
+      <tr>
+        <td><b>${esc(rtl.name)}</b></td>
+        <td class="num">${cell1}</td>
+        <td class="num">${cell2}</td>
+        <td class="num" style="color:var(--muted)">${diff !== '–' ? diffDir : '–'}</td>
+      </tr>`;
+  }).join("");
+
+  const bestNote1 = h1 && h1.bests && h1.bests.length ? `• Sàn có giá tốt nhất cho <b>${esc(r1.model)}</b>: <b>${h1.bests.join(", ")}</b> (${fmt(h1.minP)})` : '';
+  const bestNote2 = h2 && h2.bests && h2.bests.length ? `• Sàn có giá tốt nhất cho <b>${esc(r2.model)}</b>: <b>${h2.bests.join(", ")}</b> (${fmt(h2.minP)})` : '';
+
+  return `
+    <div class="cmp-market-box">
+      <h4>🛒 So sánh giá giữa 4 Sàn bán lẻ lớn nhất (TGDĐ, CellphoneS, FPT Shop, Viettel Store)</h4>
+      <div class="tablewrap">
+        <table class="cmp-retail-table">
+          <thead>
+            <tr>
+              <th>Hệ thống bán lẻ</th>
+              <th class="num" style="color:var(--accent)">${esc(r1.model)}</th>
+              <th class="num" style="color:var(--down)">${esc(r2.model)}</th>
+              <th class="num">So sánh trên cùng sàn</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5">
+        ${bestNote1 ? `${bestNote1}<br>` : ''}
+        ${bestNote2 ? `${bestNote2}` : ''}
+      </div>
+    </div>`;
+}
+
 function renderCompare(){
   const r1 = S.rows.find(x => x.model === CMP_M1);
   const r2 = S.rows.find(x => x.model === CMP_M2);
@@ -1130,6 +1286,7 @@ function renderCompare(){
       <div class="cmp-row"><span class="k">Giá Online cuối</span><span class="v" style="font-size:15px;color:var(--ink)">${fmt(onPrice(r))}</span></div>
       <div class="cmp-row"><span class="k">% Giảm hiện tại</span><span class="v">${pct.toFixed(1)}%</span></div>
       <div class="cmp-row"><span class="k">Link TGDĐ</span><span class="v">${LINKS[r.model]?`<a href="${esc(LINKS[r.model])}" target="_blank" rel="noopener">Mở trang ↗</a>`:"–"}</span></div>
+      ${renderSubPromos(r.model, r)}
     </div>`;
 
   const diffRRP = Math.abs(r1.rrp - r2.rrp);
@@ -1141,17 +1298,66 @@ function renderCompare(){
     : (pct2 > pct1 ? `<b>${esc(r2.model)}</b> đang có tỷ lệ giảm sâu hơn (${pct2.toFixed(1)}% vs ${pct1.toFixed(1)}%, chênh ${(pct2 - pct1).toFixed(1)}%)`
       : `Cả 2 máy đang có cùng tỷ lệ chiết khấu (${pct1.toFixed(1)}%)`);
 
+  // Extra promo intelligence comparisons
+  const PROMOS = window.PROMOS || {};
+  const pInfo1 = PROMOS[r1.model] || { subs: [], offline_note: "" };
+  const pInfo2 = PROMOS[r2.model] || { subs: [], offline_note: "" };
+
+  const parseTradein = (subs) => {
+    if(!Array.isArray(subs)) return 0;
+    for(const s of subs){
+      const m = s.match(/trợ giá đến\s+([0-9]+(?:[\.,][0-9]+)?)\s*(triệu|tr)/i);
+      if(m) return parseFloat(m[1].replace(",", "."));
+    }
+    return 0;
+  };
+
+  const ti1 = parseTradein(pInfo1.subs);
+  const ti2 = parseTradein(pInfo2.subs);
+  let tiVerdict = "";
+  if(ti1 > 0 && ti2 > 0){
+    if(ti1 > ti2) tiVerdict = `• 🔄 <b>Thu cũ đổi mới:</b> <b>${esc(r1.model)}</b> trợ giá đến <b>${ti1} Triệu</b> (cao hơn <b>${esc(r2.model)}</b> trợ giá ${ti2} Triệu, chênh lệch ${ti1 - ti2} Triệu).<br>`;
+    else if(ti2 > ti1) tiVerdict = `• 🔄 <b>Thu cũ đổi mới:</b> <b>${esc(r2.model)}</b> trợ giá đến <b>${ti2} Triệu</b> (cao hơn <b>${esc(r1.model)}</b> trợ giá ${ti1} Triệu, chênh lệch ${ti2 - ti1} Triệu).<br>`;
+    else tiVerdict = `• 🔄 <b>Thu cũ đổi mới:</b> Cả 2 máy đều có mức trợ giá tương đương (đến <b>${ti1} Triệu</b>).<br>`;
+  } else if(ti1 > 0){
+    tiVerdict = `• 🔄 <b>Thu cũ đổi mới:</b> <b>${esc(r1.model)}</b> có chương trình trợ giá thu cũ đến <b>${ti1} Triệu</b> (Máy B chưa ghi nhận).<br>`;
+  } else if(ti2 > 0){
+    tiVerdict = `• 🔄 <b>Thu cũ đổi mới:</b> <b>${esc(r2.model)}</b> có chương trình trợ giá thu cũ đến <b>${ti2} Triệu</b> (Máy A chưa ghi nhận).<br>`;
+  }
+
+  const hasFinance1 = Array.isArray(pInfo1.subs) && pInfo1.subs.some(s=>/finance\+|trả chậm 0%/i.test(s));
+  const hasFinance2 = Array.isArray(pInfo2.subs) && pInfo2.subs.some(s=>/finance\+|trả chậm 0%/i.test(s));
+  let finVerdict = "";
+  if(hasFinance1 && !hasFinance2){
+    finVerdict = `• 💳 <b>Trả góp tài chính:</b> <b>${esc(r1.model)}</b> có ưu đãi giảm thêm tiền mặt khi trả chậm qua Samsung Finance+ / đối tác.<br>`;
+  } else if(!hasFinance1 && hasFinance2){
+    finVerdict = `• 💳 <b>Trả góp tài chính:</b> <b>${esc(r2.model)}</b> có ưu đãi giảm thêm tiền mặt khi trả chậm qua Samsung Finance+ / đối tác.<br>`;
+  }
+
+  const subsCount1 = (pInfo1.subs ? pInfo1.subs.length : 0) + (pInfo1.offline_note ? 1 : 0);
+  const subsCount2 = (pInfo2.subs ? pInfo2.subs.length : 0) + (pInfo2.offline_note ? 1 : 0);
+  let giftVerdict = "";
+  if(subsCount1 >= 5 && subsCount2 < 5){
+    giftVerdict = `• 🎁 <b>Quà tặng kèm:</b> <b>${esc(r1.model)}</b> có hệ sinh thái quà tặng phong phú hơn (${subsCount1} mục ưu đãi/quà tặng, bao gồm bảo hành mở rộng & phụ kiện).<br>`;
+  } else if(subsCount2 >= 5 && subsCount1 < 5){
+    giftVerdict = `• 🎁 <b>Quà tặng kèm:</b> <b>${esc(r2.model)}</b> có hệ sinh thái quà tặng phong phú hơn (${subsCount2} mục ưu đãi/quà tặng, bao gồm bảo hành mở rộng & phụ kiện).<br>`;
+  }
+
   body.innerHTML = `
     <div class="cmp-grid">
       ${cardHtml(r1, p1, pct1, "var(--accent)")}
       ${cardHtml(r2, p2, pct2, "var(--down)")}
     </div>
     <div class="cmp-verdict">
-      <h4 style="margin:0 0 6px;font-size:14px">📊 Nhận định đối đầu:</h4>
+      <h4>📊 Nhận định đối đầu toàn diện (Giá & Quyền lợi):</h4>
       • ${cheaperRRP}.<br>
       • ${discountVerdict}.<br>
-      • Chênh lệch giá mua Online thực tế: <b>${fmt(Math.abs((onPrice(r1)||0) - (onPrice(r2)||0)))}</b>.
+      • Chênh lệch giá mua Online thực tế: <b>${fmt(Math.abs((onPrice(r1)||0) - (onPrice(r2)||0)))}</b>.<br>
+      ${tiVerdict}
+      ${finVerdict}
+      ${giftVerdict}
     </div>
+    ${cmpMarketTable(r1, r2)}
     <h3 style="margin:20px 0 10px;font-size:16px">Diễn biến khuyến mãi PMH qua các đợt quét</h3>
     ${cmpDualChart(r1, r2)}`;
 }
