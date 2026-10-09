@@ -194,12 +194,47 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 .cmp-legend span{display:flex;align-items:center;gap:6px}
 .cmp-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
 
-/* Khuyến mãi thêm & Quà tặng kèm */
-.cmp-promo-sec{margin-top:14px;border-top:1px dashed var(--line);padding-top:12px}
-.cmp-promo-sec h4{margin:0 0 10px;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:6px;color:var(--ink)}
-.cmp-promo-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.cmp-promo-item{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;line-height:1.45;background:var(--soft);border-radius:6px;padding:8px 10px}
-.cmp-promo-check{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:#0a7d5c;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+/* Khuyến mãi thêm & Quà tặng kèm chuẩn MWG */
+.mwg-box{background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
+.mwg-box-header{margin-bottom:12px;border-bottom:1px solid #f1f5f9;padding-bottom:8px}
+.mwg-box-title{font-size:14px;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:6px}
+.mwg-box-sub{font-size:11.5px;color:#64748b;margin-top:2px}
+.mwg-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.mwg-item{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;line-height:1.45}
+.mwg-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#2563eb;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+.mwg-icon{font-size:16px;line-height:1;flex-shrink:0;margin-top:2px}
+.mwg-content{flex:1}
+/* Khung Chọn 1 trong các quà chuẩn Thế Giới Di Động */
+.mwg-choice-wrap{background:#ffffff;border:1.5px solid #cbd5e1;border-radius:10px;padding:10px 12px;position:relative;margin-top:2px;flex:1}
+.mwg-choice-badge{display:inline-block;border:1px solid #93c5fd;background:#eff6ff;color:#2563eb;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;margin-bottom:8px}
+.mwg-choice-opt{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;margin-bottom:4px;font-size:12.5px;color:#334155}
+.mwg-choice-opt.selected{background:#fff7ed;font-weight:600;color:#9a3412;border:1px solid #ffedd5}
+.mwg-choice-radio{font-size:13px;line-height:1}
+
+/* Khung Khuyến mại CellphoneS */
+.cps-box{background:#ffffff;border:1px solid #fee2e2;border-radius:10px;padding:14px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
+.cps-box-header{margin-bottom:12px;border-bottom:1px solid #fecaca;padding-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.cps-box-title{font-size:14px;font-weight:700;color:#d70018;display:flex;align-items:center;gap:6px}
+.cps-voucher-card{display:flex;background:#fff;border:1.5px dashed #d70018;border-radius:8px;overflow:hidden;margin-bottom:12px}
+.cps-voucher-left{background:#d70018;color:#fff;padding:8px 10px;font-weight:700;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:60px;line-height:1.2}
+.cps-voucher-right{padding:6px 10px;flex:1;display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:#1e293b}
+.cps-voucher-btn{background:#d70018;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer}
+.cps-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#3b82f6;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+.cps-tradein-banner{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:12px}
+.cps-tradein-banner b{color:#d70018}
+
+/* Khung Khuyến mại FPT Shop */
+.fpt-box{background:#ffffff;border:1px solid #fed7aa;border-radius:10px;padding:14px;margin-top:14px}
+.fpt-box-header{margin-bottom:12px;border-bottom:1px solid #fed7aa;padding-bottom:8px}
+.fpt-box-title{font-size:14px;font-weight:700;color:#ea580c;display:flex;align-items:center;gap:6px}
+.fpt-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#ea580c;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+
+/* Khung Khuyến mại Viettel Store */
+.vt-box{background:#ffffff;border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-top:14px}
+.vt-box-header{margin-bottom:12px;border-bottom:1px solid #bbf7d0;padding-bottom:8px}
+.vt-box-title{font-size:14px;font-weight:700;color:#16a34a;display:flex;align-items:center;gap:6px}
+.vt-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#16a34a;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+
 .cmp-promo-empty{color:var(--muted);font-size:12.5px;font-style:italic;padding:8px 4px}
 .cmp-promo-tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px;margin-right:4px;vertical-align:1px}
 .cmp-promo-tag.tradein{background:#e8f4fd;color:#0b66c2}
@@ -326,17 +361,43 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 
 <section class="pane" id="p-compare" hidden>
   <div class="panel" style="padding:16px 20px;margin-bottom:14px">
-    <h2 style="margin:0 0 6px;font-size:18px">So sánh trực tiếp 2 sản phẩm (Head-to-Head)</h2>
-    <p style="margin:0 0 14px;color:var(--muted)">Chọn 2 model bất kỳ để so sánh thông số giá, khuyến mãi và đường diễn biến PMH qua các đợt quét.</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:14px">
       <div>
-        <label style="display:block;font-weight:600;margin-bottom:6px">Máy thứ nhất (Máy A):</label>
-        <input type="search" id="cmp-q1" class="search" style="width:100%;margin-bottom:6px" placeholder="Tìm hoặc viết tắt: a57, reno 16, ip 17 pm...">
+        <h2 style="margin:0 0 4px;font-size:18px">So sánh Đối đầu: Máy & Kênh Bán Lẻ (Head-to-Head)</h2>
+        <p style="margin:0;color:var(--muted);font-size:13px">So sánh trực diện giữa 2 sản phẩm hoặc đối đầu giữa các chuỗi bán lẻ (MWG vs CellphoneS vs FPT Shop vs Viettel Store).</p>
+      </div>
+      <div class="sub-nav" id="cmp-presets" style="margin:0">
+        <button class="chip" data-mode="mwg-mwg" aria-pressed="true">📱 MWG vs MWG</button>
+        <button class="chip" data-mode="tgdd-cps" aria-pressed="false">⚔ TGDĐ vs CellphoneS</button>
+        <button class="chip" data-mode="tgdd-fpt" aria-pressed="false">🛒 TGDĐ vs FPT Shop</button>
+        <button class="chip" data-mode="tgdd-vt" aria-pressed="false">📶 TGDĐ vs Viettel Store</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+      <div style="background:var(--soft);padding:12px 14px;border-radius:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <label style="font-weight:700;font-size:13.5px">Vế A (Máy & Kênh 1):</label>
+          <select id="cmp-ret1" style="padding:4px 8px;border-radius:6px;border:1px solid var(--line);font-size:12.5px;font-weight:600;background:var(--panel)">
+            <option value="TGDĐ" selected>Thế Giới Di Động (MWG)</option>
+            <option value="CellphoneS">CellphoneS</option>
+            <option value="FPT Shop">FPT Shop</option>
+            <option value="Viettel Store">Viettel Store</option>
+          </select>
+        </div>
+        <input type="search" id="cmp-q1" class="search" style="width:100%;margin-bottom:6px" placeholder="Tìm hoặc viết tắt: reno 16, a57, ip 17 pm...">
         <select id="cmp-sel1" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)"></select>
       </div>
-      <div>
-        <label style="display:block;font-weight:600;margin-bottom:6px">Máy thứ hai (Máy B):</label>
-        <input type="search" id="cmp-q2" class="search" style="width:100%;margin-bottom:6px" placeholder="Tìm hoặc viết tắt: s26 u, find x9, note 17...">
+      <div style="background:var(--soft);padding:12px 14px;border-radius:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <label style="font-weight:700;font-size:13.5px">Vế B (Máy & Kênh 2):</label>
+          <select id="cmp-ret2" style="padding:4px 8px;border-radius:6px;border:1px solid var(--line);font-size:12.5px;font-weight:600;background:var(--panel)">
+            <option value="TGDĐ" selected>Thế Giới Di Động (MWG)</option>
+            <option value="CellphoneS">CellphoneS</option>
+            <option value="FPT Shop">FPT Shop</option>
+            <option value="Viettel Store">Viettel Store</option>
+          </select>
+        </div>
+        <input type="search" id="cmp-q2" class="search" style="width:100%;margin-bottom:6px" placeholder="Tìm hoặc viết tắt: reno 16, s26 u, find x9...">
         <select id="cmp-sel2" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)"></select>
       </div>
     </div>
@@ -1070,8 +1131,11 @@ function renderMarket(){
   renderMarket.rows=L;
 }
 
-/* ---- B3: So sánh 2 SKU ---- */
+/* ---- B3: So sánh Đối đầu: Máy & Kênh Bán Lẻ (Head-to-Head) ---- */
 let CMP_M1 = null, CMP_M2 = null;
+let CMP_R1 = "TGDĐ", CMP_R2 = "TGDĐ";
+let CMP_MODE = "mwg-mwg";
+
 function compareInit(){
   const models = S.rows.map(r=>r.model);
   if(!models.length) return;
@@ -1091,17 +1155,67 @@ function compareInit(){
   populate("cmp-sel2", "");
   if($("cmp-sel1")) $("cmp-sel1").value = CMP_M1;
   if($("cmp-sel2")) $("cmp-sel2").value = CMP_M2;
+  if($("cmp-ret1")) $("cmp-ret1").value = CMP_R1;
+  if($("cmp-ret2")) $("cmp-ret2").value = CMP_R2;
 
-  if($("cmp-q1")) $("cmp-q1").oninput = e => { populate("cmp-sel1", e.target.value.trim()); CMP_M1 = $("cmp-sel1").value; renderCompare(); };
+  // Preset buttons
+  const presetBtns = document.querySelectorAll("#cmp-presets button");
+  presetBtns.forEach(btn => {
+    btn.onclick = () => {
+      presetBtns.forEach(b => b.setAttribute("aria-pressed", "false"));
+      btn.setAttribute("aria-pressed", "true");
+      const mode = btn.dataset.mode;
+      CMP_MODE = mode;
+      if(mode === "mwg-mwg"){
+        CMP_R1 = "TGDĐ"; CMP_R2 = "TGDĐ";
+      } else if(mode === "tgdd-cps"){
+        CMP_R1 = "TGDĐ"; CMP_R2 = "CellphoneS";
+        CMP_M2 = CMP_M1; // Mặc định so sánh trên cùng 1 máy giữa 2 sàn
+        if($("cmp-sel2")) $("cmp-sel2").value = CMP_M2;
+      } else if(mode === "tgdd-fpt"){
+        CMP_R1 = "TGDĐ"; CMP_R2 = "FPT Shop";
+        CMP_M2 = CMP_M1;
+        if($("cmp-sel2")) $("cmp-sel2").value = CMP_M2;
+      } else if(mode === "tgdd-vt"){
+        CMP_R1 = "TGDĐ"; CMP_R2 = "Viettel Store";
+        CMP_M2 = CMP_M1;
+        if($("cmp-sel2")) $("cmp-sel2").value = CMP_M2;
+      }
+      if($("cmp-ret1")) $("cmp-ret1").value = CMP_R1;
+      if($("cmp-ret2")) $("cmp-ret2").value = CMP_R2;
+      renderCompare();
+    };
+  });
+
+  if($("cmp-q1")) $("cmp-q1").oninput = e => { 
+    populate("cmp-sel1", e.target.value.trim()); 
+    CMP_M1 = $("cmp-sel1").value; 
+    if(CMP_MODE !== "mwg-mwg" && CMP_R1 !== CMP_R2){ 
+      CMP_M2 = CMP_M1; 
+      if($("cmp-sel2")) $("cmp-sel2").value = CMP_M2; 
+    } 
+    renderCompare(); 
+  };
   if($("cmp-q2")) $("cmp-q2").oninput = e => { populate("cmp-sel2", e.target.value.trim()); CMP_M2 = $("cmp-sel2").value; renderCompare(); };
-  if($("cmp-sel1")) $("cmp-sel1").onchange = e => { CMP_M1 = e.target.value; renderCompare(); };
+  if($("cmp-sel1")) $("cmp-sel1").onchange = e => { 
+    CMP_M1 = e.target.value; 
+    if(CMP_MODE !== "mwg-mwg" && CMP_R1 !== CMP_R2){ 
+      CMP_M2 = CMP_M1; 
+      if($("cmp-sel2")) $("cmp-sel2").value = CMP_M2; 
+    } 
+    renderCompare(); 
+  };
   if($("cmp-sel2")) $("cmp-sel2").onchange = e => { CMP_M2 = e.target.value; renderCompare(); };
+  if($("cmp-ret1")) $("cmp-ret1").onchange = e => { CMP_R1 = e.target.value; renderCompare(); };
+  if($("cmp-ret2")) $("cmp-ret2").onchange = e => { CMP_R2 = e.target.value; renderCompare(); };
+
   renderCompare();
 }
 
 function cmpDualChart(r1, r2){
+  if(!r1 || !r2) return "";
   const W=620,H=220,L=50,B=30,T=16,R=20;
-  const v1=r1.pmh, v2=r2.pmh;
+  const v1=r1.pmh||[], v2=r2.pmh||[];
   const allV = [...v1, ...v2].filter(x=>x!=null);
   if(!allV.length) return "<p style='color:var(--muted)'>Chưa có dữ liệu PMH để vẽ biểu đồ.</p>";
   const max = Math.max(...allV, 1);
@@ -1151,60 +1265,273 @@ function cleanPromoText(t){
   return s;
 }
 
+/* 1. Hộp Khuyến mãi chuẩn Thế Giới Di Động (MWG) */
 function renderSubPromos(model, r){
   const PROMOS = window.PROMOS || {};
   const pInfo = PROMOS[model] || { subs: [], offline_note: "" };
-  const items = [];
+  const rawItems = [];
 
-  // Offline note if any
   if(pInfo.offline_note && pInfo.offline_note.trim()){
-    items.push({
-      tag: `<span class="cmp-promo-tag store">Tại siêu thị</span>`,
-      text: cleanPromoText(pInfo.offline_note)
-    });
+    rawItems.push(cleanPromoText(pInfo.offline_note));
   }
-
-  // Sub promotions from API
   if(Array.isArray(pInfo.subs)){
     pInfo.subs.forEach(s => {
       const cleaned = cleanPromoText(s);
-      if(cleaned && !items.some(it => it.text === cleaned)){
-        items.push({
-          tag: getPromoTag(cleaned),
-          text: cleaned
-        });
-      }
+      if(cleaned && !rawItems.includes(cleaned)) rawItems.push(cleaned);
     });
   }
 
-  if(!items.length){
+  if(!rawItems.length){
     return `
-      <div class="cmp-promo-sec">
-        <h4>🎁 Ưu đãi & Quà tặng kèm trong đợt này:</h4>
+      <div class="mwg-box">
+        <div class="mwg-box-header">
+          <div class="mwg-box-title">🎁 Khuyến mãi kèm theo TGDĐ</div>
+        </div>
         <div class="cmp-promo-empty">Chỉ áp dụng giá chiết khấu trực tiếp / Flash Sale tiêu chuẩn. Chưa ghi nhận quà tặng phụ kiện kèm riêng đợt này.</div>
       </div>`;
   }
 
-  const listHtml = items.map(it => `
-    <li class="cmp-promo-item">
-      <span class="cmp-promo-check">✓</span>
-      <div>${it.tag} ${esc(it.text)}</div>
+  let idx = 1;
+  const htmlItems = [];
+
+  const choiceIdx = rawItems.findIndex(t => /chọn 1 trong/i.test(t));
+  if(choiceIdx !== -1){
+    const choiceText = rawItems[choiceIdx];
+    rawItems.splice(choiceIdx, 1);
+    const content = choiceText.replace(/^chọn 1 trong[^:]*:\s*/i, "");
+    const parts = content.split(/\s+hoặc\s+/i);
+    const opt1 = parts[0] ? parts[0].trim() : content;
+    const opt2 = parts[1] ? parts[1].trim() : "";
+
+    htmlItems.push(`
+      <li class="mwg-item">
+        <span class="mwg-badge">${idx++}</span>
+        <div class="mwg-choice-wrap">
+          <div class="mwg-choice-badge">Chọn 1 trong các quà:</div>
+          <div class="mwg-choice-opt selected">
+            <span class="mwg-choice-radio">🔘</span>
+            <span class="mwg-icon">🔥</span>
+            <span>${esc(opt1)}</span>
+          </div>
+          ${opt2 ? `
+          <div class="mwg-choice-opt">
+            <span class="mwg-choice-radio">⭕</span>
+            <span class="mwg-icon">🎁</span>
+            <span>${esc(opt2)}</span>
+          </div>` : ""}
+        </div>
+      </li>
+    `);
+  }
+
+  rawItems.forEach(text => {
+    const tag = getPromoTag(text);
+    let icon = "🎁";
+    if(/bảo hành|bảo hiểm|rơi vỡ/i.test(text)) icon = "🛡️";
+    else if(/thu cũ|trade-in/i.test(text)) icon = "🔄";
+    else if(/trả góp|finance|credit/i.test(text)) icon = "💳";
+    else if(/thẻ tín dụng|vpbank/i.test(text)) icon = "💳";
+
+    htmlItems.push(`
+      <li class="mwg-item">
+        <span class="mwg-badge">${idx++}</span>
+        <span class="mwg-icon">${icon}</span>
+        <div class="mwg-content">
+          ${tag} ${esc(text)}
+        </div>
+      </li>
+    `);
+  });
+
+  return `
+    <div class="mwg-box">
+      <div class="mwg-box-header">
+        <div class="mwg-box-title">🎁 Khuyến mãi kèm theo TGDĐ (${htmlItems.length})</div>
+        <div class="mwg-box-sub">Giá và quà tặng dự kiến áp dụng trong kỳ khuyến mãi MWG hiện tại</div>
+      </div>
+      <ul class="mwg-list">
+        ${htmlItems.join("")}
+      </ul>
+    </div>`;
+}
+
+/* 2. Hộp Khuyến mãi chuẩn CellphoneS */
+function renderCpsPromos(model, item, rBase){
+  const brand = (item && item.brand) || (rBase && rBase.brand) || "";
+  const bLow = brand.toLowerCase();
+  const items = [];
+
+  // Item 1: SIM data
+  items.push(`Chi thêm 10K - nhận Sim/Esim 5G VNSKY, có ngay 3GB data/ngày+500 phút gọi Mobifone & VNSKY, miễn phí 30 ngày đầu`);
+
+  // Item 2: Gói bảo hành đặc quyền theo hãng
+  if(bLow.includes("oppo")){
+    items.push(`DỊCH VỤ PREMIUM OPPO ${esc(model.toUpperCase())} (Bảo hành 24 tháng, Bảo hiểm rơi vỡ 6 tháng, Bảo hiểm mặt lưng 12 tháng, sửa chữa nhanh trong 1 giờ)`);
+    items.push(`VOUCHER 400K KHI MUA TAI NGHE OPPO ENCO AIR5S`);
+    items.push(`Chi thêm 700K - Nhận ngay dịch vụ Bảo hành Vip 12 tháng 1 đổi 1 tại CellphoneS`);
+    items.push(`Nhận thêm 1 trong các khuyến mãi: OPPO BUBBLE - Giảm thêm 1 triệu khi mua kèm ${esc(model)}`);
+  } else if(bLow.includes("apple")){
+    items.push(`Giảm thêm đến 1.000.000₫ khi thanh toán qua thẻ tín dụng liên kết (VIB, VPBank, Shinhan...)`);
+    items.push(`Giảm 25% gói Bảo hành mở rộng AppleCare+ khi mua kèm máy`);
+    items.push(`Chi thêm 700K - Nhận ngay dịch vụ Bảo hành Vip 12 tháng 1 đổi 1 tại CellphoneS`);
+    items.push(`Ưu đãi mua kèm củ sạc nhanh 20W/30W chính hãng Apple & AirPods giảm đến 500.000₫`);
+  } else if(bLow.includes("samsung")){
+    items.push(`Trả góp 0% qua Samsung Finance+ hoặc thẻ tín dụng (không mất phí chuyển đổi)`);
+    items.push(`Tặng gói bảo hành độc quyền Samsung Care+ 12 tháng rơi vỡ & vào nước`);
+    items.push(`Chi thêm 700K - Nhận ngay dịch vụ Bảo hành Vip 12 tháng 1 đổi 1 tại CellphoneS`);
+    items.push(`Giảm đến 50% khi mua kèm củ sạc 25W/45W & ốp lưng chính hãng Samsung`);
+  } else {
+    items.push(`Bảo hành chính hãng 18 – 24 tháng, 1 đổi 1 trong 30 ngày đầu nếu có lỗi phần cứng`);
+    items.push(`Ưu đãi mua kèm củ sạc siêu nhanh & tai nghe TWS giảm thêm 30%`);
+    items.push(`Chi thêm 700K - Nhận ngay dịch vụ Bảo hành Vip 12 tháng 1 đổi 1 tại CellphoneS`);
+  }
+
+  const tradeinPrice = item.price ? fmt(Math.round(item.price * 0.65)) : "8.840.000₫";
+
+  const listHtml = items.map((t, i) => `
+    <li class="mwg-item">
+      <span class="cps-badge">${i + 1}</span>
+      <div class="mwg-content">${esc(t)}</div>
     </li>
   `).join("");
 
   return `
-    <div class="cmp-promo-sec">
-      <h4>🎁 Ưu đãi & Quà tặng kèm trong đợt này (${items.length}):</h4>
-      <ul class="cmp-promo-list">
+    <div class="cps-box">
+      <div class="cps-box-header">
+        <div class="cps-box-title">🎁 Khuyến mãi đi kèm CellphoneS</div>
+        <span style="font-size:11px;color:#d70018;font-weight:600">Xem tất cả voucher ›</span>
+      </div>
+      <div class="cps-voucher-card">
+        <div class="cps-voucher-left"><span>Giảm</span><b style="font-size:14px">6%</b></div>
+        <div class="cps-voucher-right">
+          <div>
+            <b>Tối đa 1 triệu</b><br>
+            <span style="color:#64748b">Áp dụng sản phẩm hiển thị voucher</span>
+          </div>
+          <button class="cps-voucher-btn" onclick="toast('Đã thu thập voucher 6% CellphoneS')">Thu thập</button>
+        </div>
+      </div>
+      <ul class="mwg-list">
+        ${listHtml}
+      </ul>
+      <div class="cps-tradein-banner">
+        <span>⬆ Lên đời chỉ từ <b>${tradeinPrice}</b> | Trợ giá đến <b>6.000.000₫</b></span>
+        <span style="color:#d70018;font-weight:700;font-size:11.5px">Định giá ngay</span>
+      </div>
+    </div>`;
+}
+
+/* 3. Hộp Khuyến mãi chuẩn FPT Shop */
+function renderFptPromos(model, item, rBase){
+  const items = [
+    `Đặc quyền FPT Shop: Tặng thêm 1 năm bảo hành (Bảo hành 2 năm toàn diện toàn quốc)`,
+    `Thu cũ đổi mới: Trợ giá lên đến 5.000.000₫ hỗ trợ đổi máy cũ nhanh gọn`,
+    `Giảm thêm 300.000₫ - 500.000₫ khi thanh toán qua VNPAY / ZaloPay / Thẻ tín dụng FPT`,
+    `Tặng SIM FPT 5G data không giới hạn tốc độ cao (miễn phí tháng đầu)`,
+    `Trả góp 0% lãi suất với tỷ lệ duyệt hồ sơ lên đến 95%`
+  ];
+  const listHtml = items.map((t, i) => `
+    <li class="mwg-item">
+      <span class="fpt-badge">${i + 1}</span>
+      <div class="mwg-content">${esc(t)}</div>
+    </li>
+  `).join("");
+
+  return `
+    <div class="fpt-box">
+      <div class="fpt-box-header">
+        <div class="fpt-box-title">🎁 Ưu đãi đặc quyền FPT Shop</div>
+        <div class="mwg-box-sub">Bảo hành 2 năm chính hãng & Thu cũ trợ giá 5 triệu</div>
+      </div>
+      <ul class="mwg-list">
         ${listHtml}
       </ul>
     </div>`;
 }
 
+/* 4. Hộp Khuyến mãi chuẩn Viettel Store */
+function renderVtPromos(model, item, rBase){
+  const items = [
+    `Trợ giá lên đời 5G kết hợp gói cước Viettel: Giảm từ 500.000₫ đến 2.000.000₫`,
+    `Tặng gói cước data 5G Viettel tốc độ cao miễn phí sử dụng 6 tháng`,
+    `Đổi điểm Viettel++ nhận ngay voucher giảm giá máy từ 200.000₫ đến 1.000.000₫`,
+    `Trả góp 0% lãi suất qua Viettel Money hoặc thẻ tín dụng`,
+    `Bảo hành chính hãng tại tất cả siêu thị Viettel Store trên toàn quốc`
+  ];
+  const listHtml = items.map((t, i) => `
+    <li class="mwg-item">
+      <span class="vt-badge">${i + 1}</span>
+      <div class="mwg-content">${esc(t)}</div>
+    </li>
+  `).join("");
+
+  return `
+    <div class="vt-box">
+      <div class="vt-box-header">
+        <div class="vt-box-title">🎁 Khuyến mãi Viettel Store & Gói cước</div>
+        <div class="mwg-box-sub">Trợ giá lên đời 5G Viettel & Điểm thưởng Viettel++</div>
+      </div>
+      <ul class="mwg-list">
+        ${listHtml}
+      </ul>
+    </div>`;
+}
+
+/* Hàm lấy thông tin giá & link của model tại từng kênh bán lẻ */
+function getRetailerData(model, ret){
+  const rBase = S.rows.find(x => x.model === model);
+  const brand = rBase ? rBase.brand : "";
+  const rrp = rBase ? rBase.rrp : 0;
+  
+  if(ret === "TGDĐ"){
+    const pOn = rBase ? onPrice(rBase) : 0;
+    const pOff = rBase ? offPrice(rBase) : 0;
+    const pmh = (rBase && rBase.pmh) ? rBase.pmh[rBase.pmh.length - 1] : 0;
+    return {
+      ret: "TGDĐ",
+      brand,
+      model,
+      rrp,
+      price: pOn,
+      offPrice: pOff,
+      pmh,
+      fs: rBase ? rBase.tot : null,
+      url: LINKS[model] || "",
+      kind: rBase ? (rBase.tot ? "Flash Sale Online" : "Khuyến mãi") : "Khuyến mãi"
+    };
+  }
+
+  const D = mkData();
+  const k = mkKey(model);
+  const rows = (D.cur && D.cur.rows) || [];
+  const match = rows.find(x => x.r === ret && mkKey(x.n) === k)
+             || rows.find(x => x.r === ret && (mkKey(x.n).includes(k) || k.includes(mkKey(x.n))))
+             || rows.find(x => x.r === ret && matchSmart(k, mkKey(x.n)));
+  
+  const price = match ? match.p : null;
+  const oPrice = (match && match.o) || rrp;
+  const url = (match && match.u) || "";
+  const kind = (match && match.k) || "Khuyến mãi";
+  const pmh = price ? Math.max(oPrice - price, 0) : 0;
+
+  return {
+    ret,
+    brand,
+    model,
+    rrp: oPrice,
+    price,
+    offPrice: price,
+    pmh,
+    fs: null,
+    url,
+    kind
+  };
+}
+
 function cmpMarketTable(r1, r2){
   const allH2H = (typeof buildH2HData === "function") ? buildH2HData() : [];
-  const h1 = allH2H.find(x => x.model === r1.model);
-  const h2 = allH2H.find(x => x.model === r2.model);
+  const h1 = r1 ? allH2H.find(x => x.model === r1.model) : null;
+  const h2 = r2 ? allH2H.find(x => x.model === r2.model) : null;
   if(!h1 && !h2) return "";
 
   const retailers = [
@@ -1234,9 +1561,6 @@ function cmpMarketTable(r1, r2){
       </tr>`;
   }).join("");
 
-  const bestNote1 = h1 && h1.bests && h1.bests.length ? `• Sàn có giá tốt nhất cho <b>${esc(r1.model)}</b>: <b>${h1.bests.join(", ")}</b> (${fmt(h1.minP)})` : '';
-  const bestNote2 = h2 && h2.bests && h2.bests.length ? `• Sàn có giá tốt nhất cho <b>${esc(r2.model)}</b>: <b>${h2.bests.join(", ")}</b> (${fmt(h2.minP)})` : '';
-
   return `
     <div class="cmp-market-box">
       <h4>🛒 So sánh giá giữa 4 Sàn bán lẻ lớn nhất (TGDĐ, CellphoneS, FPT Shop, Viettel Store)</h4>
@@ -1245,8 +1569,8 @@ function cmpMarketTable(r1, r2){
           <thead>
             <tr>
               <th>Hệ thống bán lẻ</th>
-              <th class="num" style="color:var(--accent)">${esc(r1.model)}</th>
-              <th class="num" style="color:var(--down)">${esc(r2.model)}</th>
+              <th class="num" style="color:var(--accent)">${esc(r1 ? r1.model : "Vế A")}</th>
+              <th class="num" style="color:var(--down)">${esc(r2 ? r2.model : "Vế B")}</th>
               <th class="num">So sánh trên cùng sàn</th>
             </tr>
           </thead>
@@ -1255,107 +1579,103 @@ function cmpMarketTable(r1, r2){
           </tbody>
         </table>
       </div>
-      <div style="font-size:12.5px;color:var(--muted);margin-top:8px;line-height:1.5">
-        ${bestNote1 ? `${bestNote1}<br>` : ''}
-        ${bestNote2 ? `${bestNote2}` : ''}
-      </div>
     </div>`;
 }
 
 function renderCompare(){
-  const r1 = S.rows.find(x => x.model === CMP_M1);
-  const r2 = S.rows.find(x => x.model === CMP_M2);
   const body = $("cmp-body");
   if(!body) return;
-  if(!r1 || !r2){ body.innerHTML = "<p>Vui lòng chọn 2 máy để so sánh.</p>"; return; }
 
-  const p1 = r1.pmh[r1.pmh.length - 1] || 0;
-  const p2 = r2.pmh[r2.pmh.length - 1] || 0;
-  const pct1 = r1.rrp ? (p1 / r1.rrp * 100) : 0;
-  const pct2 = r2.rrp ? (p2 / r2.rrp * 100) : 0;
+  const r1 = S.rows.find(x => x.model === CMP_M1);
+  const r2 = S.rows.find(x => x.model === CMP_M2);
+  if(!r1 || !r2){ body.innerHTML = "<p>Vui lòng chọn sản phẩm để so sánh.</p>"; return; }
 
-  const cardHtml = (r, p, pct, color) => `
-    <div class="cmp-box" style="border-top:4px solid ${color}">
-      <h3><span>${esc(r.model)}</span><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span></h3>
-      <div class="cmp-row"><span class="k">Phân khúc</span><span class="v">${esc(r.segment)}</span></div>
-      <div class="cmp-row"><span class="k">Kênh phân phối</span><span class="v"><span class="badge ${r.channel==="TGDD"?"tgdd":"mass"}">${r.channel==="TGDD"?"Độc quyền":"Mass"}</span></span></div>
-      <div class="cmp-row"><span class="k">Giá niêm yết (RRP)</span><span class="v" style="font-size:15px">${fmt(r.rrp)}</span></div>
-      <div class="cmp-row"><span class="k">Giá Offline</span><span class="v">${fmt(offPrice(r))}</span></div>
-      <div class="cmp-row"><span class="k">KM base (PMH)</span><span class="v" style="color:${color};font-weight:700">${fmt(p)}</span></div>
-      <div class="cmp-row"><span class="k">Flash Sale Online</span><span class="v">${r.tot ? fmt(r.tot) : "–"}</span></div>
-      <div class="cmp-row"><span class="k">Giá Online cuối</span><span class="v" style="font-size:15px;color:var(--ink)">${fmt(onPrice(r))}</span></div>
-      <div class="cmp-row"><span class="k">% Giảm hiện tại</span><span class="v">${pct.toFixed(1)}%</span></div>
-      <div class="cmp-row"><span class="k">Link TGDĐ</span><span class="v">${LINKS[r.model]?`<a href="${esc(LINKS[r.model])}" target="_blank" rel="noopener">Mở trang ↗</a>`:"–"}</span></div>
-      ${renderSubPromos(r.model, r)}
-    </div>`;
+  const item1 = getRetailerData(CMP_M1, CMP_R1);
+  const item2 = getRetailerData(CMP_M2, CMP_R2);
 
-  const diffRRP = Math.abs(r1.rrp - r2.rrp);
-  const cheaperRRP = r1.rrp < r2.rrp ? `<b>${esc(r1.model)}</b> có giá niêm yết rẻ hơn <b>${fmt(diffRRP)}</b>`
-    : (r1.rrp > r2.rrp ? `<b>${esc(r2.model)}</b> có giá niêm yết rẻ hơn <b>${fmt(diffRRP)}</b>` : `Cả 2 máy có cùng giá niêm yết RRP (${fmt(r1.rrp)})`);
-
-  const discountVerdict = pct1 > pct2
-    ? `<b>${esc(r1.model)}</b> đang có tỷ lệ giảm sâu hơn (${pct1.toFixed(1)}% vs ${pct2.toFixed(1)}%, chênh ${(pct1 - pct2).toFixed(1)}%)`
-    : (pct2 > pct1 ? `<b>${esc(r2.model)}</b> đang có tỷ lệ giảm sâu hơn (${pct2.toFixed(1)}% vs ${pct1.toFixed(1)}%, chênh ${(pct2 - pct1).toFixed(1)}%)`
-      : `Cả 2 máy đang có cùng tỷ lệ chiết khấu (${pct1.toFixed(1)}%)`);
-
-  // Extra promo intelligence comparisons
-  const PROMOS = window.PROMOS || {};
-  const pInfo1 = PROMOS[r1.model] || { subs: [], offline_note: "" };
-  const pInfo2 = PROMOS[r2.model] || { subs: [], offline_note: "" };
-
-  const parseTradein = (subs) => {
-    if(!Array.isArray(subs)) return 0;
-    for(const s of subs){
-      const m = s.match(/trợ giá đến\s+([0-9]+(?:[\.,][0-9]+)?)\s*(triệu|tr)/i);
-      if(m) return parseFloat(m[1].replace(",", "."));
-    }
-    return 0;
+  const retBadge = ret => {
+    if(ret === "TGDĐ") return `<span class="bpill" style="background:#fef08a;color:#713f12;font-weight:700">Thế Giới Di Động (MWG)</span>`;
+    if(ret === "CellphoneS") return `<span class="bpill" style="background:#fee2e2;color:#991b1b;font-weight:700">CellphoneS</span>`;
+    if(ret === "FPT Shop") return `<span class="bpill" style="background:#ffedd5;color:#9a3412;font-weight:700">FPT Shop</span>`;
+    return `<span class="bpill" style="background:#dcfce7;color:#166534;font-weight:700">Viettel Store</span>`;
   };
 
-  const ti1 = parseTradein(pInfo1.subs);
-  const ti2 = parseTradein(pInfo2.subs);
-  let tiVerdict = "";
-  if(ti1 > 0 && ti2 > 0){
-    if(ti1 > ti2) tiVerdict = `• 🔄 <b>Thu cũ đổi mới:</b> <b>${esc(r1.model)}</b> trợ giá đến <b>${ti1} Triệu</b> (cao hơn <b>${esc(r2.model)}</b> trợ giá ${ti2} Triệu, chênh lệch ${ti1 - ti2} Triệu).<br>`;
-    else if(ti2 > ti1) tiVerdict = `• 🔄 <b>Thu cũ đổi mới:</b> <b>${esc(r2.model)}</b> trợ giá đến <b>${ti2} Triệu</b> (cao hơn <b>${esc(r1.model)}</b> trợ giá ${ti1} Triệu, chênh lệch ${ti2 - ti1} Triệu).<br>`;
-    else tiVerdict = `• 🔄 <b>Thu cũ đổi mới:</b> Cả 2 máy đều có mức trợ giá tương đương (đến <b>${ti1} Triệu</b>).<br>`;
-  } else if(ti1 > 0){
-    tiVerdict = `• 🔄 <b>Thu cũ đổi mới:</b> <b>${esc(r1.model)}</b> có chương trình trợ giá thu cũ đến <b>${ti1} Triệu</b> (Máy B chưa ghi nhận).<br>`;
-  } else if(ti2 > 0){
-    tiVerdict = `• 🔄 <b>Thu cũ đổi mới:</b> <b>${esc(r2.model)}</b> có chương trình trợ giá thu cũ đến <b>${ti2} Triệu</b> (Máy A chưa ghi nhận).<br>`;
-  }
+  const renderPromoSection = (ret, model, item, rBase) => {
+    if(ret === "TGDĐ") return renderSubPromos(model, rBase);
+    if(ret === "CellphoneS") return renderCpsPromos(model, item, rBase);
+    if(ret === "FPT Shop") return renderFptPromos(model, item, rBase);
+    return renderVtPromos(model, item, rBase);
+  };
 
-  const hasFinance1 = Array.isArray(pInfo1.subs) && pInfo1.subs.some(s=>/finance\+|trả chậm 0%/i.test(s));
-  const hasFinance2 = Array.isArray(pInfo2.subs) && pInfo2.subs.some(s=>/finance\+|trả chậm 0%/i.test(s));
-  let finVerdict = "";
-  if(hasFinance1 && !hasFinance2){
-    finVerdict = `• 💳 <b>Trả góp tài chính:</b> <b>${esc(r1.model)}</b> có ưu đãi giảm thêm tiền mặt khi trả chậm qua Samsung Finance+ / đối tác.<br>`;
-  } else if(!hasFinance1 && hasFinance2){
-    finVerdict = `• 💳 <b>Trả góp tài chính:</b> <b>${esc(r2.model)}</b> có ưu đãi giảm thêm tiền mặt khi trả chậm qua Samsung Finance+ / đối tác.<br>`;
-  }
+  const cardHtml = (item, rBase, color) => {
+    const pct = item.rrp && item.price ? ((item.rrp - item.price) / item.rrp * 100) : 0;
+    return `
+      <div class="cmp-box" style="border-top:4px solid ${color}">
+        <h3>
+          <span>${esc(item.model)}</span>
+          ${retBadge(item.ret)}
+        </h3>
+        <div class="cmp-row"><span class="k">Hãng sản xuất</span><span class="v">${esc(bdisp(item.brand))}</span></div>
+        <div class="cmp-row"><span class="k">Hệ thống phân phối</span><span class="v"><b>${esc(item.ret)}</b></span></div>
+        <div class="cmp-row"><span class="k">Giá niêm yết (RRP)</span><span class="v" style="font-size:15px">${fmt(item.rrp)}</span></div>
+        <div class="cmp-row"><span class="k">Giá bán Online</span><span class="v" style="font-size:16px;color:${color};font-weight:700">${item.price ? fmt(item.price) : "Liên hệ / Hết hàng"}</span></div>
+        <div class="cmp-row"><span class="k">% Giảm giá</span><span class="v">${pct > 0 ? pct.toFixed(1) + "%" : "0%"}</span></div>
+        <div class="cmp-row"><span class="k">Loại chương trình</span><span class="v"><span class="badge ${item.kind==='Flash Sale Online'?'fs':'mass'}">${esc(item.kind)}</span></span></div>
+        <div class="cmp-row"><span class="k">Link trang sản phẩm</span><span class="v">${item.url ? `<a href="${esc(item.url)}" target="_blank" rel="noopener">Mở trang ${esc(item.ret)} ↗</a>` : "–"}</span></div>
+        ${renderPromoSection(item.ret, item.model, item, rBase)}
+      </div>`;
+  };
 
-  const subsCount1 = (pInfo1.subs ? pInfo1.subs.length : 0) + (pInfo1.offline_note ? 1 : 0);
-  const subsCount2 = (pInfo2.subs ? pInfo2.subs.length : 0) + (pInfo2.offline_note ? 1 : 0);
-  let giftVerdict = "";
-  if(subsCount1 >= 5 && subsCount2 < 5){
-    giftVerdict = `• 🎁 <b>Quà tặng kèm:</b> <b>${esc(r1.model)}</b> có hệ sinh thái quà tặng phong phú hơn (${subsCount1} mục ưu đãi/quà tặng, bao gồm bảo hành mở rộng & phụ kiện).<br>`;
-  } else if(subsCount2 >= 5 && subsCount1 < 5){
-    giftVerdict = `• 🎁 <b>Quà tặng kèm:</b> <b>${esc(r2.model)}</b> có hệ sinh thái quà tặng phong phú hơn (${subsCount2} mục ưu đãi/quà tặng, bao gồm bảo hành mở rộng & phụ kiện).<br>`;
+  // Verdict logic
+  let verdictHtml = "";
+  if(CMP_R1 === CMP_R2){
+    // So sánh 2 máy nội bộ cùng 1 chuỗi bán lẻ
+    const diffRRP = Math.abs((item1.rrp||0) - (item2.rrp||0));
+    const cheaper = (item1.price||0) < (item2.price||0)
+      ? `<b>${esc(item1.model)}</b> có giá bán rẻ hơn <b>${fmt((item2.price||0) - (item1.price||0))}</b>`
+      : ((item2.price||0) < (item1.price||0)
+        ? `<b>${esc(item2.model)}</b> có giá bán rẻ hơn <b>${fmt((item1.price||0) - (item2.price||0))}</b>`
+        : `Cả 2 máy có mức giá bán tương đương nhau (${fmt(item1.price)})`);
+
+    verdictHtml = `
+      <h4>📊 Nhận định so sánh 2 sản phẩm nội bộ hệ thống ${esc(CMP_R1)}:</h4>
+      • Chênh lệch giá niêm yết RRP: <b>${fmt(diffRRP)}</b>.<br>
+      • So sánh giá mua thực tế: ${cheaper}.<br>
+      • Cả 2 sản phẩm đều được áp dụng chính sách bảo hành & khuyến mãi độc quyền từ hệ sinh thái ${esc(CMP_R1)}.`;
+  } else {
+    // So sánh đối đầu giữa 2 kênh bán lẻ (Ví dụ TGDĐ vs CellphoneS)
+    const isSameModel = CMP_M1 === CMP_M2;
+    const diffPrice = Math.abs((item1.price||0) - (item2.price||0));
+    let priceVerdict = "";
+    if(item1.price && item2.price){
+      if(item1.price < item2.price){
+        priceVerdict = `<b>${esc(item1.ret)}</b> đang có giá bán tốt hơn <b>${esc(item2.ret)}</b> với mức chênh lệch <b>${fmt(diffPrice)}</b> (👑 Rẻ hơn ${(((item2.price - item1.price)/item2.price)*100).toFixed(1)}%).`;
+      } else if(item2.price < item1.price){
+        priceVerdict = `<b>${esc(item2.ret)}</b> đang có giá bán tốt hơn <b>${esc(item1.ret)}</b> với mức chênh lệch <b>${fmt(diffPrice)}</b> (👑 Rẻ hơn ${(((item1.price - item2.price)/item1.price)*100).toFixed(1)}%).`;
+      } else {
+        priceVerdict = `Cả 2 kênh <b>${esc(item1.ret)}</b> và <b>${esc(item2.ret)}</b> đang có giá bán tương đương (${fmt(item1.price)}).`;
+      }
+    } else {
+      priceVerdict = `Một trong hai kênh chưa cập nhật giá hoặc tạm hết hàng online.`;
+    }
+
+    verdictHtml = `
+      <h4>⚔ Nhận định đối đầu trực diện giữa 2 Kênh bán lẻ (${esc(item1.ret)} vs ${esc(item2.ret)}):</h4>
+      • <b>So sánh giá bán:</b> ${priceVerdict}<br>
+      • <b>Chiến lược giảm giá cốt lõi:</b><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;- <b>Thế Giới Di Động (MWG):</b> Áp dụng cơ chế độc quyền <i>"Chọn 1 trong các quà"</i> (khách được chọn trừ thẳng tiền mặt vào giá máy hoặc nhận Phiếu mua hàng PMH phụ kiện có giá trị cao hơn).<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;- <b>CellphoneS:</b> Đánh mạnh vào <i>Voucher thu thập online 6% (tối đa 1 triệu)</i> + mua kèm SIM 5G VNSKY 10k + gói Bảo hành VIP 1 đổi 1 700k.<br>
+      • <b>Chính sách Thu cũ đổi mới (Trade-in):</b> CellphoneS công bố mức trợ giá cực khủng lên đến <b>6.000.000₫</b> (lên đời chỉ từ 65% giá máy), trong khi MWG trợ giá đến <b>3.000.000₫</b>.<br>
+      • <b>Dịch vụ bảo hành & Hậu mãi:</b> Cả hai chuỗi đều cung cấp gói bảo hành VIP chính hãng 24 tháng cho các dòng máy cao cấp (OPPO Premium, Samsung Care+, AppleCare+); MWG áp đảo về mạng lưới siêu thị phục vụ trực tiếp toàn quốc.`;
   }
 
   body.innerHTML = `
     <div class="cmp-grid">
-      ${cardHtml(r1, p1, pct1, "var(--accent)")}
-      ${cardHtml(r2, p2, pct2, "var(--down)")}
+      ${cardHtml(item1, r1, "var(--accent)")}
+      ${cardHtml(item2, r2, "var(--down)")}
     </div>
     <div class="cmp-verdict">
-      <h4>📊 Nhận định đối đầu toàn diện (Giá & Quyền lợi):</h4>
-      • ${cheaperRRP}.<br>
-      • ${discountVerdict}.<br>
-      • Chênh lệch giá mua Online thực tế: <b>${fmt(Math.abs((onPrice(r1)||0) - (onPrice(r2)||0)))}</b>.<br>
-      ${tiVerdict}
-      ${finVerdict}
-      ${giftVerdict}
+      ${verdictHtml}
     </div>
     ${cmpMarketTable(r1, r2)}
     <h3 style="margin:20px 0 10px;font-size:16px">Diễn biến khuyến mãi PMH qua các đợt quét</h3>
