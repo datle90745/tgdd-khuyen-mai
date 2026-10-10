@@ -276,6 +276,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
     <p class="sub" id="subline"></p>
   </div>
   <div class="actions">
+    <button class="btn primary" id="btn-cloud" title="Kiểm tra trạng thái hoặc yêu cầu máy chủ đám mây quét 4 sàn">☁️ Quét đám mây live</button>
     <button class="btn" id="xlsx">Xuất Excel</button>
     <button class="btn" id="csv">Xuất CSV</button>
     <button class="btn" id="json">Xuất JSON</button>
@@ -342,7 +343,13 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 </section>
 
 <section class="pane" id="p-market" hidden>
-  <div class="move-head" style="margin:0 2px 8px"><span id="mk-sub" style="color:var(--muted)"></span><button class="btn" id="mk-xlsx" style="padding:4px 12px">Xuất Excel tab này</button></div>
+  <div class="move-head" style="margin:0 2px 8px">
+    <span id="mk-sub" style="color:var(--muted)"></span>
+    <div style="display:flex;gap:6px">
+      <button class="btn" id="mk-cloud" style="padding:4px 12px">☁️ Quét đám mây live</button>
+      <button class="btn" id="mk-xlsx" style="padding:4px 12px">Xuất Excel tab này</button>
+    </div>
+  </div>
   <div class="panel rise-kpi" id="mk-kpi"></div>
   <div id="mk-fake-alerts"></div>
   <div class="sub-nav" style="margin-top:14px">
@@ -452,6 +459,30 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
   </div>
 </section>
 </div>
+
+<dialog id="cloud-dialog" style="border:1px solid var(--line);border-radius:12px;padding:24px;max-width:500px;width:92%;background:var(--panel);box-shadow:0 16px 40px rgba(0,0,0,0.2);color:var(--ink)">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h3 style="margin:0;font-size:17px;font-weight:700">☁️ Quét giá trên Đám mây (Cloud Auto)</h3>
+    <button class="btn x" id="cloud-close" style="padding:2px 8px;border:none;background:none;font-size:18px;cursor:pointer">✕</button>
+  </div>
+  <p style="margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.5">
+    Hệ thống cào ngầm độc lập trên máy chủ đám mây GitHub, tự động lấy giá mới nhất từ 4 sàn (TGDĐ, CellphoneS, FPT Shop, Viettel Store) mà <b>không cần mở máy tính</b> của bạn.
+  </p>
+  
+  <div style="background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12.5px">
+    <b>⏰ Lịch quét tự động (6 lần/ngày):</b><br>
+    <span style="color:var(--accent);font-weight:600">07:05 • 09:05 • 12:05 • 15:05 • 18:05 • 21:05</span> (Giờ VN)
+  </div>
+
+  <div id="cloud-status-box" style="border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:16px;background:var(--panel)">
+    <div id="cloud-status-msg" style="font-size:13px;color:var(--muted)">Đang kiểm tra trạng thái máy chủ...</div>
+  </div>
+
+  <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+    <a href="https://github.com/datle90745/tgdd-khuyen-mai/actions/workflows/scan-tgdd.yml" target="_blank" class="btn" style="text-decoration:none;font-size:13px">Xem trên GitHub ↗</a>
+    <button class="btn primary" id="btn-cloud-trigger">🚀 Kích hoạt quét ngay</button>
+  </div>
+</dialog>
 
 <aside class="drawer" id="drawer" aria-hidden="true" aria-label="Chi tiết SKU">
   <button class="btn x" id="dx" aria-label="Đóng">Đóng</button>
@@ -2148,6 +2179,110 @@ try{ renderMarket(); }catch(e){ console.error("market",e); }
 if(new URLSearchParams(location.search).has("admin")) document.querySelectorAll("nav.tabs [data-admin]").forEach(b=>b.hidden=false);
 try{ riseInit(); }catch(e){ console.error("rise",e); }
 renderAll(); initExports(); compareInit(); calc();
+
+// ---- Cloud Auto-Scan Modal Logic ----
+const cloudDialog = $("cloud-dialog");
+const btnCloud = $("btn-cloud");
+const mkCloud = $("mk-cloud");
+const cloudClose = $("cloud-close");
+const cloudStatusMsg = $("cloud-status-msg");
+const btnCloudTrigger = $("btn-cloud-trigger");
+
+async function checkCloudStatus() {
+  if (!cloudStatusMsg) return;
+  cloudStatusMsg.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><span>⏳</span><span>Đang kết nối kiểm tra máy chủ GitHub...</span></div>`;
+  try {
+    const res = await fetch("https://api.github.com/repos/datle90745/tgdd-khuyen-mai/actions/runs?per_page=1");
+    if (!res.ok) throw new Error("Không thể kết nối GitHub API (HTTP " + res.status + ")");
+    const data = await res.json();
+    const run = data.workflow_runs && data.workflow_runs[0];
+    if (!run) {
+      cloudStatusMsg.innerHTML = "Chưa có đợt chạy nào được ghi nhận.";
+      return;
+    }
+    const started = new Date(run.created_at);
+    const now = new Date();
+    const diffMins = Math.max(0, Math.round((now - started) / 60000));
+    if (run.status === "in_progress" || run.status === "queued") {
+      cloudStatusMsg.innerHTML = `<div style="line-height:1.6">
+        <b style="color:var(--warn);display:flex;align-items:center;gap:6px"><span>⏳</span> Máy chủ đám mây đang quét ngầm toàn thị trường!</b>
+        <div style="margin-top:4px;color:var(--ink)">• Bắt đầu: <b>${diffMins} phút trước</b> (${started.toLocaleTimeString()})</div>
+        <div style="color:var(--muted);font-size:12px;margin-top:2px">• Máy chủ đang mở trình duyệt cào live 4 sàn. Dự kiến xong sau 1-2 phút nữa, trang web sẽ tự động làm mới.</div>
+      </div>`;
+      if (btnCloudTrigger) {
+        btnCloudTrigger.disabled = true;
+        btnCloudTrigger.textContent = "Đang chạy quét ngầm...";
+      }
+      setTimeout(() => { if (cloudDialog && cloudDialog.open) checkCloudStatus(); }, 12000);
+    } else {
+      const isSuccess = run.conclusion === "success";
+      const timeStr = diffMins > 60 ? `${Math.round(diffMins/60)} giờ trước` : `${diffMins} phút trước`;
+      cloudStatusMsg.innerHTML = `<div style="line-height:1.6">
+        <div>• <b>Đợt quét đám mây gần nhất:</b> ${timeStr} (${started.toLocaleTimeString()})</div>
+        <div>• <b>Trạng thái:</b> <span style="color:${isSuccess ? 'var(--up)' : 'var(--down)'};font-weight:600">${isSuccess ? '✅ Thành công' : '⚠️ Có cảnh báo'}</span></div>
+        <div style="color:var(--muted);font-size:12px;margin-top:2px">• Bạn có thể bấm nút bên dưới để yêu cầu máy chủ cào lại giá live ngay lập tức.</div>
+      </div>`;
+      if (btnCloudTrigger) {
+        btnCloudTrigger.disabled = false;
+        btnCloudTrigger.textContent = "🚀 Kích hoạt quét ngay";
+      }
+    }
+  } catch (err) {
+    cloudStatusMsg.innerHTML = `<span style="color:var(--down)">Không thể đọc trạng thái: ${esc(err.message)}</span>`;
+  }
+}
+
+async function triggerCloudScan() {
+  let token = localStorage.getItem("gh_pat");
+  if (!token) {
+    token = prompt("Nhập GitHub Token (hoặc Personal Access Token) để gửi lệnh kích hoạt máy chủ GitHub:\n(Token sẽ được lưu an toàn trong trình duyệt của bạn)");
+    if (!token) return;
+    localStorage.setItem("gh_pat", token.trim());
+  }
+  if (btnCloudTrigger) {
+    btnCloudTrigger.disabled = true;
+    btnCloudTrigger.textContent = "Đang gửi lệnh...";
+  }
+  try {
+    const res = await fetch("https://api.github.com/repos/datle90745/tgdd-khuyen-mai/actions/workflows/scan-tgdd.yml/dispatches", {
+      method: "POST",
+      headers: {
+        "Accept": "application/vnd.github+json",
+        "Authorization": "Bearer " + token.trim()
+      },
+      body: JSON.stringify({ ref: "main" })
+    });
+    if (res.status === 204) {
+      toast("Đã kích hoạt máy chủ đám mây! Máy chủ đang cào 4 sàn...");
+      setTimeout(checkCloudStatus, 3000);
+    } else if (res.status === 401 || res.status === 403) {
+      localStorage.removeItem("gh_pat");
+      alert("Token không hợp lệ hoặc thiếu quyền Actions. Vui lòng thử lại!");
+      if (btnCloudTrigger) {
+        btnCloudTrigger.disabled = false;
+        btnCloudTrigger.textContent = "🚀 Kích hoạt quét ngay";
+      }
+    } else {
+      const err = await res.json().catch(() => ({}));
+      alert("Lỗi: " + (err.message || res.statusText));
+      if (btnCloudTrigger) {
+        btnCloudTrigger.disabled = false;
+        btnCloudTrigger.textContent = "🚀 Kích hoạt quét ngay";
+      }
+    }
+  } catch (err) {
+    alert("Lỗi kết nối: " + err.message);
+    if (btnCloudTrigger) {
+      btnCloudTrigger.disabled = false;
+      btnCloudTrigger.textContent = "🚀 Kích hoạt quét ngay";
+    }
+  }
+}
+
+if (btnCloud) btnCloud.onclick = () => { cloudDialog.showModal(); checkCloudStatus(); };
+if (mkCloud) mkCloud.onclick = () => { cloudDialog.showModal(); checkCloudStatus(); };
+if (cloudClose) cloudClose.onclick = () => cloudDialog.close();
+if (btnCloudTrigger) btnCloudTrigger.onclick = triggerCloudScan;
 </script>
 </body>
 </html>
