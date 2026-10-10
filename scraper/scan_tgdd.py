@@ -20,6 +20,7 @@ import re
 import sys
 import time
 from datetime import date, datetime
+from html import unescape as html_unescape
 from pathlib import Path
 from urllib.parse import quote
 from zoneinfo import ZoneInfo
@@ -35,6 +36,7 @@ SCAN_DIR = ROOT / "data" / "scans"
 SCANS_JS = ROOT / "data" / "scans.js"
 LATEST_JS = ROOT / "data" / "latest.js"
 LINKS_JS = ROOT / "data" / "links.js"
+PROMOS_JS = ROOT / "data" / "promos.js"
 
 HEADERS = {
     "User-Agent": (
@@ -270,6 +272,8 @@ def scan_one(url, attempts=3, allow_retry_slug=True):
                 result["debug"] = (f"len={len(resp.text)} box_main={bool(soup.select_one('.box_main'))} "
                                    f"main={bool(soup.select_one('main'))} h1={h1.get_text(strip=True)[:60] if h1 else None}")
                 return retry_other_slug(url, result, allow_retry_slug)
+            if result.get("status") == "active":
+                result["subs"] = extract_promos(resp.text)
             return result
         except Exception as error:  # mạng chập chờn: thử lại có giãn cách
             last_error = error
@@ -277,6 +281,69 @@ def scan_one(url, attempts=3, allow_retry_slug=True):
     if last_error is None and result is not None:
         return result
     return {"status": "error", "error": str(last_error)}
+
+
+EXCLUDE_PROMO_RE = re.compile(r"(?i)thẻ tín dụng|mở thẻ|vpbank|máy lọc nước|máy đọc sách")
+
+
+def extract_promos(html):
+    """Trích xuất quà tặng và khuyến mãi phụ kiện trực tiếp từ trang TGDĐ."""
+    if not html:
+        return []
+    items = []
+    # 1. Bố cục Next.js spans (ưu đãi quà tặng, PMH phụ kiện, bảo hành...)
+    for m in re.finditer(r'<span class=" \[&amp;_a\]:text-blue-500">([^<]+)</span>', html):
+        text = html_unescape(m.group(1)).strip()
+        text = re.sub(r"^(?:\d+[\.\s\-\:]+|[•\-\*]\s*)", "", text).strip()
+        if text and not EXCLUDE_PROMO_RE.search(text) and text not in items:
+            items.append(text)
+    # 2. Bố cục cũ .content-promo
+    for m in re.finditer(r'(?i)<div[^>]*class="[^"]*content-promo[^"]*"[^>]*>([^<]+)</div>', html):
+        text = html_unescape(m.group(1)).strip()
+        text = re.sub(r"^(?:\d+[\.\s\-\:]+|[•\-\*]\s*)", "", text).strip()
+        if text and not EXCLUDE_PROMO_RE.search(text) and text not in items:
+            items.append(text)
+    return items
+
+
+def write_promos_js(rows):
+    """Cập nhật quà tặng & khuyến mãi phụ kiện TGDĐ vào data/promos.js."""
+    promos = {}
+    if PROMOS_JS.exists():
+        try:
+            content = PROMOS_JS.read_text(encoding="utf-8")
+            start = content.find("{")
+            end = content.rfind("}")
+            if start != -1 and end != -1:
+                promos = json.loads(content[start:end + 1])
+        except Exception:
+            promos = {}
+
+    for r in rows:
+        m = r.get("model")
+        subs = r.get("subs")
+        if not m:
+            continue
+        if m not in promos:
+            promos[m] = {"name": m, "subs": subs or [], "offline_note": ""}
+        elif subs:
+            promos[m]["subs"] = subs
+            promos[m]["name"] = m
+
+    # Kế thừa quà tặng giữa các phiên bản bộ nhớ RAM/ROM cùng dòng máy
+    for m, p in promos.items():
+        if not p.get("subs"):
+            base_name = re.sub(r"\s+\d+GB(?:/\d+GB)?.*$", "", m)
+            for other_m, other_p in promos.items():
+                if other_m != m and other_m.startswith(base_name) and other_p.get("subs"):
+                    p["subs"] = list(other_p["subs"])
+                    break
+
+    now_str = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%b %H:%M")
+    text = (f"/* Tự động cào ưu đãi & quà tặng kèm từ Thế Giới Di Động */\n"
+            f"/* Cập nhật: {now_str} */\n"
+            f"window.PROMOS = {json.dumps(promos, ensure_ascii=False)};\n")
+    PROMOS_JS.write_text(text, encoding="utf-8")
 
 
 def write_scans_js():
@@ -438,6 +505,7 @@ def main():
         json.dumps(scan, ensure_ascii=False, indent=1), encoding="utf-8")
     write_scans_js()
     write_latest_js(scan)
+    write_promos_js(rows)
     print(f"Đã lưu đợt {scan['date']}: {ok}/{len(products)} SKU đọc được giá, {errors} lỗi mạng. "
           f"Tổng cộng {len(scan['rows'])} model trong đợt.")
 

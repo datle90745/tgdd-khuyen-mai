@@ -1,0 +1,4 @@
+*.zip
+setup_git_auth.ps1
+__pycache__/
+*.pyc

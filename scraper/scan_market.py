@@ -410,6 +410,22 @@ def scan_fpt():
     except Exception as e:
         print(f"  FPT Browser không thành công: {e}", flush=True)
 
+    # 4. Thử nạp từ data/fpt.js nếu và chỉ nếu cùng ngày hôm nay (tránh lấy giá cũ)
+    fpt_file = ROOT / "data" / "fpt.js"
+    if fpt_file.exists():
+        try:
+            today_label = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%b")
+            m = re.search(r"window\.FPT_LOCAL\s*=\s*(\{.*\});", fpt_file.read_text(encoding="utf-8"), re.S)
+            if m:
+                obj = json.loads(m.group(1))
+                if obj.get("date") == today_label and obj.get("rows") and len(obj["rows"]) >= 15:
+                    print(f"  FPT lấy từ data/fpt.js (cùng ngày {today_label}): {len(obj['rows'])} máy", flush=True)
+                    return obj["rows"]
+                elif obj.get("date") != today_label:
+                    print(f"  FPT: data/fpt.js là ngày {obj.get('date')} (khác hôm nay {today_label}), bỏ qua để tránh sai lệch giá!", flush=True)
+        except Exception as e:
+            print(f"  FPT đọc fpt.js không thành công: {e}", flush=True)
+
     # Không đoán số, không dùng số cũ: để trống và báo lỗi đợt quét
     raise RuntimeError("FPT Shop chặn chống bot trong đợt này (không dùng dữ liệu cũ để tránh gây hiểu lầm)")
 

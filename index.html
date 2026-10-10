@@ -7,16 +7,15 @@
 <title>GTMVN — Theo dõi khuyến mãi</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<!-- ?v= đổi mỗi lần cập nhật dữ liệu để trình duyệt khỏi dùng bản cũ trong bộ nhớ đệm. -->
-<script src="data/data.js?v=20261009c"></script>
-<script src="data/scans.js?v=20261009c"></script>
-<script src="data/latest.js?v=20261009c"></script>
-<script src="data/links.js?v=20261009c"></script>
-<script src="data/rises.js?v=20261009c"></script>
-<script src="data/fpt.js?v=20261009c"></script>
-<script src="data/alerts.js?v=20261009c"></script>
-<script src="data/market.js?v=20261009c"></script>
-<script src="data/promos.js?v=20261009c"></script>
+<script src="data/data.js?v=sync_20261010_0705"></script>
+<script src="data/scans.js?v=sync_20261010_0705"></script>
+<script src="data/latest.js?v=sync_20261010_0705"></script>
+<script src="data/links.js?v=sync_20261010_0705"></script>
+<script src="data/rises.js?v=sync_20261010_0705"></script>
+<script src="data/fpt.js?v=sync_20261010_0705"></script>
+<script src="data/alerts.js?v=sync_20261010_0705"></script>
+<script src="data/market.js?v=sync_20261010_0705"></script>
+<script src="data/promos.js?v=sync_20261010_0705"></script>
 <style>
 :root{
   --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
@@ -355,6 +354,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
     <div class="panel filters">
       <div class="row"><label class="t">Hãng</label><span id="h2h-f-b" class="row"></span></div>
       <div class="row"><label class="t">Phân khúc</label><span id="h2h-f-s" class="row"></span></div>
+      <div class="row"><label class="t">Kênh</label><span id="h2h-f-ch" class="row"></span></div>
       <div class="row"><label class="t">Chênh lệch</label><span id="h2h-f-d" class="row"></span></div>
       <div class="row"><label class="t">Tìm</label><input class="search" id="h2h-q" type="search" placeholder="Tên máy, viết tắt: s26 u, ip 17 pm, a57..." aria-label="Tìm theo tên máy"></div>
     </div>
@@ -390,10 +390,10 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
       </div>
     </div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
-      <div style="background:var(--soft);padding:12px 14px;border-radius:8px">
+      <div id="cmp-card-v1" style="background:var(--soft);padding:12px 14px;border-radius:8px;transition:all 0.2s ease">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <label style="font-weight:700;font-size:13.5px">Vế A (Máy & Kênh 1):</label>
-          <select id="cmp-ret1" style="padding:4px 8px;border-radius:6px;border:1px solid var(--line);font-size:12.5px;font-weight:600;background:var(--panel)">
+          <select id="cmp-ret1" style="padding:4px 8px;border-radius:6px;border:1px solid var(--line);font-size:12.5px;font-weight:600;background:var(--panel);cursor:pointer">
             <option value="TGDĐ" selected>Thế Giới Di Động (MWG)</option>
             <option value="CellphoneS">CellphoneS</option>
             <option value="FPT Shop">FPT Shop</option>
@@ -402,11 +402,12 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
         </div>
         <input type="search" id="cmp-q1" class="search" style="width:100%;margin-bottom:6px" placeholder="Tìm hoặc viết tắt: reno 16, a57, ip 17 pm...">
         <select id="cmp-sel1" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)"></select>
+        <div id="cmp-hint1" style="font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.4"></div>
       </div>
-      <div style="background:var(--soft);padding:12px 14px;border-radius:8px">
+      <div id="cmp-card-v2" style="background:var(--soft);padding:12px 14px;border-radius:8px;transition:all 0.2s ease">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
           <label style="font-weight:700;font-size:13.5px">Vế B (Máy & Kênh 2):</label>
-          <select id="cmp-ret2" style="padding:4px 8px;border-radius:6px;border:1px solid var(--line);font-size:12.5px;font-weight:600;background:var(--panel)">
+          <select id="cmp-ret2" style="padding:4px 8px;border-radius:6px;border:1px solid var(--line);font-size:12.5px;font-weight:600;background:var(--panel);cursor:pointer">
             <option value="TGDĐ" selected>Thế Giới Di Động (MWG)</option>
             <option value="CellphoneS">CellphoneS</option>
             <option value="FPT Shop">FPT Shop</option>
@@ -415,6 +416,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
         </div>
         <input type="search" id="cmp-q2" class="search" style="width:100%;margin-bottom:6px" placeholder="Tìm hoặc viết tắt: reno 16, s26 u, find x9...">
         <select id="cmp-sel2" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)"></select>
+        <div id="cmp-hint2" style="font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.4"></div>
       </div>
     </div>
   </div>
@@ -923,11 +925,12 @@ $("reset").onclick=()=>{ imports=[]; try{localStorage.removeItem("tp_imports");}
 const MK = window.MARKET || {scans:[]};
 const MK_RET = ["TGDĐ","CellphoneS","FPT Shop","Viettel Store"];
 const MF = {r:"Tất cả", b:"Tất cả", k:"Tất cả", q:"", focus:false, sort:"v", dir:-1};
-// Khoá so khớp tên máy giữa các sàn và danh sách 86 SKU: bỏ dấu, tên hãng, 5G/4G, ký tự đặc biệt.
+// Khoá so khớp tên máy giữa các sàn và danh sách 86 SKU: bỏ dấu, tên hãng, 4G (giữ 5G để tránh đụng độ model), ký tự đặc biệt.
 const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d").replace(/\+/g,"plus")
-  .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|5g|4g|nfc)\b/g," ")
+  .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|4g|nfc)\b/g," ")
   .replace(/[^a-z0-9]/g,"");
-const MK_FOCUS = new Set(BASE.rows.map(r=>mkKey(r.model)));
+const MK_FOCUS_MASS = new Set(BASE.rows.filter(r=>r.channel!=="TGDD").map(r=>((r.brand||"").toLowerCase() + "|" + mkKey(r.model))));
+const MK_FOCUS_ALL = new Set(BASE.rows.map(r=>((r.brand||"").toLowerCase() + "|" + mkKey(r.model))));
 // FPT chặn máy chủ nên bộ quét tự động chỉ lấy được một phần. Khi có bản quét FPT chạy từ
 // máy nhà (data/fpt.js) thì thay toàn bộ phần FPT bằng bản đó.
 function mkMergeFpt(scan){
@@ -942,42 +945,50 @@ function mkData(){
   const validScans = scans.filter(s => s && s.rows && Array.isArray(s.rows) && s.rows.length > 0);
   const n = validScans.length, cur = n ? mkMergeFpt(validScans[n-1]) : null, prev = n > 1 ? mkMergeFpt(validScans[n-2]) : null;
   if(!cur) return {cur:null, rows:[]};
-  const pm=new Map((prev?prev.rows:[]).map(x=>[x.r+"|"+mkKey(x.n), x]));
-  return {cur, prev, rows:cur.rows.map(x=>{ const k=mkKey(x.n), v=Math.max((x.o||x.p)-x.p,0), pv=pm.get(x.r+"|"+k);
-    return {...x, key:k, v, pct:x.o?v/x.o:0, focus:MK_FOCUS.has(k), dv: pv? v-Math.max((pv.o||pv.p)-pv.p,0) : null}; })};
+  const pm=new Map((prev?prev.rows:[]).map(x=>[x.r+"|"+(x.b||"").toLowerCase()+"|"+mkKey(x.n), x]));
+  return {cur, prev, rows:cur.rows.map(x=>{
+    const bk=(x.b||"").toLowerCase()+"|"+mkKey(x.n);
+    const isTgdd = (x.r === "TGDĐ" || x.r === "Thế Giới Di Động");
+    const isFocus = isTgdd ? MK_FOCUS_ALL.has(bk) : MK_FOCUS_MASS.has(bk);
+    const v=Math.max((x.o||x.p)-x.p,0), pv=pm.get(x.r+"|"+bk);
+    return {...x, key:mkKey(x.n), v, pct:x.o?v/x.o:0, focus:isFocus, dv: pv? v-Math.max((pv.o||pv.p)-pv.p,0) : null};
+  })};
 }
 function mkChips(el, vals, key){
   el.innerHTML = vals.map(v=>`<button class="chip" data-mk="${key}" data-v="${esc(v)}" aria-pressed="${MF[key]===v}"${key==="b"&&v!=="Tất cả"?` data-b="${esc(v)}"`:""}>${esc(key==="b"?bdisp(v):v)}</button>`).join("");
 }
 /* ---- B1 & B2: Ma trận đối đầu 4 sàn (Head-to-Head) & Cảnh báo khuyến mãi ảo ---- */
-const H2H_F = {b:"Tất cả", s:"Tất cả", d:"all", q:"", sort:"spread", dir:-1};
+const H2H_F = {b:"Tất cả", s:"Tất cả", ch:"Tất cả", d:"all", q:"", sort:"spread", dir:-1};
 
 function buildH2HData(){
   const D = mkData();
   const curRows = (D.cur && D.cur.rows) || [];
   const mkMap = new Map();
   curRows.forEach(x => {
-    const k = x.r + "|" + mkKey(x.n);
+    const k = x.r + "|" + (x.b||"").toLowerCase() + "|" + mkKey(x.n);
     if (!mkMap.has(k) || (x.p && (!mkMap.get(k).p || x.p < mkMap.get(k).p))) {
       mkMap.set(k, x);
     }
   });
 
   return S.rows.map(r => {
-    const k = mkKey(r.model);
+    const isExcl = (r.channel === "TGDD");
+    const k = (r.brand||"").toLowerCase() + "|" + mkKey(r.model);
     const tgddItem = mkMap.get("TGDĐ|" + k);
-    const p_tgdd = tgddItem ? tgddItem.p : onPrice(r);
-    const u_tgdd = tgddItem ? tgddItem.u : (LINKS[r.model] || null);
+    const p_tgdd = (onPrice(r) != null) ? onPrice(r) : (tgddItem ? tgddItem.p : null);
+    const u_tgdd = LINKS[r.model] || (tgddItem ? tgddItem.u : null);
 
-    const cpsItem = mkMap.get("CellphoneS|" + k);
+    // Đối với toàn bộ sản phẩm độc quyền MWG (channel === "TGDD"):
+    // Các sàn non-MWG hoàn toàn không có hàng chính hãng. Chặn tuyệt đối việc gán nhầm giá đối thủ.
+    const cpsItem = isExcl ? null : mkMap.get("CellphoneS|" + k);
     const p_cps = cpsItem ? cpsItem.p : null;
     const u_cps = cpsItem ? cpsItem.u : null;
 
-    const fptItem = mkMap.get("FPT Shop|" + k);
+    const fptItem = isExcl ? null : mkMap.get("FPT Shop|" + k);
     const p_fpt = fptItem ? fptItem.p : null;
     const u_fpt = fptItem ? fptItem.u : null;
 
-    const vtItem = mkMap.get("Viettel Store|" + k);
+    const vtItem = isExcl ? null : mkMap.get("Viettel Store|" + k);
     const p_vt = vtItem ? vtItem.p : null;
     const u_vt = vtItem ? vtItem.u : null;
 
@@ -1205,12 +1216,15 @@ function renderMarketH2H(){
 
   $("h2h-f-b").innerHTML = brands.map(b=>`<button class="chip" data-h2hb="${esc(b)}" aria-pressed="${H2H_F.b===b}">${esc(bdisp(b))}</button>`).join("");
   $("h2h-f-s").innerHTML = segs.map(s=>`<button class="chip" data-h2hs="${esc(s)}" aria-pressed="${H2H_F.s===s}">${esc(s)}</button>`).join("");
+  $("h2h-f-ch").innerHTML = [["Tất cả","Tất cả"],["Mass","Kênh Mass (4 sàn cạnh tranh)"],["TGDD","Độc quyền TGDĐ"]]
+    .map(([k,l])=>`<button class="chip" data-h2hch="${k}" aria-pressed="${H2H_F.ch===k}">${l}</button>`).join("");
   $("h2h-f-d").innerHTML = [["all","Tất cả"],["diff","Có chênh lệch (>0đ)"],["big","Chênh lệch lớn (≥500k)"]]
     .map(([k,l])=>`<button class="chip" data-h2hd="${k}" aria-pressed="${H2H_F.d===k}">${l}</button>`).join("");
 
   let rows = allH2H.filter(x =>
     (H2H_F.b==="Tất cả" || x.brand===H2H_F.b) &&
     (H2H_F.s==="Tất cả" || x.segment===H2H_F.s) &&
+    (H2H_F.ch==="Tất cả" || (H2H_F.ch==="TGDD" ? x.channel==="TGDD" : x.channel!=="TGDD")) &&
     (H2H_F.d==="all" || (H2H_F.d==="diff" && x.spread>0) || (H2H_F.d==="big" && x.spread>=500000)) &&
     (!H2H_F.q || matchSmart(H2H_F.q, x.brand + " " + x.model))
   );
@@ -1299,27 +1313,105 @@ let CMP_M1 = null, CMP_M2 = null;
 let CMP_R1 = "TGDĐ", CMP_R2 = "TGDĐ";
 let CMP_MODE = "mwg-mwg";
 
-function compareInit(){
-  const models = S.rows.map(r=>r.model);
-  if(!models.length) return;
-  if(!CMP_M1) CMP_M1 = models[0];
-  if(!CMP_M2) CMP_M2 = models[Math.min(1, models.length - 1)];
+const RET_CONFIG = {
+  "TGDĐ": { color: "#854d0e", border: "#d4a700", bg: "rgba(255, 212, 0, 0.06)", name: "Thế Giới Di Động (MWG)" },
+  "Thế Giới Di Động": { color: "#854d0e", border: "#d4a700", bg: "rgba(255, 212, 0, 0.06)", name: "Thế Giới Di Động (MWG)" },
+  "CellphoneS": { color: "#d70018", border: "#d70018", bg: "rgba(215, 0, 24, 0.05)", name: "CellphoneS" },
+  "FPT Shop": { color: "#cb1c22", border: "#cb1c22", bg: "rgba(203, 28, 34, 0.05)", name: "FPT Shop" },
+  "Viettel Store": { color: "#00918e", border: "#00918e", bg: "rgba(0, 145, 142, 0.05)", name: "Viettel Store" }
+};
 
-  const populate = (selId, filterQ) => {
+function isNonMwg(ret){
+  return ret && ret !== "TGDĐ" && ret !== "Thế Giới Di Động";
+}
+
+function getAvailableModels(ret){
+  if(!S || !S.rows) return [];
+  if(isNonMwg(ret)){
+    // Non-MWG chỉ phân phối model Mass (ẩn hoàn toàn các model độc quyền MWG)
+    return S.rows.filter(r => r.channel !== "TGDD").map(r => r.model);
+  }
+  // TGDĐ có đầy đủ tất cả model
+  return S.rows.map(r => r.model);
+}
+
+function updateRetCardStyles(){
+  const cfg1 = RET_CONFIG[CMP_R1] || RET_CONFIG["TGDĐ"];
+  const cfg2 = RET_CONFIG[CMP_R2] || RET_CONFIG["TGDĐ"];
+  
+  if($("cmp-card-v1")){
+    $("cmp-card-v1").style.border = `1.5px solid ${cfg1.border}`;
+    $("cmp-card-v1").style.borderLeft = `5px solid ${cfg1.border}`;
+    $("cmp-card-v1").style.background = cfg1.bg;
+  }
+  if($("cmp-card-v2")){
+    $("cmp-card-v2").style.border = `1.5px solid ${cfg2.border}`;
+    $("cmp-card-v2").style.borderLeft = `5px solid ${cfg2.border}`;
+    $("cmp-card-v2").style.background = cfg2.bg;
+  }
+  if($("cmp-ret1")){
+    $("cmp-ret1").style.borderColor = cfg1.border;
+    $("cmp-ret1").style.color = cfg1.color;
+  }
+  if($("cmp-ret2")){
+    $("cmp-ret2").style.borderColor = cfg2.border;
+    $("cmp-ret2").style.color = cfg2.color;
+  }
+  const massCount = (S && S.rows) ? S.rows.filter(r => r.channel !== "TGDD").length : 0;
+  if($("cmp-hint1")){
+    $("cmp-hint1").innerHTML = isNonMwg(CMP_R1)
+      ? `🔍 <b>${esc(CMP_R1)}</b>: Chỉ lọc ${massCount} model Mass (ẩn độc quyền MWG).`
+      : `🔍 <b>TGDĐ</b>: Đầy đủ 86 model (cả Mass & Độc quyền MWG).`;
+  }
+  if($("cmp-hint2")){
+    $("cmp-hint2").innerHTML = isNonMwg(CMP_R2)
+      ? `🔍 <b>${esc(CMP_R2)}</b>: Chỉ lọc ${massCount} model Mass (ẩn độc quyền MWG).`
+      : `🔍 <b>TGDĐ</b>: Đầy đủ 86 model (cả Mass & Độc quyền MWG).`;
+  }
+}
+
+function compareInit(){
+  if(!S || !S.rows || !S.rows.length) return;
+
+  const a1 = getAvailableModels(CMP_R1);
+  const a2 = getAvailableModels(CMP_R2);
+  if(!a1.length || !a2.length) return;
+
+  if(!CMP_M1 || !a1.includes(CMP_M1)) CMP_M1 = a1[0];
+  if(!CMP_M2 || !a2.includes(CMP_M2)) CMP_M2 = a2[Math.min(1, a2.length - 1)];
+
+  const populate = (selId, filterQ, ret) => {
     const sel = $(selId); if(!sel) return;
-    const cur = sel.value;
-    const matched = models.filter(m => matchSmart(filterQ, m));
-    sel.innerHTML = matched.map(m=>`<option value="${esc(m)}">${esc(m)}</option>`).join("");
-    if(matched.includes(cur)) sel.value = cur;
-    else if(matched.length) sel.value = matched[0];
+    const avail = getAvailableModels(ret);
+    const matched = avail.filter(m => matchSmart(filterQ, m));
+
+    if(!matched.length){
+      sel.innerHTML = `<option value="">(Không tìm thấy model phù hợp)</option>`;
+      if(selId === "cmp-sel1") CMP_M1 = "";
+      else CMP_M2 = "";
+      return;
+    }
+
+    sel.innerHTML = matched.map(m => {
+      const r = S.rows.find(x => x.model === m);
+      const tag = (!isNonMwg(ret) && r && r.channel === "TGDD") ? " 🔒 [Độc quyền MWG]" : "";
+      return `<option value="${esc(m)}">${esc(m)}${tag}</option>`;
+    }).join("");
+
+    if(selId === "cmp-sel1"){
+      if(!matched.includes(CMP_M1)) CMP_M1 = matched[0];
+      sel.value = CMP_M1;
+    } else {
+      if(!matched.includes(CMP_M2)) CMP_M2 = matched[0];
+      sel.value = CMP_M2;
+    }
   };
 
-  populate("cmp-sel1", "");
-  populate("cmp-sel2", "");
-  if($("cmp-sel1")) $("cmp-sel1").value = CMP_M1;
-  if($("cmp-sel2")) $("cmp-sel2").value = CMP_M2;
+  populate("cmp-sel1", $("cmp-q1") ? $("cmp-q1").value.trim() : "", CMP_R1);
+  populate("cmp-sel2", $("cmp-q2") ? $("cmp-q2").value.trim() : "", CMP_R2);
   if($("cmp-ret1")) $("cmp-ret1").value = CMP_R1;
   if($("cmp-ret2")) $("cmp-ret2").value = CMP_R2;
+  updateRetCardStyles();
 
   // Preset buttons
   const presetBtns = document.querySelectorAll("#cmp-presets button");
@@ -1333,44 +1425,80 @@ function compareInit(){
         CMP_R1 = "TGDĐ"; CMP_R2 = "TGDĐ";
       } else if(mode === "tgdd-cps"){
         CMP_R1 = "TGDĐ"; CMP_R2 = "CellphoneS";
-        CMP_M2 = CMP_M1; // Mặc định so sánh trên cùng 1 máy giữa 2 sàn
-        if($("cmp-sel2")) $("cmp-sel2").value = CMP_M2;
       } else if(mode === "tgdd-fpt"){
         CMP_R1 = "TGDĐ"; CMP_R2 = "FPT Shop";
-        CMP_M2 = CMP_M1;
-        if($("cmp-sel2")) $("cmp-sel2").value = CMP_M2;
       } else if(mode === "tgdd-vt"){
         CMP_R1 = "TGDĐ"; CMP_R2 = "Viettel Store";
-        CMP_M2 = CMP_M1;
-        if($("cmp-sel2")) $("cmp-sel2").value = CMP_M2;
       }
       if($("cmp-ret1")) $("cmp-ret1").value = CMP_R1;
       if($("cmp-ret2")) $("cmp-ret2").value = CMP_R2;
+
+      // Validate CMP_M1
+      const avail1 = getAvailableModels(CMP_R1);
+      if(!avail1.includes(CMP_M1)) CMP_M1 = avail1[0];
+
+      // Validate CMP_M2:
+      // Khi đối đầu với kênh đối thủ, ưu tiên so sánh trên cùng 1 máy nếu kênh 2 có bán (hàng Mass)
+      const avail2 = getAvailableModels(CMP_R2);
+      if(mode !== "mwg-mwg" && avail2.includes(CMP_M1)){
+        CMP_M2 = CMP_M1;
+      } else if(!avail2.includes(CMP_M2)){
+        CMP_M2 = avail2[0];
+      }
+
+      populate("cmp-sel1", $("cmp-q1") ? $("cmp-q1").value.trim() : "", CMP_R1);
+      populate("cmp-sel2", $("cmp-q2") ? $("cmp-q2").value.trim() : "", CMP_R2);
+      updateRetCardStyles();
       renderCompare();
     };
   });
 
   if($("cmp-q1")) $("cmp-q1").oninput = e => { 
-    populate("cmp-sel1", e.target.value.trim()); 
+    populate("cmp-sel1", e.target.value.trim(), CMP_R1); 
     CMP_M1 = $("cmp-sel1").value; 
     if(CMP_MODE !== "mwg-mwg" && CMP_R1 !== CMP_R2){ 
-      CMP_M2 = CMP_M1; 
-      if($("cmp-sel2")) $("cmp-sel2").value = CMP_M2; 
+      const avail2 = getAvailableModels(CMP_R2);
+      if(avail2.includes(CMP_M1)){ 
+        CMP_M2 = CMP_M1; 
+        populate("cmp-sel2", $("cmp-q2") ? $("cmp-q2").value.trim() : "", CMP_R2); 
+      } 
     } 
     renderCompare(); 
   };
-  if($("cmp-q2")) $("cmp-q2").oninput = e => { populate("cmp-sel2", e.target.value.trim()); CMP_M2 = $("cmp-sel2").value; renderCompare(); };
+  if($("cmp-q2")) $("cmp-q2").oninput = e => { 
+    populate("cmp-sel2", e.target.value.trim(), CMP_R2); 
+    CMP_M2 = $("cmp-sel2").value; 
+    renderCompare(); 
+  };
   if($("cmp-sel1")) $("cmp-sel1").onchange = e => { 
     CMP_M1 = e.target.value; 
     if(CMP_MODE !== "mwg-mwg" && CMP_R1 !== CMP_R2){ 
-      CMP_M2 = CMP_M1; 
-      if($("cmp-sel2")) $("cmp-sel2").value = CMP_M2; 
+      const avail2 = getAvailableModels(CMP_R2);
+      if(avail2.includes(CMP_M1)){ 
+        CMP_M2 = CMP_M1; 
+        populate("cmp-sel2", $("cmp-q2") ? $("cmp-q2").value.trim() : "", CMP_R2); 
+      } 
     } 
     renderCompare(); 
   };
-  if($("cmp-sel2")) $("cmp-sel2").onchange = e => { CMP_M2 = e.target.value; renderCompare(); };
-  if($("cmp-ret1")) $("cmp-ret1").onchange = e => { CMP_R1 = e.target.value; renderCompare(); };
-  if($("cmp-ret2")) $("cmp-ret2").onchange = e => { CMP_R2 = e.target.value; renderCompare(); };
+  if($("cmp-sel2")) $("cmp-sel2").onchange = e => { 
+    CMP_M2 = e.target.value; 
+    renderCompare(); 
+  };
+  if($("cmp-ret1")) $("cmp-ret1").onchange = e => { 
+    CMP_R1 = e.target.value; 
+    populate("cmp-sel1", $("cmp-q1") ? $("cmp-q1").value.trim() : "", CMP_R1);
+    CMP_M1 = $("cmp-sel1").value;
+    updateRetCardStyles();
+    renderCompare(); 
+  };
+  if($("cmp-ret2")) $("cmp-ret2").onchange = e => { 
+    CMP_R2 = e.target.value; 
+    populate("cmp-sel2", $("cmp-q2") ? $("cmp-q2").value.trim() : "", CMP_R2);
+    CMP_M2 = $("cmp-sel2").value;
+    updateRetCardStyles();
+    renderCompare(); 
+  };
 
   renderCompare();
 }
@@ -1386,25 +1514,28 @@ function cmpDualChart(r1, r2){
   const X=i=>L+(n===1?0:i/n)*(W-L-R);
   const Y=x=>T+(1-x/max)*(H-T-B);
 
+  const col1 = (RET_CONFIG[CMP_R1] || {}).border || "var(--accent)";
+  const col2 = (RET_CONFIG[CMP_R2] || {}).border || "var(--down)";
+
   let p1="", s1=false;
   v1.forEach((x,i)=>{ if(x==null){s1=false;return;} p1+=`${s1?"L":"M"}${X(i).toFixed(1)} ${Y(x).toFixed(1)} `; s1=true; });
   let p2="", s2=false;
   v2.forEach((x,i)=>{ if(x==null){s2=false;return;} p2+=`${s2?"L":"M"}${X(i).toFixed(1)} ${Y(x).toFixed(1)} `; s2=true; });
 
   const grid=[0,.5,1].map(t=>`<line x1="${L}" x2="${W-R}" y1="${Y(max*t)}" y2="${Y(max*t)}" stroke="var(--line)"/><text x="${L-8}" y="${Y(max*t)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${fmt(Math.round(max*t/1000))}k</text>`).join("");
-  const dots1=v1.map((x,i)=>x==null?"":`<circle cx="${X(i)}" cy="${Y(x)}" r="4" fill="var(--accent)"><title>${esc(r1.model)} (${S.dates[i]}): ${fmt(x)}</title></circle>`).join("");
-  const dots2=v2.map((x,i)=>x==null?"":`<circle cx="${X(i)}" cy="${Y(x)}" r="4" fill="var(--down)"><title>${esc(r2.model)} (${S.dates[i]}): ${fmt(x)}</title></circle>`).join("");
+  const dots1=v1.map((x,i)=>x==null?"":`<circle cx="${X(i)}" cy="${Y(x)}" r="4" fill="${col1}"><title>${esc(r1.model)} (${S.dates[i]}): ${fmt(x)}</title></circle>`).join("");
+  const dots2=v2.map((x,i)=>x==null?"":`<circle cx="${X(i)}" cy="${Y(x)}" r="4" fill="${col2}"><title>${esc(r2.model)} (${S.dates[i]}): ${fmt(x)}</title></circle>`).join("");
   const xl=S.dates.map((d,i)=>`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${esc(d)}</text>`).join("");
 
   return `
     <div class="cmp-legend">
-      <span><i class="cmp-dot" style="background:var(--accent)"></i> ${esc(r1.model)}</span>
-      <span><i class="cmp-dot" style="background:var(--down)"></i> ${esc(r2.model)}</span>
+      <span><i class="cmp-dot" style="background:${col1}"></i> ${esc(r1.model)} (${esc(CMP_R1)})</span>
+      <span><i class="cmp-dot" style="background:${col2}"></i> ${esc(r2.model)} (${esc(CMP_R2)})</span>
     </div>
     <div style="background:var(--soft);border-radius:8px;padding:12px 14px">
       <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Biểu đồ so sánh PMH">${grid}
-        <path d="${p1}" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linejoin="round"/>
-        <path d="${p2}" fill="none" stroke="var(--down)" stroke-width="2.6" stroke-linejoin="round" stroke-dasharray="5 3"/>
+        <path d="${p1}" fill="none" stroke="${col1}" stroke-width="2.6" stroke-linejoin="round"/>
+        <path d="${p2}" fill="none" stroke="${col2}" stroke-width="2.6" stroke-linejoin="round" stroke-dasharray="5 3"/>
         ${dots1}${dots2}${xl}
       </svg>
     </div>`;
@@ -1421,6 +1552,17 @@ function getPromoTag(text){
   return `<span class="cmp-promo-tag store">Ưu đãi kèm</span>`;
 }
 
+function shouldExcludePromo(t){
+  if(!t) return true;
+  // 1. Mở thẻ tín dụng / hoàn tiền thẻ VPBank / ngân hàng...
+  if(/thẻ tín dụng|mở thẻ|vpbank|hoàn ngay đến|ưu đãi thẻ/i.test(t)) return true;
+  // 2. Máy lọc nước
+  if(/máy lọc nước/i.test(t)) return true;
+  // 3. Máy đọc sách / Tablet máy đọc sách
+  if(/máy đọc sách/i.test(t)) return true;
+  return false;
+}
+
 function cleanPromoText(t){
   if(!t) return "";
   let s = t.replace(/^\d+[\.\s\-]+/, "").trim();
@@ -1434,14 +1576,19 @@ function renderSubPromos(model, r){
   const pInfo = PROMOS[model] || { subs: [], offline_note: "" };
   const rawItems = [];
 
-  if(pInfo.offline_note && pInfo.offline_note.trim()){
-    rawItems.push(cleanPromoText(pInfo.offline_note));
-  }
-  if(Array.isArray(pInfo.subs)){
+  // 1. Ưu tiên quà thực tế cào từ TGDĐ
+  if(Array.isArray(pInfo.subs) && pInfo.subs.length > 0){
     pInfo.subs.forEach(s => {
       const cleaned = cleanPromoText(s);
-      if(cleaned && !rawItems.includes(cleaned)) rawItems.push(cleaned);
+      if(cleaned && !shouldExcludePromo(cleaned) && !rawItems.includes(cleaned)){
+        rawItems.push(cleaned);
+      }
     });
+  } else if(pInfo.offline_note && pInfo.offline_note.trim()){
+    const cleaned = cleanPromoText(pInfo.offline_note);
+    if(cleaned && !shouldExcludePromo(cleaned)){
+      rawItems.push(cleaned);
+    }
   }
 
   if(!rawItems.length){
@@ -1452,6 +1599,20 @@ function renderSubPromos(model, r){
         </div>
         <div class="cmp-promo-empty">Chỉ áp dụng giá chiết khấu trực tiếp / Flash Sale tiêu chuẩn. Chưa ghi nhận quà tặng phụ kiện kèm riêng đợt này.</div>
       </div>`;
+  }
+
+  // 2. Tự động nhận diện & gộp "Chọn 1 trong các quà":
+  // Nếu có cả "Giảm giá X" và "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ... Y"
+  if(!rawItems.some(t => /chọn 1 trong/i.test(t))){
+    const gIdx = rawItems.findIndex(t => /^Giảm giá\s+[\d.,]+[₫đ]?$/i.test(t.trim()));
+    const pIdx = rawItems.findIndex(t => /^Phiếu mua hàng mua (?:smartphone|điện thoại|phụ kiện|đồng hồ|tablet)/i.test(t.trim()));
+    if(gIdx !== -1 && pIdx !== -1){
+      const gText = rawItems[gIdx];
+      const pText = rawItems[pIdx];
+      rawItems.splice(Math.max(gIdx, pIdx), 1);
+      rawItems.splice(Math.min(gIdx, pIdx), 1);
+      rawItems.unshift(`Chọn 1 trong các quà: ${gText} hoặc ${pText}`);
+    }
   }
 
   let idx = 1;
@@ -1493,7 +1654,6 @@ function renderSubPromos(model, r){
     if(/bảo hành|bảo hiểm|rơi vỡ/i.test(text)) icon = "🛡️";
     else if(/thu cũ|trade-in/i.test(text)) icon = "🔄";
     else if(/trả góp|finance|credit/i.test(text)) icon = "💳";
-    else if(/thẻ tín dụng|vpbank/i.test(text)) icon = "💳";
 
     htmlItems.push(`
       <li class="mwg-item">
@@ -1646,7 +1806,7 @@ function getRetailerData(model, ret){
   const brand = rBase ? rBase.brand : "";
   const rrp = rBase ? rBase.rrp : 0;
   
-  if(ret === "TGDĐ"){
+  if(ret === "TGDĐ" || ret === "Thế Giới Di Động"){
     const pOn = rBase ? onPrice(rBase) : 0;
     const pOff = rBase ? offPrice(rBase) : 0;
     const pmh = (rBase && rBase.pmh) ? rBase.pmh[rBase.pmh.length - 1] : 0;
@@ -1664,12 +1824,29 @@ function getRetailerData(model, ret){
     };
   }
 
+  // Toàn bộ sản phẩm Độc quyền MWG (channel === "TGDD") khi xem ở kênh non-MWG:
+  // Kênh non-MWG không kinh doanh chính hãng, trả về price null và chặn tuyệt đối khuyến mãi ảo.
+  if(rBase && rBase.channel === "TGDD"){
+    return {
+      ret,
+      brand,
+      model,
+      rrp,
+      price: null,
+      offPrice: null,
+      pmh: 0,
+      fs: null,
+      url: "",
+      kind: "Độc quyền MWG (Không kinh doanh)"
+    };
+  }
+
   const D = mkData();
   const k = mkKey(model);
+  const bLower = (brand || "").toLowerCase();
   const rows = (D.cur && D.cur.rows) || [];
-  const match = rows.find(x => x.r === ret && mkKey(x.n) === k)
-             || rows.find(x => x.r === ret && (mkKey(x.n).includes(k) || k.includes(mkKey(x.n))))
-             || rows.find(x => x.r === ret && matchSmart(k, mkKey(x.n)));
+  // So khớp chặt chẽ cho hàng Mass: Phải khớp đúng sàn, đúng thương hiệu và đúng khóa model (bỏ hẳn substring lỏng lẻo)
+  const match = rows.find(x => (x.r === ret || (ret === "TGDĐ" && x.r === "Thế Giới Di Động")) && (x.b || "").toLowerCase() === bLower && mkKey(x.n) === k);
   
   const price = match ? match.p : null;
   const oPrice = (match && match.o) || rrp;
@@ -1718,8 +1895,21 @@ function cmpMarketTable(r1, r2){
       "Viettel Store": "background:#00918e;color:#fff;border:1px solid #007775"
     };
     const bSt = cmpBadgeStyles[rtl.name] || "";
-    const cell1 = rtl.p1 ? `${fmt(rtl.p1)}${isBest1 ? ` <span class="cmp-best-badge" data-r="${esc(rtl.name)}" style="${bSt}">👑 Rẻ nhất</span>` : ''}${rtl.u1 ? ` <a href="${esc(rtl.u1)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}` : '–';
-    const cell2 = rtl.p2 ? `${fmt(rtl.p2)}${isBest2 ? ` <span class="cmp-best-badge" data-r="${esc(rtl.name)}" style="${bSt}">👑 Rẻ nhất</span>` : ''}${rtl.u2 ? ` <a href="${esc(rtl.u2)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}` : '–';
+    
+    let cell1 = "–";
+    if(rtl.p1){
+      cell1 = `${fmt(rtl.p1)}${isBest1 ? ` <span class="cmp-best-badge" data-r="${esc(rtl.name)}" style="${bSt}">👑 Rẻ nhất</span>` : ''}${rtl.u1 ? ` <a href="${esc(rtl.u1)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}`;
+    } else if(r1 && r1.channel === "TGDD" && rtl.name !== "Thế Giới Di Động"){
+      cell1 = `<span style="color:#b91c1c;font-size:11.5px;font-weight:600">🔒 Độc quyền MWG</span>`;
+    }
+
+    let cell2 = "–";
+    if(rtl.p2){
+      cell2 = `${fmt(rtl.p2)}${isBest2 ? ` <span class="cmp-best-badge" data-r="${esc(rtl.name)}" style="${bSt}">👑 Rẻ nhất</span>` : ''}${rtl.u2 ? ` <a href="${esc(rtl.u2)}" target="_blank" rel="noopener" style="font-size:11px">↗</a>` : ''}`;
+    } else if(r2 && r2.channel === "TGDD" && rtl.name !== "Thế Giới Di Động"){
+      cell2 = `<span style="color:#b91c1c;font-size:11.5px;font-weight:600">🔒 Độc quyền MWG</span>`;
+    }
+
     const diff = (rtl.p1 && rtl.p2) ? fmt(Math.abs(rtl.p1 - rtl.p2)) : '–';
     const diffDir = (rtl.p1 && rtl.p2) ? (rtl.p1 < rtl.p2 ? ` (A rẻ hơn ${diff})` : rtl.p1 > rtl.p2 ? ` (B rẻ hơn ${diff})` : ' (Bằng nhau)') : '';
 
@@ -1732,6 +1922,9 @@ function cmpMarketTable(r1, r2){
       </tr>`;
   }).join("");
 
+  const col1 = (RET_CONFIG[CMP_R1]||{}).border || 'var(--accent)';
+  const col2 = (RET_CONFIG[CMP_R2]||{}).border || 'var(--down)';
+
   return `
     <div class="cmp-market-box">
       <h4>🛒 So sánh giá giữa 4 Sàn bán lẻ lớn nhất (TGDĐ, CellphoneS, FPT Shop, Viettel Store)</h4>
@@ -1740,8 +1933,8 @@ function cmpMarketTable(r1, r2){
           <thead>
             <tr>
               <th>Hệ thống bán lẻ</th>
-              <th class="num" style="color:var(--accent)">${esc(r1 ? r1.model : "Vế A")}</th>
-              <th class="num" style="color:var(--down)">${esc(r2 ? r2.model : "Vế B")}</th>
+              <th class="num" style="color:${col1}">${esc(r1 ? r1.model : "Vế A")} (${esc(CMP_R1)})</th>
+              <th class="num" style="color:${col2}">${esc(r2 ? r2.model : "Vế B")} (${esc(CMP_R2)})</th>
               <th class="num">So sánh trên cùng sàn</th>
             </tr>
           </thead>
@@ -1765,21 +1958,66 @@ function renderCompare(){
   const item2 = getRetailerData(CMP_M2, CMP_R2);
 
   const retBadge = ret => {
-    if(ret === "TGDĐ") return `<span class="bpill" style="background:#fef08a;color:#713f12;font-weight:700">Thế Giới Di Động (MWG)</span>`;
+    if(ret === "TGDĐ" || ret === "Thế Giới Di Động") return `<span class="bpill" style="background:#fef08a;color:#713f12;font-weight:700">Thế Giới Di Động (MWG)</span>`;
     if(ret === "CellphoneS") return `<span class="bpill" style="background:#fee2e2;color:#991b1b;font-weight:700">CellphoneS</span>`;
     if(ret === "FPT Shop") return `<span class="bpill" style="background:#ffedd5;color:#9a3412;font-weight:700">FPT Shop</span>`;
     return `<span class="bpill" style="background:#dcfce7;color:#166534;font-weight:700">Viettel Store</span>`;
   };
 
   const renderPromoSection = (ret, model, item, rBase) => {
-    if(ret === "TGDĐ") return renderSubPromos(model, rBase);
+    // 1. TGDĐ: kinh doanh toàn bộ sản phẩm
+    if(ret === "TGDĐ" || ret === "Thế Giới Di Động") return renderSubPromos(model, rBase);
+
+    // 2. Kênh non-MWG nhưng model là hàng độc quyền MWG:
+    // Tuyệt đối KHÔNG hiển thị khuyến mãi của kênh này vì họ không bán sản phẩm này
+    if(rBase && rBase.channel === "TGDD"){
+      return `
+        <div class="cmp-exclusive-box" style="margin-top:14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 14px">
+          <div style="display:flex;align-items:center;gap:6px;color:#991b1b;font-weight:700;font-size:13px">
+            <span>🔒</span> Model Độc quyền Thế Giới Di Động (MWG)
+          </div>
+          <div style="font-size:12px;color:#7f1d1d;margin-top:4px;line-height:1.45">
+            Phiên bản <b>${esc(model)}</b> chỉ phân phối độc quyền tại TGDĐ / Điện Máy Xanh.<br>
+            Hệ thống <b>${esc(ret)}</b> không kinh doanh model này nên không có giá bán và không áp dụng chương trình khuyến mãi.
+          </div>
+        </div>`;
+    }
+
+    // 3. Hàng Mass nhưng sàn chưa có giá / tạm hết hàng online:
+    // Không hiển thị voucher/khuyến mãi ảo vì không có hàng để mua
+    if(!item || !item.price || item.price <= 0){
+      return `
+        <div class="cmp-nostock-box" style="margin-top:14px;background:var(--soft);border:1px dashed var(--line);border-radius:8px;padding:12px 14px;text-align:center">
+          <div style="font-weight:600;color:var(--muted);font-size:13px">Chưa ghi nhận giá bán & khuyến mãi tại ${esc(ret)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Model này hiện tạm hết hàng hoặc chưa mở bán online trên hệ thống ${esc(ret)}.</div>
+        </div>`;
+    }
+
+    // 4. Có giá bán thực tế -> hiển thị chi tiết ưu đãi chuẩn sàn
     if(ret === "CellphoneS") return renderCpsPromos(model, item, rBase);
     if(ret === "FPT Shop") return renderFptPromos(model, item, rBase);
     return renderVtPromos(model, item, rBase);
   };
 
   const cardHtml = (item, rBase, color) => {
-    const pct = item.rrp && item.price ? ((item.rrp - item.price) / item.rrp * 100) : 0;
+    const isExclusive = rBase && rBase.channel === "TGDD";
+    const isNonMwg = item.ret !== "TGDĐ" && item.ret !== "Thế Giới Di Động";
+    const rrp = item.rrp || (rBase ? rBase.rrp : 0);
+    const pct = rrp && item.price ? ((rrp - item.price) / rrp * 100) : 0;
+
+    let priceDisplay = "";
+    if(isNonMwg && isExclusive){
+      priceDisplay = `<span style="font-size:14px;color:#dc2626;font-weight:700">Không kinh doanh (Độc quyền MWG)</span>`;
+    } else if(!item.price || item.price <= 0){
+      priceDisplay = `<span style="font-size:14px;color:var(--muted);font-weight:600">Liên hệ / Hết hàng online</span>`;
+    } else {
+      priceDisplay = `<span style="font-size:17px;color:${color};font-weight:800">${fmt(item.price)}</span>`;
+    }
+
+    const chBadge = isExclusive
+      ? `<span class="badge tgdd" style="font-weight:700">🔒 Độc quyền MWG</span>`
+      : `<span class="badge mass">Phân phối Mass</span>`;
+
     return `
       <div class="cmp-box" style="border-top:4px solid ${color}">
         <h3>
@@ -1787,10 +2025,11 @@ function renderCompare(){
           ${retBadge(item.ret)}
         </h3>
         <div class="cmp-row"><span class="k">Hãng sản xuất</span><span class="v">${esc(bdisp(item.brand))}</span></div>
+        <div class="cmp-row"><span class="k">Kênh phân phối</span><span class="v">${chBadge}</span></div>
         <div class="cmp-row"><span class="k">Hệ thống phân phối</span><span class="v"><b>${esc(item.ret)}</b></span></div>
-        <div class="cmp-row"><span class="k">Giá niêm yết (RRP)</span><span class="v" style="font-size:15px">${fmt(item.rrp)}</span></div>
-        <div class="cmp-row"><span class="k">Giá bán Online</span><span class="v" style="font-size:16px;color:${color};font-weight:700">${item.price ? fmt(item.price) : "Liên hệ / Hết hàng"}</span></div>
-        <div class="cmp-row"><span class="k">% Giảm giá</span><span class="v">${pct > 0 ? pct.toFixed(1) + "%" : "0%"}</span></div>
+        <div class="cmp-row"><span class="k">Giá niêm yết (RRP)</span><span class="v" style="font-size:15px">${rrp ? fmt(rrp) : "–"}</span></div>
+        <div class="cmp-row"><span class="k">Giá bán Online</span><span class="v">${priceDisplay}</span></div>
+        <div class="cmp-row"><span class="k">% Giảm giá</span><span class="v">${(pct > 0 && !(isNonMwg && isExclusive)) ? pct.toFixed(1) + "%" : "0%"}</span></div>
         <div class="cmp-row"><span class="k">Loại chương trình</span><span class="v"><span class="badge ${item.kind==='Flash Sale Online'?'fs':'mass'}">${esc(item.kind)}</span></span></div>
         <div class="cmp-row"><span class="k">Link trang sản phẩm</span><span class="v">${item.url ? `<a href="${esc(item.url)}" target="_blank" rel="noopener">Mở trang ${esc(item.ret)} ↗</a>` : "–"}</span></div>
         ${renderPromoSection(item.ret, item.model, item, rBase)}
@@ -1802,11 +2041,13 @@ function renderCompare(){
   if(CMP_R1 === CMP_R2){
     // So sánh 2 máy nội bộ cùng 1 chuỗi bán lẻ
     const diffRRP = Math.abs((item1.rrp||0) - (item2.rrp||0));
-    const cheaper = (item1.price||0) < (item2.price||0)
-      ? `<b>${esc(item1.model)}</b> có giá bán rẻ hơn <b>${fmt((item2.price||0) - (item1.price||0))}</b>`
-      : ((item2.price||0) < (item1.price||0)
-        ? `<b>${esc(item2.model)}</b> có giá bán rẻ hơn <b>${fmt((item1.price||0) - (item2.price||0))}</b>`
-        : `Cả 2 máy có mức giá bán tương đương nhau (${fmt(item1.price)})`);
+    const cheaper = (item1.price && item2.price)
+      ? (item1.price < item2.price
+        ? `<b>${esc(item1.model)}</b> có giá bán rẻ hơn <b>${fmt(item2.price - item1.price)}</b>`
+        : (item2.price < item1.price
+          ? `<b>${esc(item2.model)}</b> có giá bán rẻ hơn <b>${fmt(item1.price - item2.price)}</b>`
+          : `Cả 2 máy có mức giá bán tương đương nhau (${fmt(item1.price)})`))
+      : `Một trong hai máy chưa có giá bán online cụ thể.`;
 
     verdictHtml = `
       <h4>📊 Nhận định so sánh 2 sản phẩm nội bộ hệ thống ${esc(CMP_R1)}:</h4>
@@ -1827,7 +2068,13 @@ function renderCompare(){
         priceVerdict = `Cả 2 kênh <b>${esc(item1.ret)}</b> và <b>${esc(item2.ret)}</b> đang có giá bán tương đương (${fmt(item1.price)}).`;
       }
     } else {
-      priceVerdict = `Một trong hai kênh chưa cập nhật giá hoặc tạm hết hàng online.`;
+      if(r1 && r1.channel === "TGDD" && CMP_R1 !== "TGDĐ"){
+        priceVerdict = `<b>${esc(r1.model)}</b> là sản phẩm độc quyền MWG, không kinh doanh tại <b>${esc(CMP_R1)}</b>.`;
+      } else if(r2 && r2.channel === "TGDD" && CMP_R2 !== "TGDĐ"){
+        priceVerdict = `<b>${esc(r2.model)}</b> là sản phẩm độc quyền MWG, không kinh doanh tại <b>${esc(CMP_R2)}</b>.`;
+      } else {
+        priceVerdict = `Một trong hai kênh chưa cập nhật giá hoặc tạm hết hàng online.`;
+      }
     }
 
     verdictHtml = `
@@ -1836,14 +2083,18 @@ function renderCompare(){
       • <b>Chiến lược giảm giá cốt lõi:</b><br>
       &nbsp;&nbsp;&nbsp;&nbsp;- <b>Thế Giới Di Động (MWG):</b> Áp dụng cơ chế độc quyền <i>"Chọn 1 trong các quà"</i> (khách được chọn trừ thẳng tiền mặt vào giá máy hoặc nhận Phiếu mua hàng PMH phụ kiện có giá trị cao hơn).<br>
       &nbsp;&nbsp;&nbsp;&nbsp;- <b>CellphoneS:</b> Đánh mạnh vào <i>Voucher thu thập online 6% (tối đa 1 triệu)</i> + mua kèm SIM 5G VNSKY 10k + gói Bảo hành VIP 1 đổi 1 700k.<br>
-      • <b>Chính sách Thu cũ đổi mới (Trade-in):</b> CellphoneS công bố mức trợ giá cực khủng lên đến <b>6.000.000₫</b> (lên đời chỉ từ 65% giá máy), trong khi MWG trợ giá đến <b>3.000.000₫</b>.<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;- <b>FPT Shop:</b> Tặng thêm 1 năm bảo hành (Bảo hành 2 năm toàn diện) + Trợ giá thu cũ 5 triệu + Giảm thêm qua VNPAY.<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;- <b>Viettel Store:</b> Trợ giá gói cước data 5G Viettel + Đổi điểm Viettel++ nhận voucher tiền mặt.<br>
       • <b>Dịch vụ bảo hành & Hậu mãi:</b> Cả hai chuỗi đều cung cấp gói bảo hành VIP chính hãng 24 tháng cho các dòng máy cao cấp (OPPO Premium, Samsung Care+, AppleCare+); MWG áp đảo về mạng lưới siêu thị phục vụ trực tiếp toàn quốc.`;
   }
 
+  const card1Color = (RET_CONFIG[CMP_R1] || {}).border || "var(--accent)";
+  const card2Color = (RET_CONFIG[CMP_R2] || {}).border || "var(--down)";
+
   body.innerHTML = `
     <div class="cmp-grid">
-      ${cardHtml(item1, r1, "var(--accent)")}
-      ${cardHtml(item2, r2, "var(--down)")}
+      ${cardHtml(item1, r1, card1Color)}
+      ${cardHtml(item2, r2, card2Color)}
     </div>
     <div class="cmp-verdict">
       ${verdictHtml}
@@ -1857,6 +2108,7 @@ document.addEventListener("click",e=>{
   const chip=e.target.closest(".chip[data-mk]"); if(chip){ MF[chip.dataset.mk]=chip.dataset.v; renderMarket(); return; }
   const b=e.target.closest("[data-h2hb]"); if(b){ H2H_F.b=b.dataset.h2hb; renderMarketH2H(); return; }
   const s=e.target.closest("[data-h2hs]"); if(s){ H2H_F.s=s.dataset.h2hs; renderMarketH2H(); return; }
+  const ch=e.target.closest("[data-h2hch]"); if(ch){ H2H_F.ch=ch.dataset.h2hch; renderMarketH2H(); return; }
   const d=e.target.closest("[data-h2hd]"); if(d){ H2H_F.d=d.dataset.h2hd; renderMarketH2H(); return; }
   const th1=e.target.closest("#h2h-head th[data-h2hsort]"); if(th1&&th1.dataset.h2hsort!=="best"){ const k=th1.dataset.h2hsort; if(H2H_F.sort===k) H2H_F.dir=-H2H_F.dir; else {H2H_F.sort=k; H2H_F.dir=(k==="model"||k==="b")?1:-1;} renderMarketH2H(); return; }
   const th2=e.target.closest("#mk-head th[data-mksort]"); if(th2&&th2.dataset.mksort!=="u"&&th2.dataset.mksort!=="k"){ const k=th2.dataset.mksort; if(MF.sort===k) MF.dir=-MF.dir; else {MF.sort=k; MF.dir=(k==="n"||k==="r"||k==="b")?1:-1;} renderMarket(); return; }
