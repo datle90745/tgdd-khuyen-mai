@@ -1,3 +1,5 @@
+param([string]$CommitMsg = "Chuan hoa logic doc quyen MWG va Mass toan thi truong: duy nhat Reno16F 256GB la Mass, cac model con lai chi co o MWG la doc quyen")
+
 $ErrorActionPreference = "Stop"
 
 $git = "C:\Users\toquo\AppData\Local\Microsoft\WinGet\Packages\Git.MinGit_Microsoft.Winget.Source_8wekyb3d8bbwe\cmd\git.exe"
@@ -12,7 +14,7 @@ Write-Host "3. Chuan bi files..." -ForegroundColor Cyan
 & $git add -A
 
 Write-Host "4. Tao commit moi..." -ForegroundColor Cyan
-& $git commit -m "Sua phan loai doc quyen sang Mass cho toan bo cac model phan phoi da san (Reno16, Galaxy S/A, Redmi, Vivo, Realme)" 2>$null
+& $git commit -m $CommitMsg 2>$null
 
 Write-Host "5. Dang day len GitHub (push origin main)..." -ForegroundColor Cyan
 & $git push origin main
