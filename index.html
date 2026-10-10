@@ -479,8 +479,8 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
   </div>
 
   <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
-    <a href="https://github.com/datle90745/tgdd-khuyen-mai/actions/workflows/scan-tgdd.yml" target="_blank" class="btn" style="text-decoration:none;font-size:13px">Xem trên GitHub ↗</a>
-    <button class="btn primary" id="btn-cloud-trigger">🚀 Kích hoạt quét ngay</button>
+    <a href="https://github.com/datle90745/tgdd-khuyen-mai/actions" target="_blank" class="btn" style="text-decoration:none;font-size:13px">Xem trên GitHub ↗</a>
+    <button class="btn primary" id="btn-cloud-reload" onclick="location.reload(true)">🔄 Tải lại dữ liệu mới</button>
   </div>
 </dialog>
 
@@ -2232,57 +2232,9 @@ async function checkCloudStatus() {
   }
 }
 
-async function triggerCloudScan() {
-  let token = localStorage.getItem("gh_pat");
-  if (!token) {
-    token = prompt("Nhập GitHub Token (hoặc Personal Access Token) để gửi lệnh kích hoạt máy chủ GitHub:\n(Token sẽ được lưu an toàn trong trình duyệt của bạn)");
-    if (!token) return;
-    localStorage.setItem("gh_pat", token.trim());
-  }
-  if (btnCloudTrigger) {
-    btnCloudTrigger.disabled = true;
-    btnCloudTrigger.textContent = "Đang gửi lệnh...";
-  }
-  try {
-    const res = await fetch("https://api.github.com/repos/datle90745/tgdd-khuyen-mai/actions/workflows/scan-tgdd.yml/dispatches", {
-      method: "POST",
-      headers: {
-        "Accept": "application/vnd.github+json",
-        "Authorization": "Bearer " + token.trim()
-      },
-      body: JSON.stringify({ ref: "main" })
-    });
-    if (res.status === 204) {
-      toast("Đã kích hoạt máy chủ đám mây! Máy chủ đang cào 4 sàn...");
-      setTimeout(checkCloudStatus, 3000);
-    } else if (res.status === 401 || res.status === 403) {
-      localStorage.removeItem("gh_pat");
-      alert("Token không hợp lệ hoặc thiếu quyền Actions. Vui lòng thử lại!");
-      if (btnCloudTrigger) {
-        btnCloudTrigger.disabled = false;
-        btnCloudTrigger.textContent = "🚀 Kích hoạt quét ngay";
-      }
-    } else {
-      const err = await res.json().catch(() => ({}));
-      alert("Lỗi: " + (err.message || res.statusText));
-      if (btnCloudTrigger) {
-        btnCloudTrigger.disabled = false;
-        btnCloudTrigger.textContent = "🚀 Kích hoạt quét ngay";
-      }
-    }
-  } catch (err) {
-    alert("Lỗi kết nối: " + err.message);
-    if (btnCloudTrigger) {
-      btnCloudTrigger.disabled = false;
-      btnCloudTrigger.textContent = "🚀 Kích hoạt quét ngay";
-    }
-  }
-}
-
 if (btnCloud) btnCloud.onclick = () => { cloudDialog.showModal(); checkCloudStatus(); };
 if (mkCloud) mkCloud.onclick = () => { cloudDialog.showModal(); checkCloudStatus(); };
 if (cloudClose) cloudClose.onclick = () => cloudDialog.close();
-if (btnCloudTrigger) btnCloudTrigger.onclick = triggerCloudScan;
 </script>
 </body>
 </html>
