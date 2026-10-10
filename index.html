@@ -7,15 +7,15 @@
 <title>GTMVN — Theo dõi khuyến mãi</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="data/data.js?v=sync_20261010_0805"></script>
-<script src="data/scans.js?v=sync_20261010_0805"></script>
-<script src="data/latest.js?v=sync_20261010_0805"></script>
-<script src="data/links.js?v=sync_20261010_0805"></script>
-<script src="data/rises.js?v=sync_20261010_0805"></script>
-<script src="data/fpt.js?v=sync_20261010_0805"></script>
-<script src="data/alerts.js?v=sync_20261010_0805"></script>
-<script src="data/market.js?v=sync_20261010_0805"></script>
-<script src="data/promos.js?v=sync_20261010_0805"></script>
+<script src="data/data.js?v=sync_20261010_0825"></script>
+<script src="data/scans.js?v=sync_20261010_0825"></script>
+<script src="data/latest.js?v=sync_20261010_0825"></script>
+<script src="data/links.js?v=sync_20261010_0825"></script>
+<script src="data/rises.js?v=sync_20261010_0825"></script>
+<script src="data/fpt.js?v=sync_20261010_0825"></script>
+<script src="data/alerts.js?v=sync_20261010_0825"></script>
+<script src="data/market.js?v=sync_20261010_0825"></script>
+<script src="data/promos.js?v=sync_20261010_0825"></script>
 <style>
 :root{
   --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
@@ -970,23 +970,29 @@ function buildH2HData(){
   });
 
   return S.rows.map(r => {
-    const isExcl = (r.channel === "TGDD");
     const k = (r.brand||"").toLowerCase() + "|" + mkKey(r.model);
     const tgddItem = mkMap.get("TGDĐ|" + k);
     const p_tgdd = (onPrice(r) != null) ? onPrice(r) : (tgddItem ? tgddItem.p : null);
     const u_tgdd = LINKS[r.model] || (tgddItem ? tgddItem.u : null);
 
-    // Đối với toàn bộ sản phẩm độc quyền MWG (channel === "TGDD"):
-    // Các sàn non-MWG hoàn toàn không có hàng chính hãng. Chặn tuyệt đối việc gán nhầm giá đối thủ.
-    const cpsItem = isExcl ? null : mkMap.get("CellphoneS|" + k);
+    const cpsMatch = mkMap.get("CellphoneS|" + k);
+    const fptMatch = mkMap.get("FPT Shop|" + k);
+    const vtMatch = mkMap.get("Viettel Store|" + k);
+
+    // Nếu có ít nhất 1 sàn đối thủ có hàng thì sản phẩm này thực tế là Mass
+    const hasCompetitor = Boolean((cpsMatch && cpsMatch.p > 0) || (fptMatch && fptMatch.p > 0) || (vtMatch && vtMatch.p > 0));
+    const effectiveChannel = hasCompetitor ? "Mass" : r.channel;
+    const isExcl = (effectiveChannel === "TGDD");
+
+    const cpsItem = isExcl ? null : cpsMatch;
     const p_cps = cpsItem ? cpsItem.p : null;
     const u_cps = cpsItem ? cpsItem.u : null;
 
-    const fptItem = isExcl ? null : mkMap.get("FPT Shop|" + k);
+    const fptItem = isExcl ? null : fptMatch;
     const p_fpt = fptItem ? fptItem.p : null;
     const u_fpt = fptItem ? fptItem.u : null;
 
-    const vtItem = isExcl ? null : mkMap.get("Viettel Store|" + k);
+    const vtItem = isExcl ? null : vtMatch;
     const p_vt = vtItem ? vtItem.p : null;
     const u_vt = vtItem ? vtItem.u : null;
 
@@ -1007,7 +1013,7 @@ function buildH2HData(){
       brand: r.brand,
       model: r.model,
       segment: r.segment,
-      channel: r.channel,
+      channel: effectiveChannel,
       rrp: r.rrp,
       p_tgdd, p_cps, p_fpt, p_vt,
       minP, maxP, bests,
@@ -1359,12 +1365,12 @@ function updateRetCardStyles(){
   if($("cmp-hint1")){
     $("cmp-hint1").innerHTML = isNonMwg(CMP_R1)
       ? `🔍 <b>${esc(CMP_R1)}</b>: Chỉ lọc ${massCount} model Mass (ẩn độc quyền MWG).`
-      : `🔍 <b>TGDĐ</b>: Đầy đủ 86 model (cả Mass & Độc quyền MWG).`;
+      : `🔍 <b>TGDĐ</b>: Đầy đủ ${S.rows.length} model (cả Mass & Độc quyền MWG).`;
   }
   if($("cmp-hint2")){
     $("cmp-hint2").innerHTML = isNonMwg(CMP_R2)
       ? `🔍 <b>${esc(CMP_R2)}</b>: Chỉ lọc ${massCount} model Mass (ẩn độc quyền MWG).`
-      : `🔍 <b>TGDĐ</b>: Đầy đủ 86 model (cả Mass & Độc quyền MWG).`;
+      : `🔍 <b>TGDĐ</b>: Đầy đủ ${S.rows.length} model (cả Mass & Độc quyền MWG).`;
   }
 }
 
