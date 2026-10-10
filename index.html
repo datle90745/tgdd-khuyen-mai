@@ -7,15 +7,15 @@
 <title>GTMVN — Theo dõi khuyến mãi</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="data/data.js?v=sync_20261010_0845"></script>
-<script src="data/scans.js?v=sync_20261010_0845"></script>
-<script src="data/latest.js?v=sync_20261010_0845"></script>
-<script src="data/links.js?v=sync_20261010_0845"></script>
-<script src="data/rises.js?v=sync_20261010_0845"></script>
-<script src="data/fpt.js?v=sync_20261010_0845"></script>
-<script src="data/alerts.js?v=sync_20261010_0845"></script>
-<script src="data/market.js?v=sync_20261010_0845"></script>
-<script src="data/promos.js?v=sync_20261010_0845"></script>
+<script src="data/data.js?v=sync_20261010_0905"></script>
+<script src="data/scans.js?v=sync_20261010_0905"></script>
+<script src="data/latest.js?v=sync_20261010_0905"></script>
+<script src="data/links.js?v=sync_20261010_0905"></script>
+<script src="data/rises.js?v=sync_20261010_0905"></script>
+<script src="data/fpt.js?v=sync_20261010_0905"></script>
+<script src="data/alerts.js?v=sync_20261010_0905"></script>
+<script src="data/market.js?v=sync_20261010_0905"></script>
+<script src="data/promos.js?v=sync_20261010_0905"></script>
 <style>
 :root{
   --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
@@ -534,6 +534,7 @@ function build(){
       if(typeof x.pmh==="number") r.pmh[col] = x.pmh;
       else if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||r.pmh[col]===undefined) r.pmh[col] = null;
       // KM online / Tổng KM (tham khảo) và quy tắc đã áp dụng ở đợt quét mới nhất.
+      if(typeof x.red==="number") r.red = x.red;
       if("rule" in x){
         r.online = typeof x.online==="number" ? x.online : null;
         r.choice = typeof x.choice==="number" ? x.choice : null;
@@ -972,7 +973,10 @@ function buildH2HData(){
   return S.rows.map(r => {
     const k = (r.brand||"").toLowerCase() + "|" + mkKey(r.model);
     const tgddItem = mkMap.get("TGDĐ|" + k);
-    const p_tgdd = (onPrice(r) != null) ? onPrice(r) : (tgddItem ? tgddItem.p : null);
+    const p_tgdd = (r.tot && onPrice(r) != null) ? onPrice(r)
+                 : (tgddItem && tgddItem.p ? tgddItem.p
+                 : (typeof r.red === "number" ? r.red
+                 : ((offPrice(r) != null) ? offPrice(r) : onPrice(r))));
     const u_tgdd = LINKS[r.model] || (tgddItem ? tgddItem.u : null);
 
     const cpsMatch = mkMap.get("CellphoneS|" + k);
