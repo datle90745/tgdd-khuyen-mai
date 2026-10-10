@@ -7,15 +7,15 @@
 <title>GTMVN — Theo dõi khuyến mãi</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="data/data.js?v=sync_20261010_0905"></script>
-<script src="data/scans.js?v=sync_20261010_0905"></script>
-<script src="data/latest.js?v=sync_20261010_0905"></script>
-<script src="data/links.js?v=sync_20261010_0905"></script>
-<script src="data/rises.js?v=sync_20261010_0905"></script>
-<script src="data/fpt.js?v=sync_20261010_0905"></script>
-<script src="data/alerts.js?v=sync_20261010_0905"></script>
-<script src="data/market.js?v=sync_20261010_0905"></script>
-<script src="data/promos.js?v=sync_20261010_0905"></script>
+<script src="data/data.js?v=sync_20261010_0930"></script>
+<script src="data/scans.js?v=sync_20261010_0930"></script>
+<script src="data/latest.js?v=sync_20261010_0930"></script>
+<script src="data/links.js?v=sync_20261010_0930"></script>
+<script src="data/rises.js?v=sync_20261010_0930"></script>
+<script src="data/fpt.js?v=sync_20261010_0930"></script>
+<script src="data/alerts.js?v=sync_20261010_0930"></script>
+<script src="data/market.js?v=sync_20261010_0930"></script>
+<script src="data/promos.js?v=sync_20261010_0930"></script>
 <style>
 :root{
   --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
@@ -74,6 +74,7 @@ td.model{white-space:normal;min-width:220px;font-weight:500}
 .badge.tgdd{background:var(--tgdd);color:var(--tgdd-ink)} .badge.mass{background:var(--mass-bg);color:var(--muted)}
 .badge.warn{background:var(--warn-bg);color:var(--warn)}
 .badge.fs{background:#e2252d;color:#fff}
+.badge.new-badge{background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:800;font-size:10.5px;padding:1px 6px;border-radius:4px;letter-spacing:.5px;display:inline-block;vertical-align:1px;margin-left:5px;box-shadow:0 1px 3px rgba(239,68,68,.35);text-transform:uppercase}
 /* ---- tab Toàn thị trường ---- */
 .rtl{display:inline-block;border-radius:5px;padding:1px 8px;font-size:12px;font-weight:700;white-space:nowrap}
 .rtl[data-r="TGDĐ"]{background:#ffd400;color:#2b2400}.rtl[data-r="CellphoneS"]{background:#d70018;color:#fff}
@@ -628,6 +629,16 @@ function deltaCell(r){
   if(d===0) return `<span class="d-flat">không đổi</span>`;
   return d>0?`<span class="d-up">▲ ${fmt(d)}</span>`:`<span class="d-down">▼ ${fmt(-d)}</span>`;
 }
+function isNewModel(m){
+  if(!m) return false;
+  const s = String(m).toLowerCase();
+  return ((s.includes("a7 pro") || s.includes("a7pro")) && !s.includes("redmi"))
+      || s.includes("a08")
+      || s.includes("a07s");
+}
+function newBadge(m){
+  return isNewModel(m) ? ` <span class="badge new-badge" title="Sản phẩm mới ra mắt">NEW</span>` : "";
+}
 function renderTable(){
   $("thead").innerHTML = COLS.map(([k,l,n])=>`<th class="${n?"num":""}" data-sort="${k}" scope="col">${l}${F.sort===k?(F.dir>0?" ▲":" ▼"):""}</th>`).join("");
   const rows=filtered();
@@ -636,7 +647,7 @@ function renderTable(){
     const p=r.pmh[r.pmh.length-1];
     const pct = (p==null||r.status!=="active")?"–":(p/r.rrp*100).toFixed(1)+"%";
     const flag = r.flags.length?` <span class="badge ${rrpUp(r)?"rrp":"warn"}" title="${esc(r.flags.join("; "))}">RRP${rrpUp(r)?" tăng":""}</span>`:"";
-    return `<tr tabindex="0" data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${flag}</td>
+    return `<tr tabindex="0" data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${newBadge(r.model)}${flag}</td>
     <td><span class="badge ${r.channel==="TGDD"?"tgdd":"mass"}">${r.channel==="TGDD"?"Độc quyền":"Mass"}</span></td><td>${esc(r.segment)}</td>
     <td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td><td class="num" title="RRP trừ KM base. Flash sale chỉ có khi mua online nên không trừ vào giá này.">${fmt(offPrice(r))}</td><td class="num"><strong>${r.status==="active"?fmt(p):"–"}</strong></td><td class="num${r.tot?" fscell":""}"${r.tot?` title="Máy đang chạy flash sale online. Số đỏ là tổng tiền giảm khách thấy trên trang, chỉ để tham khảo."`:""}>${r.tot?fmt(r.tot):"–"}</td><td class="num">${deltaCell(r)}</td><td class="num">${pct}</td><td>${spark(r.pmh)}</td></tr>`;
   }).join("") || `<tr><td colspan="12">Không có SKU nào khớp bộ lọc. Bỏ bớt một bộ lọc để xem lại danh sách.</td></tr>`;
@@ -654,7 +665,7 @@ function renderMatrix(){
   const idx = S.dates.map((_,i)=>i).reverse();
   let h=`<thead><tr><th>Hãng</th><th>Model</th><th class="num">RRP</th>${idx.map(i=>`<th class="num">${esc(dlabel(S.dates[i]))}</th>`).join("")}</tr></thead><tbody>`;
   S.rows.forEach(r=>{
-    h+=`<tr data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}</td><td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td>`;
+    h+=`<tr data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${newBadge(r.model)}</td><td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td>`;
     idx.forEach(i=>{
       // Màu luôn so với đợt quét liền trước theo thời gian, dù hiển thị theo chiều nào.
       const v=r.pmh[i], prev=i>0?r.pmh[i-1]:null;
@@ -686,7 +697,7 @@ function openDrawer(model){
   const vals=r.pmh.filter(x=>x!=null), p=r.pmh[r.pmh.length-1];
   const best=vals.length?Math.max(...vals):null, avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
   const runs=vals.filter(x=>x>0).length;
-  $("dbody").innerHTML=`<h2>${esc(r.model)}</h2><div style="color:var(--muted)"><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span>phân khúc ${esc(r.segment)}, ${r.channel==="TGDD"?"độc quyền TGDĐ":"kênh Mass"}${kindOf(r)?`, đợt mới nhất: <span class="badge ${kindOf(r)===KIND_FS?"fs":"mass"}">${kindOf(r)}</span>`:""}</div>
+  $("dbody").innerHTML=`<h2>${esc(r.model)}${newBadge(r.model)}</h2><div style="color:var(--muted)"><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span>phân khúc ${esc(r.segment)}, ${r.channel==="TGDD"?"độc quyền TGDĐ":"kênh Mass"}${kindOf(r)?`, đợt mới nhất: <span class="badge ${kindOf(r)===KIND_FS?"fs":"mass"}">${kindOf(r)}</span>`:""}</div>
   <div class="kv"><div><small>RRP</small><b>${fmt(r.rrp)}</b></div><div><small>PMH online</small><b>${fmt(pmhOnline(r))}</b></div><div><small>PMH cao nhất</small><b>${fmt(best)}</b></div>
   <div><small>Trang sản phẩm</small>${LINKS[r.model]?`<a class="plink" href="${esc(LINKS[r.model])}" target="_blank" rel="noopener noreferrer">Mở trên TGDĐ ↗</a>`:`<b>–</b>`}</div>
   <div><small>Giá offline</small><b>${fmt(offPrice(r))}</b></div><div><small>Giá online</small><b>${fmt(onPrice(r))}</b></div></div>
@@ -1276,7 +1287,7 @@ function renderMarketH2H(){
     const diffCls = x.spread>=500000 ? "high" : x.spread>0 ? "med" : "low";
     const diffText = x.count<2 ? "–" : (x.spread>0 ? `<span class="h2h-diff ${diffCls}">▲ ${fmt(x.spread)} <small>(${x.spreadPct.toFixed(1)}%)</small></span>` : `<span style="color:var(--muted)">0₫</span>`);
 
-    return `<tr tabindex="0" data-m="${esc(x.model)}">${bcell(x.brand)}<td class="model">${esc(x.model)}</td><td>${esc(x.segment)}</td>
+    return `<tr tabindex="0" data-m="${esc(x.model)}">${bcell(x.brand)}<td class="model">${esc(x.model)}${newBadge(x.model)}</td><td>${esc(x.segment)}</td>
       <td class="n">${fmt(x.rrp)}</td>
       ${cell(x.p_tgdd, x.minP, x.count, x.u_tgdd, "TGDĐ")}
       ${cell(x.p_cps, x.minP, x.count, x.u_cps, "CellphoneS")}
@@ -1308,7 +1319,7 @@ function renderMarket(){
   const cols=[["r","Sàn"],["b","Hãng"],["n","Tên sản phẩm"],["k","Loại KM"],["o","Giá gốc",1],["p","Giá online",1],["v","Giá trị KM",1],["pct","% giảm",1],["dv","So đợt trước",1],["u","Xem"]];
   $("mk-head").innerHTML=cols.map(([k,l,n])=>`<th class="${n?"n":""}" data-mksort="${k}">${l}${MF.sort===k?(MF.dir>0?" ▲":" ▼"):""}</th>`).join("");
   $("mk-count").textContent=`Hiển thị ${L.length} / ${D.rows.length} máy`;
-  $("mk-body").innerHTML=L.map(x=>`<tr><td><span class="rtl" data-r="${esc(x.r)}">${esc(x.r)}</span></td>${bcell(x.b)}<td class="model">${esc(x.n)}${x.focus?`<span class="focus-dot" title="Thuộc danh sách 86 SKU">86</span>`:""}</td>
+  $("mk-body").innerHTML=L.map(x=>`<tr><td><span class="rtl" data-r="${esc(x.r)}">${esc(x.r)}</span></td>${bcell(x.b)}<td class="model">${esc(x.n)}${newBadge(x.n)}${x.focus?`<span class="focus-dot" title="Thuộc danh sách 86 SKU">86</span>`:""}</td>
     <td>${x.k==="Flash Sale Online"?`<span class="badge fs">Flash Sale Online</span>`:`<span class="badge mass">Khuyến mãi</span>`}</td>
     <td class="n">${fmt(x.o)}</td><td class="n"><strong>${fmt(x.p)}</strong></td><td class="n">${x.v?fmt(x.v):"–"}</td><td class="n">${x.v?(x.pct*100).toFixed(0)+"%":"0%"}</td>
     <td class="n">${x.dv==null?`<span class="d-flat">mới</span>`:x.dv===0?`<span class="d-flat">không đổi</span>`:x.dv>0?`<span class="d-up">▲ ${fmt(x.dv)}</span>`:`<span class="d-down">▼ ${fmt(-x.dv)}</span>`}</td>
