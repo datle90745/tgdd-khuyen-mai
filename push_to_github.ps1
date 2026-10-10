@@ -12,7 +12,7 @@ Write-Host "3. Chuan bi files..." -ForegroundColor Cyan
 & $git add -A
 
 Write-Host "4. Tao commit moi..." -ForegroundColor Cyan
-& $git commit -m "Them nut Quet dam may live va cap nhat lich quet 6 lan/ngay tren GitHub Actions" 2>$null
+& $git commit -m "Xoa cac nut ky thuat (CSV, JSON, GitHub), chi giu lai Xuat Excel sach se" 2>$null
 
 Write-Host "5. Dang day len GitHub (push origin main)..." -ForegroundColor Cyan
 & $git push origin main
