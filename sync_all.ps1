@@ -20,13 +20,18 @@ Write-Host "[2/3] Quet toan thi truong 4 san ban le lon..."
 
 # 3. Cap nhat Cache Buster trong index.html
 Write-Host ""
-Write-Host "[3/3] Cap nhat Cache Buster..."
+Write-Host "[3/4] Cap nhat Cache Buster..."
 $now = Get-Date
 $tag = "sync_" + $now.ToString("yyyyMMdd_HHmm")
 $htmlPath = Join-Path $ROOT "index.html"
 $html = [System.IO.File]::ReadAllText($htmlPath, [System.Text.Encoding]::UTF8)
 $html = [regex]::Replace($html, '\?v=[^"]+', "?v=$tag")
 [System.IO.File]::WriteAllText($htmlPath, $html, (New-Object System.Text.UTF8Encoding $false))
+
+# 4. Dong goi file offline standalone
+Write-Host ""
+Write-Host "[4/4] Dong goi file offline..."
+& (Join-Path $ROOT "bundle_offline.ps1")
 
 Write-Host ""
 Write-Host "=========================================================="

@@ -1,4 +1,4 @@
-param([string]$CommitMsg = "Chuan hoa logic doc quyen MWG va Mass toan thi truong: duy nhat Reno16F 256GB la Mass, cac model con lai chi co o MWG la doc quyen")
+param([string]$CommitMsg = "Dong bo du lieu toan thi truong va FPT Shop $(Get-Date -Format 'dd-MM-yyyy HH:mm')")
 
 $ErrorActionPreference = "Stop"
 
