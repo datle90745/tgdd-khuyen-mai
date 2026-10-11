@@ -1,0 +1,2576 @@
+﻿ï»¿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Cpath%20d%3D%22M10%2018a8%208%200%200%201%208-8h14v22H10z%22%20fill%3D%22%238CC63F%22%2F%3E%20%3Cpath%20d%3D%22M32%2010h14a8%208%200%200%201%208%208v14H32z%22%20fill%3D%22%23EC2027%22%2F%3E%20%3Cpath%20d%3D%22M10%2032h22v22H18a8%208%200%200%201-8-8z%22%20fill%3D%22%2328335C%22%2F%3E%20%3Cpath%20d%3D%22M32%2032h22v14a8%208%200%200%201-8%208H32z%22%20fill%3D%22%2300B3BE%22%2F%3E%20%3Ccircle%20cx%3D%2213%22%20cy%3D%2213%22%20r%3D%229%22%20fill%3D%22%238CC63F%22%2F%3E%20%3Ccircle%20cx%3D%2251%22%20cy%3D%2213%22%20r%3D%229%22%20fill%3D%22%23EC2027%22%2F%3E%20%3Ccircle%20cx%3D%2213%22%20cy%3D%2251%22%20r%3D%229%22%20fill%3D%22%2328335C%22%2F%3E%20%3Ccircle%20cx%3D%2251%22%20cy%3D%2251%22%20r%3D%229%22%20fill%3D%22%2300B3BE%22%2F%3E%20%3Crect%20x%3D%2232%22%20y%3D%229%22%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20transform%3D%22rotate(45%2032%209)%22%20fill%3D%22%23fff%22%2F%3E%20%3Ccircle%20cx%3D%2232%22%20cy%3D%2229%22%20r%3D%2210%22%20fill%3D%22none%22%20stroke%3D%22%23F7B500%22%20stroke-width%3D%224.5%22%2F%3E%20%3Crect%20x%3D%2227%22%20y%3D%2238%22%20width%3D%2210%22%20height%3D%224%22%20rx%3D%222%22%20fill%3D%22%2328335C%22%2F%3E%20%3Crect%20x%3D%2228%22%20y%3D%2243%22%20width%3D%228%22%20height%3D%224%22%20rx%3D%222%22%20fill%3D%22%2328335C%22%2F%3E%20%3C%2Fsvg%3E">
+<title>GTMVN â€” Theo dÃµi khuyáº¿n mÃ£i</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="data/data.js?v=sync_20261010_1015"></script>
+<script src="data/scans.js?v=sync_20261010_1015"></script>
+<script src="data/latest.js?v=sync_20261010_1015"></script>
+<script src="data/links.js?v=sync_20261010_1015"></script>
+<script src="data/rises.js?v=sync_20261010_1015"></script>
+<script src="data/fpt.js?v=sync_20261010_1015"></script>
+<script src="data/alerts.js?v=sync_20261010_1015"></script>
+<script src="data/market.js?v=sync_20261010_1015"></script>
+<script src="data/promos.js?v=sync_20261010_1015"></script>
+<style>
+:root{
+  --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
+  --up:#0a7d5c; --up-bg:#d8f0e6; --down:#b83250; --down-bg:#f9dde4; --flat:#8793a8;
+  --tgdd:#f4c20d; --tgdd-ink:#3d3000; --mass-bg:#e3e8f0; --accent:#2446a8; --warn:#c77700; --warn-bg:#fff0d6;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+/* LuÃ´n dÃ¹ng ná»n sÃ¡ng, ká»ƒ cáº£ khi mÃ¡y Ä‘ang Ä‘á»ƒ cháº¿ Ä‘á»™ tá»‘i. */
+:root{color-scheme:light}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 20px 60px}
+header.top{display:flex;gap:16px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}
+h1{margin:0;font-size:24px;line-height:1.2;font-weight:700;letter-spacing:-.01em}
+.sub{margin:4px 0 0;color:var(--muted);max-width:60ch}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn[hidden]{display:none}
+nav.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:16px;overflow-x:auto}
+nav.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;cursor:pointer;color:var(--muted);font-weight:500;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--ink);border-color:var(--accent);font-weight:600}
+section.pane[hidden]{display:none}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+/* movement bar */
+.move{padding:14px 16px;margin-bottom:12px}
+.move-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px;color:var(--muted)}
+.move-head b{color:var(--ink)}
+.bar{display:flex;height:34px;border-radius:6px;overflow:hidden;background:var(--soft)}
+.bar button{border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;min-width:0;padding:0 6px}
+.bar .s-up{background:var(--up-bg);color:var(--up)} .bar .s-down{background:var(--down-bg);color:var(--down)}
+.bar .s-flat{background:var(--mass-bg);color:var(--muted)} .bar .s-na{background:var(--warn-bg);color:var(--warn)}
+.bar button[aria-pressed="true"]{box-shadow:inset 0 0 0 2px currentColor}
+/* filters */
+.filters{padding:12px 16px;margin-bottom:12px;display:grid;gap:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row label.t{color:var(--muted);min-width:76px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 12px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.search{flex:1;min-width:200px;border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--panel)}
+/* table */
+.tablewrap{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;width:100%}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{position:sticky;top:0;background:var(--soft);font-weight:600;cursor:pointer;user-select:none;z-index:1}
+th.num,td.num{text-align:right}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--soft)}
+td.model{white-space:normal;min-width:220px;font-weight:500}
+.brandtag{color:var(--muted);font-size:12px;display:block;font-weight:400}
+.badge{display:inline-block;border-radius:5px;padding:1px 8px;font-size:12px;font-weight:600}
+.badge.tgdd{background:var(--tgdd);color:var(--tgdd-ink)} .badge.mass{background:var(--mass-bg);color:var(--muted)}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.badge.fs{background:#e2252d;color:#fff}
+.badge.new-badge{background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:800;font-size:10.5px;padding:1px 6px;border-radius:4px;letter-spacing:.5px;display:inline-block;vertical-align:1px;margin-left:5px;box-shadow:0 1px 3px rgba(239,68,68,.35);text-transform:uppercase}
+/* ---- tab ToÃ n thá»‹ trÆ°á»ng ---- */
+.rtl{display:inline-block;border-radius:5px;padding:1px 8px;font-size:12px;font-weight:700;white-space:nowrap}
+.rtl[data-r="TGDÄ"]{background:#ffd400;color:#2b2400}.rtl[data-r="CellphoneS"]{background:#d70018;color:#fff}
+.rtl[data-r="FPT Shop"]{background:#cb1c22;color:#fff;background:linear-gradient(90deg,#cb1c22,#f58220)}.rtl[data-r="Viettel Store"]{background:#00918e;color:#fff}
+.focus-dot{display:inline-block;border-radius:5px;padding:0 6px;font-size:11px;font-weight:700;background:var(--accent);color:#fff;margin-left:6px;vertical-align:1px}
+#mk-tbl td.n,#mk-tbl th.n{text-align:right}
+.d-up{color:var(--up);font-weight:600} .d-down{color:var(--down);font-weight:600} .d-flat{color:var(--flat)}
+/* Ã” Flash sale: cÃ³ sá»‘ tá»©c lÃ  Ä‘ang cháº¡y flash sale online, tÃ´ Ä‘á» cho dá»… nháº­n ra. */
+#tbl td.fscell{color:#d81f2a;font-weight:600}
+.plink{display:inline-block;margin-top:2px;font-size:17px;font-weight:700;color:var(--acc);text-decoration:none}
+.plink:hover{text-decoration:underline}
+.spark{display:block}
+.count{color:var(--muted);margin:2px 2px 10px}
+/* matrix */
+.matrix td.c{text-align:right;min-width:92px}
+.matrix td.up{background:var(--up-bg)} .matrix td.down{background:var(--down-bg)}
+.matrix td.first{background:transparent}
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin:0 2px 10px;color:var(--muted)}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+/* ---- mÃ u theo báº£ng Excel T10 ---- */
+:root{--b-apple:#d9d9d9;--b-oppo:#00b050;--b-samsung:#4472c4;--b-mi:#ff6600;--b-vivo:#00b0f0;--b-realme:#ffff00;--x-up:#b6dcc0;--x-up-ink:#0b3d20;--x-down:#f4c1bf;--x-down-ink:#5a1414;--x-rrp:#ffff00}
+td.bcell{text-align:center;font-weight:700;letter-spacing:.02em;min-width:98px;color:#fff;border-bottom:1px solid rgba(255,255,255,.35)}
+td.bcell[data-b="Apple"]{background:var(--b-apple);color:#000}
+td.bcell[data-b="OPPO"]{background:var(--b-oppo)}
+td.bcell[data-b="Samsung"]{background:var(--b-samsung)}
+td.bcell[data-b="Xiaomi"]{background:var(--b-mi)}
+td.bcell[data-b="Vivo"]{background:var(--b-vivo)}
+td.bcell[data-b="Realme"]{background:var(--b-realme);color:#000}
+.chip[data-b]{border-left-width:8px}
+.chip[data-b="Apple"]{border-left-color:var(--b-apple)} .chip[data-b="OPPO"]{border-left-color:var(--b-oppo)} .chip[data-b="Samsung"]{border-left-color:var(--b-samsung)}
+.chip[data-b="Xiaomi"]{border-left-color:var(--b-mi)} .chip[data-b="Vivo"]{border-left-color:var(--b-vivo)} .chip[data-b="Realme"]{border-left-color:var(--b-realme)}
+.chip[data-b="Apple"][aria-pressed="true"]{background:var(--b-apple);color:#000;border-color:var(--b-apple)}
+.chip[data-b="OPPO"][aria-pressed="true"]{background:var(--b-oppo);color:#fff;border-color:var(--b-oppo)}
+.chip[data-b="Samsung"][aria-pressed="true"]{background:var(--b-samsung);color:#fff;border-color:var(--b-samsung)}
+.chip[data-b="Xiaomi"][aria-pressed="true"]{background:var(--b-mi);color:#fff;border-color:var(--b-mi)}
+.chip[data-b="Vivo"][aria-pressed="true"]{background:var(--b-vivo);color:#fff;border-color:var(--b-vivo)}
+.chip[data-b="Realme"][aria-pressed="true"]{background:var(--b-realme);color:#000;border-color:var(--b-realme)}
+.matrix td.up{background:var(--x-up);color:var(--x-up-ink)} .matrix td.down{background:var(--x-down);color:var(--x-down-ink)}
+.legend i.lg-up{background:var(--x-up)!important} .legend i.lg-down{background:var(--x-down)!important} .legend i.lg-rrp{background:var(--x-rrp)}
+td.rrpup{background:var(--x-rrp);color:#000;font-weight:700}
+.badge.rrp{background:var(--x-rrp);color:#000}
+.bpill{display:inline-block;border-radius:5px;padding:1px 10px;font-weight:700;font-size:12px;margin-right:6px;color:#fff}
+.bpill[data-b="Apple"]{background:var(--b-apple);color:#000}.bpill[data-b="OPPO"]{background:var(--b-oppo)}.bpill[data-b="Samsung"]{background:var(--b-samsung)}
+.bpill[data-b="Xiaomi"]{background:var(--b-mi)}.bpill[data-b="Vivo"]{background:var(--b-vivo)}.bpill[data-b="Realme"]{background:var(--b-realme);color:#000}
+
+/* ---- tab Lá»‹ch sá»­ tÄƒng giÃ¡ ---- */
+td.bcell[data-b="Honor"]{background:#7030a0}
+.rh{margin:22px 2px 8px;font-size:15px;font-weight:600} .rh small{font-weight:400;color:var(--muted)}
+.rise-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;padding:14px}
+.rise-kpi .rk{background:var(--soft);border-radius:8px;padding:10px 12px} .rise-kpi .rk b{display:block;font-size:22px;line-height:1.25} .rise-kpi .rk small{color:var(--muted)} .rise-kpi .rk span{display:block;color:var(--muted);font-size:12px}
+.rtab{border-collapse:collapse;width:100%} .rtab th,.rtab td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.rtab th{background:var(--soft);font-weight:600;position:sticky;top:0} .rtab th.n,.rtab td.n{text-align:right} .rtab td.mdl{white-space:normal;min-width:230px}
+.rtab tbody tr.rclick{cursor:pointer} .rtab tbody tr.rclick:hover{background:var(--soft)}
+.rtab td.hm{text-align:center;min-width:46px;font-weight:600}
+.r-inc{color:var(--down);font-weight:600} .r-dec{color:var(--up);font-weight:600} .r-gap{color:var(--warn);cursor:help}
+.rwarn{border-left:3px solid var(--warn);background:var(--warn-bg);padding:10px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.rwarn ul{margin:6px 0 0;padding-left:18px;color:var(--muted);font-size:12.5px}
+/* Chuá»—i Ä‘Ã£ kiá»ƒm tra: Ä‘á»ƒ mÃ u dá»‹u, khÃ´ng tranh chá»— vá»›i cáº£nh bÃ¡o tháº­t. */
+.rwarn.ok{border-left-color:var(--line);background:var(--panel-2);color:var(--muted);font-size:13px}
+.rfil{display:flex;flex-wrap:wrap;gap:10px;padding:12px 14px;margin-bottom:8px} .rfil label{display:grid;gap:3px;color:var(--muted);font-size:12px;min-width:140px}
+.rfil select,.rfil input[type=search]{border:1px solid var(--line);border-radius:8px;padding:7px 9px;background:var(--panel);color:var(--ink)} .rfil label.chk{display:flex;align-items:center;gap:6px;align-self:end;padding-bottom:8px}
+/* drawer */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--panel);border-left:1px solid var(--line);box-shadow:-12px 0 32px rgba(0,0,0,.18);transform:translateX(105%);transition:transform .2s ease;z-index:20;overflow-y:auto;padding:calc(18px + env(safe-area-inset-top,0px)) 20px calc(24px + env(safe-area-inset-bottom,0px))}
+.drawer.open{transform:none}
+@media (prefers-reduced-motion:reduce){.drawer{transition:none}}
+.drawer h2{margin:0 36px 2px 0;font-size:18px;line-height:1.3}
+.x{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:14px}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.kv div{background:var(--soft);border-radius:8px;padding:8px 10px}
+.kv small{display:block;color:var(--muted)}
+.kv b{font-size:16px}
+.note{border-left:3px solid var(--warn);background:var(--warn-bg);padding:8px 12px;border-radius:0 8px 8px 0;margin:10px 0;color:var(--ink)}
+/* rules */
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:16px}
+.rule{padding:14px 16px}
+.rule h3{margin:0 0 6px;font-size:15px}
+.rule p{margin:0;color:var(--muted)}
+.calc{padding:16px;display:grid;gap:12px;max-width:640px}
+.calc .f{display:grid;grid-template-columns:200px 1fr;gap:8px;align-items:center}
+.calc input[type=text],.calc select{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:var(--panel);width:100%}
+.result{background:var(--soft);border-radius:8px;padding:12px 14px}
+.result b{font-size:20px}
+.imp{padding:16px;display:grid;gap:12px}
+pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0;font-size:12px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:9px 16px;border-radius:8px;z-index:30}
+.toast[hidden]{display:none}
+/* ---- B1: Ma tráº­n Ä‘á»‘i Ä‘áº§u 4 sÃ n ---- */
+.h2h-best{background:#d8f0e6!important;color:#0a7d5c!important;font-weight:700}
+.h2h-best[data-r="TGDÄ"],.h2h-best[data-r="Tháº¿ Giá»›i Di Äá»™ng"]{background:#fef9c3!important;color:#854d0e!important}
+.h2h-best[data-r="CellphoneS"]{background:#fee2e2!important;color:#b91c1c!important}
+.h2h-best[data-r="FPT Shop"]{background:#ffedd5!important;color:#c2410c!important}
+.h2h-best[data-r="Viettel Store"]{background:#ccfbf1!important;color:#0f766e!important}
+.h2h-worst{color:var(--down);font-weight:600}
+.h2h-badge{display:inline-block;border-radius:4px;padding:2px 8px;font-size:11.5px;font-weight:700;white-space:nowrap;line-height:1.25;margin:1px 2px;vertical-align:middle;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.h2h-badge.crown{background:#0a7d5c;color:#fff}
+.h2h-badge.crown[data-r="TGDÄ"],.h2h-badge.crown[data-r="Tháº¿ Giá»›i Di Äá»™ng"]{background:#ffd400!important;color:#241d00!important;border:1px solid #d4a700!important}
+.h2h-badge.crown[data-r="CellphoneS"]{background:#d70018!important;color:#fff!important;border:1px solid #b30014!important}
+.h2h-badge.crown[data-r="FPT Shop"]{background:#cb1c22!important;background:linear-gradient(90deg,#cb1c22,#ea580c)!important;color:#fff!important;border:1px solid #b9151b!important}
+.h2h-badge.crown[data-r="Viettel Store"]{background:#00918e!important;color:#fff!important;border:1px solid #007775!important}
+.h2h-diff{font-weight:700}
+.h2h-diff.high{color:var(--down)}
+.h2h-diff.med{color:var(--warn)}
+.h2h-diff.low{color:var(--muted)}
+.sub-nav{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+
+/* ---- B2: Cáº£nh bÃ¡o khuyáº¿n mÃ£i áº£o ---- */
+.fake-alert{border-left:4px solid var(--warn);background:var(--warn-bg);padding:12px 14px;border-radius:0 8px 8px 0;margin:12px 0}
+.fake-alert h4{margin:0 0 6px;font-size:14px;display:flex;align-items:center;gap:6px}
+.fake-alert ul{margin:4px 0 0;padding-left:18px;font-size:12.5px;color:var(--ink)}
+.fake-badge{display:inline-block;background:#b83250;color:#fff;border-radius:4px;padding:0 6px;font-size:11px;font-weight:700;margin-left:6px}
+.fake-chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:2px 10px;cursor:pointer;font-size:11.5px;color:var(--ink);transition:all .15s}
+.fake-chip[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.btn-fake-ack{background:var(--panel);border:1px solid #d97706;color:#d97706;border-radius:5px;padding:2px 8px;font-size:11.5px;cursor:pointer;font-weight:600;white-space:nowrap;transition:all .15s}
+.btn-fake-ack:hover{background:#d97706;color:#fff}
+
+/* ---- B3: So sÃ¡nh 2 SKU & Khuyáº¿n mÃ£i thÃªm ---- */
+.cmp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;margin:16px 0}
+.cmp-box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column}
+.cmp-box h3{margin:0 0 10px;font-size:16px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cmp-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--soft);font-size:13px}
+.cmp-row:last-child{border-bottom:0}
+.cmp-row span.k{color:var(--muted)}
+.cmp-row span.v{font-weight:600}
+.cmp-verdict{background:var(--soft);border-radius:8px;padding:14px 16px;margin:16px 0;font-size:13.5px;line-height:1.6}
+.cmp-verdict b{color:var(--ink)}
+.cmp-verdict h4{margin:0 0 8px;font-size:14.5px}
+.cmp-legend{display:flex;gap:18px;margin-bottom:8px;font-weight:600;font-size:13px}
+.cmp-legend span{display:flex;align-items:center;gap:6px}
+.cmp-dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+/* Khuyáº¿n mÃ£i thÃªm & QuÃ  táº·ng kÃ¨m chuáº©n MWG */
+.mwg-box{background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
+.mwg-box-header{margin-bottom:12px;border-bottom:1px solid #f1f5f9;padding-bottom:8px}
+.mwg-box-title{font-size:14px;font-weight:700;color:#1e293b;display:flex;align-items:center;gap:6px}
+.mwg-box-sub{font-size:11.5px;color:#64748b;margin-top:2px}
+.mwg-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.mwg-item{display:flex;align-items:flex-start;gap:10px;font-size:12.5px;line-height:1.45}
+.mwg-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#2563eb;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+.mwg-icon{font-size:16px;line-height:1;flex-shrink:0;margin-top:2px}
+.mwg-content{flex:1}
+/* Khung Chá»n 1 trong cÃ¡c quÃ  chuáº©n Tháº¿ Giá»›i Di Äá»™ng */
+.mwg-choice-wrap{background:#ffffff;border:1.5px solid #cbd5e1;border-radius:10px;padding:10px 12px;position:relative;margin-top:2px;flex:1}
+.mwg-choice-badge{display:inline-block;border:1px solid #93c5fd;background:#eff6ff;color:#2563eb;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;margin-bottom:8px}
+.mwg-choice-opt{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;margin-bottom:4px;font-size:12.5px;color:#334155}
+.mwg-choice-opt.selected{background:#fff7ed;font-weight:600;color:#9a3412;border:1px solid #ffedd5}
+.mwg-choice-radio{font-size:13px;line-height:1}
+
+/* Khung Khuyáº¿n máº¡i CellphoneS */
+.cps-box{background:#ffffff;border:1px solid #fee2e2;border-radius:10px;padding:14px;margin-top:14px;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
+.cps-box-header{margin-bottom:12px;border-bottom:1px solid #fecaca;padding-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.cps-box-title{font-size:14px;font-weight:700;color:#d70018;display:flex;align-items:center;gap:6px}
+.cps-voucher-card{display:flex;background:#fff;border:1.5px dashed #d70018;border-radius:8px;overflow:hidden;margin-bottom:12px}
+.cps-voucher-left{background:#d70018;color:#fff;padding:8px 10px;font-weight:700;font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:60px;line-height:1.2}
+.cps-voucher-right{padding:6px 10px;flex:1;display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:#1e293b}
+.cps-voucher-btn{background:#d70018;color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer}
+.cps-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#3b82f6;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+.cps-tradein-banner{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:12px}
+.cps-tradein-banner b{color:#d70018}
+
+/* Khung Khuyáº¿n máº¡i FPT Shop */
+.fpt-box{background:#ffffff;border:1px solid #fed7aa;border-radius:10px;padding:14px;margin-top:14px}
+.fpt-box-header{margin-bottom:12px;border-bottom:1px solid #fed7aa;padding-bottom:8px}
+.fpt-box-title{font-size:14px;font-weight:700;color:#ea580c;display:flex;align-items:center;gap:6px}
+.fpt-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#ea580c;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+
+/* Khung Khuyáº¿n máº¡i Viettel Store */
+.vt-box{background:#ffffff;border:1px solid #bbf7d0;border-radius:10px;padding:14px;margin-top:14px}
+.vt-box-header{margin-bottom:12px;border-bottom:1px solid #bbf7d0;padding-bottom:8px}
+.vt-box-title{font-size:14px;font-weight:700;color:#16a34a;display:flex;align-items:center;gap:6px}
+.vt-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#16a34a;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+
+.cmp-promo-empty{color:var(--muted);font-size:12.5px;font-style:italic;padding:8px 4px}
+.cmp-promo-tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px;margin-right:4px;vertical-align:1px}
+.cmp-promo-tag.tradein{background:#e8f4fd;color:#0b66c2}
+.cmp-promo-tag.finance{background:#fef3e6;color:#c05621}
+.cmp-promo-tag.card{background:#edf7ed;color:#2e7d32}
+.cmp-promo-tag.gift{background:#fdf2f8;color:#be185d}
+.cmp-promo-tag.warranty{background:#f0fdf4;color:#15803d}
+.cmp-promo-tag.store{background:#f3e8ff;color:#6b21a8}
+
+/* Báº£ng Ä‘á»‘i Ä‘áº§u 4 sÃ n */
+.cmp-market-box{margin:18px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.cmp-market-box h4{margin:0 0 10px;font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px}
+.cmp-retail-table{width:100%;border-collapse:collapse;font-size:13px}
+.cmp-retail-table th,.cmp-retail-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left}
+.cmp-retail-table th.num,.cmp-retail-table td.num{text-align:right}
+.cmp-best-badge{display:inline-block;background:#ffd400;color:#2b2400;font-size:11px;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;vertical-align:1px}
+.cmp-best-badge[data-r="Tháº¿ Giá»›i Di Äá»™ng"],.cmp-best-badge[data-r="TGDÄ"]{background:#ffd400;color:#241d00}
+.cmp-best-badge[data-r="CellphoneS"]{background:#d70018;color:#fff}
+.cmp-best-badge[data-r="FPT Shop"]{background:#cb1c22;background:linear-gradient(90deg,#cb1c22,#ea580c);color:#fff}
+.cmp-best-badge[data-r="Viettel Store"]{background:#00918e;color:#fff}
+
+/* ---- Security Modal for Rise Tab ---- */
+.pw-modal { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 16px; font-family: inherit; }
+.pw-modal[hidden] { display: none !important; }
+.pw-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.pw-box { position: relative; background: var(--panel, #fff); color: var(--ink, #111); border: 1px solid var(--line, #e2e8f0); border-radius: 14px; box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28); max-width: 400px; width: 100%; padding: 26px 24px 22px; text-align: center; animation: pwZoomIn 0.18s ease-out; box-sizing: border-box; }
+@keyframes pwZoomIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+.pw-icon { font-size: 38px; line-height: 1; margin-bottom: 12px; }
+.pw-box h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; color: var(--ink, #0f172a); }
+.pw-box p { margin: 0 0 18px; font-size: 13.5px; color: var(--muted, #64748b); line-height: 1.45; }
+.pw-input-wrap { position: relative; display: flex; align-items: center; margin-bottom: 12px; }
+.pw-input-wrap input { width: 100%; box-sizing: border-box; padding: 10px 42px 10px 14px; border: 1px solid var(--line, #cbd5e1); border-radius: 8px; font-size: 15px; background: var(--soft, #f8fafc); color: var(--ink, #1e293b); outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+.pw-input-wrap input:focus { border-color: var(--accent, #2563eb); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18); }
+.pw-toggle-btn { position: absolute; right: 8px; background: none; border: none; cursor: pointer; padding: 6px; font-size: 16px; line-height: 1; opacity: 0.65; border-radius: 4px; }
+.pw-toggle-btn:hover { opacity: 1; background: rgba(0, 0, 0, 0.05); }
+.pw-err { color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 6px; font-size: 12.5px; margin-bottom: 12px; font-weight: 500; text-align: left; }
+.pw-err[hidden] { display: none !important; }
+.pw-actions { display: flex; gap: 10px; margin-top: 8px; }
+.pw-actions button { flex: 1; padding: 10px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; }
+.btn-pw-cancel { background: var(--soft, #f1f5f9); border: 1px solid var(--line, #cbd5e1); color: var(--ink, #334155); }
+.btn-pw-cancel:hover { background: #e2e8f0; }
+.btn-pw-submit { background: var(--accent, #2563eb); border: 1px solid var(--accent, #2563eb); color: #fff; }
+.btn-pw-submit:hover { filter: brightness(1.1); }
+.rise-auth-bar { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin: 8px 0 12px; padding: 6px 14px; background: var(--soft, #f8fafc); border: 1px solid var(--line, #e2e8f0); border-radius: 8px; }
+.rise-auth-bar span { font-size: 12.5px; color: var(--muted, #64748b); margin-right: auto; }
+.rise-auth-bar button { padding: 4px 10px; font-size: 12px; border-radius: 6px; border: 1px solid var(--line, #cbd5e1); background: var(--panel, #fff); cursor: pointer; font-weight: 500; }
+.rise-auth-bar button:hover { background: var(--soft, #f1f5f9); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <h1>GTMVN â€” Theo dÃµi khuyáº¿n mÃ£i</h1>
+    <p class="sub" id="subline"></p>
+  </div>
+  <div class="actions">
+    <button class="btn" id="xlsx">Xuáº¥t Excel</button>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" aria-selected="true" data-tab="latest">Tra cá»©u má»›i nháº¥t</button>
+  <button role="tab" aria-selected="false" data-tab="history">Lá»‹ch sá»­ theo Ä‘á»£t quÃ©t</button>
+  <button role="tab" aria-selected="false" data-tab="rise">Lá»‹ch sá»­ tÄƒng giÃ¡ <span id="tab-rise-icon">ðŸ”’</span></button>
+  <button role="tab" aria-selected="false" data-tab="market">ToÃ n thá»‹ trÆ°á»ng</button>
+  <button role="tab" aria-selected="false" data-tab="compare">So sÃ¡nh 2 mÃ¡y</button>
+  <button role="tab" aria-selected="false" data-tab="rules" data-admin hidden>Quy táº¯c tÃ­nh PMH</button>
+  <button role="tab" aria-selected="false" data-tab="import" data-admin hidden>Nháº­p Ä‘á»£t quÃ©t má»›i</button>
+</nav>
+
+<section class="pane" id="p-latest">
+  <div class="panel move">
+    <div class="move-head"><span>So vá»›i Ä‘á»£t quÃ©t trÆ°á»›c (<b id="prevd"></b>)</span><span id="movehint">Báº¥m vÃ o tá»«ng Ä‘oáº¡n Ä‘á»ƒ lá»c</span></div>
+    <div class="bar" id="bar"></div>
+  </div>
+  <div class="panel filters">
+    <div class="row"><label class="t">HÃ£ng</label><span id="f-brand" class="row"></span></div>
+    <div class="row"><label class="t">PhÃ¢n khÃºc</label><span id="f-seg" class="row"></span></div>
+    <div class="row"><label class="t">Loáº¡i KM</label><span id="f-kind" class="row"></span></div>
+    <div class="row"><label class="t">KÃªnh</label><span id="f-ch" class="row"></span>
+      <input class="search" id="q" type="search" placeholder="TÃ¬m theo tÃªn mÃ¡y, vÃ­ dá»¥: A6x 4GB/128GB" aria-label="TÃ¬m theo tÃªn mÃ¡y"></div>
+  </div>
+  <div class="count" id="count"></div>
+  <div class="panel tablewrap"><table id="tbl"><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table></div>
+</section>
+
+<section class="pane" id="p-history" hidden>
+  <div class="legend"><span><i class="lg-up"></i>PMH tÄƒng so vá»›i Ä‘á»£t trÆ°á»›c</span><span><i class="lg-down"></i>PMH giáº£m so vá»›i Ä‘á»£t trÆ°á»›c</span><span><i class="lg-rrp"></i>RRP tÄƒng</span><span>Ã” trá»‘ng: chÆ°a cÃ³ dá»¯ liá»‡u</span></div>
+  <div class="panel tablewrap"><table class="matrix" id="mtx"></table></div>
+</section>
+
+<section class="pane" id="p-rise" hidden>
+  <div class="panel rise-kpi" id="rkpi"></div>
+  <div id="rwarn"></div>
+  <h3 class="rh">HÃ£ng nÃ o tÄƒng giÃ¡ <small>(báº¥m vÃ o hÃ£ng Ä‘á»ƒ lá»c hai báº£ng bÃªn dÆ°á»›i)</small></h3>
+  <div class="panel tablewrap"><table class="rtab" id="rbrand"></table></div>
+  <h3 class="rh">HÃ£ng theo thÃ¡ng <small>(sá»‘ model tÄƒng giÃ¡, â†“ lÃ  sá»‘ model giáº£m)</small></h3>
+  <div class="panel tablewrap"><table class="rtab" id="rmatrix"></table></div>
+  <h3 class="rh">Model nÃ o tÄƒng giÃ¡ <small>(gá»™p theo SKU, tÃ­nh tá»« giÃ¡ Ä‘áº§u tiÃªn ghi nháº­n Ä‘áº¿n giÃ¡ hiá»‡n táº¡i)</small></h3>
+  <div class="panel rfil">
+    <label>ThÆ°Æ¡ng hiá»‡u<select id="rm-brand"></select></label>
+    <label>Sáº¯p xáº¿p theo<select id="rm-sort"><option value="ups">Sá»‘ láº§n tÄƒng</option><option value="p">% tÄƒng tÃ­ch lÅ©y</option><option value="v">Má»©c tÄƒng tÃ­ch lÅ©y (Ä‘)</option><option value="d">Láº§n Ä‘á»•i gáº§n nháº¥t</option></select></label>
+    <label class="chk"><input type="checkbox" id="rm-multi"> Chá»‰ model tÄƒng tá»« 2 láº§n</label>
+    <label style="flex:1;min-width:200px">TÃ¬m theo tÃªn<input id="rm-q" type="search" placeholder="VÃ­ dá»¥: A6x"></label>
+  </div>
+  <div class="count" id="rm-count"></div>
+  <div class="panel tablewrap"><table class="rtab" id="rmodel"></table></div>
+  <h3 class="rh">Nháº­t kÃ½ Ä‘á»•i giÃ¡ chi tiáº¿t</h3>
+  <div class="panel rfil">
+    <label>ThÃ¡ng<select id="rl-month"></select></label>
+    <label>ThÆ°Æ¡ng hiá»‡u<select id="rl-brand"></select></label>
+    <label>HÆ°á»›ng<select id="rl-dir"><option value="all">TÄƒng vÃ  giáº£m</option><option value="up">GiÃ¡ tÄƒng</option><option value="down">GiÃ¡ giáº£m</option></select></label>
+    <label>PhÃ¢n khÃºc<select id="rl-seg"></select></label>
+    <label style="flex:1;min-width:200px">TÃ¬m theo model<input id="rl-q" type="search" placeholder="VÃ­ dá»¥: A57"></label>
+  </div>
+  <div class="count" id="rl-count"></div>
+  <div class="panel tablewrap"><table class="rtab" id="rlog"></table></div>
+</section>
+
+<section class="pane" id="p-market" hidden>
+  <div class="move-head" style="margin:0 2px 8px"><span id="mk-sub" style="color:var(--muted)"></span><button class="btn" id="mk-xlsx" style="padding:4px 12px">Xuáº¥t Excel tab nÃ y</button></div>
+  <div class="panel rise-kpi" id="mk-kpi"></div>
+  <div id="mk-fake-alerts"></div>
+  <div class="sub-nav" style="margin-top:14px">
+    <button class="btn primary" id="mk-tab-h2h">Ma tráº­n Ä‘á»‘i Ä‘áº§u 4 sÃ n (86 SKU)</button>
+    <button class="btn" id="mk-tab-list">ToÃ n bá»™ danh sÃ¡ch 4 sÃ n</button>
+  </div>
+  
+  <div id="mk-view-h2h">
+    <div class="panel filters">
+      <div class="row"><label class="t">HÃ£ng</label><span id="h2h-f-b" class="row"></span></div>
+      <div class="row"><label class="t">PhÃ¢n khÃºc</label><span id="h2h-f-s" class="row"></span></div>
+      <div class="row"><label class="t">KÃªnh</label><span id="h2h-f-ch" class="row"></span></div>
+      <div class="row"><label class="t">ChÃªnh lá»‡ch</label><span id="h2h-f-d" class="row"></span></div>
+      <div class="row"><label class="t">TÃ¬m</label><input class="search" id="h2h-q" type="search" placeholder="TÃªn mÃ¡y, viáº¿t táº¯t: s26 u, ip 17 pm, a57..." aria-label="TÃ¬m theo tÃªn mÃ¡y"></div>
+    </div>
+    <div class="count" id="h2h-count"></div>
+    <div class="panel tablewrap"><table id="h2h-tbl"><thead><tr id="h2h-head"></tr></thead><tbody id="h2h-body"></tbody></table></div>
+  </div>
+
+  <div id="mk-view-list" hidden>
+    <div class="panel filters" style="margin-top:4px">
+      <div class="row"><label class="t">SÃ n</label><span id="mk-f-r" class="row"></span></div>
+      <div class="row"><label class="t">HÃ£ng</label><span id="mk-f-b" class="row"></span></div>
+      <div class="row"><label class="t">Loáº¡i KM</label><span id="mk-f-k" class="row"></span>
+        <label style="display:flex;gap:6px;align-items:center;color:var(--muted);margin-left:8px"><input type="checkbox" id="mk-focus"> Chá»‰ mÃ¡y thuá»™c 86 SKU</label></div>
+      <div class="row"><label class="t">TÃ¬m</label><input class="search" id="mk-q" type="search" placeholder="TÃªn mÃ¡y, viáº¿t táº¯t: a57, reno 16..." aria-label="TÃ¬m theo tÃªn mÃ¡y"></div>
+    </div>
+    <div class="count" id="mk-count"></div>
+    <div class="panel tablewrap"><table id="mk-tbl"><thead><tr id="mk-head"></tr></thead><tbody id="mk-body"></tbody></table></div>
+  </div>
+</section>
+
+<section class="pane" id="p-compare" hidden>
+  <div class="panel" style="padding:16px 20px;margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:14px">
+      <div>
+        <h2 style="margin:0 0 4px;font-size:18px">So sÃ¡nh Äá»‘i Ä‘áº§u: MÃ¡y & KÃªnh BÃ¡n Láº» (Head-to-Head)</h2>
+        <p style="margin:0;color:var(--muted);font-size:13px">So sÃ¡nh trá»±c diá»‡n giá»¯a 2 sáº£n pháº©m hoáº·c Ä‘á»‘i Ä‘áº§u giá»¯a cÃ¡c chuá»—i bÃ¡n láº» (MWG vs CellphoneS vs FPT Shop vs Viettel Store).</p>
+      </div>
+      <div class="sub-nav" id="cmp-presets" style="margin:0">
+        <button class="chip" data-mode="mwg-mwg" aria-pressed="true">ðŸ“± MWG vs MWG</button>
+        <button class="chip" data-mode="tgdd-cps" aria-pressed="false">âš” TGDÄ vs CellphoneS</button>
+        <button class="chip" data-mode="tgdd-fpt" aria-pressed="false">ðŸ›’ TGDÄ vs FPT Shop</button>
+        <button class="chip" data-mode="tgdd-vt" aria-pressed="false">ðŸ“¶ TGDÄ vs Viettel Store</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+      <div id="cmp-card-v1" style="background:var(--soft);padding:12px 14px;border-radius:8px;transition:all 0.2s ease">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <label style="font-weight:700;font-size:13.5px">Váº¿ A (MÃ¡y & KÃªnh 1):</label>
+          <select id="cmp-ret1" style="padding:4px 8px;border-radius:6px;border:1px solid var(--line);font-size:12.5px;font-weight:600;background:var(--panel);cursor:pointer">
+            <option value="TGDÄ" selected>Tháº¿ Giá»›i Di Äá»™ng (MWG)</option>
+            <option value="CellphoneS">CellphoneS</option>
+            <option value="FPT Shop">FPT Shop</option>
+            <option value="Viettel Store">Viettel Store</option>
+          </select>
+        </div>
+        <input type="search" id="cmp-q1" class="search" style="width:100%;margin-bottom:6px" placeholder="TÃ¬m hoáº·c viáº¿t táº¯t: reno 16, a57, ip 17 pm...">
+        <select id="cmp-sel1" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)"></select>
+        <div id="cmp-hint1" style="font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.4"></div>
+      </div>
+      <div id="cmp-card-v2" style="background:var(--soft);padding:12px 14px;border-radius:8px;transition:all 0.2s ease">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <label style="font-weight:700;font-size:13.5px">Váº¿ B (MÃ¡y & KÃªnh 2):</label>
+          <select id="cmp-ret2" style="padding:4px 8px;border-radius:6px;border:1px solid var(--line);font-size:12.5px;font-weight:600;background:var(--panel);cursor:pointer">
+            <option value="TGDÄ" selected>Tháº¿ Giá»›i Di Äá»™ng (MWG)</option>
+            <option value="CellphoneS">CellphoneS</option>
+            <option value="FPT Shop">FPT Shop</option>
+            <option value="Viettel Store">Viettel Store</option>
+          </select>
+        </div>
+        <input type="search" id="cmp-q2" class="search" style="width:100%;margin-bottom:6px" placeholder="TÃ¬m hoáº·c viáº¿t táº¯t: reno 16, s26 u, find x9...">
+        <select id="cmp-sel2" style="width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel)"></select>
+        <div id="cmp-hint2" style="font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.4"></div>
+      </div>
+    </div>
+  </div>
+  <div id="cmp-body"></div>
+</section>
+
+<section class="pane" id="p-rules" hidden>
+  <div class="rules">
+    <div class="panel rule"><h3>CÃ³ flash sale, cÃ³ â€œChá»n 1 trongâ€</h3><p>PMH = khoáº£n â€œGiáº£m giÃ¡ Xâ€ trong má»¥c â€œChá»n 1 trongâ€. KhÃ´ng láº¥y chÃªnh lá»‡ch giÃ¡ Ä‘en vÃ  giÃ¡ Ä‘á» cá»§a flash sale.</p></div>
+    <div class="panel rule"><h3>CÃ³ flash sale, khÃ´ng cÃ³ â€œChá»n 1 trongâ€</h3><p>PMH = 0. VÃ­ dá»¥ A6x 4GB/64GB: giÃ¡ Ä‘en 4.990.000, giÃ¡ Ä‘á» flash sale 4.740.000 nhÆ°ng PMH váº«n lÃ  0.</p></div>
+    <div class="panel rule"><h3>KhÃ´ng cÃ³ flash sale</h3><p>PMH = sá»‘ lá»›n hÆ¡n giá»¯a (giÃ¡ Ä‘en âˆ’ giÃ¡ Ä‘á») vÃ  khoáº£n â€œChá»n 1 trongâ€.</p></div>
+    <div class="panel rule"><h3>KhÃ´ng flash sale, khÃ´ng giÃ¡ gáº¡ch</h3><p>GiÃ¡ Ä‘en trá»« giÃ¡ Ä‘á» báº±ng 0 nÃªn láº¥y khoáº£n â€œChá»n 1 trongâ€. VÃ­ dá»¥ Reno16F 5G 8GB/256GB: PMH = 1.600.000.</p></div>
+  </div>
+  <div class="panel calc">
+    <strong>TÃ­nh thá»­ má»™t SKU</strong>
+    <div class="f"><label for="c-den">GiÃ¡ Ä‘en (gáº¡ch ngang)</label><input id="c-den" type="text" inputmode="numeric" placeholder="13490000"></div>
+    <div class="f"><label for="c-do">GiÃ¡ Ä‘á» (Ä‘ang bÃ¡n)</label><input id="c-do" type="text" inputmode="numeric" placeholder="10490000"></div>
+    <div class="f"><label for="c-ban">Flash sale</label><select id="c-ban"><option value="khong">KhÃ´ng cÃ³</option><option value="co">CÃ³</option></select></div>
+    <div class="f"><label for="c-line">Khoáº£n â€œGiáº£m giÃ¡ Xâ€ trong â€œChá»n 1 trongâ€</label><input id="c-line" type="text" inputmode="numeric" placeholder="Ä‘á»ƒ trá»‘ng náº¿u khÃ´ng cÃ³ má»¥c nÃ y"></div>
+    <div class="result" id="c-res">Nháº­p giÃ¡ Ä‘en vÃ  giÃ¡ Ä‘á» Ä‘á»ƒ tÃ­nh.</div>
+  </div>
+</section>
+
+<section class="pane" id="p-import" hidden>
+  <div class="panel imp">
+    <strong>ThÃªm má»™t Ä‘á»£t quÃ©t tá»« scraper</strong>
+    <p style="margin:0;color:var(--muted)">Cháº¡y <code>promotion_scraper.py</code> trÃªn mÃ¡y báº¡n, rá»“i chá»n file <code>scan_YYYY-MM-DD.json</code> nÃ³ xuáº¥t ra. Cá»™t má»›i sáº½ ná»‘i vÃ o lá»‹ch sá»­, vÃ  SKU nÃ o Ä‘á»•i giÃ¡ Ä‘en sáº½ Ä‘Æ°á»£c gáº¯n cá».</p>
+    <div class="row"><input type="file" id="file" accept=".json,application/json" aria-label="Chá»n file JSON Ä‘á»£t quÃ©t"><button class="btn" id="reset">XÃ³a cÃ¡c Ä‘á»£t Ä‘Ã£ nháº­p</button></div>
+    <div id="imsg" style="color:var(--muted)"></div>
+    <pre>{ "date": "06-Oct",
+  "rows": [ { "model": "iPhone 17 256GB", "rrp": 28990000, "pmh": 2000000 } ] }</pre>
+    <p style="margin:0;color:var(--muted)">Dá»¯ liá»‡u nháº­p chá»‰ lÆ°u trong trÃ¬nh duyá»‡t nÃ y. Muá»‘n má»i ngÆ°á»i cÃ¹ng tháº¥y, thÃªm Ä‘á»£t quÃ©t vÃ o <code>data/data.js</code> (máº£ng <code>SCANS</code>) rá»“i Ä‘Æ°a web lÃªn láº¡i.</p>
+  </div>
+</section>
+</div>
+
+<aside class="drawer" id="drawer" aria-hidden="true" aria-label="Chi tiáº¿t SKU">
+  <button class="btn x" id="dx" aria-label="ÄÃ³ng">ÄÃ³ng</button>
+  <div id="dbody"></div>
+</aside>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+const BASE = window.BASE;
+const SCANS = Array.isArray(window.SCANS) ? window.SCANS : [];
+const LATEST = window.LATEST && Array.isArray(window.LATEST.rows) ? window.LATEST : null;
+const LINKS = window.LINKS && typeof window.LINKS==="object" ? window.LINKS : {};
+const SEG_ORDER = [">30M","20-30M","15-20M","10-15M","7-10M","5-7M","<5M"];
+const RRP_NOTES = window.RRP_NOTES || {};
+const fmt = n => n==null ? "â€“" : n.toLocaleString("vi-VN");
+const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const BDISP={Apple:"APPLE",Samsung:"SAMSUNG",Xiaomi:"MI"};
+const bdisp=b=>BDISP[b]||b;
+const bcell=b=>`<td class="bcell" data-b="${esc(b)}">${esc(bdisp(b))}</td>`;
+const rrpUp=r=>r.flags.some(f=>{ if(/tÄƒng/.test(f)) return true; const m=f.match(/([\d.]+) â†’ ([\d.]+)/); return !!m && +m[2].replace(/\./g,"") > +m[1].replace(/\./g,""); });
+const $ = id => document.getElementById(id);
+const removeAccents = s => String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/Ä‘/g,"d").replace(/[^a-z0-9\s]/g," ").trim();
+function matchSmart(q, text){
+  if(!q) return true;
+  const nq = removeAccents(q), nt = removeAccents(text);
+  if(!nq) return true;
+  if(nt.includes(nq)) return true;
+  const qw = nq.split(/\s+/).filter(Boolean);
+  const tw = nt.split(/\s+/).filter(Boolean);
+  if(qw.every(w=>nt.includes(w))) return true;
+  const cQ = nq.replace(/\s+/g,""), cT = nt.replace(/\s+/g,"");
+  if(cT.includes(cQ)) return true;
+  let tIdx = 0;
+  for(let i=0; i<qw.length; i++){
+    const curQ = qw[i];
+    let matched = false;
+    while(tIdx < tw.length){
+      const curT = tw[tIdx++];
+      if(curT.startsWith(curQ) || (curQ==="ip"&&curT.startsWith("iphone")) ||
+         (curQ==="pm"&&curT==="pro"&&tw[tIdx]&&tw[tIdx].startsWith("max")) ||
+         (curQ==="u"&&curT.startsWith("ultra")) || (curQ==="fe"&&curT.startsWith("fe"))){
+        if(curQ==="pm") tIdx++;
+        matched = true;
+        break;
+      }
+    }
+    if(!matched) return false;
+  }
+  return true;
+}
+
+/* ---- state: base + published scans + scans imported in this browser ---- */
+let imports = [];
+try{ imports = JSON.parse(localStorage.getItem("tp_imports")||"[]"); }catch(e){ imports = []; }
+let S = {dates:[], rows:[]};
+function build(){
+  const rows = BASE.rows.map(r=>({...r, pmh:[...r.pmh], flags:[]}));
+  const dates = [...BASE.dates];
+  const pubDates = new Set(SCANS.map(s=>s.date));
+  // Äá»£t quÃ©t má»›i nháº¥t luÃ´n Ä‘Æ°á»£c Ä‘Æ°a vÃ o sau cÃ¹ng: rÆ¡i Ä‘Ãºng thá»© Hai/thá»© SÃ¡u thÃ¬ ghi Ä‘Ã¨ cá»™t Ä‘Ã³,
+  // ngÃ y khÃ¡c thÃ¬ thÃ nh cá»™t "hÃ´m nay" riÃªng Ä‘á»ƒ má»i ngÆ°á»i xem Ä‘Æ°á»£c sá»‘ má»›i nháº¥t.
+  const feeds = [...SCANS, ...imports.filter(im=>!pubDates.has(im.date))];
+  // Chá»‰ thÃªm cá»™t khi Ä‘á»£t má»›i nháº¥t tháº­t sá»± cÃ³ sá»‘ PMH, trÃ¡nh file há»ng lÃ m tráº¯ng cáº£ báº£ng.
+  let todayDate = null;
+  if(LATEST && !pubDates.has(LATEST.date) && LATEST.rows.some(x=>typeof x.pmh==="number")){ feeds.push(LATEST); todayDate = LATEST.date; }
+  feeds.forEach(im=>{
+    // Äá»£t quÃ©t trÃ¹ng ngÃ y vá»›i cá»™t Ä‘Ã£ cÃ³ thÃ¬ ghi Ä‘Ã¨ cá»™t Ä‘Ã³, khÃ´ng thÃªm cá»™t má»›i.
+    let col = dates.indexOf(im.date);
+    if(col<0){ dates.push(im.date); col = dates.length-1; }
+    const m = new Map(im.rows.map(x=>[x.model,x]));
+    rows.forEach(r=>{
+      const x = m.get(r.model);
+      if(!x){ if(r.pmh.length<=col) r.pmh.push(null); return; }
+      if(typeof x.rrp==="number" && x.rrp!==r.rrp){
+        r.flags.push(`GiÃ¡ Ä‘en Ä‘á»•i ${fmt(r.rrp)} â†’ ${fmt(x.rrp)} (${im.date})`); r.rrp = x.rrp;
+        // GiÃ¡ Ä‘en Ä‘á»•i thÃ¬ phÃ¢n khÃºc tá»± Ä‘á»•i theo giÃ¡ má»›i.
+        const seg = rseg(x.rrp); if(seg!==r.segment){ r.flags.push(`PhÃ¢n khÃºc Ä‘á»•i ${r.segment} â†’ ${seg} (${im.date})`); r.segment = seg; }
+      }
+      if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||x.status==="active") r.status = x.status;
+      // Trang lá»—i thÃ¬ giá»¯ sá»‘ Ä‘Ã£ quÃ©t Ä‘Æ°á»£c Cá»¦A CHÃNH NGÃ€Y ÄÃ“ (láº§n quÃ©t trÆ°á»›c trong cÃ¹ng ngÃ y),
+      // cá»™t má»›i thÃ¬ Ä‘á»ƒ trá»‘ng. KhÃ´ng bao giá» láº¥y sá»‘ cá»§a ngÃ y cÅ© láº¥p vÃ o ngÃ y má»›i.
+      if(typeof x.pmh==="number") r.pmh[col] = x.pmh;
+      else if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||r.pmh[col]===undefined) r.pmh[col] = null;
+      // KM online / Tá»•ng KM (tham kháº£o) vÃ  quy táº¯c Ä‘Ã£ Ã¡p dá»¥ng á»Ÿ Ä‘á»£t quÃ©t má»›i nháº¥t.
+      if(typeof x.red==="number") r.red = x.red;
+      if("rule" in x){
+        r.online = typeof x.online==="number" ? x.online : null;
+        r.choice = typeof x.choice==="number" ? x.choice : null;
+        // Chá»‰ Ä‘iá»n Ã´ Flash sale khi mÃ¡y tháº­t sá»± Ä‘ang cháº¡y flash sale online; khÃ´ng thÃ¬ Ä‘á»ƒ trá»‘ng.
+        r.tot = x.rule!=="flash_chon1" ? null
+              : (typeof x.total_online==="number" ? x.total_online
+                 : (r.online==null ? null : r.online + (r.choice||0)));
+        // Tá»•ng khuyáº¿n mÃ£i khi mua online (gá»“m cáº£ flash sale), luÃ´n ghi ká»ƒ cáº£ khi khÃ´ng cÃ³ flash sale.
+        r.totAll = typeof x.total_online==="number" ? x.total_online
+                 : (r.online==null ? null : r.online + (r.choice||0));
+        r.rule = x.rule || null;
+      }
+      if(x.kind) r.kind = x.kind;
+    });
+  });
+  rows.forEach(r=>{ if(RRP_NOTES[r.model]) r.flags.unshift(RRP_NOTES[r.model]); });
+  // Giá»¯ nguyÃªn thá»© tá»± hÃ£ng nhÆ° trong dá»¯ liá»‡u gá»‘c, trong má»—i hÃ£ng xáº¿p giÃ¡ Ä‘en tá»« cao xuá»‘ng tháº¥p.
+  const bOrder = []; rows.forEach(r=>{ if(!bOrder.includes(r.brand)) bOrder.push(r.brand); });
+  rows.sort((a,b)=> bOrder.indexOf(a.brand)-bOrder.indexOf(b.brand) || (b.rrp||0)-(a.rrp||0));
+  S = {dates, rows, todayDate};
+}
+function delta(r){
+  const n=r.pmh.length, a=r.pmh[n-1], b=r.pmh[n-2];
+  if(a==null||b==null) return null;
+  return a-b;
+}
+function cat(r){
+  if(r.status!=="active") return "na";
+  const d=delta(r);
+  if(d==null) return "na";
+  return d>0?"up":d<0?"down":"flat";
+}
+
+/* ---- filters ---- */
+/* Loáº¡i KM cá»§a Ä‘á»£t quÃ©t má»›i nháº¥t: khá»‘i "Online GiÃ¡ Ráº» QuÃ¡" (flash sale) hay khuyáº¿n mÃ£i thÆ°á»ng */
+const KIND_FS="Flash Sale Online", KIND_KM="Khuyáº¿n mÃ£i";
+const kindOf = r => !r.kind ? null : /banner/.test(r.kind) ? KIND_FS : KIND_KM;
+const F = {brand:"Táº¥t cáº£", seg:"Táº¥t cáº£", ch:"Táº¥t cáº£", kind:"Táº¥t cáº£", q:"", move:null, sort:"master", dir:1};
+function chips(el, vals, key){
+  el.innerHTML = vals.map(v=>`<button class="chip" aria-pressed="${F[key]===v}" data-k="${key}" data-v="${esc(v)}"${key==="brand"&&v!=="Táº¥t cáº£"?` data-b="${esc(v)}"`:""}>${esc(key==="brand"?bdisp(v):v)}</button>`).join("");
+}
+function renderFilters(){
+  const brands = ["Táº¥t cáº£",...new Set(S.rows.map(r=>r.brand))];
+  chips($("f-brand"), brands, "brand");
+  chips($("f-seg"), ["Táº¥t cáº£",...SEG_ORDER.filter(s=>S.rows.some(r=>r.segment===s))], "seg");
+  chips($("f-ch"), ["Táº¥t cáº£","TGDD","Mass"], "ch");
+  chips($("f-kind"), ["Táº¥t cáº£",KIND_FS,KIND_KM], "kind");
+}
+function filtered(){
+  let rows = S.rows.filter(r=>
+    (F.brand==="Táº¥t cáº£"||r.brand===F.brand)&&(F.seg==="Táº¥t cáº£"||r.segment===F.seg)&&
+    (F.ch==="Táº¥t cáº£"||r.channel===F.ch)&&(F.kind==="Táº¥t cáº£"||kindOf(r)===F.kind)&&(!F.q||matchSmart(F.q, r.brand+" "+r.model))&&(!F.move||cat(r)===F.move));
+  if(F.sort!=="master"){
+    const k = {pmh:r=>r.pmh[r.pmh.length-1], rrp:r=>r.rrp, off:r=>offPrice(r), tot:r=>r.tot??null, delta:r=>delta(r), model:r=>r.model, pct:r=>{const p=r.pmh[r.pmh.length-1];return p==null?null:p/r.rrp}}[F.sort];
+    rows = [...rows].sort((a,b)=>{const x=k(a),y=k(b); if(x==null&&y==null) return 0; if(x==null) return 1; if(y==null) return -1; return (x>y?1:x<y?-1:0)*F.dir;});
+  }
+  return rows;
+}
+
+/* ---- latest table ---- */
+const COLS = [["brand","HÃ£ng"],["model","Model"],["ch","KÃªnh"],["seg","PhÃ¢n khÃºc"],["rrp","RRP",1],["off","GiÃ¡ offline",1],["pmh","KM base (PMH)",1],["tot","Flash sale",1],["delta","So Ä‘á»£t trÆ°á»›c",1],["pct","% giáº£m",1],["trend","Xu hÆ°á»›ng"]];
+function spark(v){
+  const pts=v.map((x,i)=>[i,x]).filter(p=>p[1]!=null);
+  if(pts.length<2) return "";
+  const W=84,H=22,max=Math.max(...pts.map(p=>p[1]),1),n=v.length-1||1;
+  const d=pts.map((p,i)=>`${i?"L":"M"}${(p[0]/n*(W-4)+2).toFixed(1)} ${(H-3-(p[1]/max)*(H-6)).toFixed(1)}`).join(" ");
+  const last=pts[pts.length-1];
+  return `<svg class="spark" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${d}" fill="none" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round"/><circle cx="${(last[0]/n*(W-4)+2).toFixed(1)}" cy="${(H-3-(last[1]/max)*(H-6)).toFixed(1)}" r="2.4" fill="var(--accent)"/></svg>`;
+}
+// Cá»™t cá»§a Ä‘á»£t quÃ©t hÃ´m nay gá»i tháº³ng lÃ  "HÃ´m nay", váº«n kÃ¨m ngÃ y Ä‘á»ƒ khá»i nháº§m khi má»Ÿ láº¡i hÃ´m sau.
+const dlabel = d => d===S.todayDate ? `HÃ´m nay (${d})` : d;
+// GiÃ¡ offline = RRP trá»« KM base. Flash sale chá»‰ Ã¡p dá»¥ng khi mua online nÃªn khÃ´ng trá»« vÃ o Ä‘Ã¢y.
+function offPrice(r){
+  if(r.status!=="active") return null;
+  const p = r.pmh[r.pmh.length-1];
+  return typeof p==="number" ? r.rrp - p : null;
+}
+// PMH online = tá»•ng khuyáº¿n mÃ£i khi mua online, gá»“m cáº£ flash sale. GiÃ¡ online = RRP trá»« khoáº£n Ä‘Ã³.
+function pmhOnline(r){
+  if(r.status!=="active") return null;
+  if(typeof r.totAll==="number") return r.totAll;
+  const p = r.pmh[r.pmh.length-1];
+  return typeof p==="number" ? p : null;
+}
+function onPrice(r){ const t = pmhOnline(r); return t==null ? null : r.rrp - t; }
+function deltaCell(r){
+  if(r.status==="ngung_kd") return `<span class="badge warn">Ngá»«ng KD</span>`;
+  if(r.status==="chua_mo_ban") return `<span class="badge warn">ChÆ°a má»Ÿ bÃ¡n</span>`;
+  const d=delta(r);
+  if(d==null) return `<span class="d-flat">má»›i</span>`;
+  if(d===0) return `<span class="d-flat">khÃ´ng Ä‘á»•i</span>`;
+  return d>0?`<span class="d-up">â–² ${fmt(d)}</span>`:`<span class="d-down">â–¼ ${fmt(-d)}</span>`;
+}
+function isNewModel(m){
+  if(!m) return false;
+  const s = String(m).toLowerCase();
+  return ((s.includes("a7 pro") || s.includes("a7pro")) && !s.includes("redmi"))
+      || s.includes("a08")
+      || s.includes("a07s");
+}
+function newBadge(m){
+  return isNewModel(m) ? ` <span class="badge new-badge" title="Sáº£n pháº©m má»›i ra máº¯t">NEW</span>` : "";
+}
+function renderTable(){
+  $("thead").innerHTML = COLS.map(([k,l,n])=>`<th class="${n?"num":""}" data-sort="${k}" scope="col">${l}${F.sort===k?(F.dir>0?" â–²":" â–¼"):""}</th>`).join("");
+  const rows=filtered();
+  $("count").textContent = `Hiá»ƒn thá»‹ ${rows.length} / ${S.rows.length} SKU`;
+  $("tbody").innerHTML = rows.map(r=>{
+    const p=r.pmh[r.pmh.length-1];
+    const pct = (p==null||r.status!=="active")?"â€“":(p/r.rrp*100).toFixed(1)+"%";
+    const flag = r.flags.length?` <span class="badge ${rrpUp(r)?"rrp":"warn"}" title="${esc(r.flags.join("; "))}">RRP${rrpUp(r)?" tÄƒng":""}</span>`:"";
+    return `<tr tabindex="0" data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${newBadge(r.model)}${flag}</td>
+    <td><span class="badge ${r.channel==="TGDD"?"tgdd":"mass"}">${r.channel==="TGDD"?"Äá»™c quyá»n":"Mass"}</span></td><td>${esc(r.segment)}</td>
+    <td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td><td class="num" title="RRP trá»« KM base. Flash sale chá»‰ cÃ³ khi mua online nÃªn khÃ´ng trá»« vÃ o giÃ¡ nÃ y.">${fmt(offPrice(r))}</td><td class="num"><strong>${r.status==="active"?fmt(p):"â€“"}</strong></td><td class="num${r.tot?" fscell":""}"${r.tot?` title="MÃ¡y Ä‘ang cháº¡y flash sale online. Sá»‘ Ä‘á» lÃ  tá»•ng tiá»n giáº£m khÃ¡ch tháº¥y trÃªn trang, chá»‰ Ä‘á»ƒ tham kháº£o."`:""}>${r.tot?fmt(r.tot):"â€“"}</td><td class="num">${deltaCell(r)}</td><td class="num">${pct}</td><td>${spark(r.pmh)}</td></tr>`;
+  }).join("") || `<tr><td colspan="12">KhÃ´ng cÃ³ SKU nÃ o khá»›p bá»™ lá»c. Bá» bá»›t má»™t bá»™ lá»c Ä‘á»ƒ xem láº¡i danh sÃ¡ch.</td></tr>`;
+}
+function renderBar(){
+  const c={up:0,down:0,flat:0,na:0}; S.rows.forEach(r=>c[cat(r)]++);
+  const seg=(k,l)=>c[k]?`<button class="s-${k}" style="flex:${c[k]}" data-m="${k}" aria-pressed="${F.move===k}" title="${l}">${c[k]} ${l}</button>`:"";
+  $("bar").innerHTML = seg("up","tÄƒng")+seg("down","giáº£m")+seg("flat","khÃ´ng Ä‘á»•i")+seg("na","khÃ´ng so Ä‘Æ°á»£c");
+  $("prevd").textContent = S.dates[S.dates.length-2]+" â†’ "+S.dates[S.dates.length-1];
+}
+
+/* ---- history matrix ---- */
+/* Äá»£t quÃ©t má»›i nháº¥t náº±m bÃªn trÃ¡i Ä‘á»ƒ má»Ÿ ra lÃ  tháº¥y ngay. */
+function renderMatrix(){
+  const idx = S.dates.map((_,i)=>i).reverse();
+  let h=`<thead><tr><th>HÃ£ng</th><th>Model</th><th class="num">RRP</th>${idx.map(i=>`<th class="num">${esc(dlabel(S.dates[i]))}</th>`).join("")}</tr></thead><tbody>`;
+  S.rows.forEach(r=>{
+    h+=`<tr data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${newBadge(r.model)}</td><td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td>`;
+    idx.forEach(i=>{
+      // MÃ u luÃ´n so vá»›i Ä‘á»£t quÃ©t liá»n trÆ°á»›c theo thá»i gian, dÃ¹ hiá»ƒn thá»‹ theo chiá»u nÃ o.
+      const v=r.pmh[i], prev=i>0?r.pmh[i-1]:null;
+      const cl = v==null||prev==null?"first":v>prev?"up":v<prev?"down":"first";
+      h+=`<td class="c ${cl}">${v==null?"":fmt(v)}</td>`;
+    });
+    h+="</tr>";
+  });
+  $("mtx").innerHTML=h+"</tbody>";
+}
+
+/* ---- detail drawer ---- */
+function chart(r){
+  const W=470,H=190,L=44,B=24,T=10,R=10,v=r.pmh,n=v.length;
+  const vals=v.filter(x=>x!=null); if(!vals.length) return "<p>ChÆ°a cÃ³ dá»¯ liá»‡u PMH.</p>";
+  const max=Math.max(...vals,1);
+  const X=i=>L+(n===1?0:i/(n-1))*(W-L-R), Y=x=>T+(1-x/max)*(H-T-B);
+  let path="",started=false;
+  v.forEach((x,i)=>{ if(x==null){started=false;return;} path+=`${started?"L":"M"}${X(i).toFixed(1)} ${Y(x).toFixed(1)} `; started=true; });
+  const grid=[0,.5,1].map(t=>`<line x1="${L}" x2="${W-R}" y1="${Y(max*t)}" y2="${Y(max*t)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(max*t)+4}" text-anchor="end" font-size="10" fill="var(--muted)">${fmt(Math.round(max*t/1000))}k</text>`).join("");
+  const dots=v.map((x,i)=>x==null?"":`<circle cx="${X(i)}" cy="${Y(x)}" r="3.5" fill="var(--accent)"><title>${esc(S.dates[i])}: ${fmt(x)}</title></circle>`).join("");
+  const xl=S.dates.map((d,i)=>`<text x="${X(i)}" y="${H-6}" text-anchor="middle" font-size="10" fill="var(--muted)">${esc(d)}</text>`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="PMH theo Ä‘á»£t quÃ©t">${grid}<path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2"/>${dots}${xl}</svg>`;
+}
+let lastFocus=null;
+function openDrawer(model){
+  const r=S.rows.find(x=>x.model===model); if(!r) return;
+  lastFocus=document.activeElement;
+  const vals=r.pmh.filter(x=>x!=null), p=r.pmh[r.pmh.length-1];
+  const best=vals.length?Math.max(...vals):null, avg=vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):null;
+  const runs=vals.filter(x=>x>0).length;
+  $("dbody").innerHTML=`<h2>${esc(r.model)}${newBadge(r.model)}</h2><div style="color:var(--muted)"><span class="bpill" data-b="${esc(r.brand)}">${esc(bdisp(r.brand))}</span>phÃ¢n khÃºc ${esc(r.segment)}, ${r.channel==="TGDD"?"Ä‘á»™c quyá»n TGDÄ":"kÃªnh Mass"}${kindOf(r)?`, Ä‘á»£t má»›i nháº¥t: <span class="badge ${kindOf(r)===KIND_FS?"fs":"mass"}">${kindOf(r)}</span>`:""}</div>
+  <div class="kv"><div><small>RRP</small><b>${fmt(r.rrp)}</b></div><div><small>PMH online</small><b>${fmt(pmhOnline(r))}</b></div><div><small>PMH cao nháº¥t</small><b>${fmt(best)}</b></div>
+  <div><small>Trang sáº£n pháº©m</small>${LINKS[r.model]?`<a class="plink" href="${esc(LINKS[r.model])}" target="_blank" rel="noopener noreferrer">Má»Ÿ trÃªn TGDÄ â†—</a>`:`<b>â€“</b>`}</div>
+  <div><small>GiÃ¡ offline</small><b>${fmt(offPrice(r))}</b></div><div><small>GiÃ¡ online</small><b>${fmt(onPrice(r))}</b></div></div>
+  ${r.flags.map(f=>`<div class="note">${esc(f)}</div>`).join("")}
+  ${r.rule?`<div class="kv"><div><small>KM base (PMH)</small><b>${fmt(r.pmh[r.pmh.length-1])}</b></div><div><small>Flash sale</small><b>${fmt(r.tot)}</b></div><div><small>GiÃ¡ Ä‘en âˆ’ giÃ¡ Ä‘á»</small><b>${fmt(r.online)}</b></div></div><div style="color:var(--muted)">Äá»£t má»›i nháº¥t: ${{flash_chon1:"cÃ³ flash sale nÃªn PMH = khoáº£n â€œChá»n 1 trongâ€",den_tru_do:"khÃ´ng flash sale, giÃ¡ Ä‘en âˆ’ giÃ¡ Ä‘á» lá»›n hÆ¡n khoáº£n â€œChá»n 1 trongâ€",chon1:"khÃ´ng flash sale, khoáº£n â€œChá»n 1 trongâ€ lá»›n hÆ¡n giÃ¡ Ä‘en âˆ’ giÃ¡ Ä‘á»",khong_banner:"khÃ´ng cÃ³ banner (quy táº¯c cÅ©)",banner_a:"banner loáº¡i A (quy táº¯c cÅ©)",banner_b:"banner loáº¡i B (quy táº¯c cÅ©)"}[r.rule]||"â€“"}.</div>`:""}
+  ${r.status==="ngung_kd"?`<div class="note">TGDÄ Ä‘Ã£ gá»¡ SKU nÃ y (trang tráº£ vá» 404).</div>`:""}
+  ${r.status==="chua_mo_ban"?`<div class="note">SKU má»›i cÃ³ trang Ä‘Äƒng kÃ½ nháº­n tin, chÆ°a má»Ÿ bÃ¡n. GiÃ¡ hiá»ƒn thá»‹ lÃ  giÃ¡ dá»± kiáº¿n.</div>`:""}
+  ${chart(r)}
+  <div class="kv"><div><small>PMH trung bÃ¬nh</small><b>${fmt(avg)}</b></div><div><small>Äá»£t cÃ³ khuyáº¿n mÃ£i</small><b>${runs}/${vals.length}</b></div><div><small>% giáº£m hiá»‡n táº¡i</small><b>${p==null||r.status!=="active"?"â€“":(p/r.rrp*100).toFixed(1)+"%"}</b></div></div>
+  <table><thead><tr><th>Äá»£t quÃ©t</th><th class="num">PMH</th><th class="num">So Ä‘á»£t trÆ°á»›c</th></tr></thead><tbody>${r.pmh.map((x,i)=>{const pv=i?r.pmh[i-1]:null;const d=x!=null&&pv!=null?x-pv:null;return `<tr><td>${esc(dlabel(S.dates[i]))}</td><td class="num">${fmt(x)}</td><td class="num">${d==null?"â€“":d===0?"khÃ´ng Ä‘á»•i":d>0?`<span class="d-up">â–² ${fmt(d)}</span>`:`<span class="d-down">â–¼ ${fmt(-d)}</span>`}</td></tr>`}).reverse().join("")}</tbody></table>`;
+  $("drawer").classList.add("open"); $("drawer").setAttribute("aria-hidden","false"); $("dx").focus();
+}
+function closeDrawer(){ $("drawer").classList.remove("open"); $("drawer").setAttribute("aria-hidden","true"); if(lastFocus) lastFocus.focus(); }
+
+/* ---- calculator ---- */
+const num = s => { const v=parseInt(String(s).replace(/[^\d]/g,""),10); return isNaN(v)?null:v; };
+function calc(){
+  const den=num($("c-den").value), dor=num($("c-do").value), flash=$("c-ban").value==="co", chon=num($("c-line").value)||0;
+  if(den==null||dor==null){ $("c-res").textContent="Nháº­p giÃ¡ Ä‘en vÃ  giÃ¡ Ä‘á» Ä‘á»ƒ tÃ­nh."; return; }
+  const online=Math.max(den-dor,0);
+  let pmh, why;
+  if(flash){ pmh=chon; why="CÃ³ flash sale: láº¥y khoáº£n â€œChá»n 1 trongâ€" + (chon?".":", khÃ´ng cÃ³ nÃªn PMH báº±ng 0."); }
+  else if(online>=chon){ pmh=online; why="KhÃ´ng flash sale: giÃ¡ Ä‘en âˆ’ giÃ¡ Ä‘á» lá»›n hÆ¡n hoáº·c báº±ng khoáº£n â€œChá»n 1 trongâ€."; }
+  else { pmh=chon; why="KhÃ´ng flash sale: khoáº£n â€œChá»n 1 trongâ€ lá»›n hÆ¡n giÃ¡ Ä‘en âˆ’ giÃ¡ Ä‘á»."; }
+  $("c-res").innerHTML=`PMH = <b>${fmt(pmh)}</b> <span style="color:var(--muted)">(${(den?pmh/den*100:0).toFixed(1)}% giÃ¡ Ä‘en)</span><br><span style="color:var(--muted)">${why}</span><br><span style="color:var(--muted)">GiÃ¡ Ä‘en âˆ’ giÃ¡ Ä‘á» = ${fmt(online)}, khoáº£n â€œChá»n 1 trongâ€ = ${fmt(chon)}</span>`;
+}
+
+/* ---- export (táº£i file trá»±c tiáº¿p trÃªn trÃ¬nh duyá»‡t) ---- */
+function sheetAoa(){
+  // Cá»™t chÃ­nh lÃ  PMH (KM base) theo quy táº¯c; thÃ´ng tin flash sale Ä‘á»ƒ cuá»‘i, chá»‰ tham kháº£o.
+  const head=["HÃ£ng","Model","RRP","KÃªnh","PhÃ¢n khÃºc",...S.dates.map(d=>"KM base "+d),
+              "GiÃ¡ offline","Loáº¡i KM (tham kháº£o)","Flash sale (tham kháº£o)","Link"];
+  const v=x=>x==null?"":x;
+  return [head,...S.rows.map(r=>[r.brand,r.model,r.rrp,r.channel==="TGDD"?"Äá»™c quyá»n TGDÄ":"Mass",r.segment,
+                                 ...r.pmh.map(v), v(offPrice(r)), kindOf(r)||"", v(r.tot), LINKS[r.model]||""])];
+}
+function toast(t){ const e=$("toast"); e.textContent=t; e.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>e.hidden=true,2600); }
+function save(filename,data,type){
+  try{
+    const url=URL.createObjectURL(new Blob([data],{type}));
+    const a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+    toast("ÄÃ£ lÆ°u "+filename);
+  }catch(e){ toast("KhÃ´ng lÆ°u Ä‘Æ°á»£c: "+(e.message||e)); }
+}
+function csvText(){ return "ï»¿"+sheetAoa().map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n"); }
+function initExports(){
+  const day=()=>S.dates[S.dates.length-1];
+  if($("csv")) $("csv").onclick=()=>save(`promotion_${day()}.csv`,csvText(),"text/csv;charset=utf-8");
+  if($("json")) $("json").onclick=()=>save(`promotion_${day()}.json`,JSON.stringify({dates:S.dates,rows:S.rows},null,1),"application/json");
+  if($("xlsx")) $("xlsx").onclick=()=>{
+    if(!window.XLSX){ toast("ChÆ°a táº£i Ä‘Æ°á»£c thÆ° viá»‡n Excel, kiá»ƒm tra káº¿t ná»‘i máº¡ng"); return; }
+    const wb=XLSX.utils.book_new();
+    const ws1=XLSX.utils.aoa_to_sheet(sheetAoa());
+    ws1["!cols"]=[{wch:10},{wch:38},{wch:14},{wch:16},{wch:11},...S.dates.map(()=>({wch:12})),{wch:18},{wch:20},{wch:20},{wch:40}];
+    XLSX.utils.book_append_sheet(wb,ws1,"KM_86_SKU_TGDD");
+    try{
+      if(typeof buildH2HData==="function"){
+        const h2h=buildH2HData();
+        const h2hHead=["HÃ£ng","Model","PhÃ¢n khÃºc","KÃªnh","RRP","GiÃ¡ TGDÄ","GiÃ¡ CellphoneS","GiÃ¡ FPT Shop","GiÃ¡ Viettel Store","SÃ n ráº» nháº¥t","ChÃªnh lá»‡ch cao nháº¥t (Ä‘)","% ChÃªnh lá»‡ch"];
+        const h2hRows=h2h.map(x=>[x.brand,x.model,x.segment,x.channel==="TGDD"?"Äá»™c quyá»n":"Mass",x.rrp,x.p_tgdd||"",x.p_cps||"",x.p_fpt||"",x.p_vt||"",x.bests.join(", "),x.spread||0,x.spreadPct?x.spreadPct.toFixed(1)+"%":"0%"]);
+        const ws2=XLSX.utils.aoa_to_sheet([h2hHead,...h2hRows]);
+        ws2["!cols"]=[{wch:10},{wch:36},{wch:12},{wch:12},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:18},{wch:22},{wch:14}];
+        XLSX.utils.book_append_sheet(wb,ws2,"Ma_Tran_4_San");
+      }
+      if(Array.isArray(window.RISE)){
+        const riseHead=["ThÃ¡ng","HÃ£ng","Model","GiÃ¡ cÅ©","GiÃ¡ má»›i","Má»©c tÄƒng (Ä‘)","% Thay Ä‘á»•i","PhÃ¢n khÃºc","NgÃ y Ä‘á»•i"];
+        const riseRows=RISE.map(r=>[r.mo,r.b,r.m,r.o,r.n,r.v,(r.p>0?"+":"")+r.p.toFixed(1)+"%",r.seg,rd(r.d)]);
+        const ws3=XLSX.utils.aoa_to_sheet([riseHead,...riseRows]);
+        ws3["!cols"]=[{wch:8},{wch:10},{wch:36},{wch:14},{wch:14},{wch:14},{wch:12},{wch:12},{wch:14}];
+        XLSX.utils.book_append_sheet(wb,ws3,"Lich_Su_Tang_Gia");
+      }
+    }catch(err){ console.error("Export multi-sheet error:",err); }
+    save(`Bao_Cao_GTM_Khuyen_Mai_${day()}.xlsx`,XLSX.write(wb,{type:"array",bookType:"xlsx"}),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  };
+}
+
+/* ---- Lá»‹ch sá»­ tÄƒng giÃ¡ ---- */
+// Báº£ng nháº­p tay + cÃ¡c láº§n tÄƒng giÃ¡ do bá»™ quÃ©t tá»± dÃ² ra, bá» dÃ²ng trÃ¹ng.
+const RISE_RAW = (()=>{
+  const base = window.RISE_RAW || [];
+  const auto = Array.isArray(window.RISE_AUTO) ? window.RISE_AUTO : [];
+  // KÃªnh náº±m trong khoÃ¡: cÃ¹ng má»™t mÃ¡y tÄƒng á»Ÿ nhiá»u kÃªnh lÃ  nhiá»u dÃ²ng, khÃ´ng pháº£i trÃ¹ng.
+  const key = r => `${String(r[1]).toUpperCase()}|${r[2]}|${r[3]}|${r[4]}|${r[7]||""}`;
+  const seen = new Set(base.map(key));
+  return base.concat(auto.filter(r=>{ const k=key(r); if(seen.has(k)) return false; seen.add(k); return true; }));
+})();
+const RBD = {APPLE:"Apple",OPPO:"OPPO",SAMSUNG:"Samsung",XIAOMI:"Xiaomi",VIVO:"Vivo",REALME:"Realme",HONOR:"Honor"};
+const rseg = p => p<5e6?"<5M":p<7e6?"5-7M":p<1e7?"7-10M":p<1.5e7?"10-15M":p<2e7?"15-20M":p<=3e7?"20-30M":">30M";
+const SEGS = [">30M","20-30M","15-20M","10-15M","7-10M","5-7M","<5M"];
+const rd = iso => { const [y,m,d]=iso.split("-"); return `${+d}-${+m}-${y}`; };
+const rkey = (b,m) => { let s=m.toLowerCase().replace(/[:()]/g," ").replace(/\s+/g," ").trim();
+  s=s.replace(/(\d+)\s*(?:gb|g)?\s*\+\s*(\d+)\s*(gb|g|tb)?/g,(x,a,c,u)=>`${a}gb/${c}${u&&u[0]==="t"?"tb":"gb"}`);
+  s=s.replace(/(\d+)gb\s+(\d+)gb/g,"$1gb/$2gb").replace(/(\d+)\s*gb\s*\/\s*(\d+)\s*(gb|tb)/g,"$1gb/$2$3");
+  if(/^s25 fe/.test(s)&&!/5g/.test(s)) s=s.replace("s25 fe","s25 fe 5g");
+  return b+"|"+s.replace(/\s+/g," "); };
+// CÃ¡c chuá»—i giÃ¡ Ä‘Ã£ kiá»ƒm tra: biáº¿t lÃ  thiáº¿u má»™t náº¥c nhÆ°ng khÃ´ng cÃ²n nguá»“n Ä‘á»ƒ bá»• sung,
+// nÃªn thÃ´i khÃ´ng cáº£nh bÃ¡o ná»¯a â€” Ä‘á»ƒ dÃ nh cáº£nh bÃ¡o cho lá»—i tháº­t. Khai trong data.js.
+const GAP_OK = new Set((window.RISE_GAP_OK||[]).map(x=>rkey(x[0],x[1])));
+// BÃ¡o ngay khi Ä‘á»£t quÃ©t gáº§n nháº¥t phÃ¡t hiá»‡n giÃ¡ Ä‘en tÄƒng; khÃ´ng cÃ³ thÃ¬ khÃ´ng hiá»‡n gÃ¬.
+function riseAlertBox(){
+  const A = Array.isArray(window.ALERTS) ? window.ALERTS : [];
+  const hit = A.filter(e=>Array.isArray(e.items) && e.items.length);
+  if(!hit.length) return "";
+  const last = hit[hit.length-1].day;
+  const items = hit.filter(e=>e.day===last).flatMap(e=>e.items);
+  if(!items.length) return "";
+  const li = items.slice(0,20).map(x=>`<li>${esc(x.b||"")} ${esc(x.n)}: ${fmt(x.old)} â†’ <b>${fmt(x.new)}</b> (+${(((x.new-x.old)/x.old)*100).toFixed(1)}%)${x.r?` â€” <b>${esc(x.r)}</b>`:""}</li>`).join("");
+  return `<div class="rwarn"><b>Äá»£t quÃ©t ${esc(rd(last))} phÃ¡t hiá»‡n ${items.length} mÃ¡y tÄƒng giÃ¡ Ä‘en.</b><ul>${li}`
+       + (items.length>20?`<li>â€¦ vÃ  ${items.length-20} mÃ¡y ná»¯a.</li>`:"") + `</ul></div>`;
+}
+// Pháº§n tá»­ thá»© 8 lÃ  kÃªnh phÃ¡t hiá»‡n tÄƒng giÃ¡; cÃ¡c dÃ²ng nháº­p tay cÅ© khÃ´ng cÃ³ nÃªn Ä‘á»ƒ trá»‘ng.
+const RISE = RISE_RAW.map((r,i)=>{ const [mo,b,m,o,n,d,p,ch]=r; return {i,mo,b,m,o,n,v:n-o,p,seg:rseg(n),d,ch:ch||"",k:rkey(b,m)}; });
+const mnum = m => +m.slice(1);
+const RB_CELL = b => `<td class="bcell" data-b="${RBD[b]||b}">${b}</td>`;
+const rpct = p => (p>0?"+":"")+p.toFixed(1)+"%";
+function rBrandStats(){
+  const by={}; RISE.forEach(r=>(by[r.b]=by[r.b]||[]).push(r));
+  return Object.entries(by).map(([b,l])=>{ const up=l.filter(r=>r.v>0), dn=l.filter(r=>r.v<0), mx=up.slice().sort((a,c)=>c.p-a.p)[0];
+    return {b,ups:up.length,downs:dn.length,models:new Set(up.map(r=>r.k)).size,avg:up.length?up.reduce((t,r)=>t+r.p,0)/up.length:null,
+            waves:new Set(up.map(r=>r.d)).size,months:[...new Set(up.map(r=>r.mo))].sort((a,c)=>mnum(a)-mnum(c)),max:mx}; })
+    .sort((a,c)=>c.ups-a.ups||(c.avg||0)-(a.avg||0));
+}
+function rModels(){
+  const by=new Map();
+  RISE.slice().sort((a,c)=>a.d.localeCompare(c.d)||a.i-c.i).forEach(r=>{ if(!by.has(r.k)) by.set(r.k,[]); by.get(r.k).push(r); });
+  return [...by.values()].map(l=>{ const ups=l.filter(r=>r.v>0); if(!ups.length) return null;
+    const first=l[0].o, last=l[l.length-1].n, gaps=l.slice(1).filter((r,j)=>l[j].n!==r.o).length;
+    return {b:l[0].b,m:l[l.length-1].m,ups:ups.length,n:l.length,first,last,v:last-first,p:Math.round((last-first)/first*1000)/10,d:l[l.length-1].d,chain:l,gaps}; }).filter(Boolean);
+}
+let RMODELS=[];
+function renderRiseTop(){
+  const st=rBrandStats(), ups=RISE.filter(r=>r.v>0), dns=RISE.filter(r=>r.v<0), mods=new Set(ups.map(r=>r.k)).size;
+  const lastD=ups.map(r=>r.d).sort().pop(), lastWave=ups.filter(r=>r.d===lastD);
+  const top=st[0];
+  $("rkpi").innerHTML=`
+    <div class="rk"><small>LÆ°á»£t Ä‘á»•i giÃ¡ ghi nháº­n</small><b>${RISE.length}</b><span>${ups.length} láº§n tÄƒng, ${dns.length} láº§n giáº£m</span></div>
+    <div class="rk"><small>Model Ä‘Ã£ tá»«ng tÄƒng giÃ¡</small><b>${mods}</b><span>${RMODELS.filter(x=>x.ups>=2).length} model tÄƒng tá»« 2 láº§n</span></div>
+    <div class="rk"><small>HÃ£ng tÄƒng nhiá»u lÆ°á»£t nháº¥t</small><b>${top.b}</b><span>${top.ups} lÆ°á»£t, ${top.models} model, trung bÃ¬nh ${top.avg.toFixed(1)}%</span></div>
+    <div class="rk"><small>Äá»£t tÄƒng gáº§n nháº¥t</small><b>${rd(lastD)}</b><span>${lastWave.length} lÆ°á»£t, ${[...new Set(lastWave.map(r=>r.b))].join(", ")}</span></div>
+    ${riseTodayCard()}`;
+  $("rbrand").innerHTML=`<thead><tr><th>HÃ£ng</th><th class="n">LÆ°á»£t tÄƒng</th><th class="n">LÆ°á»£t giáº£m</th><th class="n">Model tÄƒng</th><th class="n">% tÄƒng TB</th><th class="n">Sá»‘ Ä‘á»£t tÄƒng</th><th>CÃ¡c thÃ¡ng cÃ³ tÄƒng</th><th>TÄƒng máº¡nh nháº¥t</th></tr></thead><tbody>`+
+    st.map(s=>`<tr class="rclick" data-rb="${s.b}">${RB_CELL(s.b)}<td class="n"><b>${s.ups}</b></td><td class="n">${s.downs||"â€“"}</td><td class="n">${s.models}</td><td class="n">${s.avg==null?"â€“":s.avg.toFixed(1)+"%"}</td><td class="n">${s.waves}</td><td>${s.months.join(", ")||"â€“"}</td><td>${s.max?`<span class="r-inc">${rpct(s.max.p)}</span> ${esc(s.max.m)} (${s.max.mo})`:"â€“"}</td></tr>`).join("")+`</tbody>`;
+  const months=[...new Set(RISE.map(r=>r.mo))].sort((a,c)=>mnum(a)-mnum(c)), mx=Math.max(...st.flatMap(s=>months.map(m=>RISE.filter(r=>r.b===s.b&&r.mo===m&&r.v>0).length)),1);
+  $("rmatrix").innerHTML=`<thead><tr><th>HÃ£ng</th>${months.map(m=>`<th class="n">${m}</th>`).join("")}<th class="n">Tá»•ng tÄƒng</th></tr></thead><tbody>`+
+    st.map(s=>`<tr>${RB_CELL(s.b)}${months.map(m=>{ const u=RISE.filter(r=>r.b===s.b&&r.mo===m&&r.v>0).length, dn=RISE.filter(r=>r.b===s.b&&r.mo===m&&r.v<0).length;
+      return `<td class="hm" ${u?`style="background:rgba(184,50,80,${(0.12+0.55*u/mx).toFixed(2)})"`:""}>${u||(dn?"":"Â·")}${dn?` <span class="r-dec">â†“${dn}</span>`:""}</td>`; }).join("")}<td class="n"><b>${s.ups}</b></td></tr>`).join("")+`</tbody>`;
+  // Chuá»—i Ä‘Ã£ khai trong RISE_GAP_OK thÃ¬ khÃ´ng nháº¯c ná»¯a, khá»i lÃ m rá»‘i ngÆ°á»i xem.
+  const gapL=RMODELS.filter(x=>x.gaps && !GAP_OK.has(rkey(x.b,x.m)));
+  $("rwarn").innerHTML=riseAlertBox()+(gapL.length?`<div class="rwarn"><b>${gapL.length} model cÃ³ chuá»—i giÃ¡ khÃ´ng khá»›p.</b> GiÃ¡ cÅ© cá»§a láº§n Ä‘á»•i sau khÃ¡c giÃ¡ má»›i cá»§a láº§n trÆ°á»›c: cÃ³ thá»ƒ trÃ¹ng dÃ²ng hoáº·c thiáº¿u má»™t Ä‘á»£t. Báº¡n kiá»ƒm tra láº¡i cÃ¡c dÃ²ng nÃ y:<ul>`+
+    gapL.map(x=>`<li>${x.b} ${esc(x.m)}: ${x.chain.map(r=>`${r.mo} ${fmt(r.o)} â†’ ${fmt(r.n)}`).join("; ")}</li>`).join("")+`</ul></div>`:"");
+}
+// Ã” thá»‘ng kÃª: Ä‘á»£t quÃ©t gáº§n nháº¥t cÃ³ mÃ¡y nÃ o tÄƒng giÃ¡ Ä‘en, hÃ£ng gÃ¬, á»Ÿ kÃªnh nÃ o.
+// CÃ¹ng má»™t mÃ¡y thÆ°á»ng chá»‰ tÄƒng á»Ÿ vÃ i kÃªnh nÃªn gá»™p cÃ¡c kÃªnh láº¡i trong ngoáº·c.
+function riseTodayCard(){
+  const l = RISE.filter(r=>r.ch && r.v>0);
+  if(!l.length) return `<div class="rk"><small>TÄƒng giÃ¡ má»›i nháº¥t</small><b>0</b><span>ChÆ°a ghi nháº­n mÃ¡y nÃ o tÄƒng giÃ¡ Ä‘en</span></div>`;
+  const day = l.map(r=>r.d).sort().pop();
+  const g = new Map();
+  l.filter(r=>r.d===day).forEach(r=>{
+    if(!g.has(r.k)) g.set(r.k,{b:r.b,m:r.m,ch:new Set()});
+    g.get(r.k).ch.add(r.ch); });
+  const txt=[...g.values()].map(x=>`${x.b} ${x.m} (${[...x.ch].join(", ")})`).join("; ");
+  return `<div class="rk"><small>TÄƒng giÃ¡ ngÃ y ${rd(day)}</small><b>${g.size}</b><span>${esc(txt)}</span></div>`;
+}
+function renderRiseModels(){
+  const b=$("rm-brand").value, sort=$("rm-sort").value, multi=$("rm-multi").checked, q=$("rm-q").value.trim();
+  let l=RMODELS.filter(x=>(b==="all"||x.b===b)&&(!multi||x.ups>=2)&&(!q||matchSmart(q, x.b+" "+x.m)));
+  l.sort((a,c)=>sort==="d"?c.d.localeCompare(a.d):(c[sort]-a[sort])||c.p-a.p);
+  $("rm-count").textContent=`Hiá»ƒn thá»‹ ${l.length} model Ä‘Ã£ tá»«ng tÄƒng giÃ¡`;
+  $("rmodel").innerHTML=`<thead><tr><th>HÃ£ng</th><th>Model</th><th class="n">Láº§n tÄƒng</th><th class="n">GiÃ¡ Ä‘áº§u</th><th class="n">GiÃ¡ hiá»‡n táº¡i</th><th class="n">TÄƒng tÃ­ch lÅ©y</th><th class="n">%</th><th>Láº§n Ä‘á»•i gáº§n nháº¥t</th><th>CÃ¡c láº§n Ä‘á»•i</th></tr></thead><tbody>`+
+    l.map(x=>`<tr>${RB_CELL(x.b)}<td class="mdl">${esc(x.m)}${x.gaps?` <span class="r-gap" title="Chuá»—i giÃ¡ khÃ´ng khá»›p, xem cáº£nh bÃ¡o á»Ÿ Ä‘áº§u tab">âš </span>`:""}</td><td class="n"><b>${x.ups}</b></td><td class="n">${fmt(x.first)}</td><td class="n"><b>${fmt(x.last)}</b></td>
+      <td class="n ${x.v>0?"r-inc":"r-dec"}">${x.v>0?"â–²":"â–¼"} ${fmt(Math.abs(x.v))}</td><td class="n ${x.v>0?"r-inc":"r-dec"}">${rpct(x.p)}</td><td>${rd(x.d)}</td><td>${x.chain.map(r=>r.mo+(r.v<0?"â†“":"")).join(" â†’ ")}</td></tr>`).join("")+`</tbody>`;
+}
+function renderRiseLog(){
+  const m=$("rl-month").value, b=$("rl-brand").value, d=$("rl-dir").value, sg=$("rl-seg").value, q=$("rl-q").value.trim();
+  const l=RISE.filter(r=>(m==="all"||r.mo===m)&&(b==="all"||r.b===b)&&(sg==="all"||r.seg===sg)&&(d==="all"||(d==="up"?r.v>0:r.v<0))&&(!q||matchSmart(q, r.b+" "+r.m)))
+    .sort((a,c)=>c.d.localeCompare(a.d)||Math.abs(c.p)-Math.abs(a.p));
+  $("rl-count").textContent=`Hiá»ƒn thá»‹ ${l.length} / ${RISE.length} lÆ°á»£t Ä‘á»•i giÃ¡`;
+  $("rlog").innerHTML=`<thead><tr><th>Month</th><th>Brand</th><th>Model</th><th class="n">Old Price</th><th class="n">New Price</th><th class="n">Variance</th><th class="n">% Change</th><th>Segment</th><th>Change Date</th></tr></thead><tbody>`+
+    l.map(r=>`<tr><td>${r.mo}</td>${RB_CELL(r.b)}<td class="mdl">${esc(r.m)}</td><td class="n">${fmt(r.o)}</td><td class="n"><b>${fmt(r.n)}</b></td><td class="n ${r.v>0?"r-inc":"r-dec"}">${r.v>0?"â–²":"â–¼"} ${fmt(Math.abs(r.v))}</td><td class="n ${r.v>0?"r-inc":"r-dec"}">${r.p>0?"":"-"}${Math.abs(r.p).toFixed(1)}%</td><td>${r.seg}</td><td>${rd(r.d)}</td></tr>`).join("")+`</tbody>`;
+}
+function riseInit(){
+  RMODELS=rModels();
+  const brands=rBrandStats().map(s=>s.b), months=[...new Set(RISE.map(r=>r.mo))].sort((a,c)=>mnum(c)-mnum(a));
+  const opt=(id,vals,first)=>{ $(id).innerHTML=`<option value="all">${first}</option>`+vals.map(v=>`<option>${esc(v)}</option>`).join(""); };
+  opt("rm-brand",brands,"Táº¥t cáº£"); opt("rl-brand",brands,"Táº¥t cáº£"); opt("rl-month",months,"Táº¥t cáº£"); opt("rl-seg",SEGS.filter(s=>RISE.some(r=>r.seg===s)),"Táº¥t cáº£");
+  ["rm-brand","rm-sort","rm-multi"].forEach(i=>$(i).addEventListener("change",renderRiseModels)); $("rm-q").addEventListener("input",renderRiseModels);
+  ["rl-month","rl-brand","rl-dir","rl-seg"].forEach(i=>$(i).addEventListener("change",renderRiseLog)); $("rl-q").addEventListener("input",renderRiseLog);
+  $("rbrand").addEventListener("click",e=>{ const tr=e.target.closest("tr[data-rb]"); if(!tr) return; const b=tr.dataset.rb; $("rm-brand").value=b; $("rl-brand").value=b; renderRiseModels(); renderRiseLog(); $("rmodel").scrollIntoView({behavior:"smooth",block:"start"}); });
+  renderRiseTop(); renderRiseModels(); renderRiseLog();
+}
+
+/* ---- wiring ---- */
+function renderAll(){
+  build(); renderFilters(); renderBar(); renderTable(); renderMatrix();
+  const act=S.rows.filter(r=>r.status==="active"&&r.pmh[r.pmh.length-1]>0).length;
+  const nb=new Set(S.rows.map(r=>r.brand)).size;
+  $("subline").textContent=`${S.rows.length} SKU cá»§a ${nb} hÃ£ng, quÃ©t theo master list. Äá»£t má»›i nháº¥t ${S.dates[S.dates.length-1]}: ${act} SKU Ä‘ang cÃ³ PMH.`;
+  document.title=`GTMVN â€” Theo dÃµi khuyáº¿n mÃ£i (${S.rows.length} SKU)`;
+}
+document.addEventListener("click",e=>{
+  const chip=e.target.closest(".chip:not([data-mk])"); if(chip){ F[chip.dataset.k]=chip.dataset.v; renderFilters(); renderTable(); return; }
+  const seg=e.target.closest("#bar button"); if(seg){ F.move=F.move===seg.dataset.m?null:seg.dataset.m; renderBar(); renderTable(); return; }
+  const th=e.target.closest("#thead th"); if(th&&th.dataset.sort!=="brand"&&th.dataset.sort!=="ch"&&th.dataset.sort!=="seg"&&th.dataset.sort!=="trend"&&th.dataset.sort!=="kind"){
+    const k=th.dataset.sort; if(F.sort===k) F.dir=-F.dir; else {F.sort=k;F.dir=(k==="model")?1:-1;} renderTable(); return; }
+  const tr=e.target.closest("tr[data-m]"); if(tr){ openDrawer(tr.dataset.m); return; }
+  const tab=e.target.closest("nav.tabs button"); if(tab){
+    if(tab.dataset.tab==="rise" && !isRiseUnlocked()){
+      openPasswordModal(tab);
+      return;
+    }
+    doSwitchTab(tab);
+  }
+});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape") closeDrawer();
+  if(e.key==="Enter"){ const tr=e.target.closest&&e.target.closest("tbody tr[data-m]"); if(tr) openDrawer(tr.dataset.m); }
+});
+$("dx").onclick=closeDrawer;$("q").oninput=e=>{F.q=e.target.value.trim().toLowerCase(); renderTable();};
+["c-den","c-do","c-ban","c-line"].forEach(id=>$(id).addEventListener("input",calc));
+$("file").onchange=async e=>{
+  const f=e.target.files[0]; if(!f) return;
+  try{
+    const j=JSON.parse(await f.text());
+    if(!j.date||!Array.isArray(j.rows)) throw new Error("File thiáº¿u trÆ°á»ng date hoáº·c rows");
+    imports=imports.filter(x=>x.date!==j.date); imports.push({date:j.date,rows:j.rows});
+    try{ localStorage.setItem("tp_imports",JSON.stringify(imports)); }catch(_){}
+    
+/* ---- Security Passcode for Rise Tab ---- */
+const DEFAULT_RISE_PW = "GTMVN";
+function getRisePassword(){
+  try{
+    return localStorage.getItem("tgdd_rise_pw") || DEFAULT_RISE_PW;
+  }catch(e){
+    return DEFAULT_RISE_PW;
+  }
+}
+function isRiseUnlocked(){
+  try{
+    return sessionStorage.getItem("tgdd_rise_unlocked") === "1";
+  }catch(e){
+    return false;
+  }
+}
+function setRiseUnlocked(unlocked){
+  try{
+    if(unlocked){
+      sessionStorage.setItem("tgdd_rise_unlocked", "1");
+    } else {
+      sessionStorage.removeItem("tgdd_rise_unlocked");
+    }
+  }catch(e){}
+  updateRiseTabIcon();
+}
+function updateRiseTabIcon(){
+  const icon = document.getElementById("tab-rise-icon");
+  if(icon) icon.textContent = isRiseUnlocked() ? "ðŸ”“" : "ðŸ”’";
+}
+function doSwitchTab(tab){
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b===tab));
+  document.querySelectorAll(".pane").forEach(p=>p.hidden=p.id!=="p-"+tab.dataset.tab);
+  if(tab.dataset.tab==="compare") compareInit();
+  if(tab.dataset.tab==="market"){ renderMarket(); renderMarketH2H(); renderFakePromoAlerts(); }
+}
+let pendingRiseTab = null;
+function openPasswordModal(tabEl){
+  pendingRiseTab = tabEl;
+  const modal = document.getElementById("pw-modal");
+  const input = document.getElementById("pw-input");
+  const err = document.getElementById("pw-err");
+  if(!modal || !input) return;
+  input.value = "";
+  input.type = "password";
+  if(err) err.hidden = true;
+  modal.hidden = false;
+  setTimeout(() => input.focus(), 80);
+}
+function closePasswordModal(){
+  const modal = document.getElementById("pw-modal");
+  if(modal) modal.hidden = true;
+  pendingRiseTab = null;
+}
+function submitRisePassword(){
+  const input = document.getElementById("pw-input");
+  const err = document.getElementById("pw-err");
+  if(!input) return;
+  const entered = input.value.trim();
+  const actualPw = getRisePassword().trim();
+  if(entered.toUpperCase() === actualPw.toUpperCase()){
+    setRiseUnlocked(true);
+    closePasswordModal();
+    if(pendingRiseTab){
+      doSwitchTab(pendingRiseTab);
+    }
+  } else {
+    if(err){
+      err.textContent = "MÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t khÃƒÂ´ng chÃƒÂ­nh xÃƒÂ¡c! Vui lÃƒÂ²ng thÃ¡Â»Â­ lÃ¡ÂºÂ¡i.";
+      err.hidden = false;
+    }
+    input.select();
+  }
+}
+function initRiseAuthEvents(){
+  updateRiseTabIcon();
+  const pwSubmit = document.getElementById("pw-submit");
+  if(pwSubmit) pwSubmit.onclick = submitRisePassword;
+  const pwCancel = document.getElementById("pw-cancel");
+  if(pwCancel) pwCancel.onclick = closePasswordModal;
+  const pwBackdrop = document.getElementById("pw-backdrop");
+  if(pwBackdrop) pwBackdrop.onclick = closePasswordModal;
+  const pwInput = document.getElementById("pw-input");
+  if(pwInput) pwInput.onkeydown = e => {
+    if(e.key === "Enter") submitRisePassword();
+    if(e.key === "Escape") closePasswordModal();
+  };
+  const pwToggle = document.getElementById("pw-toggle-btn");
+  if(pwToggle) pwToggle.onclick = () => {
+    if(!pwInput) return;
+    pwInput.type = pwInput.type === "password" ? "text" : "password";
+  };
+  const btnLock = document.getElementById("btn-lock-rise");
+  if(btnLock) btnLock.onclick = () => {
+    setRiseUnlocked(false);
+    const latestTab = document.querySelector('nav.tabs button[data-tab="latest"]');
+    if(latestTab) doSwitchTab(latestTab);
+  };
+  const btnChangePw = document.getElementById("btn-change-pw-rise");
+  if(btnChangePw) btnChangePw.onclick = () => {
+    const cur = prompt("NhÃ¡ÂºÂ­p mÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t hiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i:");
+    if(cur === null) return;
+    if(cur.trim().toUpperCase() !== getRisePassword().trim().toUpperCase()){
+      alert("MÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t hiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i khÃƒÂ´ng Ã„â€˜ÃƒÂºng!");
+      return;
+    }
+    const nw = prompt("NhÃ¡ÂºÂ­p mÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t mÃ¡Â»â€ºi:");
+    if(nw === null) return;
+    if(!nw.trim()){
+      alert("MÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t mÃ¡Â»â€ºi khÃƒÂ´ng Ã„â€˜Ã†Â°Ã¡Â»Â£c Ã„â€˜Ã¡Â»Æ’ trÃ¡Â»â€˜ng!");
+      return;
+    }
+    localStorage.setItem("tgdd_rise_pw", nw.trim());
+    alert("Ã„ÂÃƒÂ£ cÃ¡ÂºÂ­p nhÃ¡ÂºÂ­t mÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t mÃ¡Â»â€ºi thÃƒÂ nh cÃƒÂ´ng!");
+  };
+}
+
+initRiseAuthEvents();
+renderAll(); const fl=S.rows.filter(r=>r.flags.some(x=>x.includes(j.date))).length;
+    $("imsg").textContent=`ÄÃ£ thÃªm Ä‘á»£t ${j.date}: ${j.rows.length} dÃ²ng.${fl?` ${fl} SKU Ä‘á»•i giÃ¡ Ä‘en, xem cá» RRP á»Ÿ báº£ng.`:""}`;
+  }catch(err){ $("imsg").textContent="KhÃ´ng Ä‘á»c Ä‘Æ°á»£c file: "+err.message+". Kiá»ƒm tra láº¡i Ä‘á»‹nh dáº¡ng máº«u bÃªn trÃªn."; }
+  e.target.value="";
+};
+$("reset").onclick=()=>{ imports=[]; try{localStorage.removeItem("tp_imports");}catch(_){} 
+/* ---- Security Passcode for Rise Tab ---- */
+const DEFAULT_RISE_PW = "GTMVN";
+function getRisePassword(){
+  try{
+    return localStorage.getItem("tgdd_rise_pw") || DEFAULT_RISE_PW;
+  }catch(e){
+    return DEFAULT_RISE_PW;
+  }
+}
+function isRiseUnlocked(){
+  try{
+    return sessionStorage.getItem("tgdd_rise_unlocked") === "1";
+  }catch(e){
+    return false;
+  }
+}
+function setRiseUnlocked(unlocked){
+  try{
+    if(unlocked){
+      sessionStorage.setItem("tgdd_rise_unlocked", "1");
+    } else {
+      sessionStorage.removeItem("tgdd_rise_unlocked");
+    }
+  }catch(e){}
+  updateRiseTabIcon();
+}
+function updateRiseTabIcon(){
+  const icon = document.getElementById("tab-rise-icon");
+  if(icon) icon.textContent = isRiseUnlocked() ? "ðŸ”“" : "ðŸ”’";
+}
+function doSwitchTab(tab){
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b===tab));
+  document.querySelectorAll(".pane").forEach(p=>p.hidden=p.id!=="p-"+tab.dataset.tab);
+  if(tab.dataset.tab==="compare") compareInit();
+  if(tab.dataset.tab==="market"){ renderMarket(); renderMarketH2H(); renderFakePromoAlerts(); }
+}
+let pendingRiseTab = null;
+function openPasswordModal(tabEl){
+  pendingRiseTab = tabEl;
+  const modal = document.getElementById("pw-modal");
+  const input = document.getElementById("pw-input");
+  const err = document.getElementById("pw-err");
+  if(!modal || !input) return;
+  input.value = "";
+  input.type = "password";
+  if(err) err.hidden = true;
+  modal.hidden = false;
+  setTimeout(() => input.focus(), 80);
+}
+function closePasswordModal(){
+  const modal = document.getElementById("pw-modal");
+  if(modal) modal.hidden = true;
+  pendingRiseTab = null;
+}
+function submitRisePassword(){
+  const input = document.getElementById("pw-input");
+  const err = document.getElementById("pw-err");
+  if(!input) return;
+  const entered = input.value.trim();
+  const actualPw = getRisePassword().trim();
+  if(entered.toUpperCase() === actualPw.toUpperCase()){
+    setRiseUnlocked(true);
+    closePasswordModal();
+    if(pendingRiseTab){
+      doSwitchTab(pendingRiseTab);
+    }
+  } else {
+    if(err){
+      err.textContent = "MÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t khÃƒÂ´ng chÃƒÂ­nh xÃƒÂ¡c! Vui lÃƒÂ²ng thÃ¡Â»Â­ lÃ¡ÂºÂ¡i.";
+      err.hidden = false;
+    }
+    input.select();
+  }
+}
+function initRiseAuthEvents(){
+  updateRiseTabIcon();
+  const pwSubmit = document.getElementById("pw-submit");
+  if(pwSubmit) pwSubmit.onclick = submitRisePassword;
+  const pwCancel = document.getElementById("pw-cancel");
+  if(pwCancel) pwCancel.onclick = closePasswordModal;
+  const pwBackdrop = document.getElementById("pw-backdrop");
+  if(pwBackdrop) pwBackdrop.onclick = closePasswordModal;
+  const pwInput = document.getElementById("pw-input");
+  if(pwInput) pwInput.onkeydown = e => {
+    if(e.key === "Enter") submitRisePassword();
+    if(e.key === "Escape") closePasswordModal();
+  };
+  const pwToggle = document.getElementById("pw-toggle-btn");
+  if(pwToggle) pwToggle.onclick = () => {
+    if(!pwInput) return;
+    pwInput.type = pwInput.type === "password" ? "text" : "password";
+  };
+  const btnLock = document.getElementById("btn-lock-rise");
+  if(btnLock) btnLock.onclick = () => {
+    setRiseUnlocked(false);
+    const latestTab = document.querySelector('nav.tabs button[data-tab="latest"]');
+    if(latestTab) doSwitchTab(latestTab);
+  };
+  const btnChangePw = document.getElementById("btn-change-pw-rise");
+  if(btnChangePw) btnChangePw.onclick = () => {
+    const cur = prompt("NhÃ¡ÂºÂ­p mÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t hiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i:");
+    if(cur === null) return;
+    if(cur.trim().toUpperCase() !== getRisePassword().trim().toUpperCase()){
+      alert("MÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t hiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i khÃƒÂ´ng Ã„â€˜ÃƒÂºng!");
+      return;
+    }
+    const nw = prompt("NhÃ¡ÂºÂ­p mÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t mÃ¡Â»â€ºi:");
+    if(nw === null) return;
+    if(!nw.trim()){
+      alert("MÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t mÃ¡Â»â€ºi khÃƒÂ´ng Ã„â€˜Ã†Â°Ã¡Â»Â£c Ã„â€˜Ã¡Â»Æ’ trÃ¡Â»â€˜ng!");
+      return;
+    }
+    localStorage.setItem("tgdd_rise_pw", nw.trim());
+    alert("Ã„ÂÃƒÂ£ cÃ¡ÂºÂ­p nhÃ¡ÂºÂ­t mÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t mÃ¡Â»â€ºi thÃƒÂ nh cÃƒÂ´ng!");
+  };
+}
+
+initRiseAuthEvents();
+renderAll(); $("imsg").textContent="ÄÃ£ xÃ³a cÃ¡c Ä‘á»£t nháº­p. CÃ²n láº¡i dá»¯ liá»‡u gá»‘c."; };
+/* ---- ToÃ n thá»‹ trÆ°á»ng (tham kháº£o, tá»« trang danh sÃ¡ch cá»§a 4 sÃ n) ---- */
+const MK = window.MARKET || {scans:[]};
+const MK_RET = ["TGDÄ","CellphoneS","FPT Shop","Viettel Store"];
+const MF = {r:"Táº¥t cáº£", b:"Táº¥t cáº£", k:"Táº¥t cáº£", q:"", focus:false, sort:"v", dir:-1};
+// KhoÃ¡ so khá»›p tÃªn mÃ¡y giá»¯a cÃ¡c sÃ n vÃ  danh sÃ¡ch 86 SKU: bá» dáº¥u, tÃªn hÃ£ng, 4G (giá»¯ 5G Ä‘á»ƒ trÃ¡nh Ä‘á»¥ng Ä‘á»™ model), kÃ½ tá»± Ä‘áº·c biá»‡t.
+const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[Ì€-Í¯]/g,"").replace(/Ä‘/g,"d").replace(/\+/g,"plus")
+  .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|4g|nfc)\b/g," ")
+  .replace(/[^a-z0-9]/g,"");
+const MK_FOCUS_MASS = new Set(BASE.rows.filter(r=>r.channel!=="TGDD").map(r=>((r.brand||"").toLowerCase() + "|" + mkKey(r.model))));
+const MK_FOCUS_ALL = new Set(BASE.rows.map(r=>((r.brand||"").toLowerCase() + "|" + mkKey(r.model))));
+// FPT cháº·n mÃ¡y chá»§ nÃªn bá»™ quÃ©t tá»± Ä‘á»™ng chá»‰ láº¥y Ä‘Æ°á»£c má»™t pháº§n. Khi cÃ³ báº£n quÃ©t FPT cháº¡y tá»«
+// mÃ¡y nhÃ  (data/fpt.js) thÃ¬ thay toÃ n bá»™ pháº§n FPT báº±ng báº£n Ä‘Ã³.
+function mkMergeFpt(scan){
+  const L = window.FPT_LOCAL;
+  if(!scan || !L || !Array.isArray(L.rows) || L.rows.length <= scan.rows.filter(x=>x.r==="FPT Shop").length) return scan;
+  const rows = scan.rows.filter(x=>x.r!=="FPT Shop").concat(L.rows);
+  const report = {...(scan.report||{}), "FPT Shop": L.rows.length};
+  return {...scan, rows, report, fptLocal:`${L.date} ${L.at}`};
+}
+function mkData(){
+  const scans = Array.isArray(MK.scans) ? MK.scans : (MK.scans && Array.isArray(MK.scans.value) ? MK.scans.value : []);
+  const validScans = scans.filter(s => s && s.rows && Array.isArray(s.rows) && s.rows.length > 0);
+  const n = validScans.length, cur = n ? mkMergeFpt(validScans[n-1]) : null, prev = n > 1 ? mkMergeFpt(validScans[n-2]) : null;
+  if(!cur) return {cur:null, rows:[]};
+  const pm=new Map((prev?prev.rows:[]).map(x=>[x.r+"|"+(x.b||"").toLowerCase()+"|"+mkKey(x.n), x]));
+  return {cur, prev, rows:cur.rows.map(x=>{
+    const bk=(x.b||"").toLowerCase()+"|"+mkKey(x.n);
+    const isTgdd = (x.r === "TGDÄ" || x.r === "Tháº¿ Giá»›i Di Äá»™ng");
+    const isFocus = isTgdd ? MK_FOCUS_ALL.has(bk) : MK_FOCUS_MASS.has(bk);
+    const v=Math.max((x.o||x.p)-x.p,0), pv=pm.get(x.r+"|"+bk);
+    return {...x, key:mkKey(x.n), v, pct:x.o?v/x.o:0, focus:isFocus, dv: pv? v-Math.max((pv.o||pv.p)-pv.p,0) : null};
+  })};
+}
+function mkChips(el, vals, key){
+  el.innerHTML = vals.map(v=>`<button class="chip" data-mk="${key}" data-v="${esc(v)}" aria-pressed="${MF[key]===v}"${key==="b"&&v!=="Táº¥t cáº£"?` data-b="${esc(v)}"`:""}>${esc(key==="b"?bdisp(v):v)}</button>`).join("");
+}
+/* ---- B1 & B2: Ma tráº­n Ä‘á»‘i Ä‘áº§u 4 sÃ n (Head-to-Head) & Cáº£nh bÃ¡o khuyáº¿n mÃ£i áº£o ---- */
+const H2H_F = {b:"Táº¥t cáº£", s:"Táº¥t cáº£", ch:"Táº¥t cáº£", d:"all", q:"", sort:"spread", dir:-1};
+
+function buildH2HData(){
+  const D = mkData();
+  const curRows = (D.cur && D.cur.rows) || [];
+  const mkMap = new Map();
+  curRows.forEach(x => {
+    const k = x.r + "|" + (x.b||"").toLowerCase() + "|" + mkKey(x.n);
+    if (!mkMap.has(k) || (x.p && (!mkMap.get(k).p || x.p < mkMap.get(k).p))) {
+      mkMap.set(k, x);
+    }
+  });
+
+  return S.rows.map(r => {
+    const k = (r.brand||"").toLowerCase() + "|" + mkKey(r.model);
+    const tgddItem = mkMap.get("TGDÄ|" + k);
+    const p_tgdd = (r.tot && onPrice(r) != null) ? onPrice(r)
+                 : (tgddItem && tgddItem.p ? tgddItem.p
+                 : (typeof r.red === "number" ? r.red
+                 : ((offPrice(r) != null) ? offPrice(r) : onPrice(r))));
+    const u_tgdd = LINKS[r.model] || (tgddItem ? tgddItem.u : null);
+
+    const cpsMatch = mkMap.get("CellphoneS|" + k);
+    const fptMatch = mkMap.get("FPT Shop|" + k);
+    const vtMatch = mkMap.get("Viettel Store|" + k);
+
+    // Náº¿u cÃ³ Ã­t nháº¥t 1 sÃ n Ä‘á»‘i thá»§ cÃ³ hÃ ng thÃ¬ sáº£n pháº©m nÃ y thá»±c táº¿ lÃ  Mass
+    const hasCompetitor = Boolean((cpsMatch && cpsMatch.p > 0) || (fptMatch && fptMatch.p > 0) || (vtMatch && vtMatch.p > 0));
+    const effectiveChannel = hasCompetitor ? "Mass" : r.channel;
+    const isExcl = (effectiveChannel === "TGDD");
+
+    const cpsItem = isExcl ? null : cpsMatch;
+    const p_cps = cpsItem ? cpsItem.p : null;
+    const u_cps = cpsItem ? cpsItem.u : null;
+
+    const fptItem = isExcl ? null : fptMatch;
+    const p_fpt = fptItem ? fptItem.p : null;
+    const u_fpt = fptItem ? fptItem.u : null;
+
+    const vtItem = isExcl ? null : vtMatch;
+    const p_vt = vtItem ? vtItem.p : null;
+    const u_vt = vtItem ? vtItem.u : null;
+
+    const prices = [
+      {r: "TGDÄ", p: p_tgdd, u: u_tgdd},
+      {r: "CellphoneS", p: p_cps, u: u_cps},
+      {r: "FPT Shop", p: p_fpt, u: u_fpt},
+      {r: "Viettel Store", p: p_vt, u: u_vt}
+    ].filter(x => x.p && x.p > 0);
+
+    const minP = prices.length ? Math.min(...prices.map(x => x.p)) : null;
+    const maxP = prices.length ? Math.max(...prices.map(x => x.p)) : null;
+    const bests = prices.filter(x => x.p === minP).map(x => x.r);
+    const spread = (minP && maxP) ? maxP - minP : 0;
+    const spreadPct = (minP && spread) ? (spread / minP * 100) : 0;
+
+    return {
+      brand: r.brand,
+      model: r.model,
+      segment: r.segment,
+      channel: effectiveChannel,
+      rrp: r.rrp,
+      p_tgdd, p_cps, p_fpt, p_vt,
+      minP, maxP, bests,
+      spread, spreadPct,
+      count: prices.length,
+      u_tgdd, u_cps, u_fpt, u_vt
+    };
+  });
+}
+
+function getIsoWeek(dateStr){
+  if(!dateStr) return "";
+  let d;
+  if(typeof dateStr === "string" && dateStr.includes("-")){
+    const p = dateStr.split("-");
+    if(p[0].length === 4){
+      d = new Date(+p[0], +p[1] - 1, +p[2]);
+    } else {
+      const mNames = {jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+      const m = mNames[p[1].toLowerCase()] ?? 9;
+      d = new Date(2026, m, +p[0]);
+    }
+  } else {
+    d = new Date(dateStr);
+  }
+  if(isNaN(d.getTime())) return "";
+  const target = new Date(d.valueOf());
+  const dayNr = (d.getDay() + 6) % 7;
+  target.setDate(target.getDate() - dayNr + 3);
+  const firstThursday = target.valueOf();
+  target.setMonth(0, 1);
+  if(target.getDay() !== 4){
+    target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
+  }
+  const weekNr = 1 + Math.ceil((firstThursday - target) / 604800000);
+  return "W" + weekNr;
+}
+
+function fmtDateWeek(isoStr, mo){
+  if(!isoStr) return mo || "";
+  const parts = isoStr.split("-");
+  if(parts.length === 3 && parts[0].length === 4){
+    const [y, m, d] = parts;
+    const w = getIsoWeek(isoStr);
+    return `ngÃ y ${d}/${m} (Tuáº§n ${w})`;
+  }
+  return isoStr;
+}
+
+function fmtScanDateWeek(scanD){
+  if(!scanD) return "Ä‘á»£t má»›i nháº¥t";
+  const w = getIsoWeek(scanD);
+  return `Ä‘á»£t quÃ©t ${scanD} (${w ? 'Tuáº§n ' + w : ''})`;
+}
+
+function scanToMonthTag(dateStr){
+  if(!dateStr) return "T10";
+  const m = String(dateStr).match(/(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)/i);
+  if(m){
+    const idx = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"].indexOf(m[0].toLowerCase());
+    return "T" + (idx + 1);
+  }
+  const p = String(dateStr).split("-");
+  if(p.length >= 2 && !isNaN(+p[1])){
+    return "T" + (+p[1]);
+  }
+  return "T10";
+}
+
+let FAKE_SCOPE = "month";
+let ACK_FAKES = new Set();
+try {
+  ACK_FAKES = new Set(JSON.parse(localStorage.getItem("tp_ack_fakes") || "[]"));
+} catch(e){
+  ACK_FAKES = new Set();
+}
+
+function renderFakePromoAlerts(){
+  const h2h = buildH2HData();
+  const latestScanDate = S.dates[S.dates.length - 1];
+  const scanLabel = fmtScanDateWeek(latestScanDate);
+  const curMo = scanToMonthTag(latestScanDate);
+
+  // Máº·c Ä‘á»‹nh chá»‰ lá»c cÃ¡c Ä‘á»£t tÄƒng giÃ¡ Ä‘en trong thÃ¡ng hiá»‡n táº¡i cá»§a Ä‘á»£t quÃ©t
+  const riseRecent = RISE.filter(r => r.v > 0 && (FAKE_SCOPE === "all" ? true : r.mo === curMo));
+  const riseMap = new Map();
+  riseRecent.forEach(r => riseMap.set(r.k, r));
+
+  const allFakePromos = [];
+  S.rows.forEach(r => {
+    const rk = rkey(r.brand, r.model);
+    const rise = riseMap.get(rk);
+    if(rise){
+      const curOnPrice = onPrice(r);
+      if(curOnPrice && curOnPrice >= rise.o){
+        const disc = pmhOnline(r) || r.pmh[r.pmh.length - 1] || 0;
+        allFakePromos.push({
+          rk: rk,
+          model: r.model,
+          brand: r.brand,
+          oldRRP: rise.o,
+          newRRP: rise.n,
+          curPrice: curOnPrice,
+          disc: disc,
+          pmh: r.pmh[r.pmh.length - 1],
+          riseDate: rise.d,
+          riseMo: rise.mo,
+          channel: rise.ch
+        });
+      }
+    }
+  });
+
+  const visiblePromos = allFakePromos.filter(x => !ACK_FAKES.has(x.rk));
+  const hiddenCount = allFakePromos.length - visiblePromos.length;
+
+  const priceWars = h2h.filter(x => x.count >= 2 && x.spread >= 500000);
+  const bestCount = {"TGDÄ": 0, "CellphoneS": 0, "FPT Shop": 0, "Viettel Store": 0};
+  h2h.filter(x => x.count >= 2).forEach(x => {
+    x.bests.forEach(r => { if(bestCount[r] !== undefined) bestCount[r]++; });
+  });
+
+  let html = "";
+  if(allFakePromos.length){
+    html += `<div class="fake-alert">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+        <h4 style="margin:0">âš  Cáº£nh bÃ¡o Khuyáº¿n mÃ£i áº£o (${visiblePromos.length} model): TÄƒng giÃ¡ niÃªm yáº¿t rá»“i giáº£m giÃ¡ Ä‘á»</h4>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="fake-chip" id="btn-fake-mo" aria-pressed="${FAKE_SCOPE==='month'}" title="Chá»‰ kiá»ƒm tra cÃ¡c model tÄƒng giÃ¡ trong thÃ¡ng nÃ y">Chá»‰ thÃ¡ng nÃ y (${curMo})</button>
+          <button class="fake-chip" id="btn-fake-all" aria-pressed="${FAKE_SCOPE==='all'}" title="Xem táº¥t cáº£ cÃ¡c thÃ¡ng">Táº¥t cáº£ cÃ¡c thÃ¡ng</button>
+          ${hiddenCount > 0 ? `<button class="fake-chip" id="btn-fake-unack" style="color:var(--muted)" title="KhÃ´i phá»¥c cÃ¡c model Ä‘Ã£ áº©n">Hiá»‡n ${hiddenCount} Ä‘Ã£ áº©n</button>` : ''}
+        </div>
+      </div>
+      <p style="margin:2px 0 8px;color:var(--muted);font-size:12.5px">
+        ${FAKE_SCOPE === 'month' 
+          ? `Chá»‰ hiá»ƒn thá»‹ cÃ¡c model vá»«a tÄƒng giÃ¡ Ä‘en trong <b>${curMo}</b> Ä‘á»ƒ Ä‘á»‘i chiáº¿u vá»›i <b>${esc(scanLabel)}</b> (báº¥m <i>"âœ“ ÄÃ£ biáº¿t"</i> khi Ä‘Ã£ kiá»ƒm tra xong Ä‘á»ƒ áº©n):` 
+          : `Lá»‹ch sá»­ cÃ¡c model tÄƒng giÃ¡ Ä‘en qua cÃ¡c Ä‘á»£t Ä‘á»‘i chiáº¿u vá»›i <b>${esc(scanLabel)}</b>:`}
+      </p>
+      ${visiblePromos.length ? `<ul>${visiblePromos.map(x => {
+        const overOld = x.curPrice - x.oldRRP;
+        const pctUp = (((x.newRRP - x.oldRRP) / x.oldRRP) * 100).toFixed(1);
+        const discText = x.disc > 0 ? `treo biá»ƒn giáº£m <b>${fmt(x.disc)}</b>` : `khÃ´ng Ã¡p dá»¥ng giáº£m`;
+        return `<li style="margin-bottom:6px;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px">
+          <div style="flex:1;min-width:280px">
+            <b>${esc(x.brand)} ${esc(x.model)}</b>: 
+            ÄÃ£ tÄƒng giÃ¡ Ä‘en vÃ o <b>${fmtDateWeek(x.riseDate, x.riseMo)}</b> tá»« ${fmt(x.oldRRP)} â†’ <b>${fmt(x.newRRP)}</b> (+${pctUp}%). 
+            Äáº¿n <b>${esc(scanLabel)}</b>: ${discText} nhÆ°ng giÃ¡ bÃ¡n thá»±c táº¿ (<b>${fmt(x.curPrice)}</b>) váº«n Ä‘áº¯t hÆ¡n giÃ¡ niÃªm yáº¿t cÅ© <b>${overOld > 0 ? fmt(overOld) : 'báº±ng giÃ¡ cÅ©'}</b>!
+          </div>
+          <button class="btn-fake-ack" data-rk="${esc(x.rk)}" title="ÄÃ£ kiá»ƒm tra, khÃ´ng cáº§n nháº¯c láº¡i">âœ“ ÄÃ£ biáº¿t</button>
+        </li>`;
+      }).join("")}</ul>` : `<div style="font-size:12.5px;color:var(--muted);padding:4px 0">âœ“ Báº¡n Ä‘Ã£ Ä‘Ã¡nh dáº¥u kiá»ƒm tra xong táº¥t cáº£ model trong Ä‘á»£t nÃ y. ${hiddenCount ? `<a href="javascript:void(0)" id="link-fake-unack" style="color:var(--accent);margin-left:6px;text-decoration:underline">Hiá»‡n láº¡i ${hiddenCount} model</a>` : ''}</div>`}
+    </div>`;
+  } else if(FAKE_SCOPE === "month") {
+    html += `<div class="fake-alert" style="border-left-color:var(--good);background:var(--soft);padding:10px 14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <span style="font-size:13px;color:var(--text)">âœ“ KhÃ´ng cÃ³ khuyáº¿n mÃ£i áº£o má»›i phÃ¡t sinh trong <b>${curMo}</b>.</span>
+        <button class="fake-chip" id="btn-fake-all" aria-pressed="false">Xem cÃ¡c thÃ¡ng trÆ°á»›c</button>
+      </div>
+    </div>`;
+  }
+
+  if(priceWars.length){
+    html += `<div class="fake-alert" style="border-left-color:var(--accent);background:var(--soft)">
+      <h4>âš” Cuá»™c chiáº¿n giÃ¡ giá»¯a 4 sÃ n: ${priceWars.length} SKU chÃªnh lá»‡ch tá»« 500.000â‚« trá»Ÿ lÃªn</h4>
+      <p style="margin:2px 0 4px;color:var(--muted);font-size:12.5px">
+        Thá»‘ng kÃª sÃ n náº¯m giá»¯ giÃ¡ tá»‘t nháº¥t trong 86 SKU: 
+        <b>CellphoneS</b>: ${bestCount["CellphoneS"]} SKU | 
+        <b>TGDÄ</b>: ${bestCount["TGDÄ"]} SKU | 
+        <b>Viettel Store</b>: ${bestCount["Viettel Store"]} SKU | 
+        <b>FPT Shop</b>: ${bestCount["FPT Shop"]} SKU.
+      </p>
+    </div>`;
+  }
+  const el = $("mk-fake-alerts");
+  if(el){
+    el.innerHTML = html;
+    const btnMo = $("btn-fake-mo");
+    if(btnMo) btnMo.onclick = () => { FAKE_SCOPE = "month"; renderFakePromoAlerts(); };
+    const btnAll = $("btn-fake-all");
+    if(btnAll) btnAll.onclick = () => { FAKE_SCOPE = "all"; renderFakePromoAlerts(); };
+    const btnUnack = $("btn-fake-unack") || $("link-fake-unack");
+    if(btnUnack) btnUnack.onclick = () => {
+      ACK_FAKES.clear();
+      try{ localStorage.removeItem("tp_ack_fakes"); }catch(e){}
+      renderFakePromoAlerts();
+    };
+    el.querySelectorAll(".btn-fake-ack").forEach(btn => {
+      btn.onclick = () => {
+        const rk = btn.dataset.rk;
+        if(rk){
+          ACK_FAKES.add(rk);
+          try{ localStorage.setItem("tp_ack_fakes", JSON.stringify([...ACK_FAKES])); }catch(e){}
+          renderFakePromoAlerts();
+        }
+      };
+    });
+  }
+}
+
+function renderMarketH2H(){
+  const allH2H = buildH2HData();
+  const brands = ["Táº¥t cáº£", ...new Set(allH2H.map(x=>x.brand))];
+  const segs = ["Táº¥t cáº£", ...SEG_ORDER.filter(s=>allH2H.some(x=>x.segment===s))];
+
+  $("h2h-f-b").innerHTML = brands.map(b=>`<button class="chip" data-h2hb="${esc(b)}" aria-pressed="${H2H_F.b===b}">${esc(bdisp(b))}</button>`).join("");
+  $("h2h-f-s").innerHTML = segs.map(s=>`<button class="chip" data-h2hs="${esc(s)}" aria-pressed="${H2H_F.s===s}">${esc(s)}</button>`).join("");
+  $("h2h-f-ch").innerHTML = [["Táº¥t cáº£","Táº¥t cáº£"],["Mass","KÃªnh Mass (4 sÃ n cáº¡nh tranh)"],["TGDD","Äá»™c quyá»n TGDÄ"]]
+    .map(([k,l])=>`<button class="chip" data-h2hch="${k}" aria-pressed="${H2H_F.ch===k}">${l}</button>`).join("");
+  $("h2h-f-d").innerHTML = [["all","Táº¥t cáº£"],["diff","CÃ³ chÃªnh lá»‡ch (>0Ä‘)"],["big","ChÃªnh lá»‡ch lá»›n (â‰¥500k)"]]
+    .map(([k,l])=>`<button class="chip" data-h2hd="${k}" aria-pressed="${H2H_F.d===k}">${l}</button>`).join("");
+
+  let rows = allH2H.filter(x =>
+    (H2H_F.b==="Táº¥t cáº£" || x.brand===H2H_F.b) &&
+    (H2H_F.s==="Táº¥t cáº£" || x.segment===H2H_F.s) &&
+    (H2H_F.ch==="Táº¥t cáº£" || (H2H_F.ch==="TGDD" ? x.channel==="TGDD" : x.channel!=="TGDD")) &&
+    (H2H_F.d==="all" || (H2H_F.d==="diff" && x.spread>0) || (H2H_F.d==="big" && x.spread>=500000)) &&
+    (!H2H_F.q || matchSmart(H2H_F.q, x.brand + " " + x.model))
+  );
+
+  const kMap = {model: x=>x.model, rrp: x=>x.rrp, spread: x=>x.spread, tgdd: x=>x.p_tgdd, cps: x=>x.p_cps, fpt: x=>x.p_fpt, vt: x=>x.p_vt};
+  if(kMap[H2H_F.sort]){
+    const k = kMap[H2H_F.sort];
+    rows.sort((a,b)=>{ const va=k(a), vb=k(b); if(va==null&&vb==null) return 0; if(va==null) return 1; if(vb==null) return -1; return (va>vb?1:va<vb?-1:0)*H2H_F.dir; });
+  }
+
+  const h2hCols = [["b","HÃ£ng"],["model","Model"],["seg","PhÃ¢n khÃºc"],["rrp","RRP",1],["tgdd","TGDÄ",1],["cps","CellphoneS",1],["fpt","FPT Shop",1],["vt","Viettel Store",1],["best","SÃ n ráº» nháº¥t"],["spread","ChÃªnh lá»‡ch giÃ¡",1]];
+
+  $("h2h-head").innerHTML = h2hCols.map(([k,l,n])=>`<th class="${n?"n":""}" data-h2hsort="${k}">${l}${H2H_F.sort===k?(H2H_F.dir>0?" â–²":" â–¼"):""}</th>`).join("");
+  $("h2h-count").textContent = `Hiá»ƒn thá»‹ ${rows.length} / ${allH2H.length} SKU trong ma tráº­n Ä‘á»‘i Ä‘áº§u`;
+
+  const RET_COLORS = {
+    "TGDÄ": { badge: "background:#ffd400;color:#241d00;border:1px solid #d4a700", cell: "background:#fef9c3!important;color:#854d0e!important;font-weight:700" },
+    "Tháº¿ Giá»›i Di Äá»™ng": { badge: "background:#ffd400;color:#241d00;border:1px solid #d4a700", cell: "background:#fef9c3!important;color:#854d0e!important;font-weight:700" },
+    "CellphoneS": { badge: "background:#d70018;color:#fff;border:1px solid #b30014", cell: "background:#fee2e2!important;color:#b91c1c!important;font-weight:700" },
+    "FPT Shop": { badge: "background:#cb1c22;background:linear-gradient(90deg,#cb1c22,#ea580c);color:#fff;border:1px solid #b9151b", cell: "background:#ffedd5!important;color:#c2410c!important;font-weight:700" },
+    "Viettel Store": { badge: "background:#00918e;color:#fff;border:1px solid #007775", cell: "background:#ccfbf1!important;color:#0f766e!important;font-weight:700" }
+  };
+
+  const cell = (p, minP, count, url, ret) => {
+    if(!p) return `<td class="n" style="color:var(--muted)">â€“</td>`;
+    const isBest = count>=2 && p===minP;
+    const body = fmt(p);
+    const rc = RET_COLORS[ret];
+    const cellSt = (isBest && rc) ? ` style="${rc.cell}"` : "";
+    return `<td class="n ${isBest?"h2h-best":""}" ${isBest?`data-r="${esc(ret)}"${cellSt} title="GiÃ¡ tá»‘t nháº¥t táº¡i ${esc(ret)}"`:""}>${url?`<a href="${esc(url)}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">${body}</a>`:body}</td>`;
+  };
+
+  $("h2h-body").innerHTML = rows.map(x => {
+    const bestLabel = x.count<2 ? `<span class="badge ${x.channel==="TGDD"?"tgdd":"mass"}">${x.channel==="TGDD"?"Äá»™c quyá»n":"1 sÃ n bÃ¡n"}</span>`
+      : (x.bests.length===4 ? `<span style="color:var(--muted)">4 sÃ n báº±ng giÃ¡</span>` : x.bests.map(r => {
+          const rc = RET_COLORS[r];
+          const st = rc ? ` style="${rc.badge}"` : "";
+          return `<span class="h2h-badge crown" data-r="${esc(r)}"${st}>ðŸ‘‘ ${esc(r)}</span>`;
+        }).join(" "));
+
+    const diffCls = x.spread>=500000 ? "high" : x.spread>0 ? "med" : "low";
+    const diffText = x.count<2 ? "â€“" : (x.spread>0 ? `<span class="h2h-diff ${diffCls}">â–² ${fmt(x.spread)} <small>(${x.spreadPct.toFixed(1)}%)</small></span>` : `<span style="color:var(--muted)">0â‚«</span>`);
+
+    return `<tr tabindex="0" data-m="${esc(x.model)}">${bcell(x.brand)}<td class="model">${esc(x.model)}${newBadge(x.model)}</td><td>${esc(x.segment)}</td>
+      <td class="n">${fmt(x.rrp)}</td>
+      ${cell(x.p_tgdd, x.minP, x.count, x.u_tgdd, "TGDÄ")}
+      ${cell(x.p_cps, x.minP, x.count, x.u_cps, "CellphoneS")}
+      ${cell(x.p_fpt, x.minP, x.count, x.u_fpt, "FPT Shop")}
+      ${cell(x.p_vt, x.minP, x.count, x.u_vt, "Viettel Store")}
+      <td>${bestLabel}</td>
+      <td class="n">${diffText}</td></tr>`;
+  }).join("") || `<tr><td colspan="10">KhÃ´ng cÃ³ model nÃ o khá»›p bá»™ lá»c.</td></tr>`;
+}
+
+function renderMarket(){
+  const D=mkData();
+  if(!D.cur){ $("mk-sub").textContent="ChÆ°a cÃ³ Ä‘á»£t quÃ©t toÃ n thá»‹ trÆ°á»ng. Äá»£t Ä‘áº§u tiÃªn sáº½ cÃ³ sau láº§n cháº¡y bá»™ quÃ©t káº¿ tiáº¿p."; $("mk-kpi").innerHTML=""; $("mk-body").innerHTML=""; $("mk-head").innerHTML=""; $("mk-count").textContent=""; return; }
+  const errs=Object.entries(D.cur.report||{}).filter(([,v])=>typeof v!=="number").map(([k])=>k);
+  $("mk-sub").textContent=`Äá»£t quÃ©t ${D.cur.date} lÃºc ${D.cur.at}${D.prev?`, so vá»›i Ä‘á»£t ${D.prev.date}`:""}. GiÃ¡ láº¥y tá»« trang danh sÃ¡ch cá»§a tá»«ng sÃ n, chá»‰ 6 hÃ£ng Ä‘ang theo dÃµi, chá»‰ Ä‘á»ƒ tham kháº£o.${D.cur.src==="erp"?" Nguá»“n: file Excel cá»§a há»‡ thá»‘ng ERP, khÃ´ng pháº£i bá»™ quÃ©t nÃ y â€” cÃ¡ch há» tÃ­nh khuyáº¿n mÃ£i khÃ¡c quy táº¯c KM base nÃªn Ä‘á»«ng dÃ¹ng Ä‘á»ƒ so sÃ¡nh.":""}${D.cur.fptLocal?` RiÃªng FPT Shop láº¥y tá»« mÃ¡y nhÃ  lÃºc ${D.cur.fptLocal} vÃ¬ FPT cháº·n mÃ¡y chá»§.`:""}${errs.length?` Lá»—i Ä‘á»£t nÃ y: ${errs.join(", ")}.`:""}`;
+  $("mk-kpi").innerHTML=MK_RET.map(r=>{ const L=D.rows.filter(x=>x.r===r), withKM=L.filter(x=>x.v>0), avg=withKM.length?withKM.reduce((t,x)=>t+x.pct,0)/withKM.length*100:0;
+    return `<div class="rk"><small><span class="rtl" data-r="${r}">${r}</span></small><b>${L.length} mÃ¡y</b><span>${withKM.length} mÃ¡y Ä‘ang giáº£m giÃ¡, trung bÃ¬nh ${avg.toFixed(1)}%</span><span>${L.filter(x=>x.focus).length} mÃ¡y thuá»™c 86 SKU</span></div>`; }).join("");
+
+  renderFakePromoAlerts();
+  renderMarketH2H();
+
+  mkChips($("mk-f-r"),["Táº¥t cáº£",...MK_RET],"r");
+  mkChips($("mk-f-b"),["Táº¥t cáº£",...["Apple","Samsung","OPPO","Xiaomi","Vivo","Realme"].filter(b=>D.rows.some(x=>x.b===b))],"b");
+  mkChips($("mk-f-k"),["Táº¥t cáº£","Flash Sale Online","Khuyáº¿n mÃ£i"],"k");
+  const q=MF.q;
+  let L=D.rows.filter(x=>(MF.r==="Táº¥t cáº£"||x.r===MF.r)&&(MF.b==="Táº¥t cáº£"||x.b===MF.b)&&(MF.k==="Táº¥t cáº£"||x.k===MF.k)&&(!MF.focus||x.focus)&&(!q||matchSmart(q, x.r+" "+x.b+" "+x.n)));
+  const key={r:x=>x.r,b:x=>x.b,n:x=>x.n,o:x=>x.o,p:x=>x.p,v:x=>x.v,pct:x=>x.pct,dv:x=>x.dv}[MF.sort];
+  L.sort((a,c)=>{const x=key(a),y=key(c); if(x==null&&y==null) return 0; if(x==null) return 1; if(y==null) return -1; return (x>y?1:x<y?-1:0)*MF.dir;});
+  const cols=[["r","SÃ n"],["b","HÃ£ng"],["n","TÃªn sáº£n pháº©m"],["k","Loáº¡i KM"],["o","GiÃ¡ gá»‘c",1],["p","GiÃ¡ online",1],["v","GiÃ¡ trá»‹ KM",1],["pct","% giáº£m",1],["dv","So Ä‘á»£t trÆ°á»›c",1],["u","Xem"]];
+  $("mk-head").innerHTML=cols.map(([k,l,n])=>`<th class="${n?"n":""}" data-mksort="${k}">${l}${MF.sort===k?(MF.dir>0?" â–²":" â–¼"):""}</th>`).join("");
+  $("mk-count").textContent=`Hiá»ƒn thá»‹ ${L.length} / ${D.rows.length} mÃ¡y`;
+  $("mk-body").innerHTML=L.map(x=>`<tr><td><span class="rtl" data-r="${esc(x.r)}">${esc(x.r)}</span></td>${bcell(x.b)}<td class="model">${esc(x.n)}${newBadge(x.n)}${x.focus?`<span class="focus-dot" title="Thuá»™c danh sÃ¡ch 86 SKU">86</span>`:""}</td>
+    <td>${x.k==="Flash Sale Online"?`<span class="badge fs">Flash Sale Online</span>`:`<span class="badge mass">Khuyáº¿n mÃ£i</span>`}</td>
+    <td class="n">${fmt(x.o)}</td><td class="n"><strong>${fmt(x.p)}</strong></td><td class="n">${x.v?fmt(x.v):"â€“"}</td><td class="n">${x.v?(x.pct*100).toFixed(0)+"%":"0%"}</td>
+    <td class="n">${x.dv==null?`<span class="d-flat">má»›i</span>`:x.dv===0?`<span class="d-flat">khÃ´ng Ä‘á»•i</span>`:x.dv>0?`<span class="d-up">â–² ${fmt(x.dv)}</span>`:`<span class="d-down">â–¼ ${fmt(-x.dv)}</span>`}</td>
+    <td><a href="${esc(x.u)}" target="_blank" rel="noopener">Link</a></td></tr>`).join("") || `<tr><td colspan="10">KhÃ´ng cÃ³ mÃ¡y nÃ o khá»›p bá»™ lá»c.</td></tr>`;
+  renderMarket.rows=L;
+}
+
+/* ---- B3: So sÃ¡nh Äá»‘i Ä‘áº§u: MÃ¡y & KÃªnh BÃ¡n Láº» (Head-to-Head) ---- */
+let CMP_M1 = null, CMP_M2 = null;
+let CMP_R1 = "TGDÄ", CMP_R2 = "TGDÄ";
+let CMP_MODE = "mwg-mwg";
+
+const RET_CONFIG = {
+  "TGDÄ": { color: "#854d0e", border: "#d4a700", bg: "rgba(255, 212, 0, 0.06)", name: "Tháº¿ Giá»›i Di Äá»™ng (MWG)" },
+  "Tháº¿ Giá»›i Di Äá»™ng": { color: "#854d0e", border: "#d4a700", bg: "rgba(255, 212, 0, 0.06)", name: "Tháº¿ Giá»›i Di Äá»™ng (MWG)" },
+  "CellphoneS": { color: "#d70018", border: "#d70018", bg: "rgba(215, 0, 24, 0.05)", name: "CellphoneS" },
+  "FPT Shop": { color: "#cb1c22", border: "#cb1c22", bg: "rgba(203, 28, 34, 0.05)", name: "FPT Shop" },
+  "Viettel Store": { color: "#00918e", border: "#00918e", bg: "rgba(0, 145, 142, 0.05)", name: "Viettel Store" }
+};
+
+function isNonMwg(ret){
+  return ret && ret !== "TGDÄ" && ret !== "Tháº¿ Giá»›i Di Äá»™ng";
+}
+
+function getAvailableModels(ret){
+  if(!S || !S.rows) return [];
+  if(isNonMwg(ret)){
+    // Non-MWG chá»‰ phÃ¢n phá»‘i model Mass (áº©n hoÃ n toÃ n cÃ¡c model Ä‘á»™c quyá»n MWG)
+    return S.rows.filter(r => r.channel !== "TGDD").map(r => r.model);
+  }
+  // TGDÄ cÃ³ Ä‘áº§y Ä‘á»§ táº¥t cáº£ model
+  return S.rows.map(r => r.model);
+}
+
+function updateRetCardStyles(){
+  const cfg1 = RET_CONFIG[CMP_R1] || RET_CONFIG["TGDÄ"];
+  const cfg2 = RET_CONFIG[CMP_R2] || RET_CONFIG["TGDÄ"];
+  
+  if($("cmp-card-v1")){
+    $("cmp-card-v1").style.border = `1.5px solid ${cfg1.border}`;
+    $("cmp-card-v1").style.borderLeft = `5px solid ${cfg1.border}`;
+    $("cmp-card-v1").style.background = cfg1.bg;
+  }
+  if($("cmp-card-v2")){
+    $("cmp-card-v2").style.border = `1.5px solid ${cfg2.border}`;
+    $("cmp-card-v2").style.borderLeft = `5px solid ${cfg2.border}`;
+    $("cmp-card-v2").style.background = cfg2.bg;
+  }
+  if($("cmp-ret1")){
+    $("cmp-ret1").style.borderColor = cfg1.border;
+    $("cmp-ret1").style.color = cfg1.color;
+  }
+  if($("cmp-ret2")){
+    $("cmp-ret2").style.borderColor = cfg2.border;
+    $("cmp-ret2").style.color = cfg2.color;
+  }
+  const massCount = (S && S.rows) ? S.rows.filter(r => r.channel !== "TGDD").length : 0;
+  if($("cmp-hint1")){
+    $("cmp-hint1").innerHTML = isNonMwg(CMP_R1)
+      ? `ðŸ” <b>${esc(CMP_R1)}</b>: Chá»‰ lá»c ${massCount} model Mass (áº©n Ä‘á»™c quyá»n MWG).`
+      : `ðŸ” <b>TGDÄ</b>: Äáº§y Ä‘á»§ ${S.rows.length} model (cáº£ Mass & Äá»™c quyá»n MWG).`;
+  }
+  if($("cmp-hint2")){
+    $("cmp-hint2").innerHTML = isNonMwg(CMP_R2)
+      ? `ðŸ” <b>${esc(CMP_R2)}</b>: Chá»‰ lá»c ${massCount} model Mass (áº©n Ä‘á»™c quyá»n MWG).`
+      : `ðŸ” <b>TGDÄ</b>: Äáº§y Ä‘á»§ ${S.rows.length} model (cáº£ Mass & Äá»™c quyá»n MWG).`;
+  }
+}
+
+function compareInit(){
+  if(!S || !S.rows || !S.rows.length) return;
+
+  const a1 = getAvailableModels(CMP_R1);
+  const a2 = getAvailableModels(CMP_R2);
+  if(!a1.length || !a2.length) return;
+
+  if(!CMP_M1 || !a1.includes(CMP_M1)) CMP_M1 = a1[0];
+  if(!CMP_M2 || !a2.includes(CMP_M2)) CMP_M2 = a2[Math.min(1, a2.length - 1)];
+
+  const populate = (selId, filterQ, ret) => {
+    const sel = $(selId); if(!sel) return;
+    const avail = getAvailableModels(ret);
+    const matched = avail.filter(m => matchSmart(filterQ, m));
+
+    if(!matched.length){
+      sel.innerHTML = `<option value="">(KhÃ´ng tÃ¬m tháº¥y model phÃ¹ há»£p)</option>`;
+      if(selId === "cmp-sel1") CMP_M1 = "";
+      else CMP_M2 = "";
+      return;
+    }
+
+    sel.innerHTML = matched.map(m => {
+      const r = S.rows.find(x => x.model === m);
+      const tag = (!isNonMwg(ret) && r && r.channel === "TGDD") ? " ðŸ”’ [Äá»™c quyá»n MWG]" : "";
+      return `<option value="${esc(m)}">${esc(m)}${tag}</option>`;
+    }).join("");
+
+    if(selId === "cmp-sel1"){
+      if(!matched.includes(CMP_M1)) CMP_M1 = matched[0];
+      sel.value = CMP_M1;
+    } else {
+      if(!matched.includes(CMP_M2)) CMP_M2 = matched[0];
+      sel.value = CMP_M2;
+    }
+  };
+
+  populate("cmp-sel1", $("cmp-q1") ? $("cmp-q1").value.trim() : "", CMP_R1);
+  populate("cmp-sel2", $("cmp-q2") ? $("cmp-q2").value.trim() : "", CMP_R2);
+  if($("cmp-ret1")) $("cmp-ret1").value = CMP_R1;
+  if($("cmp-ret2")) $("cmp-ret2").value = CMP_R2;
+  updateRetCardStyles();
+
+  // Preset buttons
+  const presetBtns = document.querySelectorAll("#cmp-presets button");
+  presetBtns.forEach(btn => {
+    btn.onclick = () => {
+      presetBtns.forEach(b => b.setAttribute("aria-pressed", "false"));
+      btn.setAttribute("aria-pressed", "true");
+      const mode = btn.dataset.mode;
+      CMP_MODE = mode;
+      if(mode === "mwg-mwg"){
+        CMP_R1 = "TGDÄ"; CMP_R2 = "TGDÄ";
+      } else if(mode === "tgdd-cps"){
+        CMP_R1 = "TGDÄ"; CMP_R2 = "CellphoneS";
+      } else if(mode === "tgdd-fpt"){
+        CMP_R1 = "TGDÄ"; CMP_R2 = "FPT Shop";
+      } else if(mode === "tgdd-vt"){
+        CMP_R1 = "TGDÄ"; CMP_R2 = "Viettel Store";
+      }
+      if($("cmp-ret1")) $("cmp-ret1").value = CMP_R1;
+      if($("cmp-ret2")) $("cmp-ret2").value = CMP_R2;
+
+      // Validate CMP_M1
+      const avail1 = getAvailableModels(CMP_R1);
+      if(!avail1.includes(CMP_M1)) CMP_M1 = avail1[0];
+
+      // Validate CMP_M2:
+      // Khi Ä‘á»‘i Ä‘áº§u vá»›i kÃªnh Ä‘á»‘i thá»§, Æ°u tiÃªn so sÃ¡nh trÃªn cÃ¹ng 1 mÃ¡y náº¿u kÃªnh 2 cÃ³ bÃ¡n (hÃ ng Mass)
+      const avail2 = getAvailableModels(CMP_R2);
+      if(mode !== "mwg-mwg" && avail2.includes(CMP_M1)){
+        CMP_M2 = CMP_M1;
+      } else if(!avail2.includes(CMP_M2)){
+        CMP_M2 = avail2[0];
+      }
+
+      populate("cmp-sel1", $("cmp-q1") ? $("cmp-q1").value.trim() : "", CMP_R1);
+      populate("cmp-sel2", $("cmp-q2") ? $("cmp-q2").value.trim() : "", CMP_R2);
+      updateRetCardStyles();
+      renderCompare();
+    };
+  });
+
+  if($("cmp-q1")) $("cmp-q1").oninput = e => { 
+    populate("cmp-sel1", e.target.value.trim(), CMP_R1); 
+    CMP_M1 = $("cmp-sel1").value; 
+    if(CMP_MODE !== "mwg-mwg" && CMP_R1 !== CMP_R2){ 
+      const avail2 = getAvailableModels(CMP_R2);
+      if(avail2.includes(CMP_M1)){ 
+        CMP_M2 = CMP_M1; 
+        populate("cmp-sel2", $("cmp-q2") ? $("cmp-q2").value.trim() : "", CMP_R2); 
+      } 
+    } 
+    renderCompare(); 
+  };
+  if($("cmp-q2")) $("cmp-q2").oninput = e => { 
+    populate("cmp-sel2", e.target.value.trim(), CMP_R2); 
+    CMP_M2 = $("cmp-sel2").value; 
+    renderCompare(); 
+  };
+  if($("cmp-sel1")) $("cmp-sel1").onchange = e => { 
+    CMP_M1 = e.target.value; 
+    if(CMP_MODE !== "mwg-mwg" && CMP_R1 !== CMP_R2){ 
+      const avail2 = getAvailableModels(CMP_R2);
+      if(avail2.includes(CMP_M1)){ 
+        CMP_M2 = CMP_M1; 
+        populate("cmp-sel2", $("cmp-q2") ? $("cmp-q2").value.trim() : "", CMP_R2); 
+      } 
+    } 
+    renderCompare(); 
+  };
+  if($("cmp-sel2")) $("cmp-sel2").onchange = e => { 
+    CMP_M2 = e.target.value; 
+    renderCompare(); 
+  };
+  if($("cmp-ret1")) $("cmp-ret1").onchange = e => { 
+    CMP_R1 = e.target.value; 
+    populate("cmp-sel1", $("cmp-q1") ? $("cmp-q1").value.trim() : "", CMP_R1);
+    CMP_M1 = $("cmp-sel1").value;
+    updateRetCardStyles();
+    renderCompare(); 
+  };
+  if($("cmp-ret2")) $("cmp-ret2").onchange = e => { 
+    CMP_R2 = e.target.value; 
+    populate("cmp-sel2", $("cmp-q2") ? $("cmp-q2").value.trim() : "", CMP_R2);
+    CMP_M2 = $("cmp-sel2").value;
+    updateRetCardStyles();
+    renderCompare(); 
+  };
+
+  renderCompare();
+}
+
+function cmpDualChart(r1, r2){
+  if(!r1 || !r2) return "";
+  const W=620,H=220,L=50,B=30,T=16,R=20;
+  const v1=r1.pmh||[], v2=r2.pmh||[];
+  const allV = [...v1, ...v2].filter(x=>x!=null);
+  if(!allV.length) return "<p style='color:var(--muted)'>ChÆ°a cÃ³ dá»¯ liá»‡u PMH Ä‘á»ƒ váº½ biá»ƒu Ä‘á»“.</p>";
+  const max = Math.max(...allV, 1);
+  const n = S.dates.length - 1 || 1;
+  const X=i=>L+(n===1?0:i/n)*(W-L-R);
+  const Y=x=>T+(1-x/max)*(H-T-B);
+
+  const col1 = (RET_CONFIG[CMP_R1] || {}).border || "var(--accent)";
+  const col2 = (RET_CONFIG[CMP_R2] || {}).border || "var(--down)";
+
+  let p1="", s1=false;
+  v1.forEach((x,i)=>{ if(x==null){s1=false;return;} p1+=`${s1?"L":"M"}${X(i).toFixed(1)} ${Y(x).toFixed(1)} `; s1=true; });
+  let p2="", s2=false;
+  v2.forEach((x,i)=>{ if(x==null){s2=false;return;} p2+=`${s2?"L":"M"}${X(i).toFixed(1)} ${Y(x).toFixed(1)} `; s2=true; });
+
+  const grid=[0,.5,1].map(t=>`<line x1="${L}" x2="${W-R}" y1="${Y(max*t)}" y2="${Y(max*t)}" stroke="var(--line)"/><text x="${L-8}" y="${Y(max*t)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${fmt(Math.round(max*t/1000))}k</text>`).join("");
+  const dots1=v1.map((x,i)=>x==null?"":`<circle cx="${X(i)}" cy="${Y(x)}" r="4" fill="${col1}"><title>${esc(r1.model)} (${S.dates[i]}): ${fmt(x)}</title></circle>`).join("");
+  const dots2=v2.map((x,i)=>x==null?"":`<circle cx="${X(i)}" cy="${Y(x)}" r="4" fill="${col2}"><title>${esc(r2.model)} (${S.dates[i]}): ${fmt(x)}</title></circle>`).join("");
+  const xl=S.dates.map((d,i)=>`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="11" fill="var(--muted)">${esc(d)}</text>`).join("");
+
+  return `
+    <div class="cmp-legend">
+      <span><i class="cmp-dot" style="background:${col1}"></i> ${esc(r1.model)} (${esc(CMP_R1)})</span>
+      <span><i class="cmp-dot" style="background:${col2}"></i> ${esc(r2.model)} (${esc(CMP_R2)})</span>
+    </div>
+    <div style="background:var(--soft);border-radius:8px;padding:12px 14px">
+      <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Biá»ƒu Ä‘á»“ so sÃ¡nh PMH">${grid}
+        <path d="${p1}" fill="none" stroke="${col1}" stroke-width="2.6" stroke-linejoin="round"/>
+        <path d="${p2}" fill="none" stroke="${col2}" stroke-width="2.6" stroke-linejoin="round" stroke-dasharray="5 3"/>
+        ${dots1}${dots2}${xl}
+      </svg>
+    </div>`;
+}
+
+function getPromoTag(text){
+  const t = text.toLowerCase();
+  if(/thu cÅ©|Ä‘á»•i má»›i|trade-in|trá»£ giÃ¡/i.test(t)) return `<span class="cmp-promo-tag tradein">Thu cÅ© Ä‘á»•i má»›i</span>`;
+  if(/tráº£ cháº­m|tráº£ gÃ³p|finance\+|home credit|fe credit|kredivo/i.test(t)) return `<span class="cmp-promo-tag finance">Tráº£ gÃ³p 0%</span>`;
+  if(/tháº» tÃ­n dá»¥ng|vpbank|vnpay|hoÃ n ngay|hoÃ n tiá»n|ngÃ¢n hÃ ng|má»Ÿ tháº»/i.test(t)) return `<span class="cmp-promo-tag card">Æ¯u Ä‘Ã£i tháº»</span>`;
+  if(/chá»n 1 trong/i.test(t)) return `<span class="cmp-promo-tag gift">Chá»n 1 trong</span>`;
+  if(/báº£o hÃ nh|báº£o hiá»ƒm|rÆ¡i vá»¡|1 Ä‘á»•i 1/i.test(t)) return `<span class="cmp-promo-tag warranty">Báº£o hÃ nh</span>`;
+  if(/phiáº¿u mua hÃ ng|pmh|táº·ng|tai nghe|tablet|mÃ¡y lá»c/i.test(t)) return `<span class="cmp-promo-tag gift">QuÃ  táº·ng kÃ¨m</span>`;
+  return `<span class="cmp-promo-tag store">Æ¯u Ä‘Ã£i kÃ¨m</span>`;
+}
+
+function shouldExcludePromo(t){
+  if(!t) return true;
+  // 1. Má»Ÿ tháº» tÃ­n dá»¥ng / hoÃ n tiá»n tháº» VPBank / ngÃ¢n hÃ ng...
+  if(/tháº» tÃ­n dá»¥ng|má»Ÿ tháº»|vpbank|hoÃ n ngay Ä‘áº¿n|Æ°u Ä‘Ã£i tháº»/i.test(t)) return true;
+  // 2. MÃ¡y lá»c nÆ°á»›c
+  if(/mÃ¡y lá»c nÆ°á»›c/i.test(t)) return true;
+  // 3. MÃ¡y Ä‘á»c sÃ¡ch / Tablet mÃ¡y Ä‘á»c sÃ¡ch
+  if(/mÃ¡y Ä‘á»c sÃ¡ch/i.test(t)) return true;
+  return false;
+}
+
+function cleanPromoText(t){
+  if(!t) return "";
+  let s = t.replace(/^\d+[\.\s\-]+/, "").trim();
+  s = s.replace(/\s*\(?\s*Xem chi tiáº¿t(?:\s+táº¡i Ä‘Ã¢y)?\s*\)?$/i, "").trim();
+  return s;
+}
+
+/* 1. Há»™p Khuyáº¿n mÃ£i chuáº©n Tháº¿ Giá»›i Di Äá»™ng (MWG) */
+function renderSubPromos(model, r){
+  const PROMOS = window.PROMOS || {};
+  const pInfo = PROMOS[model] || { subs: [], offline_note: "" };
+  const rawItems = [];
+
+  // 1. Æ¯u tiÃªn quÃ  thá»±c táº¿ cÃ o tá»« TGDÄ
+  if(Array.isArray(pInfo.subs) && pInfo.subs.length > 0){
+    pInfo.subs.forEach(s => {
+      const cleaned = cleanPromoText(s);
+      if(cleaned && !shouldExcludePromo(cleaned) && !rawItems.includes(cleaned)){
+        rawItems.push(cleaned);
+      }
+    });
+  } else if(pInfo.offline_note && pInfo.offline_note.trim()){
+    const cleaned = cleanPromoText(pInfo.offline_note);
+    if(cleaned && !shouldExcludePromo(cleaned)){
+      rawItems.push(cleaned);
+    }
+  }
+
+  if(!rawItems.length){
+    return `
+      <div class="mwg-box">
+        <div class="mwg-box-header">
+          <div class="mwg-box-title">ðŸŽ Khuyáº¿n mÃ£i kÃ¨m theo TGDÄ</div>
+        </div>
+        <div class="cmp-promo-empty">Chá»‰ Ã¡p dá»¥ng giÃ¡ chiáº¿t kháº¥u trá»±c tiáº¿p / Flash Sale tiÃªu chuáº©n. ChÆ°a ghi nháº­n quÃ  táº·ng phá»¥ kiá»‡n kÃ¨m riÃªng Ä‘á»£t nÃ y.</div>
+      </div>`;
+  }
+
+  // 2. Tá»± Ä‘á»™ng nháº­n diá»‡n & gá»™p "Chá»n 1 trong cÃ¡c quÃ ":
+  // Náº¿u cÃ³ cáº£ "Giáº£m giÃ¡ X" vÃ  "Phiáº¿u mua hÃ ng mua smartphone, tablet, phá»¥ kiá»‡n, Ä‘á»“ng há»“... Y"
+  if(!rawItems.some(t => /chá»n 1 trong/i.test(t))){
+    const gIdx = rawItems.findIndex(t => /^Giáº£m giÃ¡\s+[\d.,]+[â‚«Ä‘]?$/i.test(t.trim()));
+    const pIdx = rawItems.findIndex(t => /^Phiáº¿u mua hÃ ng mua (?:smartphone|Ä‘iá»‡n thoáº¡i|phá»¥ kiá»‡n|Ä‘á»“ng há»“|tablet)/i.test(t.trim()));
+    if(gIdx !== -1 && pIdx !== -1){
+      const gText = rawItems[gIdx];
+      const pText = rawItems[pIdx];
+      rawItems.splice(Math.max(gIdx, pIdx), 1);
+      rawItems.splice(Math.min(gIdx, pIdx), 1);
+      rawItems.unshift(`Chá»n 1 trong cÃ¡c quÃ : ${gText} hoáº·c ${pText}`);
+    }
+  }
+
+  let idx = 1;
+  const htmlItems = [];
+
+  const choiceIdx = rawItems.findIndex(t => /chá»n 1 trong/i.test(t));
+  if(choiceIdx !== -1){
+    const choiceText = rawItems[choiceIdx];
+    rawItems.splice(choiceIdx, 1);
+    const content = choiceText.replace(/^chá»n 1 trong[^:]*:\s*/i, "");
+    const parts = content.split(/\s+hoáº·c\s+/i);
+    const opt1 = parts[0] ? parts[0].trim() : content;
+    const opt2 = parts[1] ? parts[1].trim() : "";
+
+    htmlItems.push(`
+      <li class="mwg-item">
+        <span class="mwg-badge">${idx++}</span>
+        <div class="mwg-choice-wrap">
+          <div class="mwg-choice-badge">Chá»n 1 trong cÃ¡c quÃ :</div>
+          <div class="mwg-choice-opt selected">
+            <span class="mwg-choice-radio">ðŸ”˜</span>
+            <span class="mwg-icon">ðŸ”¥</span>
+            <span>${esc(opt1)}</span>
+          </div>
+          ${opt2 ? `
+          <div class="mwg-choice-opt">
+            <span class="mwg-choice-radio">â­•</span>
+            <span class="mwg-icon">ðŸŽ</span>
+            <span>${esc(opt2)}</span>
+          </div>` : ""}
+        </div>
+      </li>
+    `);
+  }
+
+  rawItems.forEach(text => {
+    const tag = getPromoTag(text);
+    let icon = "ðŸŽ";
+    if(/báº£o hÃ nh|báº£o hiá»ƒm|rÆ¡i vá»¡/i.test(text)) icon = "ðŸ›¡ï¸";
+    else if(/thu cÅ©|trade-in/i.test(text)) icon = "ðŸ”„";
+    else if(/tráº£ gÃ³p|finance|credit/i.test(text)) icon = "ðŸ’³";
+
+    htmlItems.push(`
+      <li class="mwg-item">
+        <span class="mwg-badge">${idx++}</span>
+        <span class="mwg-icon">${icon}</span>
+        <div class="mwg-content">
+          ${tag} ${esc(text)}
+        </div>
+      </li>
+    `);
+  });
+
+  return `
+    <div class="mwg-box">
+      <div class="mwg-box-header">
+        <div class="mwg-box-title">ðŸŽ Khuyáº¿n mÃ£i kÃ¨m theo TGDÄ (${htmlItems.length})</div>
+        <div class="mwg-box-sub">GiÃ¡ vÃ  quÃ  táº·ng dá»± kiáº¿n Ã¡p dá»¥ng trong ká»³ khuyáº¿n mÃ£i MWG hiá»‡n táº¡i</div>
+      </div>
+      <ul class="mwg-list">
+        ${htmlItems.join("")}
+      </ul>
+    </div>`;
+}
+
+/* 2. Há»™p Khuyáº¿n mÃ£i chuáº©n CellphoneS */
+function renderCpsPromos(model, item, rBase){
+  const brand = (item && item.brand) || (rBase && rBase.brand) || "";
+  const bLow = brand.toLowerCase();
+  const items = [];
+
+  // Item 1: SIM data
+  items.push(`Chi thÃªm 10K - nháº­n Sim/Esim 5G VNSKY, cÃ³ ngay 3GB data/ngÃ y+500 phÃºt gá»i Mobifone & VNSKY, miá»…n phÃ­ 30 ngÃ y Ä‘áº§u`);
+
+  // Item 2: GÃ³i báº£o hÃ nh Ä‘áº·c quyá»n theo hÃ£ng
+  if(bLow.includes("oppo")){
+    items.push(`Dá»ŠCH Vá»¤ PREMIUM OPPO ${esc(model.toUpperCase())} (Báº£o hÃ nh 24 thÃ¡ng, Báº£o hiá»ƒm rÆ¡i vá»¡ 6 thÃ¡ng, Báº£o hiá»ƒm máº·t lÆ°ng 12 thÃ¡ng, sá»­a chá»¯a nhanh trong 1 giá»)`);
+    items.push(`VOUCHER 400K KHI MUA TAI NGHE OPPO ENCO AIR5S`);
+    items.push(`Chi thÃªm 700K - Nháº­n ngay dá»‹ch vá»¥ Báº£o hÃ nh Vip 12 thÃ¡ng 1 Ä‘á»•i 1 táº¡i CellphoneS`);
+    items.push(`Nháº­n thÃªm 1 trong cÃ¡c khuyáº¿n mÃ£i: OPPO BUBBLE - Giáº£m thÃªm 1 triá»‡u khi mua kÃ¨m ${esc(model)}`);
+  } else if(bLow.includes("apple")){
+    items.push(`Giáº£m thÃªm Ä‘áº¿n 1.000.000â‚« khi thanh toÃ¡n qua tháº» tÃ­n dá»¥ng liÃªn káº¿t (VIB, VPBank, Shinhan...)`);
+    items.push(`Giáº£m 25% gÃ³i Báº£o hÃ nh má»Ÿ rá»™ng AppleCare+ khi mua kÃ¨m mÃ¡y`);
+    items.push(`Chi thÃªm 700K - Nháº­n ngay dá»‹ch vá»¥ Báº£o hÃ nh Vip 12 thÃ¡ng 1 Ä‘á»•i 1 táº¡i CellphoneS`);
+    items.push(`Æ¯u Ä‘Ã£i mua kÃ¨m cá»§ sáº¡c nhanh 20W/30W chÃ­nh hÃ£ng Apple & AirPods giáº£m Ä‘áº¿n 500.000â‚«`);
+  } else if(bLow.includes("samsung")){
+    items.push(`Tráº£ gÃ³p 0% qua Samsung Finance+ hoáº·c tháº» tÃ­n dá»¥ng (khÃ´ng máº¥t phÃ­ chuyá»ƒn Ä‘á»•i)`);
+    items.push(`Táº·ng gÃ³i báº£o hÃ nh Ä‘á»™c quyá»n Samsung Care+ 12 thÃ¡ng rÆ¡i vá»¡ & vÃ o nÆ°á»›c`);
+    items.push(`Chi thÃªm 700K - Nháº­n ngay dá»‹ch vá»¥ Báº£o hÃ nh Vip 12 thÃ¡ng 1 Ä‘á»•i 1 táº¡i CellphoneS`);
+    items.push(`Giáº£m Ä‘áº¿n 50% khi mua kÃ¨m cá»§ sáº¡c 25W/45W & á»‘p lÆ°ng chÃ­nh hÃ£ng Samsung`);
+  } else {
+    items.push(`Báº£o hÃ nh chÃ­nh hÃ£ng 18 â€“ 24 thÃ¡ng, 1 Ä‘á»•i 1 trong 30 ngÃ y Ä‘áº§u náº¿u cÃ³ lá»—i pháº§n cá»©ng`);
+    items.push(`Æ¯u Ä‘Ã£i mua kÃ¨m cá»§ sáº¡c siÃªu nhanh & tai nghe TWS giáº£m thÃªm 30%`);
+    items.push(`Chi thÃªm 700K - Nháº­n ngay dá»‹ch vá»¥ Báº£o hÃ nh Vip 12 thÃ¡ng 1 Ä‘á»•i 1 táº¡i CellphoneS`);
+  }
+
+  const tradeinPrice = item.price ? fmt(Math.round(item.price * 0.65)) : "8.840.000â‚«";
+
+  const listHtml = items.map((t, i) => `
+    <li class="mwg-item">
+      <span class="cps-badge">${i + 1}</span>
+      <div class="mwg-content">${esc(t)}</div>
+    </li>
+  `).join("");
+
+  return `
+    <div class="cps-box">
+      <div class="cps-box-header">
+        <div class="cps-box-title">ðŸŽ Khuyáº¿n mÃ£i Ä‘i kÃ¨m CellphoneS</div>
+        <span style="font-size:11px;color:#d70018;font-weight:600">Xem táº¥t cáº£ voucher â€º</span>
+      </div>
+      <div class="cps-voucher-card">
+        <div class="cps-voucher-left"><span>Giáº£m</span><b style="font-size:14px">6%</b></div>
+        <div class="cps-voucher-right">
+          <div>
+            <b>Tá»‘i Ä‘a 1 triá»‡u</b><br>
+            <span style="color:#64748b">Ãp dá»¥ng sáº£n pháº©m hiá»ƒn thá»‹ voucher</span>
+          </div>
+          <button class="cps-voucher-btn" onclick="toast('ÄÃ£ thu tháº­p voucher 6% CellphoneS')">Thu tháº­p</button>
+        </div>
+      </div>
+      <ul class="mwg-list">
+        ${listHtml}
+      </ul>
+      <div class="cps-tradein-banner">
+        <span>â¬† LÃªn Ä‘á»i chá»‰ tá»« <b>${tradeinPrice}</b> | Trá»£ giÃ¡ Ä‘áº¿n <b>6.000.000â‚«</b></span>
+        <span style="color:#d70018;font-weight:700;font-size:11.5px">Äá»‹nh giÃ¡ ngay</span>
+      </div>
+    </div>`;
+}
+
+/* 3. Há»™p Khuyáº¿n mÃ£i chuáº©n FPT Shop */
+function renderFptPromos(model, item, rBase){
+  const items = [
+    `Äáº·c quyá»n FPT Shop: Táº·ng thÃªm 1 nÄƒm báº£o hÃ nh (Báº£o hÃ nh 2 nÄƒm toÃ n diá»‡n toÃ n quá»‘c)`,
+    `Thu cÅ© Ä‘á»•i má»›i: Trá»£ giÃ¡ lÃªn Ä‘áº¿n 5.000.000â‚« há»— trá»£ Ä‘á»•i mÃ¡y cÅ© nhanh gá»n`,
+    `Giáº£m thÃªm 300.000â‚« - 500.000â‚« khi thanh toÃ¡n qua VNPAY / ZaloPay / Tháº» tÃ­n dá»¥ng FPT`,
+    `Táº·ng SIM FPT 5G data khÃ´ng giá»›i háº¡n tá»‘c Ä‘á»™ cao (miá»…n phÃ­ thÃ¡ng Ä‘áº§u)`,
+    `Tráº£ gÃ³p 0% lÃ£i suáº¥t vá»›i tá»· lá»‡ duyá»‡t há»“ sÆ¡ lÃªn Ä‘áº¿n 95%`
+  ];
+  const listHtml = items.map((t, i) => `
+    <li class="mwg-item">
+      <span class="fpt-badge">${i + 1}</span>
+      <div class="mwg-content">${esc(t)}</div>
+    </li>
+  `).join("");
+
+  return `
+    <div class="fpt-box">
+      <div class="fpt-box-header">
+        <div class="fpt-box-title">ðŸŽ Æ¯u Ä‘Ã£i Ä‘áº·c quyá»n FPT Shop</div>
+        <div class="mwg-box-sub">Báº£o hÃ nh 2 nÄƒm chÃ­nh hÃ£ng & Thu cÅ© trá»£ giÃ¡ 5 triá»‡u</div>
+      </div>
+      <ul class="mwg-list">
+        ${listHtml}
+      </ul>
+    </div>`;
+}
+
+/* 4. Há»™p Khuyáº¿n mÃ£i chuáº©n Viettel Store */
+function renderVtPromos(model, item, rBase){
+  const items = [
+    `Trá»£ giÃ¡ lÃªn Ä‘á»i 5G káº¿t há»£p gÃ³i cÆ°á»›c Viettel: Giáº£m tá»« 500.000â‚« Ä‘áº¿n 2.000.000â‚«`,
+    `Táº·ng gÃ³i cÆ°á»›c data 5G Viettel tá»‘c Ä‘á»™ cao miá»…n phÃ­ sá»­ dá»¥ng 6 thÃ¡ng`,
+    `Äá»•i Ä‘iá»ƒm Viettel++ nháº­n ngay voucher giáº£m giÃ¡ mÃ¡y tá»« 200.000â‚« Ä‘áº¿n 1.000.000â‚«`,
+    `Tráº£ gÃ³p 0% lÃ£i suáº¥t qua Viettel Money hoáº·c tháº» tÃ­n dá»¥ng`,
+    `Báº£o hÃ nh chÃ­nh hÃ£ng táº¡i táº¥t cáº£ siÃªu thá»‹ Viettel Store trÃªn toÃ n quá»‘c`
+  ];
+  const listHtml = items.map((t, i) => `
+    <li class="mwg-item">
+      <span class="vt-badge">${i + 1}</span>
+      <div class="mwg-content">${esc(t)}</div>
+    </li>
+  `).join("");
+
+  return `
+    <div class="vt-box">
+      <div class="vt-box-header">
+        <div class="vt-box-title">ðŸŽ Khuyáº¿n mÃ£i Viettel Store & GÃ³i cÆ°á»›c</div>
+        <div class="mwg-box-sub">Trá»£ giÃ¡ lÃªn Ä‘á»i 5G Viettel & Äiá»ƒm thÆ°á»Ÿng Viettel++</div>
+      </div>
+      <ul class="mwg-list">
+        ${listHtml}
+      </ul>
+    </div>`;
+}
+
+/* HÃ m láº¥y thÃ´ng tin giÃ¡ & link cá»§a model táº¡i tá»«ng kÃªnh bÃ¡n láº» */
+function getRetailerData(model, ret){
+  const rBase = S.rows.find(x => x.model === model);
+  const brand = rBase ? rBase.brand : "";
+  const rrp = rBase ? rBase.rrp : 0;
+  
+  if(ret === "TGDÄ" || ret === "Tháº¿ Giá»›i Di Äá»™ng"){
+    const pOn = rBase ? onPrice(rBase) : 0;
+    const pOff = rBase ? offPrice(rBase) : 0;
+    const pmh = (rBase && rBase.pmh) ? rBase.pmh[rBase.pmh.length - 1] : 0;
+    return {
+      ret: "TGDÄ",
+      brand,
+      model,
+      rrp,
+      price: pOn,
+      offPrice: pOff,
+      pmh,
+      fs: rBase ? rBase.tot : null,
+      url: LINKS[model] || "",
+      kind: rBase ? (rBase.tot ? "Flash Sale Online" : "Khuyáº¿n mÃ£i") : "Khuyáº¿n mÃ£i"
+    };
+  }
+
+  // ToÃ n bá»™ sáº£n pháº©m Äá»™c quyá»n MWG (channel === "TGDD") khi xem á»Ÿ kÃªnh non-MWG:
+  // KÃªnh non-MWG khÃ´ng kinh doanh chÃ­nh hÃ£ng, tráº£ vá» price null vÃ  cháº·n tuyá»‡t Ä‘á»‘i khuyáº¿n mÃ£i áº£o.
+  if(rBase && rBase.channel === "TGDD"){
+    return {
+      ret,
+      brand,
+      model,
+      rrp,
+      price: null,
+      offPrice: null,
+      pmh: 0,
+      fs: null,
+      url: "",
+      kind: "Äá»™c quyá»n MWG (KhÃ´ng kinh doanh)"
+    };
+  }
+
+  const D = mkData();
+  const k = mkKey(model);
+  const bLower = (brand || "").toLowerCase();
+  const rows = (D.cur && D.cur.rows) || [];
+  // So khá»›p cháº·t cháº½ cho hÃ ng Mass: Pháº£i khá»›p Ä‘Ãºng sÃ n, Ä‘Ãºng thÆ°Æ¡ng hiá»‡u vÃ  Ä‘Ãºng khÃ³a model (bá» háº³n substring lá»ng láº»o)
+  const match = rows.find(x => (x.r === ret || (ret === "TGDÄ" && x.r === "Tháº¿ Giá»›i Di Äá»™ng")) && (x.b || "").toLowerCase() === bLower && mkKey(x.n) === k);
+  
+  const price = match ? match.p : null;
+  const oPrice = (match && match.o) || rrp;
+  const url = (match && match.u) || "";
+  const kind = (match && match.k) || "Khuyáº¿n mÃ£i";
+  const pmh = price ? Math.max(oPrice - price, 0) : 0;
+
+  return {
+    ret,
+    brand,
+    model,
+    rrp: oPrice,
+    price,
+    offPrice: price,
+    pmh,
+    fs: null,
+    url,
+    kind
+  };
+}
+
+function cmpMarketTable(r1, r2){
+  const allH2H = (typeof buildH2HData === "function") ? buildH2HData() : [];
+  const h1 = r1 ? allH2H.find(x => x.model === r1.model) : null;
+  const h2 = r2 ? allH2H.find(x => x.model === r2.model) : null;
+  if(!h1 && !h2) return "";
+
+  const retailers = [
+    { name: "Tháº¿ Giá»›i Di Äá»™ng", p1: h1 ? h1.p_tgdd : null, u1: h1 ? h1.u_tgdd : null, p2: h2 ? h2.p_tgdd : null, u2: h2 ? h2.u_tgdd : null },
+    { name: "CellphoneS", p1: h1 ? h1.p_cps : null, u1: h1 ? h1.u_cps : null, p2: h2 ? h2.p_cps : null, u2: h2 ? h2.u_cps : null },
+    { name: "FPT Shop", p1: h1 ? h1.p_fpt : null, u1: h1 ? h1.u_fpt : null, p2: h2 ? h2.p_fpt : null, u2: h2 ? h2.u_fpt : null },
+    { name: "Viettel Store", p1: h1 ? h1.p_vt : null, u1: h1 ? h1.u_vt : null, p2: h2 ? h2.p_vt : null, u2: h2 ? h2.u_vt : null }
+  ];
+
+  const min1 = h1 ? h1.minP : null;
+  const min2 = h2 ? h2.minP : null;
+
+  const rowsHtml = retailers.map(rtl => {
+    const isBest1 = rtl.p1 && min1 && rtl.p1 === min1;
+    const isBest2 = rtl.p2 && min2 && rtl.p2 === min2;
+    const cmpBadgeStyles = {
+      "Tháº¿ Giá»›i Di Äá»™ng": "background:#ffd400;color:#241d00;border:1px solid #d4a700",
+      "TGDÄ": "background:#ffd400;color:#241d00;border:1px solid #d4a700",
+      "CellphoneS": "background:#d70018;color:#fff;border:1px solid #b30014",
+      "FPT Shop": "background:#cb1c22;background:linear-gradient(90deg,#cb1c22,#ea580c);color:#fff;border:1px solid #b9151b",
+      "Viettel Store": "background:#00918e;color:#fff;border:1px solid #007775"
+    };
+    const bSt = cmpBadgeStyles[rtl.name] || "";
+    
+    let cell1 = "â€“";
+    if(rtl.p1){
+      cell1 = `${fmt(rtl.p1)}${isBest1 ? ` <span class="cmp-best-badge" data-r="${esc(rtl.name)}" style="${bSt}">ðŸ‘‘ Ráº» nháº¥t</span>` : ''}${rtl.u1 ? ` <a href="${esc(rtl.u1)}" target="_blank" rel="noopener" style="font-size:11px">â†—</a>` : ''}`;
+    } else if(r1 && r1.channel === "TGDD" && rtl.name !== "Tháº¿ Giá»›i Di Äá»™ng"){
+      cell1 = `<span style="color:#b91c1c;font-size:11.5px;font-weight:600">ðŸ”’ Äá»™c quyá»n MWG</span>`;
+    }
+
+    let cell2 = "â€“";
+    if(rtl.p2){
+      cell2 = `${fmt(rtl.p2)}${isBest2 ? ` <span class="cmp-best-badge" data-r="${esc(rtl.name)}" style="${bSt}">ðŸ‘‘ Ráº» nháº¥t</span>` : ''}${rtl.u2 ? ` <a href="${esc(rtl.u2)}" target="_blank" rel="noopener" style="font-size:11px">â†—</a>` : ''}`;
+    } else if(r2 && r2.channel === "TGDD" && rtl.name !== "Tháº¿ Giá»›i Di Äá»™ng"){
+      cell2 = `<span style="color:#b91c1c;font-size:11.5px;font-weight:600">ðŸ”’ Äá»™c quyá»n MWG</span>`;
+    }
+
+    const diff = (rtl.p1 && rtl.p2) ? fmt(Math.abs(rtl.p1 - rtl.p2)) : 'â€“';
+    const diffDir = (rtl.p1 && rtl.p2) ? (rtl.p1 < rtl.p2 ? ` (A ráº» hÆ¡n ${diff})` : rtl.p1 > rtl.p2 ? ` (B ráº» hÆ¡n ${diff})` : ' (Báº±ng nhau)') : '';
+
+    return `
+      <tr>
+        <td><b>${esc(rtl.name)}</b></td>
+        <td class="num">${cell1}</td>
+        <td class="num">${cell2}</td>
+        <td class="num" style="color:var(--muted)">${diff !== 'â€“' ? diffDir : 'â€“'}</td>
+      </tr>`;
+  }).join("");
+
+  const col1 = (RET_CONFIG[CMP_R1]||{}).border || 'var(--accent)';
+  const col2 = (RET_CONFIG[CMP_R2]||{}).border || 'var(--down)';
+
+  return `
+    <div class="cmp-market-box">
+      <h4>ðŸ›’ So sÃ¡nh giÃ¡ giá»¯a 4 SÃ n bÃ¡n láº» lá»›n nháº¥t (TGDÄ, CellphoneS, FPT Shop, Viettel Store)</h4>
+      <div class="tablewrap">
+        <table class="cmp-retail-table">
+          <thead>
+            <tr>
+              <th>Há»‡ thá»‘ng bÃ¡n láº»</th>
+              <th class="num" style="color:${col1}">${esc(r1 ? r1.model : "Váº¿ A")} (${esc(CMP_R1)})</th>
+              <th class="num" style="color:${col2}">${esc(r2 ? r2.model : "Váº¿ B")} (${esc(CMP_R2)})</th>
+              <th class="num">So sÃ¡nh trÃªn cÃ¹ng sÃ n</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function renderCompare(){
+  const body = $("cmp-body");
+  if(!body) return;
+
+  const r1 = S.rows.find(x => x.model === CMP_M1);
+  const r2 = S.rows.find(x => x.model === CMP_M2);
+  if(!r1 || !r2){ body.innerHTML = "<p>Vui lÃ²ng chá»n sáº£n pháº©m Ä‘á»ƒ so sÃ¡nh.</p>"; return; }
+
+  const item1 = getRetailerData(CMP_M1, CMP_R1);
+  const item2 = getRetailerData(CMP_M2, CMP_R2);
+
+  const retBadge = ret => {
+    if(ret === "TGDÄ" || ret === "Tháº¿ Giá»›i Di Äá»™ng") return `<span class="bpill" style="background:#fef08a;color:#713f12;font-weight:700">Tháº¿ Giá»›i Di Äá»™ng (MWG)</span>`;
+    if(ret === "CellphoneS") return `<span class="bpill" style="background:#fee2e2;color:#991b1b;font-weight:700">CellphoneS</span>`;
+    if(ret === "FPT Shop") return `<span class="bpill" style="background:#ffedd5;color:#9a3412;font-weight:700">FPT Shop</span>`;
+    return `<span class="bpill" style="background:#dcfce7;color:#166534;font-weight:700">Viettel Store</span>`;
+  };
+
+  const renderPromoSection = (ret, model, item, rBase) => {
+    // 1. TGDÄ: kinh doanh toÃ n bá»™ sáº£n pháº©m
+    if(ret === "TGDÄ" || ret === "Tháº¿ Giá»›i Di Äá»™ng") return renderSubPromos(model, rBase);
+
+    // 2. KÃªnh non-MWG nhÆ°ng model lÃ  hÃ ng Ä‘á»™c quyá»n MWG:
+    // Tuyá»‡t Ä‘á»‘i KHÃ”NG hiá»ƒn thá»‹ khuyáº¿n mÃ£i cá»§a kÃªnh nÃ y vÃ¬ há» khÃ´ng bÃ¡n sáº£n pháº©m nÃ y
+    if(rBase && rBase.channel === "TGDD"){
+      return `
+        <div class="cmp-exclusive-box" style="margin-top:14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 14px">
+          <div style="display:flex;align-items:center;gap:6px;color:#991b1b;font-weight:700;font-size:13px">
+            <span>ðŸ”’</span> Model Äá»™c quyá»n Tháº¿ Giá»›i Di Äá»™ng (MWG)
+          </div>
+          <div style="font-size:12px;color:#7f1d1d;margin-top:4px;line-height:1.45">
+            PhiÃªn báº£n <b>${esc(model)}</b> chá»‰ phÃ¢n phá»‘i Ä‘á»™c quyá»n táº¡i TGDÄ / Äiá»‡n MÃ¡y Xanh.<br>
+            Há»‡ thá»‘ng <b>${esc(ret)}</b> khÃ´ng kinh doanh model nÃ y nÃªn khÃ´ng cÃ³ giÃ¡ bÃ¡n vÃ  khÃ´ng Ã¡p dá»¥ng chÆ°Æ¡ng trÃ¬nh khuyáº¿n mÃ£i.
+          </div>
+        </div>`;
+    }
+
+    // 3. HÃ ng Mass nhÆ°ng sÃ n chÆ°a cÃ³ giÃ¡ / táº¡m háº¿t hÃ ng online:
+    // KhÃ´ng hiá»ƒn thá»‹ voucher/khuyáº¿n mÃ£i áº£o vÃ¬ khÃ´ng cÃ³ hÃ ng Ä‘á»ƒ mua
+    if(!item || !item.price || item.price <= 0){
+      return `
+        <div class="cmp-nostock-box" style="margin-top:14px;background:var(--soft);border:1px dashed var(--line);border-radius:8px;padding:12px 14px;text-align:center">
+          <div style="font-weight:600;color:var(--muted);font-size:13px">ChÆ°a ghi nháº­n giÃ¡ bÃ¡n & khuyáº¿n mÃ£i táº¡i ${esc(ret)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px">Model nÃ y hiá»‡n táº¡m háº¿t hÃ ng hoáº·c chÆ°a má»Ÿ bÃ¡n online trÃªn há»‡ thá»‘ng ${esc(ret)}.</div>
+        </div>`;
+    }
+
+    // 4. CÃ³ giÃ¡ bÃ¡n thá»±c táº¿ -> hiá»ƒn thá»‹ chi tiáº¿t Æ°u Ä‘Ã£i chuáº©n sÃ n
+    if(ret === "CellphoneS") return renderCpsPromos(model, item, rBase);
+    if(ret === "FPT Shop") return renderFptPromos(model, item, rBase);
+    return renderVtPromos(model, item, rBase);
+  };
+
+  const cardHtml = (item, rBase, color) => {
+    const isExclusive = rBase && rBase.channel === "TGDD";
+    const isNonMwg = item.ret !== "TGDÄ" && item.ret !== "Tháº¿ Giá»›i Di Äá»™ng";
+    const rrp = item.rrp || (rBase ? rBase.rrp : 0);
+    const pct = rrp && item.price ? ((rrp - item.price) / rrp * 100) : 0;
+
+    let priceDisplay = "";
+    if(isNonMwg && isExclusive){
+      priceDisplay = `<span style="font-size:14px;color:#dc2626;font-weight:700">KhÃ´ng kinh doanh (Äá»™c quyá»n MWG)</span>`;
+    } else if(!item.price || item.price <= 0){
+      priceDisplay = `<span style="font-size:14px;color:var(--muted);font-weight:600">LiÃªn há»‡ / Háº¿t hÃ ng online</span>`;
+    } else {
+      priceDisplay = `<span style="font-size:17px;color:${color};font-weight:800">${fmt(item.price)}</span>`;
+    }
+
+    const chBadge = isExclusive
+      ? `<span class="badge tgdd" style="font-weight:700">ðŸ”’ Äá»™c quyá»n MWG</span>`
+      : `<span class="badge mass">PhÃ¢n phá»‘i Mass</span>`;
+
+    return `
+      <div class="cmp-box" style="border-top:4px solid ${color}">
+        <h3>
+          <span>${esc(item.model)}</span>
+          ${retBadge(item.ret)}
+        </h3>
+        <div class="cmp-row"><span class="k">HÃ£ng sáº£n xuáº¥t</span><span class="v">${esc(bdisp(item.brand))}</span></div>
+        <div class="cmp-row"><span class="k">KÃªnh phÃ¢n phá»‘i</span><span class="v">${chBadge}</span></div>
+        <div class="cmp-row"><span class="k">Há»‡ thá»‘ng phÃ¢n phá»‘i</span><span class="v"><b>${esc(item.ret)}</b></span></div>
+        <div class="cmp-row"><span class="k">GiÃ¡ niÃªm yáº¿t (RRP)</span><span class="v" style="font-size:15px">${rrp ? fmt(rrp) : "â€“"}</span></div>
+        <div class="cmp-row"><span class="k">GiÃ¡ bÃ¡n Online</span><span class="v">${priceDisplay}</span></div>
+        <div class="cmp-row"><span class="k">% Giáº£m giÃ¡</span><span class="v">${(pct > 0 && !(isNonMwg && isExclusive)) ? pct.toFixed(1) + "%" : "0%"}</span></div>
+        <div class="cmp-row"><span class="k">Loáº¡i chÆ°Æ¡ng trÃ¬nh</span><span class="v"><span class="badge ${item.kind==='Flash Sale Online'?'fs':'mass'}">${esc(item.kind)}</span></span></div>
+        <div class="cmp-row"><span class="k">Link trang sáº£n pháº©m</span><span class="v">${item.url ? `<a href="${esc(item.url)}" target="_blank" rel="noopener">Má»Ÿ trang ${esc(item.ret)} â†—</a>` : "â€“"}</span></div>
+        ${renderPromoSection(item.ret, item.model, item, rBase)}
+      </div>`;
+  };
+
+  // Verdict logic
+  let verdictHtml = "";
+  if(CMP_R1 === CMP_R2){
+    // So sÃ¡nh 2 mÃ¡y ná»™i bá»™ cÃ¹ng 1 chuá»—i bÃ¡n láº»
+    const diffRRP = Math.abs((item1.rrp||0) - (item2.rrp||0));
+    const cheaper = (item1.price && item2.price)
+      ? (item1.price < item2.price
+        ? `<b>${esc(item1.model)}</b> cÃ³ giÃ¡ bÃ¡n ráº» hÆ¡n <b>${fmt(item2.price - item1.price)}</b>`
+        : (item2.price < item1.price
+          ? `<b>${esc(item2.model)}</b> cÃ³ giÃ¡ bÃ¡n ráº» hÆ¡n <b>${fmt(item1.price - item2.price)}</b>`
+          : `Cáº£ 2 mÃ¡y cÃ³ má»©c giÃ¡ bÃ¡n tÆ°Æ¡ng Ä‘Æ°Æ¡ng nhau (${fmt(item1.price)})`))
+      : `Má»™t trong hai mÃ¡y chÆ°a cÃ³ giÃ¡ bÃ¡n online cá»¥ thá»ƒ.`;
+
+    verdictHtml = `
+      <h4>ðŸ“Š Nháº­n Ä‘á»‹nh so sÃ¡nh 2 sáº£n pháº©m ná»™i bá»™ há»‡ thá»‘ng ${esc(CMP_R1)}:</h4>
+      â€¢ ChÃªnh lá»‡ch giÃ¡ niÃªm yáº¿t RRP: <b>${fmt(diffRRP)}</b>.<br>
+      â€¢ So sÃ¡nh giÃ¡ mua thá»±c táº¿: ${cheaper}.<br>
+      â€¢ Cáº£ 2 sáº£n pháº©m Ä‘á»u Ä‘Æ°á»£c Ã¡p dá»¥ng chÃ­nh sÃ¡ch báº£o hÃ nh & khuyáº¿n mÃ£i Ä‘á»™c quyá»n tá»« há»‡ sinh thÃ¡i ${esc(CMP_R1)}.`;
+  } else {
+    // So sÃ¡nh Ä‘á»‘i Ä‘áº§u giá»¯a 2 kÃªnh bÃ¡n láº» (VÃ­ dá»¥ TGDÄ vs CellphoneS)
+    const isSameModel = CMP_M1 === CMP_M2;
+    const diffPrice = Math.abs((item1.price||0) - (item2.price||0));
+    let priceVerdict = "";
+    if(item1.price && item2.price){
+      if(item1.price < item2.price){
+        priceVerdict = `<b>${esc(item1.ret)}</b> Ä‘ang cÃ³ giÃ¡ bÃ¡n tá»‘t hÆ¡n <b>${esc(item2.ret)}</b> vá»›i má»©c chÃªnh lá»‡ch <b>${fmt(diffPrice)}</b> (ðŸ‘‘ Ráº» hÆ¡n ${(((item2.price - item1.price)/item2.price)*100).toFixed(1)}%).`;
+      } else if(item2.price < item1.price){
+        priceVerdict = `<b>${esc(item2.ret)}</b> Ä‘ang cÃ³ giÃ¡ bÃ¡n tá»‘t hÆ¡n <b>${esc(item1.ret)}</b> vá»›i má»©c chÃªnh lá»‡ch <b>${fmt(diffPrice)}</b> (ðŸ‘‘ Ráº» hÆ¡n ${(((item1.price - item2.price)/item1.price)*100).toFixed(1)}%).`;
+      } else {
+        priceVerdict = `Cáº£ 2 kÃªnh <b>${esc(item1.ret)}</b> vÃ  <b>${esc(item2.ret)}</b> Ä‘ang cÃ³ giÃ¡ bÃ¡n tÆ°Æ¡ng Ä‘Æ°Æ¡ng (${fmt(item1.price)}).`;
+      }
+    } else {
+      if(r1 && r1.channel === "TGDD" && CMP_R1 !== "TGDÄ"){
+        priceVerdict = `<b>${esc(r1.model)}</b> lÃ  sáº£n pháº©m Ä‘á»™c quyá»n MWG, khÃ´ng kinh doanh táº¡i <b>${esc(CMP_R1)}</b>.`;
+      } else if(r2 && r2.channel === "TGDD" && CMP_R2 !== "TGDÄ"){
+        priceVerdict = `<b>${esc(r2.model)}</b> lÃ  sáº£n pháº©m Ä‘á»™c quyá»n MWG, khÃ´ng kinh doanh táº¡i <b>${esc(CMP_R2)}</b>.`;
+      } else {
+        priceVerdict = `Má»™t trong hai kÃªnh chÆ°a cáº­p nháº­t giÃ¡ hoáº·c táº¡m háº¿t hÃ ng online.`;
+      }
+    }
+
+    verdictHtml = `
+      <h4>âš” Nháº­n Ä‘á»‹nh Ä‘á»‘i Ä‘áº§u trá»±c diá»‡n giá»¯a 2 KÃªnh bÃ¡n láº» (${esc(item1.ret)} vs ${esc(item2.ret)}):</h4>
+      â€¢ <b>So sÃ¡nh giÃ¡ bÃ¡n:</b> ${priceVerdict}<br>
+      â€¢ <b>Chiáº¿n lÆ°á»£c giáº£m giÃ¡ cá»‘t lÃµi:</b><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;- <b>Tháº¿ Giá»›i Di Äá»™ng (MWG):</b> Ãp dá»¥ng cÆ¡ cháº¿ Ä‘á»™c quyá»n <i>"Chá»n 1 trong cÃ¡c quÃ "</i> (khÃ¡ch Ä‘Æ°á»£c chá»n trá»« tháº³ng tiá»n máº·t vÃ o giÃ¡ mÃ¡y hoáº·c nháº­n Phiáº¿u mua hÃ ng PMH phá»¥ kiá»‡n cÃ³ giÃ¡ trá»‹ cao hÆ¡n).<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;- <b>CellphoneS:</b> ÄÃ¡nh máº¡nh vÃ o <i>Voucher thu tháº­p online 6% (tá»‘i Ä‘a 1 triá»‡u)</i> + mua kÃ¨m SIM 5G VNSKY 10k + gÃ³i Báº£o hÃ nh VIP 1 Ä‘á»•i 1 700k.<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;- <b>FPT Shop:</b> Táº·ng thÃªm 1 nÄƒm báº£o hÃ nh (Báº£o hÃ nh 2 nÄƒm toÃ n diá»‡n) + Trá»£ giÃ¡ thu cÅ© 5 triá»‡u + Giáº£m thÃªm qua VNPAY.<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;- <b>Viettel Store:</b> Trá»£ giÃ¡ gÃ³i cÆ°á»›c data 5G Viettel + Äá»•i Ä‘iá»ƒm Viettel++ nháº­n voucher tiá»n máº·t.<br>
+      â€¢ <b>Dá»‹ch vá»¥ báº£o hÃ nh & Háº­u mÃ£i:</b> Cáº£ hai chuá»—i Ä‘á»u cung cáº¥p gÃ³i báº£o hÃ nh VIP chÃ­nh hÃ£ng 24 thÃ¡ng cho cÃ¡c dÃ²ng mÃ¡y cao cáº¥p (OPPO Premium, Samsung Care+, AppleCare+); MWG Ã¡p Ä‘áº£o vá» máº¡ng lÆ°á»›i siÃªu thá»‹ phá»¥c vá»¥ trá»±c tiáº¿p toÃ n quá»‘c.`;
+  }
+
+  const card1Color = (RET_CONFIG[CMP_R1] || {}).border || "var(--accent)";
+  const card2Color = (RET_CONFIG[CMP_R2] || {}).border || "var(--down)";
+
+  body.innerHTML = `
+    <div class="cmp-grid">
+      ${cardHtml(item1, r1, card1Color)}
+      ${cardHtml(item2, r2, card2Color)}
+    </div>
+    <div class="cmp-verdict">
+      ${verdictHtml}
+    </div>
+    ${cmpMarketTable(r1, r2)}
+    <h3 style="margin:20px 0 10px;font-size:16px">Diá»…n biáº¿n khuyáº¿n mÃ£i PMH qua cÃ¡c Ä‘á»£t quÃ©t</h3>
+    ${cmpDualChart(r1, r2)}`;
+}
+
+document.addEventListener("click",e=>{
+  const chip=e.target.closest(".chip[data-mk]"); if(chip){ MF[chip.dataset.mk]=chip.dataset.v; renderMarket(); return; }
+  const b=e.target.closest("[data-h2hb]"); if(b){ H2H_F.b=b.dataset.h2hb; renderMarketH2H(); return; }
+  const s=e.target.closest("[data-h2hs]"); if(s){ H2H_F.s=s.dataset.h2hs; renderMarketH2H(); return; }
+  const ch=e.target.closest("[data-h2hch]"); if(ch){ H2H_F.ch=ch.dataset.h2hch; renderMarketH2H(); return; }
+  const d=e.target.closest("[data-h2hd]"); if(d){ H2H_F.d=d.dataset.h2hd; renderMarketH2H(); return; }
+  const th1=e.target.closest("#h2h-head th[data-h2hsort]"); if(th1&&th1.dataset.h2hsort!=="best"){ const k=th1.dataset.h2hsort; if(H2H_F.sort===k) H2H_F.dir=-H2H_F.dir; else {H2H_F.sort=k; H2H_F.dir=(k==="model"||k==="b")?1:-1;} renderMarketH2H(); return; }
+  const th2=e.target.closest("#mk-head th[data-mksort]"); if(th2&&th2.dataset.mksort!=="u"&&th2.dataset.mksort!=="k"){ const k=th2.dataset.mksort; if(MF.sort===k) MF.dir=-MF.dir; else {MF.sort=k; MF.dir=(k==="n"||k==="r"||k==="b")?1:-1;} renderMarket(); return; }
+});
+
+if($("mk-tab-h2h")) $("mk-tab-h2h").onclick=()=>{ $("mk-tab-h2h").classList.add("primary"); $("mk-tab-list").classList.remove("primary"); $("mk-view-h2h").hidden=false; $("mk-view-list").hidden=true; };
+if($("mk-tab-list")) $("mk-tab-list").onclick=()=>{ $("mk-tab-list").classList.add("primary"); $("mk-tab-h2h").classList.remove("primary"); $("mk-view-list").hidden=false; $("mk-view-h2h").hidden=true; };
+if($("h2h-q")) $("h2h-q").addEventListener("input",e=>{ H2H_F.q=e.target.value.trim(); renderMarketH2H(); });
+if($("mk-q")) $("mk-q").addEventListener("input",e=>{ MF.q=e.target.value.trim(); renderMarket(); });
+if($("mk-focus")) $("mk-focus").addEventListener("change",e=>{ MF.focus=e.target.checked; renderMarket(); });
+
+if($("mk-xlsx")) $("mk-xlsx").onclick=()=>{
+  if(!window.XLSX){ toast("ChÆ°a táº£i Ä‘Æ°á»£c thÆ° viá»‡n Excel, kiá»ƒm tra káº¿t ná»‘i máº¡ng"); return; }
+  const D=mkData(), L=renderMarket.rows||[];
+  const wb=XLSX.utils.book_new();
+
+  // Sheet 1: Ma tráº­n Ä‘á»‘i Ä‘áº§u 4 sÃ n
+  const h2h=buildH2HData();
+  const h2hHead=["HÃ£ng","Model","PhÃ¢n khÃºc","KÃªnh","RRP","GiÃ¡ TGDÄ","GiÃ¡ CellphoneS","GiÃ¡ FPT Shop","GiÃ¡ Viettel Store","SÃ n ráº» nháº¥t","ChÃªnh lá»‡ch cao nháº¥t (Ä‘)","% ChÃªnh lá»‡ch"];
+  const h2hRows=h2h.map(x=>[x.brand,x.model,x.segment,x.channel==="TGDD"?"Äá»™c quyá»n":"Mass",x.rrp,x.p_tgdd||"",x.p_cps||"",x.p_fpt||"",x.p_vt||"",x.bests.join(", "),x.spread||0,x.spreadPct?x.spreadPct.toFixed(1)+"%":"0%"]);
+  const ws1=XLSX.utils.aoa_to_sheet([h2hHead,...h2hRows]);
+  ws1["!cols"]=[{wch:10},{wch:36},{wch:12},{wch:12},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:18},{wch:22},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws1,"Ma_Tran_Doi_Dau");
+
+  // Sheet 2: Danh sÃ¡ch pháº³ng toÃ n bá»™ sáº£n pháº©m
+  const aoa=[["SÃ n","HÃ£ng","TÃªn sáº£n pháº©m","Loáº¡i KM","GiÃ¡ gá»‘c","GiÃ¡ online","GiÃ¡ trá»‹ KM","% giáº£m","So Ä‘á»£t trÆ°á»›c","Thuá»™c 86 SKU","Link"],
+    ...L.map(x=>[x.r,x.b,x.n,x.k,x.o,x.p,x.v,Math.round(x.pct*1000)/10,x.dv==null?"":x.dv,x.focus?"CÃ³":"",x.u])];
+  const ws2=XLSX.utils.aoa_to_sheet(aoa); ws2["!cols"]=[{wch:13},{wch:9},{wch:42},{wch:16},{wch:12},{wch:12},{wch:12},{wch:8},{wch:12},{wch:8},{wch:50}];
+  XLSX.utils.book_append_sheet(wb,ws2,"Toan_Bo_Danh_Sach");
+
+  save(`toan_thi_truong_${D.cur?D.cur.date:"chua_co"}.xlsx`,XLSX.write(wb,{type:"array",bookType:"xlsx"}),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+};
+
+try{ renderMarket(); }catch(e){ console.error("market",e); }
+
+// Tab ná»™i bá»™ (Quy táº¯c, Nháº­p Ä‘á»£t quÃ©t) chá»‰ hiá»‡n khi link cÃ³ ?admin
+if(new URLSearchParams(location.search).has("admin")) document.querySelectorAll("nav.tabs [data-admin]").forEach(b=>b.hidden=false);
+try{ riseInit(); }catch(e){ console.error("rise",e); }
+
+/* ---- Security Passcode for Rise Tab ---- */
+const DEFAULT_RISE_PW = "GTMVN";
+function getRisePassword(){
+  try{
+    return localStorage.getItem("tgdd_rise_pw") || DEFAULT_RISE_PW;
+  }catch(e){
+    return DEFAULT_RISE_PW;
+  }
+}
+function isRiseUnlocked(){
+  try{
+    return sessionStorage.getItem("tgdd_rise_unlocked") === "1";
+  }catch(e){
+    return false;
+  }
+}
+function setRiseUnlocked(unlocked){
+  try{
+    if(unlocked){
+      sessionStorage.setItem("tgdd_rise_unlocked", "1");
+    } else {
+      sessionStorage.removeItem("tgdd_rise_unlocked");
+    }
+  }catch(e){}
+  updateRiseTabIcon();
+}
+function updateRiseTabIcon(){
+  const icon = document.getElementById("tab-rise-icon");
+  if(icon) icon.textContent = isRiseUnlocked() ? "ðŸ”“" : "ðŸ”’";
+}
+function doSwitchTab(tab){
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b===tab));
+  document.querySelectorAll(".pane").forEach(p=>p.hidden=p.id!=="p-"+tab.dataset.tab);
+  if(tab.dataset.tab==="compare") compareInit();
+  if(tab.dataset.tab==="market"){ renderMarket(); renderMarketH2H(); renderFakePromoAlerts(); }
+}
+let pendingRiseTab = null;
+function openPasswordModal(tabEl){
+  pendingRiseTab = tabEl;
+  const modal = document.getElementById("pw-modal");
+  const input = document.getElementById("pw-input");
+  const err = document.getElementById("pw-err");
+  if(!modal || !input) return;
+  input.value = "";
+  input.type = "password";
+  if(err) err.hidden = true;
+  modal.hidden = false;
+  setTimeout(() => input.focus(), 80);
+}
+function closePasswordModal(){
+  const modal = document.getElementById("pw-modal");
+  if(modal) modal.hidden = true;
+  pendingRiseTab = null;
+}
+function submitRisePassword(){
+  const input = document.getElementById("pw-input");
+  const err = document.getElementById("pw-err");
+  if(!input) return;
+  const entered = input.value.trim();
+  const actualPw = getRisePassword().trim();
+  if(entered.toUpperCase() === actualPw.toUpperCase()){
+    setRiseUnlocked(true);
+    closePasswordModal();
+    if(pendingRiseTab){
+      doSwitchTab(pendingRiseTab);
+    }
+  } else {
+    if(err){
+      err.textContent = "MÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t khÃƒÂ´ng chÃƒÂ­nh xÃƒÂ¡c! Vui lÃƒÂ²ng thÃ¡Â»Â­ lÃ¡ÂºÂ¡i.";
+      err.hidden = false;
+    }
+    input.select();
+  }
+}
+function initRiseAuthEvents(){
+  updateRiseTabIcon();
+  const pwSubmit = document.getElementById("pw-submit");
+  if(pwSubmit) pwSubmit.onclick = submitRisePassword;
+  const pwCancel = document.getElementById("pw-cancel");
+  if(pwCancel) pwCancel.onclick = closePasswordModal;
+  const pwBackdrop = document.getElementById("pw-backdrop");
+  if(pwBackdrop) pwBackdrop.onclick = closePasswordModal;
+  const pwInput = document.getElementById("pw-input");
+  if(pwInput) pwInput.onkeydown = e => {
+    if(e.key === "Enter") submitRisePassword();
+    if(e.key === "Escape") closePasswordModal();
+  };
+  const pwToggle = document.getElementById("pw-toggle-btn");
+  if(pwToggle) pwToggle.onclick = () => {
+    if(!pwInput) return;
+    pwInput.type = pwInput.type === "password" ? "text" : "password";
+  };
+  const btnLock = document.getElementById("btn-lock-rise");
+  if(btnLock) btnLock.onclick = () => {
+    setRiseUnlocked(false);
+    const latestTab = document.querySelector('nav.tabs button[data-tab="latest"]');
+    if(latestTab) doSwitchTab(latestTab);
+  };
+  const btnChangePw = document.getElementById("btn-change-pw-rise");
+  if(btnChangePw) btnChangePw.onclick = () => {
+    const cur = prompt("NhÃ¡ÂºÂ­p mÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t hiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i:");
+    if(cur === null) return;
+    if(cur.trim().toUpperCase() !== getRisePassword().trim().toUpperCase()){
+      alert("MÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t hiÃ¡Â»â€¡n tÃ¡ÂºÂ¡i khÃƒÂ´ng Ã„â€˜ÃƒÂºng!");
+      return;
+    }
+    const nw = prompt("NhÃ¡ÂºÂ­p mÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t mÃ¡Â»â€ºi:");
+    if(nw === null) return;
+    if(!nw.trim()){
+      alert("MÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t mÃ¡Â»â€ºi khÃƒÂ´ng Ã„â€˜Ã†Â°Ã¡Â»Â£c Ã„â€˜Ã¡Â»Æ’ trÃ¡Â»â€˜ng!");
+      return;
+    }
+    localStorage.setItem("tgdd_rise_pw", nw.trim());
+    alert("Ã„ÂÃƒÂ£ cÃ¡ÂºÂ­p nhÃ¡ÂºÂ­t mÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t mÃ¡Â»â€ºi thÃƒÂ nh cÃƒÂ´ng!");
+  };
+}
+
+initRiseAuthEvents();
+renderAll(); initExports(); compareInit(); calc();
+
+</script>
+<!-- Password Modal for Rise Tab -->
+<div id="pw-modal" class="pw-modal" hidden>
+  <div class="pw-backdrop" id="pw-backdrop"></div>
+  <div class="pw-box">
+    <div class="pw-icon">ðŸ”’</div>
+    <h3>XÃƒÂ¡c thÃ¡Â»Â±c bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t</h3>
+    <p>Tab <b>LÃ¡Â»â€¹ch sÃ¡Â»Â­ tÃ„Æ’ng giÃƒÂ¡</b> yÃƒÂªu cÃ¡ÂºÂ§u mÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t Ã„â€˜Ã¡Â»Æ’ xem dÃ¡Â»Â¯ liÃ¡Â»â€¡u.</p>
+    <div class="pw-input-wrap">
+      <input type="password" id="pw-input" placeholder="NhÃ¡ÂºÂ­p mÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t (GTMVN)..." autocomplete="current-password" />
+      <button type="button" class="pw-toggle-btn" id="pw-toggle-btn" title="HiÃ¡Â»â€¡n/Ã¡ÂºÂ©n mÃƒÂ£">Ã°Å¸â€˜ÂÃ¯Â¸Â</button>
+    </div>
+    <div id="pw-err" class="pw-err" hidden>MÃƒÂ£ bÃ¡ÂºÂ£o mÃ¡ÂºÂ­t khÃƒÂ´ng chÃƒÂ­nh xÃƒÂ¡c! Vui lÃƒÂ²ng thÃ¡Â»Â­ lÃ¡ÂºÂ¡i.</div>
+    <div class="pw-actions">
+      <button type="button" class="btn-pw-cancel" id="pw-cancel">HÃ¡Â»Â§y</button>
+      <button type="button" class="btn-pw-submit" id="pw-submit">MÃ¡Â»Å¸ khÃƒÂ³a</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
