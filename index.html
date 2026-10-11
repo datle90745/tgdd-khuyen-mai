@@ -341,9 +341,9 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 
 <section class="pane" id="p-rise" hidden>
   <div class="rise-auth-bar">
-    <span>&#128274; Äang má»Ÿ khÃ³a (PhiÃªn lÃ m viá»‡c hiá»‡n táº¡i)</span>
-    <button type="button" id="btn-change-pw-rise">&#9881;&#65039; Äá»•i mÃ£ báº£o máº­t</button>
-    <button type="button" id="btn-lock-rise">&#128274; KhÃ³a láº¡i</button>
+    <span>&#128274; &#272;ang m&#7903; kh&#243;a (Phi&#234;n l&#224;m vi&#7879;c hi&#7879;n t&#7841;i)</span>
+    <button type="button" id="btn-change-pw-rise">&#9881;&#65039; &#272;&#7893;i m&#227; b&#7843;o m&#7853;t</button>
+    <button type="button" id="btn-lock-rise">&#128274; Kh&#243;a l&#7841;i</button>
   </div>
   <div class="panel rise-kpi" id="rkpi"></div>
   <div id="rwarn"></div>
@@ -2268,7 +2268,7 @@ function submitRisePassword(){
     }
   } else {
     if(err){
-      err.textContent = "MÃ£ báº£o máº­t khÃ´ng chÃ­nh xÃ¡c! Vui lÃ²ng thá»­ láº¡i.";
+      err.textContent = "M\u00E3 b\u1EA3o m\u1EADt kh\u00F4ng ch\u00EDnh x\u00E1c! Vui l\u00F2ng th\u1EED l\u1EA1i.";
       err.hidden = false;
     }
     input.select();
@@ -2300,20 +2300,20 @@ function initRiseAuthEvents(){
   };
   const btnChangePw = document.getElementById("btn-change-pw-rise");
   if(btnChangePw) btnChangePw.onclick = () => {
-    const cur = prompt("Nháº­p mÃ£ báº£o máº­t hiá»‡n táº¡i:");
+    const cur = prompt("Nh\u1EADp m\u00E3 b\u1EA3o m\u1EADt hi\u1EC7n t\u1EA1i:");
     if(cur === null) return;
     if(cur.trim().toUpperCase() !== getRisePassword().trim().toUpperCase()){
-      alert("MÃ£ báº£o máº­t hiá»‡n táº¡i khÃ´ng Ä‘Ãºng!");
+      alert("M\u00E3 b\u1EA3o m\u1EADt hi\u1EC7n t\u1EA1i kh\u00F4ng \u0111\u00FAng!");
       return;
     }
-    const nw = prompt("Nháº­p mÃ£ báº£o máº­t má»›i:");
+    const nw = prompt("Nh\u1EADp m\u00E3 b\u1EA3o m\u1EADt m\u1EDBi:");
     if(nw === null) return;
     if(!nw.trim()){
-      alert("MÃ£ báº£o máº­t má»›i khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng!");
+      alert("M\u00E3 b\u1EA3o m\u1EADt m\u1EDBi kh\u00F4ng \u0111\u01B0\u1EE3c \u0111\u1EC3 tr\u1ED1ng!");
       return;
     }
     localStorage.setItem("tgdd_rise_pw", nw.trim());
-    alert("ÄÃ£ cáº­p nháº­t mÃ£ báº£o máº­t má»›i thÃ nh cÃ´ng!");
+    alert("\u0110\u00E3 c\u1EADp nh\u1EADt m\u00E3 b\u1EA3o m\u1EADt m\u1EDBi th\u00E0nh c\u00F4ng!");
   };
 }
 
@@ -2326,16 +2326,16 @@ renderAll(); initExports(); compareInit(); calc();
   <div class="pw-backdrop" id="pw-backdrop"></div>
   <div class="pw-box">
     <div class="pw-icon">&#128274;</div>
-    <h3>XÃ¡c thá»±c báº£o máº­t</h3>
-    <p>Tab <b>Lá»‹ch sá»­ tÄƒng giÃ¡</b> yÃªu cáº§u mÃ£ báº£o máº­t Ä‘á»ƒ xem dá»¯ liá»‡u.</p>
+    <h3>X&#225;c th&#7921;c b&#7843;o m&#7853;t</h3>
+    <p>Tab <b>L&#7883;ch s&#7917; t&#259;ng gi&#225;</b> y&#234;u c&#7847;u m&#227; b&#7843;o m&#7853;t &#273;&#7875; xem d&#7919; li&#7879;u.</p>
     <div class="pw-input-wrap">
-      <input type="password" id="pw-input" placeholder="Nháº­p mÃ£ báº£o máº­t (GTMVN)..." autocomplete="current-password" />
-      <button type="button" class="pw-toggle-btn" id="pw-toggle-btn" title="Hiá»‡n/áº©n mÃ£">&#128065;</button>
+      <input type="password" id="pw-input" placeholder="Nh&#7853;p m&#227; b&#7843;o m&#7853;t (GTMVN)..." autocomplete="current-password" />
+      <button type="button" class="pw-toggle-btn" id="pw-toggle-btn" title="Hi&#7879;n/&#7849;n m&#227;">&#128065;</button>
     </div>
-    <div id="pw-err" class="pw-err" hidden>MÃ£ báº£o máº­t khÃ´ng chÃ­nh xÃ¡c! Vui lÃ²ng thá»­ láº¡i.</div>
+    <div id="pw-err" class="pw-err" hidden>M&#227; b&#7843;o m&#7853;t kh&#244;ng ch&#237;nh x&#225;c! Vui l&#242;ng th&#7917; l&#7841;i.</div>
     <div class="pw-actions">
-      <button type="button" class="btn-pw-cancel" id="pw-cancel">Há»§y</button>
-      <button type="button" class="btn-pw-submit" id="pw-submit">Má»Ÿ khÃ³a</button>
+      <button type="button" class="btn-pw-cancel" id="pw-cancel">H&#7911;y</button>
+      <button type="button" class="btn-pw-submit" id="pw-submit">M&#7903; kh&#243;a</button>
     </div>
   </div>
 </div>
