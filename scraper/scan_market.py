@@ -357,7 +357,7 @@ def fpt_rows_via_erp_api():
         local_file = ROOT / "data" / "fpt_portal_deals.json"
         if local_file.exists():
             try:
-                deals = json.loads(local_file.read_text(encoding="utf-8"))
+                deals = json.loads(local_file.read_text(encoding="utf-8-sig"))
                 return _parse_erp_portal_deals(deals)
             except Exception:
                 pass
@@ -415,7 +415,7 @@ def scan_fpt():
     if fpt_file.exists():
         try:
             today_label = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%b")
-            m = re.search(r"window\.FPT_LOCAL\s*=\s*(\{.*\});", fpt_file.read_text(encoding="utf-8"), re.S)
+            m = re.search(r"window\.FPT_LOCAL\s*=\s*(\{.*\});", fpt_file.read_text(encoding="utf-8-sig"), re.S)
             if m:
                 obj = json.loads(m.group(1))
                 if obj.get("date") == today_label and obj.get("rows") and len(obj["rows"]) >= 15:
@@ -477,7 +477,7 @@ def main():
     today, label, at = now.date().isoformat(), now.strftime("%d-%b"), now.strftime("%H:%M")
     old = {}
     if LAST_JSON.exists():
-        old = json.loads(LAST_JSON.read_text(encoding="utf-8")).get("prices", {})
+        old = json.loads(LAST_JSON.read_text(encoding="utf-8-sig")).get("prices", {})
     ups = []
     for r in rows:
         key = r["r"] + "|" + r["u"]
@@ -496,7 +496,7 @@ def main():
     # thứ Hai/thứ Sáu là dành cho cột KM base của 91 SKU, không áp vào đây.
     market = {"scans": []}
     if MARKET_JS.exists():
-        text = MARKET_JS.read_text(encoding="utf-8")
+        text = MARKET_JS.read_text(encoding="utf-8-sig")
         match = re.search(r"window\.MARKET\s*=\s*(\{.*\});", text, re.S)
         if match:
             market = json.loads(match.group(1))

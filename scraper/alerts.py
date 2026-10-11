@@ -18,12 +18,12 @@ KEEP_WEEKDAYS = {0, 4}  # thứ Hai, thứ Sáu — ngày được lưu thành c
 def load():
     if not ALERTS_JS.exists():
         return []
-    match = re.search(r"window\.ALERTS\s*=\s*(\[.*\]);", ALERTS_JS.read_text(encoding="utf-8"), re.S)
+    match = re.search(r"window\.ALERTS\s*=\s*(\[.*\]);", ALERTS_JS.read_text(encoding="utf-8-sig"), re.S)
     return json.loads(match.group(1)) if match else []
 
 
 def _base_text():
-    return BASE_JS.read_text(encoding="utf-8") if BASE_JS.exists() else ""
+    return BASE_JS.read_text(encoding="utf-8-sig") if BASE_JS.exists() else ""
 
 
 def brand_of(model):
@@ -40,7 +40,7 @@ def _rise_key(brand, model, old, new, channel=""):
 def load_rises():
     if not RISES_JS.exists():
         return []
-    match = re.search(r"window\.RISE_AUTO\s*=\s*(\[.*\]);", RISES_JS.read_text(encoding="utf-8"), re.S)
+    match = re.search(r"window\.RISE_AUTO\s*=\s*(\[.*\]);", RISES_JS.read_text(encoding="utf-8-sig"), re.S)
     return json.loads(match.group(1)) if match else []
 
 

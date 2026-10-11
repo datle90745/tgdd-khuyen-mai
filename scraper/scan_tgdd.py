@@ -357,7 +357,7 @@ def write_scans_js():
             continue
         if day.weekday() not in alerts.KEEP_WEEKDAYS:
             continue
-        data = json.loads(path.read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8-sig"))
         scans.append({"date": data["date"], "rows": [
             {k: r[k] for k in keys if k in r} for r in data["rows"]]})
     SCANS_JS.write_text(
@@ -389,7 +389,7 @@ def pick_products(products, only):
         path = SCAN_DIR / f"scan_{date.today().isoformat()}.json"
         if not path.exists():
             return products
-        rows = json.loads(path.read_text(encoding="utf-8"))["rows"]
+        rows = json.loads(path.read_text(encoding="utf-8-sig"))["rows"]
         done = {r["model"] for r in rows if isinstance(r.get("pmh"), int)}
         return [p for p in products if p["model"] not in done]
     keys = [k.strip().lower() for k in only.split(",") if k.strip()]
@@ -403,7 +403,7 @@ def merge_into_today(rows, now):
     path = SCAN_DIR / f"scan_{now.date().isoformat()}.json"
     if not path.exists():
         return None
-    scan = json.loads(path.read_text(encoding="utf-8"))
+    scan = json.loads(path.read_text(encoding="utf-8-sig"))
     fresh = {r["model"]: r for r in rows}
     scan["rows"] = [fresh.pop(r["model"], r) for r in scan["rows"]] + list(fresh.values())
     scan["scanned_at"] = now.isoformat(timespec="seconds")
@@ -482,7 +482,7 @@ def main():
     ups = []
     if previous:
         old = {r["model"]: r.get("rrp") for r in
-               json.loads(previous[-1].read_text(encoding="utf-8"))["rows"]}
+               json.loads(previous[-1].read_text(encoding="utf-8-sig"))["rows"]}
         for r in rows:
             before, after = old.get(r["model"]), r.get("rrp")
             if before and after and after > before:

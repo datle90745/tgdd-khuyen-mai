@@ -25,8 +25,12 @@ function Get-MarketBrand($text1, $text2 = "") {
 }
 
 function Parse-Money($t) {
-    $d = [regex]::Replace("$t", '[^0-9]', '')
-    if ($d) { return [int64]$d }
+    if (!$t) { return 0 }
+    $decoded = [System.Net.WebUtility]::HtmlDecode("$t")
+    if ($decoded -match '([0-9]{1,3}(?:\.[0-9]{3})+|[0-9]+)') {
+        $clean = [regex]::Replace($matches[1], '[^0-9]', '')
+        if ($clean) { return [int64]$clean }
+    }
     return 0
 }
 
