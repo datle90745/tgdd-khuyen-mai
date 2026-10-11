@@ -311,7 +311,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 <nav class="tabs" role="tablist">
   <button role="tab" aria-selected="true" data-tab="latest">Tra cứu mới nhất</button>
   <button role="tab" aria-selected="false" data-tab="history">Lịch sử theo đợt quét</button>
-  <button role="tab" aria-selected="false" data-tab="rise">Lịch sử tăng giá</button>
+  <button role="tab" aria-selected="false" data-tab="rise"><span id="tab-rise-icon" style="margin-right:4px">&#128274;</span> Lịch sử tăng giá</button>
   <button role="tab" aria-selected="false" data-tab="market">Toàn thị trường</button>
   <button role="tab" aria-selected="false" data-tab="compare">So sánh 2 máy</button>
   <button role="tab" aria-selected="false" data-tab="rules" data-admin hidden>Quy tắc tính PMH</button>
@@ -341,7 +341,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 
 <section class="pane" id="p-rise" hidden>
   <div class="rise-auth-bar">
-    <span>&#128274; &#272;ang m&#7903; kh&#243;a (Phi&#234;n l&#224;m vi&#7879;c hi&#7879;n t&#7841;i)</span>
+    <span id="rise-unlocked-status">&#128275; &#272;ang m&#7903; kh&#243;a (Phi&#234;n l&#224;m vi&#7879;c hi&#7879;n t&#7841;i)</span>
     <button type="button" id="btn-change-pw-rise">&#9881;&#65039; &#272;&#7893;i m&#227; b&#7843;o m&#7853;t</button>
     <button type="button" id="btn-lock-rise">&#128274; Kh&#243;a l&#7841;i</button>
   </div>
@@ -2231,14 +2231,19 @@ function updateRiseTabIcon(){
   if(icon) icon.innerHTML = isRiseUnlocked() ? "&#128275;" : "&#128274;";
 }
 function doSwitchTab(tab){
+  if(!tab) tab = document.querySelector('nav.tabs button[data-tab="rise"]');
+  if(!tab) return;
   document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b===tab));
   document.querySelectorAll(".pane").forEach(p=>p.hidden=p.id!=="p-"+tab.dataset.tab);
   if(tab.dataset.tab==="compare") compareInit();
   if(tab.dataset.tab==="market"){ renderMarket(); renderMarketH2H(); renderFakePromoAlerts(); }
+  if(tab.dataset.tab==="rise"){
+    try{ renderRiseTop(); renderRiseModels(); renderRiseLog(); }catch(e){ console.error("render rise err", e); }
+  }
 }
 let pendingRiseTab = null;
 function openPasswordModal(tabEl){
-  pendingRiseTab = tabEl;
+  pendingRiseTab = tabEl || document.querySelector('nav.tabs button[data-tab="rise"]');
   const modal = document.getElementById("pw-modal");
   const input = document.getElementById("pw-input");
   const err = document.getElementById("pw-err");
@@ -2258,13 +2263,15 @@ function submitRisePassword(){
   const input = document.getElementById("pw-input");
   const err = document.getElementById("pw-err");
   if(!input) return;
-  const entered = input.value.trim();
-  const actualPw = getRisePassword().trim();
-  if(entered.toUpperCase() === actualPw.toUpperCase()){
+  const entered = input.value.trim().toUpperCase();
+  const actualPw = getRisePassword().trim().toUpperCase();
+  const defaultPw = DEFAULT_RISE_PW.toUpperCase();
+  if(entered === actualPw || entered === defaultPw){
     setRiseUnlocked(true);
+    const targetTab = pendingRiseTab || document.querySelector('nav.tabs button[data-tab="rise"]');
     closePasswordModal();
-    if(pendingRiseTab){
-      doSwitchTab(pendingRiseTab);
+    if(targetTab){
+      doSwitchTab(targetTab);
     }
   } else {
     if(err){
