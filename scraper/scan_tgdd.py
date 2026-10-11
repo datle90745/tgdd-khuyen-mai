@@ -346,20 +346,22 @@ def write_promos_js(rows):
     PROMOS_JS.write_text(text, encoding="utf-8")
 
 
-def write_scans_js():
-    """Chỉ đưa các đợt quét của thứ Hai và thứ Sáu lên web; ngày khác chỉ dùng để dò tăng giá."""
+def write_scans_js(today=None):
+    """Đưa các đợt quét đã hoàn tất trước hôm nay lên web để so sánh."""
     keys = ("model", "rrp", "pmh", "status", "online", "total_online", "choice", "kind", "rule")
     scans = []
     for path in sorted(SCAN_DIR.glob("scan_*.json")):
         try:
-            day = date.fromisoformat(path.stem.replace("scan_", ""))
+            day_str = path.stem.replace("scan_", "")
+            day = date.fromisoformat(day_str)
         except ValueError:
             continue
-        if day.weekday() not in alerts.KEEP_WEEKDAYS:
+        if today and day_str >= today:
             continue
         data = json.loads(path.read_text(encoding="utf-8-sig"))
         scans.append({"date": data["date"], "rows": [
             {k: r[k] for k in keys if k in r} for r in data["rows"]]})
+    scans = scans[-30:]
     SCANS_JS.write_text(
         "/* Tự sinh bởi scraper/scan_tgdd.py, đừng sửa tay. */\n"
         "window.SCANS = " + json.dumps(scans, ensure_ascii=False) + ";\n",
@@ -503,7 +505,7 @@ def main():
                   "các model còn lại để trống chứ không lấy số của ngày cũ.", flush=True)
     (SCAN_DIR / f"scan_{now.date().isoformat()}.json").write_text(
         json.dumps(scan, ensure_ascii=False, indent=1), encoding="utf-8")
-    write_scans_js()
+    write_scans_js(today=today)
     write_latest_js(scan)
     write_promos_js(rows)
     print(f"Đã lưu đợt {scan['date']}: {ok}/{len(products)} SKU đọc được giá, {errors} lỗi mạng. "
