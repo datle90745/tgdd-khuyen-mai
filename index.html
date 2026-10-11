@@ -267,6 +267,33 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 .cmp-best-badge[data-r="CellphoneS"]{background:#d70018;color:#fff}
 .cmp-best-badge[data-r="FPT Shop"]{background:#cb1c22;background:linear-gradient(90deg,#cb1c22,#ea580c);color:#fff}
 .cmp-best-badge[data-r="Viettel Store"]{background:#00918e;color:#fff}
+
+/* ---- Security Modal for Rise Tab ---- */
+.pw-modal { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 16px; font-family: inherit; }
+.pw-modal[hidden] { display: none !important; }
+.pw-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.pw-box { position: relative; background: var(--panel, #fff); color: var(--ink, #111); border: 1px solid var(--line, #e2e8f0); border-radius: 14px; box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28); max-width: 400px; width: 100%; padding: 26px 24px 22px; text-align: center; animation: pwZoomIn 0.18s ease-out; box-sizing: border-box; }
+@keyframes pwZoomIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
+.pw-icon { font-size: 38px; line-height: 1; margin-bottom: 12px; }
+.pw-box h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; color: var(--ink, #0f172a); }
+.pw-box p { margin: 0 0 18px; font-size: 13.5px; color: var(--muted, #64748b); line-height: 1.45; }
+.pw-input-wrap { position: relative; display: flex; align-items: center; margin-bottom: 12px; }
+.pw-input-wrap input { width: 100%; box-sizing: border-box; padding: 10px 42px 10px 14px; border: 1px solid var(--line, #cbd5e1); border-radius: 8px; font-size: 15px; background: var(--soft, #f8fafc); color: var(--ink, #1e293b); outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+.pw-input-wrap input:focus { border-color: var(--accent, #2563eb); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18); }
+.pw-toggle-btn { position: absolute; right: 8px; background: none; border: none; cursor: pointer; padding: 6px; font-size: 16px; line-height: 1; opacity: 0.65; border-radius: 4px; }
+.pw-toggle-btn:hover { opacity: 1; background: rgba(0, 0, 0, 0.05); }
+.pw-err { color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 6px; font-size: 12.5px; margin-bottom: 12px; font-weight: 500; text-align: left; }
+.pw-err[hidden] { display: none !important; }
+.pw-actions { display: flex; gap: 10px; margin-top: 8px; }
+.pw-actions button { flex: 1; padding: 10px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; }
+.btn-pw-cancel { background: var(--soft, #f1f5f9); border: 1px solid var(--line, #cbd5e1); color: var(--ink, #334155); }
+.btn-pw-cancel:hover { background: #e2e8f0; }
+.btn-pw-submit { background: var(--accent, #2563eb); border: 1px solid var(--accent, #2563eb); color: #fff; }
+.btn-pw-submit:hover { filter: brightness(1.1); }
+.rise-auth-bar { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin: 8px 0 12px; padding: 6px 14px; background: var(--soft, #f8fafc); border: 1px solid var(--line, #e2e8f0); border-radius: 8px; }
+.rise-auth-bar span { font-size: 12.5px; color: var(--muted, #64748b); margin-right: auto; }
+.rise-auth-bar button { padding: 4px 10px; font-size: 12px; border-radius: 6px; border: 1px solid var(--line, #cbd5e1); background: var(--panel, #fff); cursor: pointer; font-weight: 500; }
+.rise-auth-bar button:hover { background: var(--soft, #f1f5f9); }
 </style>
 </head>
 <body>
@@ -313,6 +340,11 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 </section>
 
 <section class="pane" id="p-rise" hidden>
+  <div class="rise-auth-bar">
+    <span>&#128274; Äang má»Ÿ khÃ³a (PhiÃªn lÃ m viá»‡c hiá»‡n táº¡i)</span>
+    <button type="button" id="btn-change-pw-rise">&#9881;&#65039; Äá»•i mÃ£ báº£o máº­t</button>
+    <button type="button" id="btn-lock-rise">&#128274; KhÃ³a láº¡i</button>
+  </div>
   <div class="panel rise-kpi" id="rkpi"></div>
   <div id="rwarn"></div>
   <h3 class="rh">Hãng nào tăng giá <small>(bấm vào hãng để lọc hai bảng bên dưới)</small></h3>
@@ -906,10 +938,11 @@ document.addEventListener("click",e=>{
     const k=th.dataset.sort; if(F.sort===k) F.dir=-F.dir; else {F.sort=k;F.dir=(k==="model")?1:-1;} renderTable(); return; }
   const tr=e.target.closest("tr[data-m]"); if(tr){ openDrawer(tr.dataset.m); return; }
   const tab=e.target.closest("nav.tabs button"); if(tab){
-    document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b===tab));
-    document.querySelectorAll(".pane").forEach(p=>p.hidden=p.id!=="p-"+tab.dataset.tab);
-    if(tab.dataset.tab==="compare") compareInit();
-    if(tab.dataset.tab==="market"){ renderMarket(); renderMarketH2H(); renderFakePromoAlerts(); }
+    if(tab.dataset.tab==="rise" && !isRiseUnlocked()){
+      openPasswordModal(tab);
+      return;
+    }
+    doSwitchTab(tab);
   }
 });
 document.addEventListener("keydown",e=>{
@@ -2166,8 +2199,145 @@ try{ renderMarket(); }catch(e){ console.error("market",e); }
 // Tab nội bộ (Quy tắc, Nhập đợt quét) chỉ hiện khi link có ?admin
 if(new URLSearchParams(location.search).has("admin")) document.querySelectorAll("nav.tabs [data-admin]").forEach(b=>b.hidden=false);
 try{ riseInit(); }catch(e){ console.error("rise",e); }
+
+/* ---- Security Passcode for Rise Tab ---- */
+const DEFAULT_RISE_PW = "GTMVN";
+function getRisePassword(){
+  try{
+    return localStorage.getItem("tgdd_rise_pw") || DEFAULT_RISE_PW;
+  }catch(e){
+    return DEFAULT_RISE_PW;
+  }
+}
+function isRiseUnlocked(){
+  try{
+    return sessionStorage.getItem("tgdd_rise_unlocked") === "1";
+  }catch(e){
+    return false;
+  }
+}
+function setRiseUnlocked(unlocked){
+  try{
+    if(unlocked){
+      sessionStorage.setItem("tgdd_rise_unlocked", "1");
+    } else {
+      sessionStorage.removeItem("tgdd_rise_unlocked");
+    }
+  }catch(e){}
+  updateRiseTabIcon();
+}
+function updateRiseTabIcon(){
+  const icon = document.getElementById("tab-rise-icon");
+  if(icon) icon.innerHTML = isRiseUnlocked() ? "&#128275;" : "&#128274;";
+}
+function doSwitchTab(tab){
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-selected",b===tab));
+  document.querySelectorAll(".pane").forEach(p=>p.hidden=p.id!=="p-"+tab.dataset.tab);
+  if(tab.dataset.tab==="compare") compareInit();
+  if(tab.dataset.tab==="market"){ renderMarket(); renderMarketH2H(); renderFakePromoAlerts(); }
+}
+let pendingRiseTab = null;
+function openPasswordModal(tabEl){
+  pendingRiseTab = tabEl;
+  const modal = document.getElementById("pw-modal");
+  const input = document.getElementById("pw-input");
+  const err = document.getElementById("pw-err");
+  if(!modal || !input) return;
+  input.value = "";
+  input.type = "password";
+  if(err) err.hidden = true;
+  modal.hidden = false;
+  setTimeout(() => input.focus(), 80);
+}
+function closePasswordModal(){
+  const modal = document.getElementById("pw-modal");
+  if(modal) modal.hidden = true;
+  pendingRiseTab = null;
+}
+function submitRisePassword(){
+  const input = document.getElementById("pw-input");
+  const err = document.getElementById("pw-err");
+  if(!input) return;
+  const entered = input.value.trim();
+  const actualPw = getRisePassword().trim();
+  if(entered.toUpperCase() === actualPw.toUpperCase()){
+    setRiseUnlocked(true);
+    closePasswordModal();
+    if(pendingRiseTab){
+      doSwitchTab(pendingRiseTab);
+    }
+  } else {
+    if(err){
+      err.textContent = "MÃ£ báº£o máº­t khÃ´ng chÃ­nh xÃ¡c! Vui lÃ²ng thá»­ láº¡i.";
+      err.hidden = false;
+    }
+    input.select();
+  }
+}
+function initRiseAuthEvents(){
+  updateRiseTabIcon();
+  const pwSubmit = document.getElementById("pw-submit");
+  if(pwSubmit) pwSubmit.onclick = submitRisePassword;
+  const pwCancel = document.getElementById("pw-cancel");
+  if(pwCancel) pwCancel.onclick = closePasswordModal;
+  const pwBackdrop = document.getElementById("pw-backdrop");
+  if(pwBackdrop) pwBackdrop.onclick = closePasswordModal;
+  const pwInput = document.getElementById("pw-input");
+  if(pwInput) pwInput.onkeydown = e => {
+    if(e.key === "Enter") submitRisePassword();
+    if(e.key === "Escape") closePasswordModal();
+  };
+  const pwToggle = document.getElementById("pw-toggle-btn");
+  if(pwToggle) pwToggle.onclick = () => {
+    if(!pwInput) return;
+    pwInput.type = pwInput.type === "password" ? "text" : "password";
+  };
+  const btnLock = document.getElementById("btn-lock-rise");
+  if(btnLock) btnLock.onclick = () => {
+    setRiseUnlocked(false);
+    const latestTab = document.querySelector('nav.tabs button[data-tab="latest"]');
+    if(latestTab) doSwitchTab(latestTab);
+  };
+  const btnChangePw = document.getElementById("btn-change-pw-rise");
+  if(btnChangePw) btnChangePw.onclick = () => {
+    const cur = prompt("Nháº­p mÃ£ báº£o máº­t hiá»‡n táº¡i:");
+    if(cur === null) return;
+    if(cur.trim().toUpperCase() !== getRisePassword().trim().toUpperCase()){
+      alert("MÃ£ báº£o máº­t hiá»‡n táº¡i khÃ´ng Ä‘Ãºng!");
+      return;
+    }
+    const nw = prompt("Nháº­p mÃ£ báº£o máº­t má»›i:");
+    if(nw === null) return;
+    if(!nw.trim()){
+      alert("MÃ£ báº£o máº­t má»›i khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng!");
+      return;
+    }
+    localStorage.setItem("tgdd_rise_pw", nw.trim());
+    alert("ÄÃ£ cáº­p nháº­t mÃ£ báº£o máº­t má»›i thÃ nh cÃ´ng!");
+  };
+}
+
+initRiseAuthEvents();
 renderAll(); initExports(); compareInit(); calc();
 
 </script>
+<!-- Password Modal for Rise Tab -->
+<div id="pw-modal" class="pw-modal" hidden>
+  <div class="pw-backdrop" id="pw-backdrop"></div>
+  <div class="pw-box">
+    <div class="pw-icon">&#128274;</div>
+    <h3>XÃ¡c thá»±c báº£o máº­t</h3>
+    <p>Tab <b>Lá»‹ch sá»­ tÄƒng giÃ¡</b> yÃªu cáº§u mÃ£ báº£o máº­t Ä‘á»ƒ xem dá»¯ liá»‡u.</p>
+    <div class="pw-input-wrap">
+      <input type="password" id="pw-input" placeholder="Nháº­p mÃ£ báº£o máº­t (GTMVN)..." autocomplete="current-password" />
+      <button type="button" class="pw-toggle-btn" id="pw-toggle-btn" title="Hiá»‡n/áº©n mÃ£">&#128065;</button>
+    </div>
+    <div id="pw-err" class="pw-err" hidden>MÃ£ báº£o máº­t khÃ´ng chÃ­nh xÃ¡c! Vui lÃ²ng thá»­ láº¡i.</div>
+    <div class="pw-actions">
+      <button type="button" class="btn-pw-cancel" id="pw-cancel">Há»§y</button>
+      <button type="button" class="btn-pw-submit" id="pw-submit">Má»Ÿ khÃ³a</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
