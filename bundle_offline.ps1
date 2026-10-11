@@ -1,7 +1,7 @@
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
-$root = "C:\Users\toquo\tgdd-khuyen-mai"
+$root = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Parent $MyInvocation.MyCommand.Path }
 $indexPath = Join-Path $root "index.html"
 $xlsxPath = Join-Path $root "xlsx.full.min.js"
 
