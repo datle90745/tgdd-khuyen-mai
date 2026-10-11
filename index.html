@@ -271,8 +271,8 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 /* ---- Security Modal for Rise Tab ---- */
 .pw-modal { position: fixed; inset: 0; z-index: 99999; display: flex; align-items: center; justify-content: center; padding: 16px; font-family: inherit; }
 .pw-modal[hidden] { display: none !important; }
-.pw-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-.pw-box { position: relative; background: var(--panel, #fff); color: var(--ink, #111); border: 1px solid var(--line, #e2e8f0); border-radius: 14px; box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28); max-width: 400px; width: 100%; padding: 26px 24px 22px; text-align: center; animation: pwZoomIn 0.18s ease-out; box-sizing: border-box; }
+.pw-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); z-index: 1; }
+.pw-box { position: relative; z-index: 2; background: var(--panel, #fff); color: var(--ink, #111); border: 1px solid var(--line, #e2e8f0); border-radius: 14px; box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28); max-width: 400px; width: 100%; padding: 26px 24px 22px; text-align: center; animation: pwZoomIn 0.18s ease-out; box-sizing: border-box; }
 @keyframes pwZoomIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
 .pw-icon { font-size: 38px; line-height: 1; margin-bottom: 12px; }
 .pw-box h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; color: var(--ink, #0f172a); }
@@ -280,7 +280,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 .pw-input-wrap { position: relative; display: flex; align-items: center; margin-bottom: 12px; }
 .pw-input-wrap input { width: 100%; box-sizing: border-box; padding: 10px 42px 10px 14px; border: 1px solid var(--line, #cbd5e1); border-radius: 8px; font-size: 15px; background: var(--soft, #f8fafc); color: var(--ink, #1e293b); outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
 .pw-input-wrap input:focus { border-color: var(--accent, #2563eb); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18); }
-.pw-toggle-btn { position: absolute; right: 8px; background: none; border: none; cursor: pointer; padding: 6px; font-size: 16px; line-height: 1; opacity: 0.65; border-radius: 4px; }
+.pw-toggle-btn { position: absolute; right: 8px; z-index: 3; background: none; border: none; cursor: pointer; padding: 6px; font-size: 16px; line-height: 1; opacity: 0.65; border-radius: 4px; }
 .pw-toggle-btn:hover { opacity: 1; background: rgba(0, 0, 0, 0.05); }
 .pw-err { color: #dc2626; background: #fef2f2; border: 1px solid #fecaca; padding: 8px 12px; border-radius: 6px; font-size: 12.5px; margin-bottom: 12px; font-weight: 500; text-align: left; }
 .pw-err[hidden] { display: none !important; }
@@ -489,6 +489,27 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
   <div id="dbody"></div>
 </aside>
 <div class="toast" id="toast" hidden></div>
+
+<!-- Password Modal for Rise Tab -->
+<div id="pw-modal" class="pw-modal" hidden>
+  <div class="pw-backdrop" id="pw-backdrop" onclick="closePasswordModal()"></div>
+  <div class="pw-box">
+    <div class="pw-icon">&#128274;</div>
+    <h3>X&#225;c th&#7921;c b&#7843;o m&#7853;t</h3>
+    <p>Tab <b>L&#7883;ch s&#7917; t&#259;ng gi&#225;</b> y&#234;u c&#7847;u m&#227; b&#7843;o m&#7853;t &#273;&#7875; xem d&#7919; li&#7879;u.</p>
+    <form id="pw-form" onsubmit="event.preventDefault();submitRisePassword(event);return false;" style="margin:0">
+      <div class="pw-input-wrap">
+        <input type="password" id="pw-input" placeholder="Nh&#7853;p m&#227; b&#7843;o m&#7853;t..." autocomplete="current-password" onkeydown="if(event.key==='Enter'){event.preventDefault();submitRisePassword(event);}if(event.key==='Escape')closePasswordModal(event);" />
+        <button type="button" class="pw-toggle-btn" id="pw-toggle-btn" onclick="toggleRisePwVisibility(event)" title="Hi&#7879;n/&#7849;n m&#227;">&#128065;</button>
+      </div>
+      <div id="pw-err" class="pw-err" hidden>M&#227; b&#7843;o m&#7853;t kh&#244;ng ch&#237;nh x&#225;c! Vui l&#242;ng th&#7917; l&#7841;i.</div>
+      <div class="pw-actions">
+        <button type="button" class="btn-pw-cancel" id="pw-cancel" onclick="closePasswordModal(event)">H&#7911;y</button>
+        <button type="submit" class="btn-pw-submit" id="pw-submit" onclick="submitRisePassword(event)">M&#7903; kh&#243;a</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <script>
 const BASE = window.BASE;
@@ -2259,7 +2280,8 @@ function closePasswordModal(){
   if(modal) modal.hidden = true;
   pendingRiseTab = null;
 }
-function submitRisePassword(){
+function submitRisePassword(e){
+  if(e && e.preventDefault) e.preventDefault();
   const input = document.getElementById("pw-input");
   const err = document.getElementById("pw-err");
   if(!input) return;
@@ -2281,6 +2303,16 @@ function submitRisePassword(){
     input.select();
   }
 }
+function toggleRisePwVisibility(e){
+  if(e && e.preventDefault) e.preventDefault();
+  const pwInput = document.getElementById("pw-input");
+  if(!pwInput) return;
+  pwInput.type = pwInput.type === "password" ? "text" : "password";
+}
+window.toggleRisePwVisibility = toggleRisePwVisibility;
+window.submitRisePassword = submitRisePassword;
+window.closePasswordModal = closePasswordModal;
+
 function initRiseAuthEvents(){
   updateRiseTabIcon();
   const pwSubmit = document.getElementById("pw-submit");
@@ -2289,16 +2321,17 @@ function initRiseAuthEvents(){
   if(pwCancel) pwCancel.onclick = closePasswordModal;
   const pwBackdrop = document.getElementById("pw-backdrop");
   if(pwBackdrop) pwBackdrop.onclick = closePasswordModal;
-  const pwInput = document.getElementById("pw-input");
-  if(pwInput) pwInput.onkeydown = e => {
-    if(e.key === "Enter") submitRisePassword();
-    if(e.key === "Escape") closePasswordModal();
-  };
   const pwToggle = document.getElementById("pw-toggle-btn");
-  if(pwToggle) pwToggle.onclick = () => {
-    if(!pwInput) return;
-    pwInput.type = pwInput.type === "password" ? "text" : "password";
-  };
+  if(pwToggle) pwToggle.onclick = toggleRisePwVisibility;
+  const pwInput = document.getElementById("pw-input");
+  if(pwInput){
+    pwInput.onkeydown = e => {
+      if(e.key === "Enter") { e.preventDefault(); submitRisePassword(e); }
+      if(e.key === "Escape") { e.preventDefault(); closePasswordModal(e); }
+    };
+  }
+  const pwForm = document.getElementById("pw-form");
+  if(pwForm) pwForm.onsubmit = e => { e.preventDefault(); submitRisePassword(e); return false; };
   const btnLock = document.getElementById("btn-lock-rise");
   if(btnLock) btnLock.onclick = () => {
     setRiseUnlocked(false);
@@ -2328,23 +2361,5 @@ initRiseAuthEvents();
 renderAll(); initExports(); compareInit(); calc();
 
 </script>
-<!-- Password Modal for Rise Tab -->
-<div id="pw-modal" class="pw-modal" hidden>
-  <div class="pw-backdrop" id="pw-backdrop"></div>
-  <div class="pw-box">
-    <div class="pw-icon">&#128274;</div>
-    <h3>X&#225;c th&#7921;c b&#7843;o m&#7853;t</h3>
-    <p>Tab <b>L&#7883;ch s&#7917; t&#259;ng gi&#225;</b> y&#234;u c&#7847;u m&#227; b&#7843;o m&#7853;t &#273;&#7875; xem d&#7919; li&#7879;u.</p>
-    <div class="pw-input-wrap">
-      <input type="password" id="pw-input" placeholder="Nh&#7853;p m&#227; b&#7843;o m&#7853;t (GTMVN)..." autocomplete="current-password" />
-      <button type="button" class="pw-toggle-btn" id="pw-toggle-btn" title="Hi&#7879;n/&#7849;n m&#227;">&#128065;</button>
-    </div>
-    <div id="pw-err" class="pw-err" hidden>M&#227; b&#7843;o m&#7853;t kh&#244;ng ch&#237;nh x&#225;c! Vui l&#242;ng th&#7917; l&#7841;i.</div>
-    <div class="pw-actions">
-      <button type="button" class="btn-pw-cancel" id="pw-cancel">H&#7911;y</button>
-      <button type="button" class="btn-pw-submit" id="pw-submit">M&#7903; kh&#243;a</button>
-    </div>
-  </div>
-</div>
 </body>
 </html>
