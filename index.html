@@ -913,7 +913,10 @@ function riseTodayCard(){
   l.filter(r=>r.d===day).forEach(r=>{
     if(!g.has(r.k)) g.set(r.k,{b:r.b,m:r.m,ch:new Set()});
     g.get(r.k).ch.add(r.ch); });
-  const txt=[...g.values()].map(x=>`${x.b} ${x.m} (${[...x.ch].join(", ")})`).join("; ");
+  const txt=[...g.values()].map(x=>{
+    const mName = x.m.toLowerCase().startsWith(x.b.toLowerCase()) ? x.m : `${x.b} ${x.m}`;
+    return `${mName} (${[...x.ch].join(", ")})`;
+  }).join("; ");
   return `<div class="rk"><small>Tăng giá ngày ${rd(day)}</small><b>${g.size}</b><span>${esc(txt)}</span></div>`;
 }
 function renderRiseModels(){

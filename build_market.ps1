@@ -277,7 +277,7 @@ if (Test-Path $LAST_JSON) {
 $ups = New-Object System.Collections.ArrayList
 $newPrices = [ordered]@{}
 foreach ($r in $allRows) {
-    $key = "$($r.r)|$($r.u)"
+    $key = "$($r.r)|$($r.u)|$($r.n)"
     $newPrices[$key] = [int64]$r.o
     if ($oldPrices.ContainsKey($key)) {
         $before = [int64]$oldPrices[$key]

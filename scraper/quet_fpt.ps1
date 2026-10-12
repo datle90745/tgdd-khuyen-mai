@@ -1,4 +1,4 @@
-﻿# Quét FPT Shop từ chính máy của anh/chị.
+# Quét FPT Shop từ chính máy của anh/chị.
 #
 # Máy chủ GitHub bị Cloudflare của FPT khoá sau đúng một trang, nhưng mạng nhà thì vào
 # bình thường. Script này tải 6 trang hãng, bóc dữ liệu nhúng sẵn trong HTML và ghi ra
@@ -8,7 +8,10 @@
 param(
   [string]$Out = "$PSScriptRoot\..\data\fpt.js"
 )
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
 $ErrorActionPreference = "Stop"
+$KM_NAME = [regex]::Unescape('Khuy\u1EBFn m\u00E3i')
 
 $UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
       "(KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
@@ -43,27 +46,50 @@ function Get-Page($slug) {
 # Dữ liệu nằm trong khối Next.js nhúng trong HTML, bị escape nên phải bỏ dấu \ trước.
 function Read-Items($html) {
   $html = $html.Replace('\"', '"')
-  $items = New-Object System.Collections.ArrayList
+  $rawList = New-Object System.Collections.ArrayList
   $seen = New-Object System.Collections.Generic.HashSet[string]
   foreach ($m in [regex]::Matches($html, '"currentPrice":(\d+)')) {
     $from = [Math]::Max(0, $m.Index - 2500)
     $back = $html.Substring($from, $m.Index - $from)
-    $slugs = [regex]::Matches($back, '"slug":"(dien-thoai/[a-z0-9-]+)(?:\?sku=\d+)?"')
-    if ($slugs.Count -eq 0) { continue }
-    $last = $slugs[$slugs.Count - 1]
-    $slug = $last.Groups[1].Value
-    if (-not $seen.Add($slug)) { continue }
-    $after = $back.Substring($last.Index)
+    $slugMatches = [regex]::Matches($back, '"slug":"(dien-thoai/[^"]+)"')
+    if ($slugMatches.Count -eq 0) { continue }
+    $rawSlug = $slugMatches[$slugMatches.Count - 1].Groups[1].Value
+    $baseSlug = $rawSlug.Split('?')[0]
+    $skuMatch = [regex]::Match($rawSlug, 'sku=(\d+)')
+    $sku = if ($skuMatch.Success) { $skuMatch.Groups[1].Value } else { "" }
+    
+    $after = $back.Substring($slugMatches[$slugMatches.Count - 1].Index)
     $origs = [regex]::Matches($after, '"originalPrice":(\d+)')
-    $before = $back.Substring(0, $last.Index)
+    $before = $back.Substring(0, $slugMatches[$slugMatches.Count - 1].Index)
     $names = [regex]::Matches($before, '"(?:displayName|name)":"([^"]{3,80})"')
-    $name = if ($names.Count) { $names[$names.Count - 1].Groups[1].Value } else { $slug }
-    [void]$items.Add([pscustomobject]@{
-        n = $name
-        u = "https://fptshop.com.vn/$slug"
+    $name = if ($names.Count) { $names[$names.Count - 1].Groups[1].Value } else { $baseSlug }
+    $normName = [regex]::Replace($name, '\s+', ' ').Trim()
+
+    $dedupKey = "$baseSlug|$normName"
+    if (-not $seen.Add($dedupKey)) { continue }
+
+    $url = if ($sku) { "https://fptshop.com.vn/${baseSlug}?sku=${sku}" } else { "https://fptshop.com.vn/${baseSlug}" }
+    [void]$rawList.Add([pscustomobject]@{
+        n = $normName
+        u = $url
         p = [int64]$m.Groups[1].Value
         o = $(if ($origs.Count) { [int64]$origs[$origs.Count - 1].Groups[1].Value } else { 0 })
+        slug = $baseSlug
       })
+  }
+
+  $hasCapacity = { param($s) return $s -match '\b(128gb|256gb|512gb|1tb|2tb|64gb|32gb)\b' }
+  $slugsWithCap = New-Object System.Collections.Generic.HashSet[string]
+  foreach ($it in $rawList) {
+    if (& $hasCapacity $it.n) { [void]$slugsWithCap.Add($it.slug) }
+  }
+
+  $items = New-Object System.Collections.ArrayList
+  foreach ($it in $rawList) {
+    if ($slugsWithCap.Contains($it.slug) -and (-not (& $hasCapacity $it.n))) {
+      continue
+    }
+    [void]$items.Add($it)
   }
   return $items
 }
@@ -78,11 +104,12 @@ foreach ($slug in $BRAND_PAGES) {
   foreach ($it in $items) {
     $b = Get-Brand $it.n $it.u
     if (-not $b -or $it.p -le 0) { continue }
-    if (-not $seenUrl.Add($it.u)) { continue }
+    $seenKey = "$($it.u)|$($it.n)"
+    if (-not $seenUrl.Add($seenKey)) { continue }
     $o = $it.o; if ($o -lt $it.p) { $o = $it.p }
     [void]$rows.Add([pscustomobject]@{
         r = "FPT Shop"; b = $b; n = $it.n; u = $it.u; p = $it.p; o = $o
-        k = $(if ($o -gt $it.p) { "Khuyến mãi" } else { "Khuyến mãi" })
+        k = $KM_NAME
       })
     $added++
   }

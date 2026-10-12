@@ -161,18 +161,27 @@ def scan_cellphones():
 FPT_BRAND_PAGES = ["apple-iphone", "samsung", "oppo", "xiaomi", "vivo", "realme"]
 
 
-# Bóc từng thẻ sản phẩm ngay trên giao diện: tên ở <h3>, giá gạch ở .line-through,
-# giá bán ở đoạn b1-semibold.
+# Bóc từng thẻ sản phẩm ngay trên giao diện: tên ở <h3> hoặc aria-label (chứa dung lượng),
+# giá gạch ở .line-through, giá bán ở đoạn b1-semibold.
 FPT_EXTRACT_JS = """() => {
   const money = s => +String(s || '').replace(/[^0-9]/g, '') || 0;
+  const capRe = /\\b(128gb|256gb|512gb|1tb|2tb|64gb|32gb)\\b/i;
   return [...document.querySelectorAll('a[href^="/dien-thoai/"]')]
     .filter(a => a.querySelector('h3'))
-    .map(a => ({
-      n: a.querySelector('h3').textContent.trim(),
-      u: a.getAttribute('href').split('?')[0],
-      o: money((a.querySelector('.line-through') || {}).textContent),
-      p: money((a.querySelector('p[class*="b1-semibold"]') || {}).textContent),
-    }));
+    .map(a => {
+      const h3 = a.querySelector('h3').textContent.trim();
+      const aria = a.getAttribute('aria-label') || '';
+      const title = a.getAttribute('title') || '';
+      let name = h3;
+      if (capRe.test(aria)) name = aria.trim();
+      else if (capRe.test(title)) name = title.trim();
+      return {
+        n: name,
+        u: a.getAttribute('href'),
+        o: money((a.querySelector('.line-through') || {}).textContent),
+        p: money((a.querySelector('p[class*="b1-semibold"]') || {}).textContent),
+      };
+    });
 }"""
 
 FPT_SHOW_ALL_JS = """async () => {
@@ -194,30 +203,49 @@ FPT_SHOW_ALL_JS = """async () => {
 def parse_fpt_nextjs(html):
     """Trích xuất dữ liệu sản phẩm từ khối Next.js nhúng sẵn trong HTML của FPT Shop."""
     clean_html = html.replace(r'\"', '"')
-    items = []
+    raw_items = []
     seen = set()
     for m in re.finditer(r'"currentPrice":(\d+)', clean_html):
         pos = m.start()
         start = max(0, pos - 2500)
         back = clean_html[start:pos]
-        slug_matches = list(re.finditer(r'"slug":"(dien-thoai/[a-z0-9-]+)(?:\?sku=\d+)?"', back))
+        slug_matches = list(re.finditer(r'"slug":"(dien-thoai/[^"]+)"', back))
         if not slug_matches:
             continue
-        last_slug = slug_matches[-1].group(1)
-        if last_slug in seen:
-            continue
-        seen.add(last_slug)
+        raw_slug = slug_matches[-1].group(1)
+        base_slug = raw_slug.split("?")[0]
+        sku_m = re.search(r'sku=(\d+)', raw_slug)
+        sku = sku_m.group(1) if sku_m else ""
         after = back[slug_matches[-1].start():]
         orig_m = re.findall(r'"originalPrice":(\d+)', after)
         orig = int(orig_m[-1]) if orig_m else 0
         before = back[:slug_matches[-1].start()]
         names = re.findall(r'"(?:displayName|name)":"([^"]{3,80})"', before)
-        name = names[-1] if names else last_slug.split("/")[-1]
-        items.append({
-            "n": name,
-            "u": f"https://fptshop.com.vn/{last_slug}",
+        name = names[-1] if names else base_slug.split("/")[-1]
+        norm_name = " ".join(name.split())
+        dedup_key = f"{base_slug}|{norm_name}"
+        if dedup_key in seen:
+            continue
+        seen.add(dedup_key)
+        url = f"https://fptshop.com.vn/{base_slug}?sku={sku}" if sku else f"https://fptshop.com.vn/{base_slug}"
+        raw_items.append({
+            "n": norm_name,
+            "u": url,
             "p": int(m.group(1)),
-            "o": orig
+            "o": orig,
+            "slug": base_slug,
+        })
+    cap_re = re.compile(r'\b(128gb|256gb|512gb|1tb|2tb|64gb|32gb)\b', re.IGNORECASE)
+    slugs_with_cap = {it["slug"] for it in raw_items if cap_re.search(it["n"])}
+    items = []
+    for it in raw_items:
+        if it["slug"] in slugs_with_cap and not cap_re.search(it["n"]):
+            continue
+        items.append({
+            "n": it["n"],
+            "u": it["u"],
+            "p": it["p"],
+            "o": it["o"],
         })
     return items
 
@@ -480,13 +508,13 @@ def main():
         old = json.loads(LAST_JSON.read_text(encoding="utf-8-sig")).get("prices", {})
     ups = []
     for r in rows:
-        key = r["r"] + "|" + r["u"]
+        key = r["r"] + "|" + r["u"] + "|" + r["n"]
         before = old.get(key)
         if before and r["o"] > before:
             ups.append({"r": r["r"], "b": r["b"], "n": r["n"], "old": before, "new": r["o"]})
     alerts.record("market", today, at, ups)
     LAST_JSON.write_text(json.dumps({"day": today, "at": at,
-                                     "prices": {r["r"] + "|" + r["u"]: r["o"] for r in rows}},
+                                     "prices": {r["r"] + "|" + r["u"] + "|" + r["n"]: r["o"] for r in rows}},
                                     ensure_ascii=False), encoding="utf-8")
     print(f"Giá gốc tăng (toàn thị trường): {len(ups)}"
           + ("; " + "; ".join(f"{u['r']} {u['n']} {u['old']:,}→{u['new']:,}" for u in ups[:10]) if ups else ""),
