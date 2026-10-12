@@ -1,11 +1,11 @@
 {
  "date": "12-Oct",
- "scanned_at": "2026-10-12T09:22:48+07:00",
+ "scanned_at": "2026-10-12T12:20:40+07:00",
  "rows": [
   {
    "model": "iPhone 17 Pro Max 512GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17-pro-max-512gb",
-   "at": "12-10 09:22",
+   "at": "12-10 12:20",
    "status": "active",
    "rrp": 44490000,
    "red": 41490000,
@@ -23,7 +23,7 @@
   {
    "model": "iPhone 17 Pro Max 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17-pro-max",
-   "at": "12-10 09:22",
+   "at": "12-10 12:20",
    "status": "active",
    "rrp": 37990000,
    "red": 34990000,
@@ -41,7 +41,7 @@
   {
    "model": "iPhone 17 Pro 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17-pro",
-   "at": "12-10 09:23",
+   "at": "12-10 12:20",
    "status": "active",
    "rrp": 34990000,
    "red": 31990000,
@@ -59,7 +59,7 @@
   {
    "model": "iPhone Air 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-air",
-   "at": "12-10 09:23",
+   "at": "12-10 12:20",
    "status": "active",
    "rrp": 34990000,
    "red": 22990000,
@@ -77,7 +77,7 @@
   {
    "model": "iPhone 17 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17",
-   "at": "12-10 09:23",
+   "at": "12-10 12:20",
    "status": "active",
    "rrp": 28990000,
    "red": 25490000,
@@ -95,7 +95,7 @@
   {
    "model": "iPhone 16 128GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-16",
-   "at": "12-10 09:23",
+   "at": "12-10 12:20",
    "status": "active",
    "rrp": 24990000,
    "red": 22990000,
@@ -113,7 +113,7 @@
   {
    "model": "iPhone 15 128GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-15",
-   "at": "12-10 09:23",
+   "at": "12-10 12:21",
    "status": "active",
    "rrp": 21990000,
    "red": 19990000,
@@ -131,7 +131,7 @@
   {
    "model": "Find X9 Ultra 12GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-find-x9-ultra",
-   "at": "12-10 09:23",
+   "at": "12-10 12:21",
    "status": "active",
    "rrp": 49990000,
    "red": 45990000,
@@ -154,26 +154,22 @@
   {
    "model": "Find X9s 12GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-find-x9s-12gb-512gb",
-   "at": "12-10 09:23",
+   "at": "12-10 12:21",
    "status": "active",
    "rrp": 26990000,
-   "red": 26490000,
+   "red": 26990000,
    "pmh": 0,
-   "online": 500000,
-   "total_online": 500000,
+   "online": 0,
+   "total_online": 0,
    "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1",
-   "subs": [
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng mua Tai nghe TWS Oppo Air 5 series/Clip2 trị giá 400,000đ",
-    "Phiếu mua Tai nghe TWS Oppo trị giá 200,000đ"
-   ]
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": []
   },
   {
    "model": "Find X9s 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-find-x9s",
-   "at": "12-10 09:23",
+   "at": "12-10 12:21",
    "status": "active",
    "rrp": 24990000,
    "red": 24990000,
@@ -196,7 +192,7 @@
   {
    "model": "Reno16 Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-reno16-pro",
-   "at": "12-10 09:23",
+   "at": "12-10 12:21",
    "status": "active",
    "rrp": 25990000,
    "red": 23390000,
@@ -220,22 +216,18 @@
   {
    "model": "Reno16 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-reno16-5g-8gb-256gb",
-   "at": "12-10 09:23",
+   "at": "12-10 12:21",
    "status": "active",
    "rrp": 18990000,
-   "red": 18990000,
+   "red": 18490000,
    "pmh": 0,
-   "online": 0,
-   "total_online": 0,
+   "online": 500000,
+   "total_online": 500000,
    "choice": 0,
-   "kind": "moi",
-   "rule": "den_tru_do",
+   "kind": "moi-banner",
+   "rule": "flash_chon1",
    "subs": [
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
     "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng mua Bảo hành mở rộng/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 200,000đ",
-    "Phiếu mua hàng mua Bảo hành mở rộng/ 1 đổi 1/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 100,000đ",
-    "Tặng thêm 12 tháng bảo hành chính hãng",
     "Phiếu mua hàng mua Tai nghe TWS Oppo Air 5 series/Clip2 trị giá 400,000đ",
     "Phiếu mua Tai nghe TWS Oppo trị giá 200,000đ"
    ]
@@ -243,7 +235,7 @@
   {
    "model": "Reno16F 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-reno16f-5g-8gb-128gb",
-   "at": "12-10 09:23",
+   "at": "12-10 12:21",
    "status": "active",
    "rrp": 14990000,
    "red": 13490000,
@@ -268,7 +260,7 @@
   {
    "model": "Reno16F 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-reno16-f",
-   "at": "12-10 09:23",
+   "at": "12-10 12:21",
    "status": "active",
    "rrp": 15990000,
    "red": 15990000,
@@ -291,7 +283,7 @@
   {
    "model": "A6 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-8gb-256gb",
-   "at": "12-10 09:23",
+   "at": "12-10 12:21",
    "status": "active",
    "rrp": 11990000,
    "red": 11490000,
@@ -314,23 +306,23 @@
   {
    "model": "OPPO A7 Pro 5G 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-6gb-256gb",
-   "at": "12-10 09:23",
+   "at": "12-10 12:21",
    "status": "no_price",
-   "debug": "len=690075 box_main=False main=False h1=None",
+   "debug": "len=700536 box_main=False main=False h1=None",
    "pmh": null
   },
   {
    "model": "OPPO A7 Pro 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-8gb-128gb",
-   "at": "12-10 09:24",
+   "at": "12-10 12:21",
    "status": "no_price",
-   "debug": "len=690317 box_main=False main=False h1=None",
+   "debug": "len=700778 box_main=False main=False h1=None",
    "pmh": null
   },
   {
    "model": "A6 Pro 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-pro-5g-8gb-256gb",
-   "at": "12-10 09:24",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 10990000,
    "red": 10490000,
@@ -352,7 +344,7 @@
   {
    "model": "A6 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-6gb-128gb",
-   "at": "12-10 09:24",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 9990000,
    "red": 9990000,
@@ -367,7 +359,7 @@
   {
    "model": "A6 Pro 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-pro-8gb-256gb",
-   "at": "12-10 09:24",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 9990000,
    "red": 9990000,
@@ -389,18 +381,21 @@
   {
    "model": "A6 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-8gb-128gb",
-   "at": "12-10 09:24",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 10990000,
-   "red": 10490000,
+   "red": 10990000,
    "pmh": 0,
-   "online": 500000,
-   "total_online": 500000,
+   "online": 0,
+   "total_online": 0,
    "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1",
+   "kind": "moi",
+   "rule": "den_tru_do",
    "subs": [
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
     "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng mua Bảo hành mở rộng/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 200,000đ",
+    "Phiếu mua hàng mua Bảo hành mở rộng/ 1 đổi 1/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 100,000đ",
     "Phiếu mua hàng mua Tai nghe TWS Oppo Air 5 series/Clip2 trị giá 400,000đ",
     "Phiếu mua Tai nghe TWS Oppo trị giá 200,000đ"
    ]
@@ -408,7 +403,7 @@
   {
    "model": "A6x 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6x-6gb-256gb",
-   "at": "12-10 09:24",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 8990000,
    "red": 8790000,
@@ -431,7 +426,7 @@
   {
    "model": "A6x 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6x-4gb-128gb",
-   "at": "12-10 09:24",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 7090000,
    "red": 6380000,
@@ -455,7 +450,7 @@
   {
    "model": "A6x 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6x-4gb-64gb",
-   "at": "12-10 09:24",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 4990000,
    "red": 4740000,
@@ -477,7 +472,7 @@
   {
    "model": "A6c 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6c-4gb-128gb",
-   "at": "12-10 09:24",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 5690000,
    "red": 5690000,
@@ -499,7 +494,7 @@
   {
    "model": "A6c 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6c-4gb-64gb",
-   "at": "12-10 09:24",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 4690000,
    "red": 4690000,
@@ -521,7 +516,7 @@
   {
    "model": "S26 Ultra 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s26-ultra-12gb-256gb",
-   "at": "12-10 09:24",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 40990000,
    "red": 30990000,
@@ -541,7 +536,7 @@
   {
    "model": "S25 Ultra 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s25-ultra",
-   "at": "12-10 09:24",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 33380000,
    "red": 27990000,
@@ -561,7 +556,7 @@
   {
    "model": "S26+ 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s26-plus-12gb-256gb",
-   "at": "12-10 09:25",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 33990000,
    "red": 23990000,
@@ -581,24 +576,27 @@
   {
    "model": "S26 FE 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s26-fe-8gb-256gb",
-   "at": "12-10 09:25",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 21990000,
-   "red": 18990000,
-   "pmh": 0,
-   "online": 3000000,
-   "total_online": 3000000,
+   "red": 19990000,
+   "pmh": 2000000,
+   "online": 2000000,
+   "total_online": 2000000,
    "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1",
+   "kind": "moi",
+   "rule": "den_tru_do",
    "subs": [
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng mua Bảo hành mở rộng/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 200,000đ",
+    "Phiếu mua hàng mua Bảo hành mở rộng/ 1 đổi 1/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 100,000đ"
    ]
   },
   {
    "model": "S25 FE 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s25-fe-5g-8gb-256gb",
-   "at": "12-10 09:25",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 19690000,
    "red": 16990000,
@@ -618,7 +616,7 @@
   {
    "model": "A57 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a57-12gb-256gb",
-   "at": "12-10 09:25",
+   "at": "12-10 12:22",
    "status": "active",
    "rrp": 17490000,
    "red": 13490000,
@@ -637,26 +635,24 @@
   {
    "model": "A57 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a57-8gb-256gb",
-   "at": "12-10 09:25",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 15490000,
-   "red": 12390000,
-   "pmh": 3100000,
-   "online": 3100000,
-   "total_online": 3100000,
+   "red": 12290000,
+   "pmh": 0,
+   "online": 3200000,
+   "total_online": 3200000,
    "choice": 0,
-   "kind": "moi",
-   "rule": "den_tru_do",
+   "kind": "moi-banner",
+   "rule": "flash_chon1",
    "subs": [
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng mua Bảo hành mở rộng/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 200,000đ",
-    "Phiếu mua hàng mua Bảo hành mở rộng/ 1 đổi 1/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 100,000đ"
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
    ]
   },
   {
    "model": "A37 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a37-8gb-256gb",
-   "at": "12-10 09:25",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 13990000,
    "red": 10890000,
@@ -679,36 +675,13 @@
   {
    "model": "A37 5G 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a37-6gb-128gb",
-   "at": "12-10 09:25",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 11190000,
-   "red": 9590000,
-   "pmh": 1600000,
-   "online": 1600000,
-   "total_online": 1900000,
-   "choice": 300000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Giảm giá 300.000₫",
-    "Loa Bluetooth Hydrus Beat Đen",
-    "Loa Bluetooth Hydrus Beat Cam",
-    "Loa Bluetooth Hydrus Beat Xanh",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng mua Bảo hành mở rộng/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 200,000đ",
-    "Phiếu mua hàng mua Bảo hành mở rộng/ 1 đổi 1/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 100,000đ"
-   ]
-  },
-  {
-   "model": "A27 8GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a27-8gb-128gb",
-   "at": "12-10 09:25",
-   "status": "active",
-   "rrp": 10190000,
-   "red": 8590000,
+   "red": 9290000,
    "pmh": 0,
-   "online": 1600000,
-   "total_online": 1600000,
+   "online": 1900000,
+   "total_online": 1900000,
    "choice": 0,
    "kind": "moi-banner",
    "rule": "flash_chon1",
@@ -717,9 +690,30 @@
    ]
   },
   {
+   "model": "A27 8GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a27-8gb-128gb",
+   "at": "12-10 12:23",
+   "status": "active",
+   "rrp": 10190000,
+   "red": 8990000,
+   "pmh": 1200000,
+   "online": 1200000,
+   "total_online": 1200000,
+   "choice": 0,
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": [
+    "Adapter Sạc Type C PD 25W Samsung EP-T2510NW Trắng",
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng mua Bảo hành mở rộng/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 200,000đ",
+    "Phiếu mua hàng mua Bảo hành mở rộng/ 1 đổi 1/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 100,000đ"
+   ]
+  },
+  {
    "model": "A27 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a27-6gb-128gb",
-   "at": "12-10 09:25",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 9090000,
    "red": 8190000,
@@ -740,7 +734,7 @@
   {
    "model": "A17 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-5g-8gb-256gb",
-   "at": "12-10 09:25",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 7990000,
    "red": 7690000,
@@ -763,7 +757,7 @@
   {
    "model": "A17 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-8gb-256gb",
-   "at": "12-10 09:25",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 6890000,
    "red": 6190000,
@@ -786,7 +780,7 @@
   {
    "model": "A17 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-4gb-128gb",
-   "at": "12-10 09:25",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 5690000,
    "red": 5090000,
@@ -809,7 +803,7 @@
   {
    "model": "A07 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-6gb-128gb",
-   "at": "12-10 09:26",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 4490000,
    "red": 3970000,
@@ -832,7 +826,7 @@
   {
    "model": "A07 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-4gb-64gb",
-   "at": "12-10 09:26",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 3890000,
    "red": 3390000,
@@ -855,7 +849,7 @@
   {
    "model": "A17 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-5g-8gb-128gb",
-   "at": "12-10 09:26",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 8790000,
    "red": 6690000,
@@ -878,7 +872,7 @@
   {
    "model": "A17 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-8gb-128gb",
-   "at": "12-10 09:26",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 6190000,
    "red": 5990000,
@@ -901,7 +895,7 @@
   {
    "model": "A07 5G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-5g-4gb-128gb",
-   "at": "12-10 09:26",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 5890000,
    "red": 4890000,
@@ -921,7 +915,7 @@
   {
    "model": "A07 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-4gb-128gb",
-   "at": "12-10 09:26",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 4190000,
    "red": 4190000,
@@ -936,23 +930,23 @@
   {
    "model": "A08 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a08-4gb-64gb",
-   "at": "12-10 09:26",
+   "at": "12-10 12:23",
    "status": "no_price",
-   "debug": "len=596906 box_main=False main=False h1=None",
+   "debug": "len=575129 box_main=False main=False h1=None",
    "pmh": null
   },
   {
    "model": "A08 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a08-4gb-128gb",
-   "at": "12-10 09:26",
+   "at": "12-10 12:23",
    "status": "no_price",
-   "debug": "len=596952 box_main=False main=False h1=None",
+   "debug": "len=575119 box_main=False main=False h1=None",
    "pmh": null
   },
   {
    "model": "A07s 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07s-4gb-64gb",
-   "at": "12-10 09:26",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 4190000,
    "red": 3890000,
@@ -967,7 +961,7 @@
   {
    "model": "Xiaomi 17 Ultra 5G 16GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17-ultra",
-   "at": "12-10 09:26",
+   "at": "12-10 12:23",
    "status": "active",
    "rrp": 39990000,
    "red": 30690000,
@@ -989,7 +983,7 @@
   {
    "model": "Xiaomi 17 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17",
-   "at": "12-10 09:26",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 26990000,
    "red": 19490000,
@@ -1011,7 +1005,7 @@
   {
    "model": "17T Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17t-pro-5g-12gb-256gb",
-   "at": "12-10 09:26",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 23990000,
    "red": 19990000,
@@ -1035,7 +1029,7 @@
   {
    "model": "17T 5G 12GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17t-5g-12gb-512gb",
-   "at": "12-10 09:26",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 20990000,
    "red": 18790000,
@@ -1059,7 +1053,7 @@
   {
    "model": "17T 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17t-5g-12gb-256gb",
-   "at": "12-10 09:27",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 20090000,
    "red": 17190000,
@@ -1083,7 +1077,7 @@
   {
    "model": "Redmi Note 17 Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-5g-12gb-256gb",
-   "at": "12-10 09:27",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 13490000,
    "red": 12090000,
@@ -1111,7 +1105,7 @@
   {
    "model": "Redmi Note 17 Pro 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-5g-8gb-256gb",
-   "at": "12-10 09:27",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 12490000,
    "red": 11190000,
@@ -1139,7 +1133,7 @@
   {
    "model": "Redmi Note 17 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-5g-8gb-256gb",
-   "at": "12-10 09:27",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 10090000,
    "red": 9590000,
@@ -1166,7 +1160,7 @@
   {
    "model": "Redmi Note 17 5G 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-5g-6gb-256gb",
-   "at": "12-10 09:27",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 9490000,
    "red": 8990000,
@@ -1193,7 +1187,7 @@
   {
    "model": "Redmi Note 17 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-4g-6gb-256gb",
-   "at": "12-10 09:27",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 8290000,
    "red": 7790000,
@@ -1220,7 +1214,7 @@
   {
    "model": "Redmi Note 17 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-4g-6gb-128gb",
-   "at": "12-10 09:27",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 7690000,
    "red": 7190000,
@@ -1247,7 +1241,7 @@
   {
    "model": "Redmi 17 4G 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-4g-6gb-256gb",
-   "at": "12-10 09:27",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 7490000,
    "red": 7290000,
@@ -1270,7 +1264,7 @@
   {
    "model": "Redmi Note 15 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-15-8gb-256gb",
-   "at": "12-10 09:27",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 7090000,
    "red": 5390000,
@@ -1293,7 +1287,7 @@
   {
    "model": "Redmi 17 4G 4GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-4g-4gb-256gb",
-   "at": "12-10 09:27",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 6690000,
    "red": 5990000,
@@ -1316,7 +1310,7 @@
   {
    "model": "Redmi 17 5G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-5g-4gb-128gb",
-   "at": "12-10 09:28",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 6490000,
    "red": 6290000,
@@ -1339,7 +1333,7 @@
   {
    "model": "Redmi 17 4G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-4g-4gb-128gb",
-   "at": "12-10 09:28",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 5990000,
    "red": 5390000,
@@ -1362,7 +1356,7 @@
   {
    "model": "Redmi 15 5G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-15-5g-4gb-128gb",
-   "at": "12-10 09:28",
+   "at": "12-10 12:24",
    "status": "active",
    "rrp": 5690000,
    "red": 4890000,
@@ -1385,30 +1379,23 @@
   {
    "model": "Redmi 15C 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-15c-6gb-128gb",
-   "at": "12-10 09:28",
+   "at": "12-10 12:24",
    "status": "ngung_kd",
-   "debug": "len=400946 box_main=False main=True h1=Điện thoại Xiaomi Redmi 15C 6GB/128GB",
+   "debug": "len=400208 box_main=False main=True h1=Điện thoại Xiaomi Redmi 15C 6GB/128GB",
    "pmh": null
   },
   {
    "model": "Redmi 15 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-15-6gb-128gb",
-   "at": "12-10 09:28",
-   "status": "active",
-   "rrp": 4790000,
-   "red": 4790000,
-   "pmh": 0,
-   "online": 0,
-   "total_online": 0,
-   "choice": 0,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": []
+   "at": "12-10 12:24",
+   "status": "ngung_kd",
+   "debug": "len=375035 box_main=False main=True h1=Điện thoại Xiaomi Redmi 15 6GB/128GB",
+   "pmh": null
   },
   {
    "model": "Redmi A7 Pro 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-a7-pro-4gb-128gb",
-   "at": "12-10 09:28",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 4990000,
    "red": 4490000,
@@ -1431,7 +1418,7 @@
   {
    "model": "Redmi A7 Pro 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-a7-pro",
-   "at": "12-10 09:28",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 4490000,
    "red": 4190000,
@@ -1454,7 +1441,7 @@
   {
    "model": "X300 Ultra 16GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-x300-ultra",
-   "at": "12-10 09:28",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 49990000,
    "red": 37990000,
@@ -1473,7 +1460,7 @@
   {
    "model": "V70 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-v70-8gb-256gb",
-   "at": "12-10 09:28",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 17990000,
    "red": 17490000,
@@ -1493,7 +1480,7 @@
   {
    "model": "V70 FE 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-v70-fe-8gb-256gb",
-   "at": "12-10 09:28",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 13990000,
    "red": 13490000,
@@ -1513,7 +1500,7 @@
   {
    "model": "V60 Lite 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-v60-lite-8gb-256gb",
-   "at": "12-10 09:28",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 10490000,
    "red": 9990000,
@@ -1533,7 +1520,7 @@
   {
    "model": "Y31d 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y31d-8gb-128gb",
-   "at": "12-10 09:28",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 10090000,
    "red": 9090000,
@@ -1554,7 +1541,7 @@
   {
    "model": "Y31d 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y31d-6gb-128gb",
-   "at": "12-10 09:28",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 8990000,
    "red": 8090000,
@@ -1575,7 +1562,7 @@
   {
    "model": "Y39 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y39-5g",
-   "at": "12-10 09:28",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 7360000,
    "red": 6690000,
@@ -1596,7 +1583,7 @@
   {
    "model": "Y11d 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y11d-6gb-128gb",
-   "at": "12-10 09:29",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 7290000,
    "red": 6920000,
@@ -1616,41 +1603,53 @@
   {
    "model": "Y11d 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y11d-4gb-128gb",
-   "at": "12-10 09:29",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 6790000,
-   "red": 6150000,
-   "pmh": 0,
-   "online": 640000,
-   "total_online": 640000,
-   "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1",
+   "red": 6490000,
+   "pmh": 300000,
+   "online": 300000,
+   "total_online": 600000,
+   "choice": 300000,
+   "kind": "moi",
+   "rule": "den_tru_do",
    "subs": [
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
+    "Giảm giá 300.000₫",
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 350,000đ",
+    "Loa karaoke EP Windy Xanh",
+    "Loa karaoke EP Windy Đen",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng mua Bảo hành mở rộng/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 200,000đ",
+    "Phiếu mua hàng mua Bảo hành mở rộng/ 1 đổi 1/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 100,000đ"
    ]
   },
   {
    "model": "Y05 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y05-4gb-128gb",
-   "at": "12-10 09:29",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 5990000,
-   "red": 5490000,
-   "pmh": 0,
-   "online": 500000,
-   "total_online": 500000,
-   "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1",
+   "red": 5890000,
+   "pmh": 100000,
+   "online": 100000,
+   "total_online": 200000,
+   "choice": 100000,
+   "kind": "moi",
+   "rule": "den_tru_do",
    "subs": [
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
+    "Giảm giá 100.000₫",
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ Apple, Beats) 250,000đ",
+    "Loa karaoke EP Windy Xanh",
+    "Loa karaoke EP Windy Đen",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng mua Bảo hành mở rộng/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 200,000đ",
+    "Phiếu mua hàng mua Bảo hành mở rộng/ 1 đổi 1/ Bảo hiểm rơi vỡ cho smartphone (trừ iPhone) trị giá 100,000đ"
    ]
   },
   {
    "model": "Y05 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y05-4gb-64gb",
-   "at": "12-10 09:29",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 4990000,
    "red": 4890000,
@@ -1673,7 +1672,7 @@
   {
    "model": "16 Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16-pro-5g-12gb-256gb",
-   "at": "12-10 09:29",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 14490000,
    "red": 13790000,
@@ -1695,7 +1694,7 @@
   {
    "model": "16 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16-5g-12gb-256gb",
-   "at": "12-10 09:29",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 12490000,
    "red": 11490000,
@@ -1717,7 +1716,7 @@
   {
    "model": "16 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16-5g-8gb-256gb",
-   "at": "12-10 09:29",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 11490000,
    "red": 11090000,
@@ -1739,7 +1738,7 @@
   {
    "model": "16T 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16t-5g-8gb-256gb",
-   "at": "12-10 09:29",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 10990000,
    "red": 10790000,
@@ -1761,7 +1760,7 @@
   {
    "model": "16T 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16t-5g-8gb-128gb",
-   "at": "12-10 09:29",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 10290000,
    "red": 9890000,
@@ -1783,7 +1782,7 @@
   {
    "model": "C100 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100-4g-8gb-256gb",
-   "at": "12-10 09:29",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 9490000,
    "red": 8540000,
@@ -1805,7 +1804,7 @@
   {
    "model": "C85 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c85-5g-8gb-256gb",
-   "at": "12-10 09:29",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 8490000,
    "red": 8290000,
@@ -1827,7 +1826,7 @@
   {
    "model": "C100 4G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100-4g-8gb-128gb",
-   "at": "12-10 09:30",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 8790000,
    "red": 7940000,
@@ -1849,7 +1848,7 @@
   {
    "model": "C100 4G 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100-4g-6gb-128gb",
-   "at": "12-10 09:30",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 8290000,
    "red": 8090000,
@@ -1871,7 +1870,7 @@
   {
    "model": "C85 Pro 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c85-pro-8gb-256gb",
-   "at": "12-10 09:30",
+   "at": "12-10 12:25",
    "status": "active",
    "rrp": 7690000,
    "red": 7490000,
@@ -1893,7 +1892,7 @@
   {
    "model": "C85 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c85-8gb-128gb",
-   "at": "12-10 09:30",
+   "at": "12-10 12:26",
    "status": "active",
    "rrp": 6290000,
    "red": 5770000,
@@ -1915,7 +1914,7 @@
   {
    "model": "C100i 4G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100i-4gb-128gb",
-   "at": "12-10 09:30",
+   "at": "12-10 12:26",
    "status": "active",
    "rrp": 6290000,
    "red": 6190000,
@@ -1937,7 +1936,7 @@
   {
    "model": "C100i 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100i-4gb-64gb",
-   "at": "12-10 09:30",
+   "at": "12-10 12:26",
    "status": "active",
    "rrp": 5290000,
    "red": 5090000,
