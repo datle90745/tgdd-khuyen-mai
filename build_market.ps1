@@ -59,11 +59,11 @@ for ($page = 0; $page -lt 25; $page++) {
         $html = $resp.listproducts
         if (!$html) { break }
         
-        $itemMatches = [regex]::Matches($html, '(?s)<li class=" item ajaxed __cate_42"[^>]*>(.*?)</li>')
-        if ($itemMatches.Count -eq 0) { break }
+        $chunks = $html -split '<li class=" item ajaxed __cate_42"'
+        if ($chunks.Count -le 1) { break }
 
-        foreach ($im in $itemMatches) {
-            $chunk = $im.Groups[1].Value
+        for ($ci = 1; $ci -lt $chunks.Count; $ci++) {
+            $chunk = $chunks[$ci]
             $aMatch = [regex]::Match($chunk, '(?s)<a [^>]*class="[^"]*main-contain[^"]*"[^>]*href=[''"]([^''"]+)[''"]([^>]*)>')
             if (!$aMatch.Success) {
                 $aMatch = [regex]::Match($chunk, '(?s)<a href=[''"]([^''"]+)[''"]([^>]*class="[^"]*main-contain[^"]*"[^>]*)>')
