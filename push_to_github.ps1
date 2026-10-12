@@ -4,19 +4,17 @@ $ErrorActionPreference = "Stop"
 
 $git = "C:\Users\toquo\AppData\Local\Microsoft\WinGet\Packages\Git.MinGit_Microsoft.Winget.Source_8wekyb3d8bbwe\cmd\git.exe"
 
-Write-Host "1. Fetch commit moi nhat tu origin/main..." -ForegroundColor Cyan
-& $git fetch origin main
-
-Write-Host "2. Dong bo commit tu dam may ve may..." -ForegroundColor Cyan
-& $git merge origin/main --no-edit 2>$null
-
-Write-Host "3. Chuan bi files..." -ForegroundColor Cyan
+Write-Host "1. Chuan bi files va commit tai cho..." -ForegroundColor Cyan
 & $git add -A
-
-Write-Host "4. Tao commit moi..." -ForegroundColor Cyan
 & $git commit -m $CommitMsg 2>$null
 
-Write-Host "5. Dang day len GitHub (push origin main)..." -ForegroundColor Cyan
+Write-Host "2. Fetch commit moi nhat tu origin/main..." -ForegroundColor Cyan
+& $git fetch origin main
+
+Write-Host "3. Dong bo commit tu dam may ve may..." -ForegroundColor Cyan
+& $git merge origin/main --no-edit 2>$null
+
+Write-Host "4. Dang day len GitHub (push origin main)..." -ForegroundColor Cyan
 & $git push origin main
 
 Write-Host ""
