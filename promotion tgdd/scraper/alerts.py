@@ -54,25 +54,15 @@ def _norm_tokens(name):
     return {w for w in t.split() if w not in ("5g", "4g", "lte", "gb", "tb")}
 
 
-def record_rises(day, items):
-    """Thêm các lần tăng giá vừa dò được vào Lịch sử tăng giá.
-
-    Mỗi dòng: [tháng, hãng, model, giá cũ, giá mới, ngày, % đổi, kênh phát hiện].
-    Bỏ qua dòng đã có sẵn trong dữ liệu gốc hoặc đã ghi ở lần quét trước, để không nhân đôi.
-    """
+def filter_unregistered_rises(items):
+    """Lọc bỏ các máy đã có sẵn trong bảng giá gốc nhập tay data.js hoặc giá mới <= giá cũ."""
     if not items:
-        return load_rises()
+        return []
     base = _base_text()
-    rises = load_rises()
-    seen = {_rise_key(r[1], r[2], r[3], r[4], r[7] if len(r) > 7 else "") for r in rises}
     base_entries = []
-    # Dòng nhập tay trong data.js không ghi kênh; coi như đã có để khỏi ghi lại lần nữa.
     for row in re.findall(r'\["T\d+","([^"]+)","([^"]+)",(\d+),(\d+),', base):
         base_entries.append((row[0].upper(), _norm_tokens(row[1]), int(row[2]), int(row[3])))
-        for ch in ("", "TGDĐ", "CellphoneS", "FPT Shop", "Viettel Store"):
-            seen.add(_rise_key(row[0], row[1], int(row[2]), int(row[3]), ch))
-    month = f"T{int(day[5:7])}"
-    added = 0
+    clean = []
     for it in items:
         model, old, new = it.get("n"), it.get("old"), it.get("new")
         if not model or not old or not new or new <= old:
@@ -83,6 +73,31 @@ def record_rises(day, items):
         if any(b == brand and o == old and n == new and (tokens == bt or tokens.issubset(bt) or bt.issubset(tokens))
                for b, bt, o, n in base_entries):
             continue
+        clean.append(it)
+    return clean
+
+
+def record_rises(day, items):
+    """Thêm các lần tăng giá vừa dò được vào Lịch sử tăng giá.
+
+    Mỗi dòng: [tháng, hãng, model, giá cũ, giá mới, ngày, % đổi, kênh phát hiện].
+    Bỏ qua dòng đã có sẵn trong dữ liệu gốc hoặc đã ghi ở lần quét trước, để không nhân đôi.
+    """
+    clean_items = filter_unregistered_rises(items)
+    if not clean_items:
+        return load_rises()
+    base = _base_text()
+    rises = load_rises()
+    seen = {_rise_key(r[1], r[2], r[3], r[4], r[7] if len(r) > 7 else "") for r in rises}
+    # Dòng nhập tay trong data.js không ghi kênh; coi như đã có để khỏi ghi lại lần nữa.
+    for row in re.findall(r'\["T\d+","([^"]+)","([^"]+)",(\d+),(\d+),', base):
+        for ch in ("", "TGDĐ", "CellphoneS", "FPT Shop", "Viettel Store"):
+            seen.add(_rise_key(row[0], row[1], int(row[2]), int(row[3]), ch))
+    month = f"T{int(day[5:7])}"
+    added = 0
+    for it in clean_items:
+        model, old, new = it.get("n"), it.get("old"), it.get("new")
+        brand = (it.get("b") or brand_of(model) or "").upper()
         key = _rise_key(brand, model, old, new, it.get("r") or "")
         if key in seen:
             continue
@@ -105,9 +120,10 @@ def record(source, day, at, items):
 
     Ghi đè phần của cùng (source, day) để chạy lại trong ngày không bị nhân đôi.
     """
-    record_rises(day, items)
+    clean_items = filter_unregistered_rises(items)
+    record_rises(day, clean_items)
     entries = [e for e in load() if not (e.get("source") == source and e.get("day") == day)]
-    entries.append({"source": source, "day": day, "at": at, "items": items})
+    entries.append({"source": source, "day": day, "at": at, "items": clean_items})
     entries.sort(key=lambda e: (e.get("day", ""), e.get("at", "")))
     entries = entries[-KEEP_ENTRIES:]
     ALERTS_JS.parent.mkdir(parents=True, exist_ok=True)

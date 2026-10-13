@@ -7,15 +7,15 @@
 <title>GTMVN — Theo dõi khuyến mãi</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="data/data.js?v=sync_20261013_1731"></script>
-<script src="data/scans.js?v=sync_20261013_1731"></script>
-<script src="data/latest.js?v=sync_20261013_1731"></script>
-<script src="data/links.js?v=sync_20261013_1731"></script>
-<script src="data/rises.js?v=sync_20261013_1731"></script>
-<script src="data/fpt.js?v=sync_20261013_1731"></script>
-<script src="data/alerts.js?v=sync_20261013_1731"></script>
-<script src="data/market.js?v=sync_20261013_1731"></script>
-<script src="data/promos.js?v=sync_20261013_1731"></script>
+<script src="data/data.js?v=sync_20261013_1756"></script>
+<script src="data/scans.js?v=sync_20261013_1756"></script>
+<script src="data/latest.js?v=sync_20261013_1756"></script>
+<script src="data/links.js?v=sync_20261013_1756"></script>
+<script src="data/rises.js?v=sync_20261013_1756"></script>
+<script src="data/fpt.js?v=sync_20261013_1756"></script>
+<script src="data/alerts.js?v=sync_20261013_1756"></script>
+<script src="data/market.js?v=sync_20261013_1756"></script>
+<script src="data/promos.js?v=sync_20261013_1756"></script>
 <style>
 :root{
   --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
@@ -871,7 +871,18 @@ function riseAlertBox(){
   const hit = A.filter(e=>Array.isArray(e.items) && e.items.length);
   if(!hit.length) return "";
   const last = hit[hit.length-1].day;
-  const items = hit.filter(e=>e.day===last).flatMap(e=>e.items);
+  let items = hit.filter(e=>e.day===last).flatMap(e=>e.items);
+  if(!items.length) return "";
+  const base = window.RISE_RAW || [];
+  const normKey = (b, m, o, n) => {
+    const brand = String(b||"").toUpperCase();
+    const mdl = String(m||"").toLowerCase().replace(/samsung|galaxy|apple|iphone|oppo|xiaomi|redmi|poco|vivo|realme/g, "")
+      .replace(/(\d+)\s*\+\s*(\d+)/g, "$1 $2").replace(/\+/g, " plus ").replace(/[^a-z0-9]/g, " ")
+      .split(/\s+/).filter(w => w && !["5g","4g","lte","gb","tb"].includes(w)).sort().join(" ");
+    return `${brand}|${mdl}|${o}|${n}`;
+  };
+  const baseNorm = new Set(base.map(r => normKey(r[1], r[2], r[3], r[4])));
+  items = items.filter(x => !baseNorm.has(normKey(x.b, x.n, x.old, x.new)));
   if(!items.length) return "";
   const li = items.slice(0,20).map(x=>`<li>${esc(x.b||"")} ${esc(x.n)}: ${fmt(x.old)} → <b>${fmt(x.new)}</b> (+${(((x.new-x.old)/x.old)*100).toFixed(1)}%)${x.r?` — <b>${esc(x.r)}</b>`:""}</li>`).join("");
   return `<div class="rwarn"><b>Đợt quét ${esc(rd(last))} phát hiện ${items.length} máy tăng giá đen.</b><ul>${li}`

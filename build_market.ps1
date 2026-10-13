@@ -262,6 +262,46 @@ $label = $now.ToString("dd-MMM", [Globalization.CultureInfo]::InvariantCulture)
 $at = $now.ToString("HH:mm")
 
 # --- SO SANH GIA GOC TANG (ALERTS & RISES) ---
+$baseEntries = @()
+$dataJsPath = Join-Path $ROOT "data\data.js"
+if (Test-Path $dataJsPath) {
+    $dataTxt = [System.IO.File]::ReadAllText($dataJsPath, [System.Text.Encoding]::UTF8)
+    $mBase = [regex]::Matches($dataTxt, '\["T\d+","([^"]+)","([^"]+)",(\d+),(\d+),')
+    foreach ($m in $mBase) {
+        $baseEntries += ,@($m.Groups[1].Value.ToUpper(), $m.Groups[2].Value, [int64]$m.Groups[3].Value, [int64]$m.Groups[4].Value)
+    }
+}
+
+function Test-IsKnownRise($brand, $model, $oldVal, $newVal) {
+    if (!$brand -or !$model) { return $false }
+    $normModel = ("$model").ToLower()
+    foreach ($w in @("samsung", "galaxy", "apple", "iphone", "oppo", "xiaomi", "redmi", "poco", "vivo", "realme")) {
+        $normModel = [regex]::Replace($normModel, "\b$w\b", "")
+    }
+    $normModel = [regex]::Replace($normModel, "(\d+)\s*\+\s*(\d+)", '$1 $2').Replace("+", " plus ")
+    $normModel = [regex]::Replace($normModel, "[^\w\s]", " ")
+    $mTokens = ($normModel -split '\s+' | Where-Object { $_ -and $_ -notin @("5g", "4g", "lte", "gb", "tb") })
+
+    foreach ($be in $baseEntries) {
+        if ($be[0] -eq $brand.ToUpper() -and $be[2] -eq $oldVal -and $be[3] -eq $newVal) {
+            $baseModel = ("$($be[1])").ToLower()
+            foreach ($w in @("samsung", "galaxy", "apple", "iphone", "oppo", "xiaomi", "redmi", "poco", "vivo", "realme")) {
+                $baseModel = [regex]::Replace($baseModel, "\b$w\b", "")
+            }
+            $baseModel = [regex]::Replace($baseModel, "(\d+)\s*\+\s*(\d+)", '$1 $2').Replace("+", " plus ")
+            $baseModel = [regex]::Replace($baseModel, "[^\w\s]", " ")
+            $bTokens = ($baseModel -split '\s+' | Where-Object { $_ -and $_ -notin @("5g", "4g", "lte", "gb", "tb") })
+
+            $isSubset1 = ($mTokens.Count -gt 0)
+            foreach ($t in $mTokens) { if ($t -notin $bTokens) { $isSubset1 = $false; break } }
+            $isSubset2 = ($bTokens.Count -gt 0)
+            foreach ($t in $bTokens) { if ($t -notin $mTokens) { $isSubset2 = $false; break } }
+            if ($isSubset1 -or $isSubset2) { return $true }
+        }
+    }
+    return $false
+}
+
 $oldPrices = @{}
 if (Test-Path $LAST_JSON) {
     try {
@@ -282,9 +322,11 @@ foreach ($r in $allRows) {
     if ($oldPrices.ContainsKey($key)) {
         $before = [int64]$oldPrices[$key]
         if ($r.o -gt $before) {
-            [void]$ups.Add([pscustomobject]@{
-                r = $r.r; b = $r.b; n = $r.n; old = $before; new = [int64]$r.o
-            })
+            if (-not (Test-IsKnownRise $r.b $r.n $before [int64]$r.o)) {
+                [void]$ups.Add([pscustomobject]@{
+                    r = $r.r; b = $r.b; n = $r.n; old = $before; new = [int64]$r.o
+                })
+            }
         }
     }
 }

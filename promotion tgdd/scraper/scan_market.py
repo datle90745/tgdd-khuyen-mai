@@ -378,24 +378,40 @@ def fpt_rows_via_erp_api():
 
 def scan_fpt():
     """Chỉ lấy dữ liệu LIVE trong đợt quét này:
+    0. Ưu tiên data/fpt.js nếu máy nhà đã quét đầy đủ (>=80 máy, đủ 4 hãng) cùng ngày.
     1. Thử Retail Deal Crawler API nội bộ (promotion.erp-portal.vn) nếu có cookie/token.
     2. Thử HTTP NextJS request (nhanh, qua proxy nếu có cấu hình).
     3. Thử Playwright trình duyệt thật có stealth script.
-    Nếu cả 3 cách live đều bị chặn, báo lỗi rõ ràng và để trống dữ liệu đợt này.
+    Nếu cả 3 cách live đều không đủ máy (bị Cloudflare chặn), dùng data/fpt.js cùng ngày.
     Tuyệt đối KHÔNG lấy số cũ từ các ngày trước để tránh gây hiểu lầm về giá thực tế."""
+    today_label = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%b")
+    fpt_file = ROOT / "data" / "fpt.js"
+
+    # 0. Ưu tiên nạp từ data/fpt.js do máy nhà quét đầy đủ cùng ngày hôm nay (~124 máy đủ 4 hãng)
+    if fpt_file.exists():
+        try:
+            m = re.search(r"window\.FPT_LOCAL\s*=\s*(\{.*\});", fpt_file.read_text(encoding="utf-8-sig"), re.S)
+            if m:
+                obj = json.loads(m.group(1))
+                if obj.get("date") == today_label and obj.get("rows") and len(obj["rows"]) >= 80:
+                    print(f"  FPT ưu tiên lấy từ data/fpt.js (máy nhà quét đầy đủ cùng ngày {today_label}): {len(obj['rows'])} máy", flush=True)
+                    return obj["rows"]
+        except Exception as e:
+            print(f"  FPT đọc fpt.js không thành công: {e}", flush=True)
+
     # 1. Thử Retail Deal Crawler API nội bộ
     try:
         rows = fpt_rows_via_erp_api()
-        if len(rows) >= 15:
+        if len(rows) >= 80:
             print(f"  FPT thành công qua Retail Deal API: {len(rows)} máy", flush=True)
             return rows
     except Exception as e:
         print(f"  FPT Retail Deal API không thành công: {e}", flush=True)
 
-    # 2. Thử HTTP NextJS request trực tiếp / qua proxy
+    # 2. Thử HTTP NextJS request trực tiếp / qua proxy (yêu cầu đủ >= 80 máy để tránh thiếu hãng)
     try:
         rows = fpt_rows_via_http()
-        if len(rows) >= 15:
+        if len(rows) >= 80:
             print(f"  FPT thành công qua HTTP: {len(rows)} máy", flush=True)
             return rows
     except Exception as e:
@@ -404,18 +420,16 @@ def scan_fpt():
     # 3. Thử Playwright trình duyệt thật có stealth chống bot
     try:
         rows = fpt_rows_via_browser()
-        if len(rows) >= 15:
+        if len(rows) >= 80:
             print(f"  FPT thành công qua Browser: {len(rows)} máy", flush=True)
             return rows
     except Exception as e:
         print(f"  FPT Browser không thành công: {e}", flush=True)
 
-    # 4. Thử nạp từ data/fpt.js nếu và chỉ nếu cùng ngày hôm nay (tránh lấy giá cũ)
-    fpt_file = ROOT / "data" / "fpt.js"
+    # 4. Thử nạp từ data/fpt.js nếu và chỉ nếu cùng ngày hôm nay (tối thiểu 15 máy)
     if fpt_file.exists():
         try:
-            today_label = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%b")
-            m = re.search(r"window\.FPT_LOCAL\s*=\s*(\{.*\});", fpt_file.read_text(encoding="utf-8"), re.S)
+            m = re.search(r"window\.FPT_LOCAL\s*=\s*(\{.*\});", fpt_file.read_text(encoding="utf-8-sig"), re.S)
             if m:
                 obj = json.loads(m.group(1))
                 if obj.get("date") == today_label and obj.get("rows") and len(obj["rows"]) >= 15:
