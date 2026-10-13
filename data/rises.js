@@ -1,2 +1,2 @@
 /* Tự sinh bởi bộ quét, đừng sửa tay. Các lần tăng giá đen do quét phát hiện. */
-window.RISE_AUTO = [];
+window.RISE_AUTO = [["T10", "SAMSUNG", "Samsung Galaxy S26 5G 12GB 512GB", 31990000, 35990000, "2026-10-13", 12.5, "FPT Shop"], ["T10", "SAMSUNG", "Samsung Galaxy S26 Plus 5G 12GB 256GB", 29990000, 33990000, "2026-10-13", 13.3, "FPT Shop"], ["T10", "SAMSUNG", "Samsung Galaxy S26 Plus 5G 12GB 512GB", 35990000, 39990000, "2026-10-13", 11.1, "FPT Shop"]];
