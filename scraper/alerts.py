@@ -44,6 +44,16 @@ def load_rises():
     return json.loads(match.group(1)) if match else []
 
 
+def _norm_tokens(name):
+    t = (name or "").lower()
+    for w in ("samsung", "galaxy", "apple", "iphone", "oppo", "xiaomi", "redmi", "poco", "vivo", "realme"):
+        t = re.sub(rf"\b{w}\b", "", t)
+    t = re.sub(r"(\d+)\s*\+\s*(\d+)", r"\1 \2", t)
+    t = t.replace("+", " plus ")
+    t = re.sub(r"[^\w\s]", " ", t)
+    return {w for w in t.split() if w not in ("5g", "4g", "lte", "gb", "tb")}
+
+
 def record_rises(day, items):
     """Thêm các lần tăng giá vừa dò được vào Lịch sử tăng giá.
 
@@ -55,8 +65,10 @@ def record_rises(day, items):
     base = _base_text()
     rises = load_rises()
     seen = {_rise_key(r[1], r[2], r[3], r[4], r[7] if len(r) > 7 else "") for r in rises}
+    base_entries = []
     # Dòng nhập tay trong data.js không ghi kênh; coi như đã có để khỏi ghi lại lần nữa.
     for row in re.findall(r'\["T\d+","([^"]+)","([^"]+)",(\d+),(\d+),', base):
+        base_entries.append((row[0].upper(), _norm_tokens(row[1]), int(row[2]), int(row[3])))
         for ch in ("", "TGDĐ", "CellphoneS", "FPT Shop", "Viettel Store"):
             seen.add(_rise_key(row[0], row[1], int(row[2]), int(row[3]), ch))
     month = f"T{int(day[5:7])}"
@@ -66,6 +78,11 @@ def record_rises(day, items):
         if not model or not old or not new or new <= old:
             continue
         brand = (it.get("b") or brand_of(model) or "").upper()
+        tokens = _norm_tokens(model)
+        # Bỏ qua nếu đã có sẵn trong bảng nhập tay data.js (cùng hãng, cùng mức giá tăng, model khớp)
+        if any(b == brand and o == old and n == new and (tokens == bt or tokens.issubset(bt) or bt.issubset(tokens))
+               for b, bt, o, n in base_entries):
+            continue
         key = _rise_key(brand, model, old, new, it.get("r") or "")
         if key in seen:
             continue
