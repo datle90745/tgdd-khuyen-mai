@@ -347,7 +347,7 @@ def write_promos_js(rows):
 
 
 def write_scans_js(today=None):
-    """Đưa các đợt quét đã hoàn tất trước hôm nay lên web để so sánh."""
+    """Chỉ đưa các đợt quét của thứ Hai và thứ Sáu đã hoàn tất trước hôm nay lên web để so sánh."""
     keys = ("model", "rrp", "pmh", "status", "online", "total_online", "choice", "kind", "rule")
     scans = []
     for path in sorted(SCAN_DIR.glob("scan_*.json")):
@@ -357,6 +357,8 @@ def write_scans_js(today=None):
         except ValueError:
             continue
         if today and day_str >= today:
+            continue
+        if day.weekday() not in alerts.KEEP_WEEKDAYS:
             continue
         data = json.loads(path.read_text(encoding="utf-8-sig"))
         scans.append({"date": data["date"], "rows": [
