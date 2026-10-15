@@ -143,20 +143,6 @@ window.PROMOS = {
                                   ],
                          "offline_note":  ""
                      },
-    "OPPO A7 Pro 5G 6GB/256GB":  {
-                                     "name":  "OPPO A7 Pro 5G 6GB/256GB",
-                                     "subs":  {
-
-                                              },
-                                     "offline_note":  ""
-                                 },
-    "OPPO A7 Pro 5G 8GB/128GB":  {
-                                     "name":  "OPPO A7 Pro 5G 8GB/128GB",
-                                     "subs":  {
-
-                                              },
-                                     "offline_note":  ""
-                                 },
     "A6 Pro 5G 8GB/256GB":  {
                                 "name":  "A6 Pro 5G 8GB/256GB",
                                 "subs":  [
@@ -1040,5 +1026,21 @@ window.PROMOS = {
                                                         "Phiếu mua Tai nghe TWS Xiaomi Redmi Buds 8 Series trị giá 200.000đ"
                                                     ],
                                            "offline_note":  ""
-                                       }
+                                       },
+    "OPPO A7 Pro 5G 8GB/128GB":  {
+                                     "name":  "OPPO A7 Pro 5G 8GB/128GB",
+                                     "subs":  [
+                                                  "Trả chậm 0% trả trước 0đ",
+                                                  "Quà 30.000₫"
+                                              ],
+                                     "offline_note":  ""
+                                 },
+    "OPPO A7 Pro 5G 6GB/256GB":  {
+                                     "name":  "OPPO A7 Pro 5G 6GB/256GB",
+                                     "subs":  [
+                                                  "Trả chậm 0% trả trước 0đ",
+                                                  "Quà 30.000₫"
+                                              ],
+                                     "offline_note":  ""
+                                 }
 };

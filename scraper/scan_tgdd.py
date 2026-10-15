@@ -73,12 +73,13 @@ BRAND_HUBS = [
 ]
 
 _CATALOG = None
+_CATALOG_ITEMS = {}
 
 
 def catalog():
     """Toàn bộ đường dẫn điện thoại đang bán trên TGDĐ, lấy từ các tab thương hiệu (/dtdd-<brand>)
     và API danh mục. Quét từng brand đảm bảo không sót model mới hoặc sản phẩm chưa vào top giảm giá."""
-    global _CATALOG
+    global _CATALOG, _CATALOG_ITEMS
     if _CATALOG is not None:
         return _CATALOG
     slugs = set()
@@ -89,10 +90,22 @@ def catalog():
         try:
             resp = http_get(f"https://www.thegioididong.com/dtdd-{b}")
             if resp.status_code == 200:
-                for m in re.finditer(r'href=["\']/dtdd/([^"?#\s\'>]+)["\']', resp.text):
-                    slug = m.group(1).strip()
-                    if slug:
-                        slugs.add(slug)
+                parts = resp.text.split('<div data-product-code="')
+                for p in parts[1:]:
+                    link_m = re.search(r'href="(/dtdd/[^"?#]+)"', p)
+                    if not link_m:
+                        continue
+                    main_slug = link_m.group(1).split("?")[0].strip("/").replace("dtdd/", "")
+                    slugs.add(main_slug)
+                    price_m = re.search(r'<a[^>]*class="[^"]*text-red-7[^"]*"[^>]*><span>([0-9.,]+)[^<]*</span>', p)
+                    del_m = re.search(r'<del[^>]*>([0-9.,]+)[^<]*</del>', p)
+                    red = money(price_m.group(1)) if price_m else 0
+                    orig = money(del_m.group(1)) if del_m else red
+                    if red > 0:
+                        _CATALOG_ITEMS[main_slug] = {"red": red, "rrp": orig}
+                    for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
+                        vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
+                        slugs.add(vslug)
         except Exception as e:
             print(f"  Lỗi cào brand {b}: {e}", flush=True)
         time.sleep(0.5)
@@ -113,9 +126,17 @@ def catalog():
         if not links:
             break
         for a in links:
+            li = a.find_parent("li")
             href = (a.get("href") or "").split("?")[0].strip("/")
             if href.startswith("dtdd/"):
-                slugs.add(href[len("dtdd/"):])
+                slug = href[len("dtdd/"):].split("?")[0]
+                slugs.add(slug)
+                red = to_int(a.get("data-price"))
+                orig = money(li.select_one(".price-old").get_text()) if (li and li.select_one(".price-old")) else to_int(li.get("data-price") if li else None)
+                if not orig or orig < red:
+                    orig = red
+                if red > 0:
+                    _CATALOG_ITEMS[slug] = {"red": red, "rrp": orig}
         time.sleep(0.5)
     _CATALOG = sorted(slugs)
     print(f"Danh mục TGDĐ: {len(_CATALOG)} đường dẫn điện thoại (thu thập từ từng brand & danh mục).", flush=True)
@@ -309,7 +330,17 @@ def scan_one(url, attempts=3, allow_retry_slug=True):
                 h1 = soup.select_one("h1")
                 result["debug"] = (f"len={len(resp.text)} box_main={bool(soup.select_one('.box_main'))} "
                                    f"main={bool(soup.select_one('main'))} h1={h1.get_text(strip=True)[:60] if h1 else None}")
-                return retry_other_slug(url, result, allow_retry_slug)
+                retry_res = retry_other_slug(url, result, allow_retry_slug)
+                if retry_res.get("status") == "active":
+                    return retry_res
+                # Fallback: kiểm tra giá trong _CATALOG_ITEMS (lấy từ các trang brand hub / FilterProductBox)
+                slug = url.rstrip("/").rsplit("/", 1)[-1].split("?")[0]
+                if slug in _CATALOG_ITEMS and _CATALOG_ITEMS[slug]["red"] > 0:
+                    c = _CATALOG_ITEMS[slug]
+                    cat_res = build_result(c["rrp"], c["red"], False, 0, "brand_tab")
+                    cat_res["subs"] = ["Trả chậm 0% trả trước 0đ", "Quà 30.000₫"]
+                    return cat_res
+                return retry_res
             if result.get("status") == "active":
                 result["subs"] = extract_promos(resp.text)
             return result

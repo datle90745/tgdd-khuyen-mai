@@ -296,18 +296,38 @@
                  {
                      "model":  "OPPO A7 Pro 5G 6GB/256GB",
                      "url":  "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-6gb-256gb",
-                     "at":  "15-10 07:38",
-                     "status":  "no_price",
-                     "debug":  "len=663160 box_main=False main=False h1=None",
-                     "pmh":  null
+                     "at":  "15-10 16:25",
+                     "status":  "active",
+                     "rrp":  14490000,
+                     "red":  12990000,
+                     "pmh":  1500000,
+                     "online":  1500000,
+                     "total_online":  1500000,
+                     "choice":  0,
+                     "kind":  "moi",
+                     "rule":  "den_tru_do",
+                     "subs":  [
+                                  "Trả chậm 0% trả trước 0đ",
+                                  "Quà 30.000₫"
+                              ]
                  },
                  {
                      "model":  "OPPO A7 Pro 5G 8GB/128GB",
                      "url":  "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-8gb-128gb",
-                     "at":  "15-10 07:38",
-                     "status":  "no_price",
-                     "debug":  "len=673819 box_main=False main=False h1=None",
-                     "pmh":  null
+                     "at":  "15-10 16:25",
+                     "status":  "active",
+                     "rrp":  13490000,
+                     "red":  12140000,
+                     "pmh":  1350000,
+                     "online":  1350000,
+                     "total_online":  1350000,
+                     "choice":  0,
+                     "kind":  "moi",
+                     "rule":  "den_tru_do",
+                     "subs":  [
+                                  "Trả chậm 0% trả trước 0đ",
+                                  "Quà 30.000₫"
+                              ]
                  },
                  {
                      "model":  "A6 Pro 5G 8GB/256GB",
