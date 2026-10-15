@@ -101,34 +101,85 @@ def row(retailer, brand, name, url, price, orig, kind="Khuyến mãi"):
             "p": price, "o": orig, "k": kind}
 
 
+TGDD_BRAND_HUBS = [
+    ("Apple", "apple-iphone"),
+    ("Samsung", "samsung"),
+    ("OPPO", "oppo"),
+    ("Xiaomi", "xiaomi"),
+    ("Vivo", "vivo"),
+    ("Realme", "realme"),
+    ("Honor", "honor"),
+]
+
+
 def scan_tgdd():
     rows, seen = [], set()
-    for page in range(30):
-        resp = request("POST", f"https://www.thegioididong.com/Category/FilterProductBox?c=42&o=13&pi={page}",
-                       headers={"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                                "X-Requested-With": "XMLHttpRequest",
-                                "Referer": "https://www.thegioididong.com/dtdd"},
-                       data="IsParentCate=False&IsShowCompare=True&prevent=true")
-        html = resp.json().get("listproducts") or ""
-        links = BeautifulSoup(html, "html.parser").select("li.item[data-id] a.main-contain")
-        if not links:
+
+    # 1. Cào trực tiếp từ các trang thương hiệu (brand tabs) trên TGDĐ
+    print("  TGDĐ: Đang quét theo từng thương hiệu (brand tabs)...", flush=True)
+    for b_name, hub in TGDD_BRAND_HUBS:
+        try:
+            resp = request("GET", f"https://www.thegioididong.com/dtdd-{hub}",
+                           headers={"Referer": "https://www.thegioididong.com/dtdd"})
+            html = resp.text
+            parts = html.split('<div data-product-code="')
+            for p in parts[1:]:
+                link_m = re.search(r'href="(/dtdd/[^"?#]+)"', p)
+                if not link_m:
+                    continue
+                href = link_m.group(1).split("?")[0]
+                if href in seen:
+                    continue
+                name_m = re.search(r'<img [^>]*alt="([^"]+)"', p) or re.search(r'<a[^>]*title="([^"]+)"', p)
+                name = re.sub(r"^Điện thoại\s+", "", name_m.group(1) if name_m else "").strip()
+                brand = brand_of(b_name, name)
+                if not brand or not name:
+                    continue
+                price_m = re.search(r'<a[^>]*class="[^"]*text-red-7[^"]*"[^>]*><span>([0-9.,]+)[^<]*</span>', p)
+                del_m = re.search(r'<del[^>]*>([0-9.,]+)[^<]*</del>', p)
+                price = money(price_m.group(1)) if price_m else 0
+                orig = money(del_m.group(1)) if del_m else 0
+                if price <= 0:
+                    continue
+                seen.add(href)
+                rows.append(row("TGDĐ", brand, name, "https://www.thegioididong.com" + href,
+                                price, orig, "Khuyến mãi"))
+            time.sleep(0.5)
+        except Exception as e:
+            print(f"    Lỗi cào brand TGDĐ {hub}: {e}", flush=True)
+
+    # 2. Cào thêm từ FilterProductBox để bổ sung các máy khác
+    print("  TGDĐ: Quét bổ sung từ danh mục FilterProductBox...", flush=True)
+    for page in range(25):
+        try:
+            resp = request("POST", f"https://www.thegioididong.com/Category/FilterProductBox?c=42&o=13&pi={page}",
+                           headers={"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                                    "X-Requested-With": "XMLHttpRequest",
+                                    "Referer": "https://www.thegioididong.com/dtdd"},
+                           data="IsParentCate=False&IsShowCompare=True&prevent=true")
+            html = resp.json().get("listproducts") or ""
+            links = BeautifulSoup(html, "html.parser").select("li.item[data-id] a.main-contain")
+            if not links:
+                break
+            for a in links:
+                li = a.find_parent("li")
+                href = (a.get("href") or "").split("?")[0]
+                name = re.sub(r"^Điện thoại\s+", "", a.get("data-name", ""))
+                brand = brand_of(a.get("data-brand"), name)
+                if not brand or href in seen:
+                    continue
+                seen.add(href)
+                price = num(a.get("data-price"))
+                old = li.select_one(".price-old") if li else None
+                if not price:
+                    continue
+                rows.append(row("TGDĐ", brand, name, "https://www.thegioididong.com" + href,
+                                price, money(old.get_text()) if old else 0,
+                                "Flash Sale Online" if "utm_flashsale=1" in (a.get("href") or "") else "Khuyến mãi"))
+            time.sleep(0.5)
+        except Exception:
             break
-        for a in links:
-            li = a.find_parent("li")
-            href = a.get("href", "")
-            name = re.sub(r"^Điện thoại\s+", "", a.get("data-name", ""))
-            brand = brand_of(a.get("data-brand"), name)
-            if not brand or href in seen:
-                continue
-            seen.add(href)
-            price = num(a.get("data-price"))
-            old = li.select_one(".price-old")
-            if not price:
-                continue
-            rows.append(row("TGDĐ", brand, name, "https://www.thegioididong.com" + href.split("?")[0],
-                            price, money(old.get_text()) if old else 0,
-                            "Flash Sale Online" if "utm_flashsale=1" in href else "Khuyến mãi"))
-        time.sleep(1)
+    print(f"  TGDĐ: Đã thu thập {len(rows)} sản phẩm.", flush=True)
     return rows
 
 

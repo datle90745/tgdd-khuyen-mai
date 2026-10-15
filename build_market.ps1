@@ -48,6 +48,59 @@ function Parse-Num($t) {
 Write-Host "1/4. Dang quet TGDD..."
 $tgddRows = New-Object System.Collections.ArrayList
 $tgddSeen = New-Object System.Collections.Generic.HashSet[string]
+
+# 1.1 Quét từng tab thương hiệu (brand tabs) để lấy trọn vẹn model mới và khuyến mãi
+$brandHubs = @('apple-iphone', 'samsung', 'oppo', 'xiaomi', 'vivo', 'realme', 'honor')
+$tgddHeaders = @{
+    "User-Agent" = $UA
+    "Accept" = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8"
+    "Referer" = "https://www.thegioididong.com/dtdd"
+    "Accept-Language" = "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7"
+}
+
+foreach ($b in $brandHubs) {
+    try {
+        $r = Invoke-WebRequest -Uri "https://www.thegioididong.com/dtdd-$b" -Headers $tgddHeaders -UseBasicParsing -TimeoutSec 15
+        $parts = $r.Content -split '<div data-product-code="'
+        for ($i = 1; $i -lt $parts.Count; $i++) {
+            $p = $parts[$i]
+            $linkMatch = [regex]::Match($p, 'href="(/dtdd/[^"?#]+)"')
+            if (!$linkMatch.Success) { continue }
+            $urlKey = $linkMatch.Groups[1].Value.Split("?")[0]
+            if ($tgddSeen.Contains($urlKey)) { continue }
+
+            $nameMatch = [regex]::Match($p, '<img [^>]*alt="([^"]+)"')
+            if (!$nameMatch.Success) {
+                $nameMatch = [regex]::Match($p, '<a[^>]*title="([^"]+)"')
+            }
+            $rawName = if ($nameMatch.Success) { $nameMatch.Groups[1].Value.Trim() } else { "" }
+            $name = [System.Net.WebUtility]::HtmlDecode($rawName)
+            $name = [regex]::Replace($name, '^\u0110i\u1EC7n tho\u1EA1i\s+', '', 'IgnoreCase').Trim()
+            $brand = Get-MarketBrand $b $name
+            if (!$brand -or !$name) { continue }
+
+            $priceMatch = [regex]::Match($p, '<a[^>]*class="[^"]*text-red-7[^"]*"[^>]*><span>([0-9.,]+)[^<]*</span>')
+            $delMatch = [regex]::Match($p, '<del[^>]*>([0-9.,]+)[^<]*</del>')
+            $price = Parse-Money $priceMatch.Groups[1].Value
+            $orig = Parse-Money $delMatch.Groups[1].Value
+            if ($price -le 0) { continue }
+            if ($orig -lt $price) { $orig = $price }
+
+            if ($tgddSeen.Add($urlKey)) {
+                [void]$tgddRows.Add([pscustomobject]@{
+                    r = $TGDD_NAME; b = $brand; n = $name; u = "https://www.thegioididong.com" + $urlKey
+                    p = $price; o = $orig; k = $KM_NAME
+                })
+            }
+        }
+        Start-Sleep -Milliseconds 200
+    } catch {
+        Write-Host "  TGDD brand $b dung lai: $_"
+    }
+}
+Write-Host "  TGDD sau khi quet brand tabs: $($tgddRows.Count) may"
+
+# 1.2 Quét bổ sung từ FilterProductBox
 for ($page = 0; $page -lt 25; $page++) {
     try {
         $resp = Invoke-RestMethod -Method Post -Uri "https://www.thegioididong.com/Category/FilterProductBox?c=42&o=13&pi=$page" `

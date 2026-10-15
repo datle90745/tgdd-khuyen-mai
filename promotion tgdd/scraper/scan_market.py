@@ -101,34 +101,85 @@ def row(retailer, brand, name, url, price, orig, kind="Khuyến mãi"):
             "p": price, "o": orig, "k": kind}
 
 
+TGDD_BRAND_HUBS = [
+    ("Apple", "apple-iphone"),
+    ("Samsung", "samsung"),
+    ("OPPO", "oppo"),
+    ("Xiaomi", "xiaomi"),
+    ("Vivo", "vivo"),
+    ("Realme", "realme"),
+    ("Honor", "honor"),
+]
+
+
 def scan_tgdd():
     rows, seen = [], set()
-    for page in range(30):
-        resp = request("POST", f"https://www.thegioididong.com/Category/FilterProductBox?c=42&o=13&pi={page}",
-                       headers={"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                                "X-Requested-With": "XMLHttpRequest",
-                                "Referer": "https://www.thegioididong.com/dtdd"},
-                       data="IsParentCate=False&IsShowCompare=True&prevent=true")
-        html = resp.json().get("listproducts") or ""
-        links = BeautifulSoup(html, "html.parser").select("li.item[data-id] a.main-contain")
-        if not links:
+
+    # 1. Cào trực tiếp từ các trang thương hiệu (brand tabs) trên TGDĐ
+    print("  TGDĐ: Đang quét theo từng thương hiệu (brand tabs)...", flush=True)
+    for b_name, hub in TGDD_BRAND_HUBS:
+        try:
+            resp = request("GET", f"https://www.thegioididong.com/dtdd-{hub}",
+                           headers={"Referer": "https://www.thegioididong.com/dtdd"})
+            html = resp.text
+            parts = html.split('<div data-product-code="')
+            for p in parts[1:]:
+                link_m = re.search(r'href="(/dtdd/[^"?#]+)"', p)
+                if not link_m:
+                    continue
+                href = link_m.group(1).split("?")[0]
+                if href in seen:
+                    continue
+                name_m = re.search(r'<img [^>]*alt="([^"]+)"', p) or re.search(r'<a[^>]*title="([^"]+)"', p)
+                name = re.sub(r"^Điện thoại\s+", "", name_m.group(1) if name_m else "").strip()
+                brand = brand_of(b_name, name)
+                if not brand or not name:
+                    continue
+                price_m = re.search(r'<a[^>]*class="[^"]*text-red-7[^"]*"[^>]*><span>([0-9.,]+)[^<]*</span>', p)
+                del_m = re.search(r'<del[^>]*>([0-9.,]+)[^<]*</del>', p)
+                price = money(price_m.group(1)) if price_m else 0
+                orig = money(del_m.group(1)) if del_m else 0
+                if price <= 0:
+                    continue
+                seen.add(href)
+                rows.append(row("TGDĐ", brand, name, "https://www.thegioididong.com" + href,
+                                price, orig, "Khuyến mãi"))
+            time.sleep(0.5)
+        except Exception as e:
+            print(f"    Lỗi cào brand TGDĐ {hub}: {e}", flush=True)
+
+    # 2. Cào thêm từ FilterProductBox để bổ sung các máy khác
+    print("  TGDĐ: Quét bổ sung từ danh mục FilterProductBox...", flush=True)
+    for page in range(25):
+        try:
+            resp = request("POST", f"https://www.thegioididong.com/Category/FilterProductBox?c=42&o=13&pi={page}",
+                           headers={"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                                    "X-Requested-With": "XMLHttpRequest",
+                                    "Referer": "https://www.thegioididong.com/dtdd"},
+                           data="IsParentCate=False&IsShowCompare=True&prevent=true")
+            html = resp.json().get("listproducts") or ""
+            links = BeautifulSoup(html, "html.parser").select("li.item[data-id] a.main-contain")
+            if not links:
+                break
+            for a in links:
+                li = a.find_parent("li")
+                href = (a.get("href") or "").split("?")[0]
+                name = re.sub(r"^Điện thoại\s+", "", a.get("data-name", ""))
+                brand = brand_of(a.get("data-brand"), name)
+                if not brand or href in seen:
+                    continue
+                seen.add(href)
+                price = num(a.get("data-price"))
+                old = li.select_one(".price-old") if li else None
+                if not price:
+                    continue
+                rows.append(row("TGDĐ", brand, name, "https://www.thegioididong.com" + href,
+                                price, money(old.get_text()) if old else 0,
+                                "Flash Sale Online" if "utm_flashsale=1" in (a.get("href") or "") else "Khuyến mãi"))
+            time.sleep(0.5)
+        except Exception:
             break
-        for a in links:
-            li = a.find_parent("li")
-            href = a.get("href", "")
-            name = re.sub(r"^Điện thoại\s+", "", a.get("data-name", ""))
-            brand = brand_of(a.get("data-brand"), name)
-            if not brand or href in seen:
-                continue
-            seen.add(href)
-            price = num(a.get("data-price"))
-            old = li.select_one(".price-old")
-            if not price:
-                continue
-            rows.append(row("TGDĐ", brand, name, "https://www.thegioididong.com" + href.split("?")[0],
-                            price, money(old.get_text()) if old else 0,
-                            "Flash Sale Online" if "utm_flashsale=1" in href else "Khuyến mãi"))
-        time.sleep(1)
+    print(f"  TGDĐ: Đã thu thập {len(rows)} sản phẩm.", flush=True)
     return rows
 
 
@@ -161,18 +212,27 @@ def scan_cellphones():
 FPT_BRAND_PAGES = ["apple-iphone", "samsung", "oppo", "xiaomi", "vivo", "realme"]
 
 
-# Bóc từng thẻ sản phẩm ngay trên giao diện: tên ở <h3>, giá gạch ở .line-through,
-# giá bán ở đoạn b1-semibold.
+# Bóc từng thẻ sản phẩm ngay trên giao diện: tên ở <h3> hoặc aria-label (chứa dung lượng),
+# giá gạch ở .line-through, giá bán ở đoạn b1-semibold.
 FPT_EXTRACT_JS = """() => {
   const money = s => +String(s || '').replace(/[^0-9]/g, '') || 0;
+  const capRe = /\\b(128gb|256gb|512gb|1tb|2tb|64gb|32gb)\\b/i;
   return [...document.querySelectorAll('a[href^="/dien-thoai/"]')]
     .filter(a => a.querySelector('h3'))
-    .map(a => ({
-      n: a.querySelector('h3').textContent.trim(),
-      u: a.getAttribute('href').split('?')[0],
-      o: money((a.querySelector('.line-through') || {}).textContent),
-      p: money((a.querySelector('p[class*="b1-semibold"]') || {}).textContent),
-    }));
+    .map(a => {
+      const h3 = a.querySelector('h3').textContent.trim();
+      const aria = a.getAttribute('aria-label') || '';
+      const title = a.getAttribute('title') || '';
+      let name = h3;
+      if (capRe.test(aria)) name = aria.trim();
+      else if (capRe.test(title)) name = title.trim();
+      return {
+        n: name,
+        u: a.getAttribute('href'),
+        o: money((a.querySelector('.line-through') || {}).textContent),
+        p: money((a.querySelector('p[class*="b1-semibold"]') || {}).textContent),
+      };
+    });
 }"""
 
 FPT_SHOW_ALL_JS = """async () => {
@@ -194,30 +254,49 @@ FPT_SHOW_ALL_JS = """async () => {
 def parse_fpt_nextjs(html):
     """Trích xuất dữ liệu sản phẩm từ khối Next.js nhúng sẵn trong HTML của FPT Shop."""
     clean_html = html.replace(r'\"', '"')
-    items = []
+    raw_items = []
     seen = set()
     for m in re.finditer(r'"currentPrice":(\d+)', clean_html):
         pos = m.start()
         start = max(0, pos - 2500)
         back = clean_html[start:pos]
-        slug_matches = list(re.finditer(r'"slug":"(dien-thoai/[a-z0-9-]+)(?:\?sku=\d+)?"', back))
+        slug_matches = list(re.finditer(r'"slug":"(dien-thoai/[^"]+)"', back))
         if not slug_matches:
             continue
-        last_slug = slug_matches[-1].group(1)
-        if last_slug in seen:
-            continue
-        seen.add(last_slug)
+        raw_slug = slug_matches[-1].group(1)
+        base_slug = raw_slug.split("?")[0]
+        sku_m = re.search(r'sku=(\d+)', raw_slug)
+        sku = sku_m.group(1) if sku_m else ""
         after = back[slug_matches[-1].start():]
         orig_m = re.findall(r'"originalPrice":(\d+)', after)
         orig = int(orig_m[-1]) if orig_m else 0
         before = back[:slug_matches[-1].start()]
         names = re.findall(r'"(?:displayName|name)":"([^"]{3,80})"', before)
-        name = names[-1] if names else last_slug.split("/")[-1]
-        items.append({
-            "n": name,
-            "u": f"https://fptshop.com.vn/{last_slug}",
+        name = names[-1] if names else base_slug.split("/")[-1]
+        norm_name = " ".join(name.split())
+        dedup_key = f"{base_slug}|{norm_name}"
+        if dedup_key in seen:
+            continue
+        seen.add(dedup_key)
+        url = f"https://fptshop.com.vn/{base_slug}?sku={sku}" if sku else f"https://fptshop.com.vn/{base_slug}"
+        raw_items.append({
+            "n": norm_name,
+            "u": url,
             "p": int(m.group(1)),
-            "o": orig
+            "o": orig,
+            "slug": base_slug,
+        })
+    cap_re = re.compile(r'\b(128gb|256gb|512gb|1tb|2tb|64gb|32gb)\b', re.IGNORECASE)
+    slugs_with_cap = {it["slug"] for it in raw_items if cap_re.search(it["n"])}
+    items = []
+    for it in raw_items:
+        if it["slug"] in slugs_with_cap and not cap_re.search(it["n"]):
+            continue
+        items.append({
+            "n": it["n"],
+            "u": it["u"],
+            "p": it["p"],
+            "o": it["o"],
         })
     return items
 
@@ -357,7 +436,7 @@ def fpt_rows_via_erp_api():
         local_file = ROOT / "data" / "fpt_portal_deals.json"
         if local_file.exists():
             try:
-                deals = json.loads(local_file.read_text(encoding="utf-8"))
+                deals = json.loads(local_file.read_text(encoding="utf-8-sig"))
                 return _parse_erp_portal_deals(deals)
             except Exception:
                 pass
@@ -491,16 +570,16 @@ def main():
     today, label, at = now.date().isoformat(), now.strftime("%d-%b"), now.strftime("%H:%M")
     old = {}
     if LAST_JSON.exists():
-        old = json.loads(LAST_JSON.read_text(encoding="utf-8")).get("prices", {})
+        old = json.loads(LAST_JSON.read_text(encoding="utf-8-sig")).get("prices", {})
     ups = []
     for r in rows:
-        key = r["r"] + "|" + r["u"]
+        key = r["r"] + "|" + r["u"] + "|" + r["n"]
         before = old.get(key)
         if before and r["o"] > before:
             ups.append({"r": r["r"], "b": r["b"], "n": r["n"], "old": before, "new": r["o"]})
     alerts.record("market", today, at, ups)
     LAST_JSON.write_text(json.dumps({"day": today, "at": at,
-                                     "prices": {r["r"] + "|" + r["u"]: r["o"] for r in rows}},
+                                     "prices": {r["r"] + "|" + r["u"] + "|" + r["n"]: r["o"] for r in rows}},
                                     ensure_ascii=False), encoding="utf-8")
     print(f"Giá gốc tăng (toàn thị trường): {len(ups)}"
           + ("; " + "; ".join(f"{u['r']} {u['n']} {u['old']:,}→{u['new']:,}" for u in ups[:10]) if ups else ""),
@@ -510,7 +589,7 @@ def main():
     # thứ Hai/thứ Sáu là dành cho cột KM base của 91 SKU, không áp vào đây.
     market = {"scans": []}
     if MARKET_JS.exists():
-        text = MARKET_JS.read_text(encoding="utf-8")
+        text = MARKET_JS.read_text(encoding="utf-8-sig")
         match = re.search(r"window\.MARKET\s*=\s*(\{.*\});", text, re.S)
         if match:
             market = json.loads(match.group(1))

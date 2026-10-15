@@ -52,7 +52,7 @@ HEADERS = {
 CF_PROXY_URL = os.environ.get("CF_PROXY_URL", "").rstrip("/")
 CF_PROXY_TOKEN = os.environ.get("CF_PROXY_TOKEN", "")
 
-BASE_RE = re.compile(r"Chọn 1 trong[^:]{0,30}:\s*Giảm giá\s*([\d.,]+)\s*[₫đ]", re.I)
+BASE_RE = re.compile(r"Chọn 1 trong[\s\S]{0,600}?Giảm giá\s*([\d.,]+)\s*[₫đd]", re.I)
 BANNER_RE = re.compile(r"Online Giá Rẻ Quá", re.I)
 SLOTS_RE = re.compile(r"Còn\s*\d+\s*/\s*\d+\s*suất", re.I)  # flash sale ở bố cục mới: "Còn 2/5 suất"
 # Dạng flash sale thứ hai ở bố cục mới: dải đỏ "Ưu đãi ONLINE — Kết thúc sau 09 : 07 : 58".
@@ -67,17 +67,38 @@ def http_get(url):
     return requests.get(url, headers=HEADERS, timeout=(10, 30))
 
 
+BRAND_HUBS = [
+    "apple-iphone", "samsung", "oppo", "xiaomi",
+    "vivo", "realme", "honor", "motorola", "nothing-phone"
+]
+
 _CATALOG = None
 
 
 def catalog():
-    """Toàn bộ đường dẫn điện thoại đang bán trên TGDĐ, lấy từ API danh mục (đọc được từ máy chủ,
-    khác với trang tìm kiếm vốn dựng bằng JS). Chỉ tải một lần cho cả đợt quét."""
+    """Toàn bộ đường dẫn điện thoại đang bán trên TGDĐ, lấy từ các tab thương hiệu (/dtdd-<brand>)
+    và API danh mục. Quét từng brand đảm bảo không sót model mới hoặc sản phẩm chưa vào top giảm giá."""
     global _CATALOG
     if _CATALOG is not None:
         return _CATALOG
     slugs = set()
-    for page in range(30):
+
+    # 1. Cào trực tiếp từ các tab thương hiệu trên TGDĐ
+    print("Đang quét danh mục theo từng thương hiệu (brand tabs)...", flush=True)
+    for b in BRAND_HUBS:
+        try:
+            resp = http_get(f"https://www.thegioididong.com/dtdd-{b}")
+            if resp.status_code == 200:
+                for m in re.finditer(r'href=["\']/dtdd/([^"?#\s\'>]+)["\']', resp.text):
+                    slug = m.group(1).strip()
+                    if slug:
+                        slugs.add(slug)
+        except Exception as e:
+            print(f"  Lỗi cào brand {b}: {e}", flush=True)
+        time.sleep(0.5)
+
+    # 2. Quét thêm từ FilterProductBox để bổ sung các máy khác
+    for page in range(25):
         try:
             resp = requests.post(
                 f"https://www.thegioididong.com/Category/FilterProductBox?c=42&o=13&pi={page}",
@@ -95,9 +116,9 @@ def catalog():
             href = (a.get("href") or "").split("?")[0].strip("/")
             if href.startswith("dtdd/"):
                 slugs.add(href[len("dtdd/"):])
-        time.sleep(1)
+        time.sleep(0.5)
     _CATALOG = sorted(slugs)
-    print(f"Danh mục TGDĐ: {len(_CATALOG)} đường dẫn điện thoại.", flush=True)
+    print(f"Danh mục TGDĐ: {len(_CATALOG)} đường dẫn điện thoại (thu thập từ từng brand & danh mục).", flush=True)
     return _CATALOG
 
 
@@ -121,6 +142,23 @@ def find_slug(old_slug):
         if best is None or len(slug) < len(best):
             best = slug
     return best
+
+
+def find_slug_by_model(model_name):
+    """Tìm slug TGDĐ dựa trên tên model (dành cho các model mới chưa có URL)."""
+    clean = re.sub(r"[^\w\s]", " ", model_name.lower())
+    tokens = set(t for t in clean.split() if t)
+    best, best_score = None, 0
+    for slug in catalog():
+        slug_tokens = set(s for s in slug.replace("-", " ").split() if s)
+        matched = tokens & slug_tokens
+        score = len(matched)
+        if tokens <= slug_tokens:
+            score += 10
+        if score > best_score:
+            best_score = score
+            best = slug
+    return best if best_score >= len(tokens) else None
 
 
 def to_int(value):
@@ -431,7 +469,27 @@ def main():
     args = parser.parse_args()
 
     with PRODUCTS.open(encoding="utf-8-sig", newline="") as f:
-        all_products = [p for p in csv.DictReader(f) if p["url"].strip()]
+        all_products = list(csv.DictReader(f))
+
+    # Tự động tìm URL cho model mới hoặc chưa có link từ danh mục thương hiệu
+    updated_urls = False
+    for p in all_products:
+        if not p.get("url") or not p["url"].strip():
+            slug = find_slug_by_model(p["model"])
+            if slug:
+                p["url"] = f"https://www.thegioididong.com/dtdd/{slug}"
+                print(f"  Tự động gán link cho {p['model']} -> {p['url']}", flush=True)
+                updated_urls = True
+            else:
+                print(f"  Chưa tìm thấy link TGDĐ cho {p['model']}", flush=True)
+
+    if updated_urls:
+        with PRODUCTS.open("w", encoding="utf-8", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=["model", "url"])
+            writer.writeheader()
+            writer.writerows(all_products)
+
+    all_products = [p for p in all_products if p.get("url") and p["url"].strip()]
     write_links_js(all_products)
     products = pick_products(all_products, args.only)
     partial = len(products) != len(all_products)
