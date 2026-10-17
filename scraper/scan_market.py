@@ -576,6 +576,9 @@ def main():
         old = json.loads(LAST_JSON.read_text(encoding="utf-8-sig")).get("prices", {})
     ups = []
     for r in rows:
+        # Người dùng yêu cầu: Không check tăng giá từ web của FPT Shop nữa
+        if r.get("r") == "FPT Shop":
+            continue
         key = r["r"] + "|" + r["u"] + "|" + r["n"]
         before = old.get(key)
         # Chống báo tăng giá ảo: Chỉ nhận khi giá cũ lớn hơn giá bán khuyến mãi (tránh đợt trước lỗi thiếu giá gạch)

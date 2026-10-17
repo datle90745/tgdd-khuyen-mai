@@ -18,12 +18,12 @@ KEEP_WEEKDAYS = {0, 4}  # thứ Hai, thứ Sáu — ngày được lưu thành c
 def load():
     if not ALERTS_JS.exists():
         return []
-    match = re.search(r"window\.ALERTS\s*=\s*(\[.*\]);", ALERTS_JS.read_text(encoding="utf-8"), re.S)
+    match = re.search(r"window\.ALERTS\s*=\s*(\[.*\]);", ALERTS_JS.read_text(encoding="utf-8-sig"), re.S)
     return json.loads(match.group(1)) if match else []
 
 
 def _base_text():
-    return BASE_JS.read_text(encoding="utf-8") if BASE_JS.exists() else ""
+    return BASE_JS.read_text(encoding="utf-8-sig") if BASE_JS.exists() else ""
 
 
 def brand_of(model):
@@ -40,7 +40,7 @@ def _rise_key(brand, model, old, new, channel=""):
 def load_rises():
     if not RISES_JS.exists():
         return []
-    match = re.search(r"window\.RISE_AUTO\s*=\s*(\[.*\]);", RISES_JS.read_text(encoding="utf-8"), re.S)
+    match = re.search(r"window\.RISE_AUTO\s*=\s*(\[.*\]);", RISES_JS.read_text(encoding="utf-8-sig"), re.S)
     return json.loads(match.group(1)) if match else []
 
 
@@ -55,7 +55,8 @@ def _norm_tokens(name):
 
 
 def filter_unregistered_rises(items):
-    """Lọc bỏ các máy đã có sẵn trong bảng giá gốc nhập tay data.js hoặc giá mới <= giá cũ."""
+    """Lọc bỏ các máy đã có sẵn trong bảng giá gốc nhập tay data.js, giá mới <= giá cũ,
+    hoặc máy từ FPT Shop (theo yêu cầu người dùng không check tăng giá từ web FPT)."""
     if not items:
         return []
     base = _base_text()
@@ -64,6 +65,9 @@ def filter_unregistered_rises(items):
         base_entries.append((row[0].upper(), _norm_tokens(row[1]), int(row[2]), int(row[3])))
     clean = []
     for it in items:
+        # Bỏ qua hoàn toàn kênh FPT Shop theo chỉ đạo của người dùng
+        if (it.get("r") or "") == "FPT Shop":
+            continue
         model, old, new = it.get("n"), it.get("old"), it.get("new")
         if not model or not old or not new or new <= old:
             continue
@@ -81,21 +85,28 @@ def record_rises(day, items):
     """Thêm các lần tăng giá vừa dò được vào Lịch sử tăng giá.
 
     Mỗi dòng: [tháng, hãng, model, giá cũ, giá mới, ngày, % đổi, kênh phát hiện].
-    Bỏ qua dòng đã có sẵn trong dữ liệu gốc hoặc đã ghi ở lần quét trước, để không nhân đôi.
+    Bỏ qua FPT Shop và bỏ qua dòng đã có sẵn trong dữ liệu gốc hoặc đã ghi ở lần quét trước.
     """
     clean_items = filter_unregistered_rises(items)
-    if not clean_items:
-        return load_rises()
     base = _base_text()
-    rises = load_rises()
+    # Loại bỏ triệt để bất kỳ dòng FPT Shop nào còn sót trong RISE_AUTO
+    rises = [r for r in load_rises() if len(r) <= 7 or r[7] != "FPT Shop"]
+    if not clean_items:
+        RISES_JS.parent.mkdir(parents=True, exist_ok=True)
+        RISES_JS.write_text(
+            "/* Tự sinh bởi bộ quét, đừng sửa tay. Các lần tăng giá đen do quét phát hiện. */\n"
+            "window.RISE_AUTO = " + json.dumps(rises, ensure_ascii=False) + ";\n", encoding="utf-8")
+        return rises
     seen = {_rise_key(r[1], r[2], r[3], r[4], r[7] if len(r) > 7 else "") for r in rises}
     # Dòng nhập tay trong data.js không ghi kênh; coi như đã có để khỏi ghi lại lần nữa.
     for row in re.findall(r'\["T\d+","([^"]+)","([^"]+)",(\d+),(\d+),', base):
-        for ch in ("", "TGDĐ", "CellphoneS", "FPT Shop", "Viettel Store"):
+        for ch in ("", "TGDĐ", "CellphoneS", "Viettel Store"):
             seen.add(_rise_key(row[0], row[1], int(row[2]), int(row[3]), ch))
     month = f"T{int(day[5:7])}"
     added = 0
     for it in clean_items:
+        if (it.get("r") or "") == "FPT Shop":
+            continue
         model, old, new = it.get("n"), it.get("old"), it.get("new")
         brand = (it.get("b") or brand_of(model) or "").upper()
         key = _rise_key(brand, model, old, new, it.get("r") or "")

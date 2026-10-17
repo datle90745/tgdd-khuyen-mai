@@ -370,6 +370,10 @@ if (Test-Path $LAST_JSON) {
 $ups = New-Object System.Collections.ArrayList
 $newPrices = [ordered]@{}
 foreach ($r in $allRows) {
+    # Người dùng yêu cầu: Không check tăng giá từ web của FPT Shop nữa
+    if ($r.r -eq "FPT Shop") {
+        continue
+    }
     $key = "$($r.r)|$($r.u)|$($r.n)"
     $newPrices[$key] = [int64]$r.o
     if ($oldPrices.ContainsKey($key)) {

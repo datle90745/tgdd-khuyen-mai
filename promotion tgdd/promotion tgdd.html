@@ -88,7 +88,7 @@ window.LINKS = {"iPhone 17 Pro Max 512GB": "https://www.thegioididong.com/dtdd/i
 <script>
 /* Embedded data/rises.js */
 /* Tự sinh bởi bộ quét, đừng sửa tay. Các lần tăng giá đen do quét phát hiện. */
-window.RISE_AUTO = [["T10", "SAMSUNG", "Samsung Galaxy S25 Ultra 5G 12GB 256GB", 23990000, 33380000, "2026-10-17", 39.1, "FPT Shop"], ["T10", "SAMSUNG", "Samsung Galaxy A08 4GB 64GB", 4190000, 4790000, "2026-10-17", 14.3, "FPT Shop"], ["T10", "SAMSUNG", "Samsung Galaxy S25 FE 5G 8GB 128GB", 12490000, 16690000, "2026-10-17", 33.6, "FPT Shop"], ["T10", "OPPO", "OPPO A6T 4GB 64GB", 4690000, 4990000, "2026-10-17", 6.4, "FPT Shop"]];
+window.RISE_AUTO = [];
 
 </script>
 <script>
@@ -965,10 +965,11 @@ function initExports(){
 }
 
 /* ---- Lịch sử tăng giá ---- */
-// Bảng nhập tay + các lần tăng giá do bộ quét tự dò ra, bỏ dòng trùng.
+// Bảng nhập tay + các lần tăng giá do bộ quét tự dò ra, bỏ dòng trùng và bỏ hẳn kênh FPT Shop.
 const RISE_RAW = (()=>{
-  const base = window.RISE_RAW || [];
-  const auto = Array.isArray(window.RISE_AUTO) ? window.RISE_AUTO : [];
+  const base = (window.RISE_RAW || []).filter(r => (r[7]||"") !== "FPT Shop");
+  // Người dùng yêu cầu: Không check tăng giá từ web của FPT Shop
+  const auto = (Array.isArray(window.RISE_AUTO) ? window.RISE_AUTO : []).filter(r => (r[7]||"") !== "FPT Shop");
   // Kênh nằm trong khoá: cùng một máy tăng ở nhiều kênh là nhiều dòng, không phải trùng.
   const key = r => `${String(r[1]).toUpperCase()}|${r[2]}|${r[3]}|${r[4]}|${r[7]||""}`;
   const seen = new Set(base.map(key));
@@ -1018,14 +1019,14 @@ function riseAlertBox(){
     return `${brand}|${mdl}|${o}|${n}`;
   };
   const baseNorm = new Set(base.map(r => normKey(r[1], r[2], r[3], r[4])));
-  items = items.filter(x => !baseNorm.has(normKey(x.b, x.n, x.old, x.new)));
+  items = items.filter(x => (x.r||"") !== "FPT Shop" && !baseNorm.has(normKey(x.b, x.n, x.old, x.new)));
   if(!items.length) return "";
   const li = items.slice(0,20).map(x=>`<li>${esc(x.b||"")} ${esc(x.n)}: ${fmt(x.old)} → <b>${fmt(x.new)}</b> (+${(((x.new-x.old)/x.old)*100).toFixed(1)}%)${x.r?` — <b>${esc(x.r)}</b>`:""}</li>`).join("");
   return `<div class="rwarn"><b>Đợt quét ${esc(rd(last))} phát hiện ${items.length} máy tăng giá đen.</b><ul>${li}`
        + (items.length>20?`<li>… và ${items.length-20} máy nữa.</li>`:"") + `</ul></div>`;
 }
 // Phần tử thứ 8 là kênh phát hiện tăng giá; các dòng nhập tay cũ không có nên để trống.
-const RISE = RISE_RAW.map((r,i)=>{ const [mo,b,m,o,n,d,p,ch]=r; return {i,mo,b,m,o,n,v:n-o,p,seg:rseg(n),d,ch:ch||"",k:rkey(b,m)}; });
+const RISE = RISE_RAW.filter(r => (r[7]||"") !== "FPT Shop").map((r,i)=>{ const [mo,b,m,o,n,d,p,ch]=r; return {i,mo,b,m,o,n,v:n-o,p,seg:rseg(n),d,ch:ch||"",k:rkey(b,m)}; });
 const mnum = m => +m.slice(1);
 const RB_CELL = b => `<td class="bcell" data-b="${RBD[b]||b}">${b}</td>`;
 const rpct = p => (p>0?"+":"")+p.toFixed(1)+"%";
