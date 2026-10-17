@@ -374,7 +374,10 @@ foreach ($r in $allRows) {
     $newPrices[$key] = [int64]$r.o
     if ($oldPrices.ContainsKey($key)) {
         $before = [int64]$oldPrices[$key]
-        if ($r.o -gt $before) {
+        # CHỐNG BÁO TĂNG GIÁ ẢO: Chỉ ghi nhận tăng giá nếu giá cũ lớn hơn giá bán khuyến mãi ($r.p).
+        # Nếu trước đó $before <= $r.p, tức là đợt quét cũ bị thiếu giá gạch nên fallback sang giá bán,
+        # không phải hãng tăng giá đen thật!
+        if ($r.o -gt $before -and $before -gt $r.p) {
             if (-not (Test-IsKnownRise $r.b $r.n $before [int64]$r.o)) {
                 [void]$ups.Add([pscustomobject]@{
                     r = $r.r; b = $r.b; n = $r.n; old = $before; new = [int64]$r.o

@@ -288,17 +288,20 @@ def parse_fpt_nextjs(html):
         })
     cap_re = re.compile(r'\b(128gb|256gb|512gb|1tb|2tb|64gb|32gb)\b', re.IGNORECASE)
     slugs_with_cap = {it["slug"] for it in raw_items if cap_re.search(it["n"])}
-    items = []
+    by_model = {}
     for it in raw_items:
         if it["slug"] in slugs_with_cap and not cap_re.search(it["n"]):
             continue
-        items.append({
-            "n": it["n"],
-            "u": it["u"],
-            "p": it["p"],
-            "o": it["o"],
-        })
-    return items
+        norm_key = it["n"].lower()
+        canonical_url = it["u"].split("?")[0]
+        canonical_url = re.sub(r"-5g-256gb$", "", canonical_url)
+        cur = by_model.get(norm_key)
+        if cur is None:
+            by_model[norm_key] = {"n": it["n"], "u": canonical_url, "p": it["p"], "o": it["o"]}
+        else:
+            if it["o"] > cur["o"] or (it["o"] == cur["o"] and len(canonical_url) < len(cur["u"])):
+                by_model[norm_key] = {"n": it["n"], "u": canonical_url, "p": it["p"], "o": it["o"]}
+    return list(by_model.values())
 
 
 def fpt_rows_via_http():
@@ -575,7 +578,8 @@ def main():
     for r in rows:
         key = r["r"] + "|" + r["u"] + "|" + r["n"]
         before = old.get(key)
-        if before and r["o"] > before:
+        # Chống báo tăng giá ảo: Chỉ nhận khi giá cũ lớn hơn giá bán khuyến mãi (tránh đợt trước lỗi thiếu giá gạch)
+        if before and r["o"] > before and before > r["p"]:
             ups.append({"r": r["r"], "b": r["b"], "n": r["n"], "old": before, "new": r["o"]})
     alerts.record("market", today, at, ups)
     LAST_JSON.write_text(json.dumps({"day": today, "at": at,
