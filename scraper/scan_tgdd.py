@@ -56,7 +56,7 @@ BASE_RE = re.compile(r"Chọn 1 trong[\s\S]{0,600}?Giảm giá\s*([\d.,]+)\s*[�
 BANNER_RE = re.compile(r"Online Giá Rẻ Quá", re.I)
 SLOTS_RE = re.compile(r"Còn\s*\d+\s*/\s*\d+\s*suất", re.I)  # flash sale ở bố cục mới: "Còn 2/5 suất"
 # Dạng flash sale thứ hai ở bố cục mới: dải đỏ "Ưu đãi ONLINE — Kết thúc sau 09 : 07 : 58".
-ONLINE_DEAL_RE = re.compile(r"Ưu đãi ONLINE|Kết thúc sau\s*\d", re.I)
+ONLINE_DEAL_RE = re.compile(r"Ưu đãi ONLINE[\s\S]{0,100}?Kết thúc sau\s*\d|Kết thúc sau\s*\d", re.I)
 DISCONTINUED_RE = re.compile(r"ngừng kinh doanh|ngưng kinh doanh", re.I)
 
 

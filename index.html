@@ -1104,10 +1104,9 @@ function buildH2HData(){
   return S.rows.map(r => {
     const k = (r.brand||"").toLowerCase() + "|" + mkKey(r.model);
     const tgddItem = mkMap.get("TGDĐ|" + k);
-    const p_tgdd = (r.tot && onPrice(r) != null) ? onPrice(r)
-                 : (tgddItem && tgddItem.p ? tgddItem.p
+    const p_tgdd = (tgddItem && tgddItem.p) ? tgddItem.p
                  : (typeof r.red === "number" ? r.red
-                 : ((offPrice(r) != null) ? offPrice(r) : onPrice(r))));
+                 : ((onPrice(r) != null) ? onPrice(r) : offPrice(r)));
     const u_tgdd = LINKS[r.model] || (tgddItem ? tgddItem.u : null);
 
     const cpsMatch = mkMap.get("CellphoneS|" + k);
