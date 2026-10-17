@@ -106,6 +106,8 @@ def catalog():
                     for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
                         vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
                         slugs.add(vslug)
+                        if red > 0 and vslug not in _CATALOG_ITEMS:
+                            _CATALOG_ITEMS[vslug] = {"red": red, "rrp": orig}
         except Exception as e:
             print(f"  Lỗi cào brand {b}: {e}", flush=True)
         time.sleep(0.5)
@@ -214,10 +216,12 @@ def build_result(rrp, red, banner, choice, kind, choice_in_red=True):
 def parse_next_layout(soup):
     """Bố cục mới của TGDĐ (không có .box_main): giá đỏ ở span.text-24.text-red-5,
     giá đen ở thẻ <del> cạnh đó. Flash sale có dòng "Còn x/y suất" cạnh giá."""
-    page = soup.select_one("main")
+    page = soup.select_one("main") or soup.select_one("#__next") or soup.select_one("#app") or soup.body
     if page is None:
         return None
-    reds = page.select("span.text-24.font-700.text-red-5")
+    reds = page.select("span.text-24.font-700.text-red-5") or page.select("span.text-24.text-red-5") or page.select(".box-price .price")
+    if not reds:
+        reds = [s for s in page.select("span[class*='text-red']") if re.search(r'\d+[.,]\d{3}', s.get_text())]
     if not reds:
         return None
     red_node = next((r for r in reds if r.parent and r.parent.select_one("del")), reds[0])
@@ -340,6 +344,16 @@ def scan_one(url, attempts=3, allow_retry_slug=True):
                     cat_res = build_result(c["rrp"], c["red"], False, 0, "brand_tab")
                     cat_res["subs"] = ["Trả chậm 0% trả trước 0đ", "Quà 30.000₫"]
                     return cat_res
+                # Nếu trang tạm thời lỗi hoặc chặn, không ghi đè số active đã có bằng no_price
+                today_path = SCAN_DIR / f"scan_{datetime.now(ZoneInfo('Asia/Ho_Chi_Minh')).date().isoformat()}.json"
+                if today_path.exists():
+                    try:
+                        ex_scan = json.loads(today_path.read_text(encoding="utf-8-sig"))
+                        for er in ex_scan.get("rows", []):
+                            if er.get("url") == url and er.get("status") == "active":
+                                return er
+                    except Exception:
+                        pass
                 return retry_res
             if result.get("status") == "active":
                 result["subs"] = extract_promos(resp.text)

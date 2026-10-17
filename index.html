@@ -7,15 +7,15 @@
 <title>GTMVN — Theo dõi khuyến mãi</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="data/data.js?v=sync_20261013_1756"></script>
-<script src="data/scans.js?v=sync_20261013_1756"></script>
-<script src="data/latest.js?v=sync_20261013_1756"></script>
-<script src="data/links.js?v=sync_20261013_1756"></script>
-<script src="data/rises.js?v=sync_20261013_1756"></script>
-<script src="data/fpt.js?v=sync_20261013_1756"></script>
-<script src="data/alerts.js?v=sync_20261013_1756"></script>
-<script src="data/market.js?v=sync_20261013_1756"></script>
-<script src="data/promos.js?v=sync_20261013_1756"></script>
+<script src="data/data.js?v=sync_20261017_1636"></script>
+<script src="data/scans.js?v=sync_20261017_1636"></script>
+<script src="data/latest.js?v=sync_20261017_1636"></script>
+<script src="data/links.js?v=sync_20261017_1636"></script>
+<script src="data/rises.js?v=sync_20261017_1636"></script>
+<script src="data/fpt.js?v=sync_20261017_1636"></script>
+<script src="data/alerts.js?v=sync_20261017_1636"></script>
+<script src="data/market.js?v=sync_20261017_1636"></script>
+<script src="data/promos.js?v=sync_20261017_1636"></script>
 <style>
 :root{
   --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
@@ -569,6 +569,29 @@ function matchSmart(q, text){
 let imports = [];
 try{ imports = JSON.parse(localStorage.getItem("tp_imports")||"[]"); }catch(e){ imports = []; }
 let S = {dates:[], rows:[]};
+
+function inferBrand(str){
+  if(!str) return "";
+  const s = String(str).trim();
+  if(/\b(oppo)\b/i.test(s) || /^Reno|^Find|^A\d[xct]/i.test(s)) return "oppo";
+  if(/\b(samsung|galaxy)\b/i.test(s) || /^S\d{2}|^A\d{2}|^A0\d|^Z\s*(Flip|Fold)/i.test(s)) return "samsung";
+  if(/\b(xiaomi|redmi)\b/i.test(s) || /^\d{1,2}T/i.test(s)) return "xiaomi";
+  if(/\b(vivo)\b/i.test(s) || /^[YV]\d{2}|^X\d{3}/i.test(s)) return "vivo";
+  if(/\b(realme)\b/i.test(s) || /^C\d{2,3}/i.test(s)) return "realme";
+  if(/\b(iphone|apple)\b/i.test(s)) return "apple";
+  return "";
+}
+
+function canonKey(str, brand){
+  if(!str) return "";
+  const b = (brand ? String(brand).toLowerCase().trim() : inferBrand(str));
+  let s = String(str).toLowerCase().trim();
+  s = s.replace(/\b(apple|iphone|oppo|samsung|galaxy|xiaomi|redmi|vivo|realme)\b/g, " ");
+  s = s.replace(/(\d+)\s*(?:gb|\+|\/)\s*(\d+)\s*(?:gb|g)?/g, "$1gb$2gb");
+  s = s.replace(/[^a-z0-9]/g, "");
+  return (b ? b + "_" : "") + s;
+}
+
 function build(){
   const rows = BASE.rows.map(r=>({...r, pmh:[...r.pmh], flags:[]}));
   const dates = [...BASE.dates];
@@ -583,9 +606,17 @@ function build(){
     // Đợt quét trùng ngày với cột đã có thì ghi đè cột đó, không thêm cột mới.
     let col = dates.indexOf(im.date);
     if(col<0){ dates.push(im.date); col = dates.length-1; }
-    const m = new Map(im.rows.map(x=>[x.model,x]));
+    const m = new Map();
+    const canonM = new Map();
+    im.rows.forEach(x=>{
+      m.set(x.model, x);
+      const b = x.brand || inferBrand(x.model);
+      const ck = canonKey(x.model, b);
+      if(!canonM.has(ck)) canonM.set(ck, x);
+    });
     rows.forEach(r=>{
-      const x = m.get(r.model);
+      const ck = canonKey(r.model, r.brand);
+      const x = m.get(r.model) || (ck ? canonM.get(ck) : null) || m.get(r.brand + " " + r.model);
       if(!x){ if(r.pmh.length<=col) r.pmh.push(null); return; }
       if(typeof x.rrp==="number" && x.rrp!==r.rrp){
         r.flags.push(`Giá đen đổi ${fmt(r.rrp)} → ${fmt(x.rrp)} (${im.date})`); r.rrp = x.rrp;
