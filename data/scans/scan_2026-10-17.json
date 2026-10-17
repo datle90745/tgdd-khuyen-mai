@@ -1,11 +1,11 @@
 {
  "date": "17-Oct",
- "scanned_at": "2026-10-17T07:37:51+07:00",
+ "scanned_at": "2026-10-17T12:25:43+07:00",
  "rows": [
   {
    "model": "iPhone 17 Pro Max 512GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17-pro-max-512gb",
-   "at": "17-10 07:38",
+   "at": "17-10 12:25",
    "status": "active",
    "rrp": 44490000,
    "red": 40990000,
@@ -21,9 +21,27 @@
    ]
   },
   {
+   "model": "iPhone 18 Pro Max 256GB",
+   "url": "https://www.thegioididong.com/dtdd/iphone-18-pro-max",
+   "at": "17-10 12:25",
+   "status": "active",
+   "rrp": 41990000,
+   "red": 41990000,
+   "pmh": 0,
+   "online": 0,
+   "total_online": 0,
+   "choice": 0,
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": [
+    "Phiếu mua hàng sim data trị giá 500,000đ",
+    "Phiếu mua hàng 150,000đ mua ốp lưng, miếng dán từ 500,000đ"
+   ]
+  },
+  {
    "model": "iPhone 17 Pro Max 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17-pro-max",
-   "at": "17-10 07:38",
+   "at": "17-10 12:25",
    "status": "active",
    "rrp": 37990000,
    "red": 34490000,
@@ -41,7 +59,7 @@
   {
    "model": "iPhone 17 Pro 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17-pro",
-   "at": "17-10 07:38",
+   "at": "17-10 12:26",
    "status": "active",
    "rrp": 34990000,
    "red": 31990000,
@@ -59,7 +77,7 @@
   {
    "model": "iPhone Air 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-air",
-   "at": "17-10 07:38",
+   "at": "17-10 12:26",
    "status": "active",
    "rrp": 34990000,
    "red": 22990000,
@@ -77,7 +95,7 @@
   {
    "model": "iPhone 17 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17",
-   "at": "17-10 07:38",
+   "at": "17-10 12:26",
    "status": "active",
    "rrp": 28990000,
    "red": 26490000,
@@ -95,7 +113,7 @@
   {
    "model": "iPhone 16 128GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-16",
-   "at": "17-10 07:38",
+   "at": "17-10 12:26",
    "status": "active",
    "rrp": 24990000,
    "red": 24990000,
@@ -112,7 +130,7 @@
   {
    "model": "iPhone 15 128GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-15",
-   "at": "17-10 07:38",
+   "at": "17-10 12:26",
    "status": "active",
    "rrp": 21990000,
    "red": 21990000,
@@ -129,7 +147,7 @@
   {
    "model": "Find X9 Ultra 12GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-find-x9-ultra",
-   "at": "17-10 07:38",
+   "at": "17-10 12:26",
    "status": "active",
    "rrp": 49990000,
    "red": 45990000,
@@ -150,7 +168,7 @@
   {
    "model": "Find X9s 12GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-find-x9s-12gb-512gb",
-   "at": "17-10 07:38",
+   "at": "17-10 12:26",
    "status": "active",
    "rrp": 26990000,
    "red": 26990000,
@@ -163,30 +181,9 @@
    "subs": []
   },
   {
-   "model": "Find X9s 12GB/256GB",
-   "url": "https://www.thegioididong.com/dtdd/oppo-find-x9s",
-   "at": "17-10 07:38",
-   "status": "active",
-   "rrp": 24990000,
-   "red": 24990000,
-   "pmh": 0,
-   "online": 0,
-   "total_online": 0,
-   "choice": 0,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
-    "Gói dịch vụ bảo hành cao cấp OPPO Premium Service",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng mua Tai nghe TWS Oppo Air 5 series/Clip2 trị giá 400,000đ",
-    "Phiếu mua Tai nghe TWS Oppo trị giá 200,000đ"
-   ]
-  },
-  {
    "model": "Reno16 Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-reno16-pro",
-   "at": "17-10 07:38",
+   "at": "17-10 12:26",
    "status": "active",
    "rrp": 25990000,
    "red": 23190000,
@@ -206,9 +203,30 @@
    ]
   },
   {
+   "model": "Find X9s 12GB/256GB",
+   "url": "https://www.thegioididong.com/dtdd/oppo-find-x9s",
+   "at": "17-10 12:26",
+   "status": "active",
+   "rrp": 24990000,
+   "red": 24990000,
+   "pmh": 0,
+   "online": 0,
+   "total_online": 0,
+   "choice": 0,
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": [
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
+    "Gói dịch vụ bảo hành cao cấp OPPO Premium Service",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng mua Tai nghe TWS Oppo Air 5 series/Clip2 trị giá 400,000đ",
+    "Phiếu mua Tai nghe TWS Oppo trị giá 200,000đ"
+   ]
+  },
+  {
    "model": "Reno16 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-reno16-5g-8gb-256gb",
-   "at": "17-10 07:39",
+   "at": "17-10 12:26",
    "status": "active",
    "rrp": 18990000,
    "red": 18790000,
@@ -227,32 +245,9 @@
    ]
   },
   {
-   "model": "Reno16F 5G 8GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/oppo-reno16f-5g-8gb-128gb",
-   "at": "17-10 07:39",
-   "status": "active",
-   "rrp": 14990000,
-   "red": 13290000,
-   "pmh": 1700000,
-   "online": 1700000,
-   "total_online": 3200000,
-   "choice": 1500000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Giảm giá 1.500.000₫",
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 1,900,000đ",
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
-    "Tặng thêm 12 tháng bảo hành chính hãng",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng mua Tai nghe TWS Oppo Air 5 series/Clip2 trị giá 400,000đ",
-    "Phiếu mua Tai nghe TWS Oppo trị giá 200,000đ"
-   ]
-  },
-  {
    "model": "Reno16F 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-reno16-f",
-   "at": "17-10 07:39",
+   "at": "17-10 12:26",
    "status": "active",
    "rrp": 15990000,
    "red": 15190000,
@@ -273,9 +268,58 @@
    ]
   },
   {
+   "model": "Reno16F 5G 8GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/oppo-reno16f-5g-8gb-128gb",
+   "at": "17-10 12:26",
+   "status": "active",
+   "rrp": 14990000,
+   "red": 13290000,
+   "pmh": 1700000,
+   "online": 1700000,
+   "total_online": 3200000,
+   "choice": 1500000,
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": [
+    "Giảm giá 1.500.000₫",
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 1,900,000đ",
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
+    "Tặng thêm 12 tháng bảo hành chính hãng",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng mua Tai nghe TWS Oppo Air 5 series/Clip2 trị giá 400,000đ",
+    "Phiếu mua Tai nghe TWS Oppo trị giá 200,000đ"
+   ]
+  },
+  {
+   "model": "A7 Pro 5G 6GB/256GB",
+   "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-6gb-256gb",
+   "at": "17-10 12:27",
+   "status": "no_price",
+   "debug": "len=689291 box_main=False main=False h1=None",
+   "pmh": null
+  },
+  {
+   "model": "A7 Pro 5G 8GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-8gb-128gb",
+   "at": "17-10 12:27",
+   "status": "active",
+   "rrp": 13490000,
+   "red": 11940000,
+   "pmh": 1550000,
+   "online": 1550000,
+   "total_online": 1550000,
+   "choice": 0,
+   "kind": "brand_tab",
+   "rule": "den_tru_do",
+   "subs": [
+    "Trả chậm 0% trả trước 0đ",
+    "Quà 30.000₫"
+   ]
+  },
+  {
    "model": "A6 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-8gb-256gb",
-   "at": "17-10 07:39",
+   "at": "17-10 12:27",
    "status": "active",
    "rrp": 11990000,
    "red": 11490000,
@@ -294,35 +338,29 @@
    ]
   },
   {
-   "model": "OPPO A7 Pro 5G 6GB/256GB",
-   "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-6gb-256gb",
-   "at": "17-10 07:39",
-   "status": "no_price",
-   "debug": "len=689291 box_main=False main=False h1=None",
-   "pmh": null
-  },
-  {
-   "model": "OPPO A7 Pro 5G 8GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-8gb-128gb",
-   "at": "17-10 07:39",
+   "model": "A6 8GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/oppo-a6-8gb-128gb",
+   "at": "17-10 12:27",
    "status": "active",
-   "rrp": 13490000,
-   "red": 11940000,
-   "pmh": 1550000,
-   "online": 1550000,
-   "total_online": 1550000,
+   "rrp": 10990000,
+   "red": 10690000,
+   "pmh": 300000,
+   "online": 300000,
+   "total_online": 300000,
    "choice": 0,
-   "kind": "brand_tab",
+   "kind": "moi",
    "rule": "den_tru_do",
    "subs": [
-    "Trả chậm 0% trả trước 0đ",
-    "Quà 30.000₫"
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng mua Tai nghe TWS Oppo Air 5 series/Clip2 trị giá 400,000đ",
+    "Phiếu mua Tai nghe TWS Oppo trị giá 200,000đ"
    ]
   },
   {
    "model": "A6 Pro 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-pro-5g-8gb-256gb",
-   "at": "17-10 07:39",
+   "at": "17-10 12:28",
    "status": "active",
    "rrp": 10990000,
    "red": 10490000,
@@ -342,7 +380,7 @@
   {
    "model": "A6 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-6gb-128gb",
-   "at": "17-10 07:39",
+   "at": "17-10 12:28",
    "status": "active",
    "rrp": 9990000,
    "red": 9990000,
@@ -357,7 +395,7 @@
   {
    "model": "A6 Pro 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-pro-8gb-256gb",
-   "at": "17-10 07:39",
+   "at": "17-10 12:28",
    "status": "active",
    "rrp": 9990000,
    "red": 9490000,
@@ -375,29 +413,9 @@
    ]
   },
   {
-   "model": "A6 8GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/oppo-a6-8gb-128gb",
-   "at": "17-10 07:39",
-   "status": "active",
-   "rrp": 10990000,
-   "red": 10690000,
-   "pmh": 300000,
-   "online": 300000,
-   "total_online": 300000,
-   "choice": 0,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng mua Tai nghe TWS Oppo Air 5 series/Clip2 trị giá 400,000đ",
-    "Phiếu mua Tai nghe TWS Oppo trị giá 200,000đ"
-   ]
-  },
-  {
    "model": "A6x 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6x-6gb-256gb",
-   "at": "17-10 07:39",
+   "at": "17-10 12:28",
    "status": "active",
    "rrp": 8990000,
    "red": 8590000,
@@ -418,7 +436,7 @@
   {
    "model": "A6x 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6x-4gb-128gb",
-   "at": "17-10 07:39",
+   "at": "17-10 12:28",
    "status": "active",
    "rrp": 7090000,
    "red": 6180000,
@@ -438,29 +456,9 @@
    ]
   },
   {
-   "model": "A6x 4GB/64GB",
-   "url": "https://www.thegioididong.com/dtdd/oppo-a6x-4gb-64gb",
-   "at": "17-10 07:39",
-   "status": "active",
-   "rrp": 4990000,
-   "red": 4540000,
-   "pmh": 0,
-   "online": 450000,
-   "total_online": 450000,
-   "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1",
-   "subs": [
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng mua Tai nghe TWS Oppo Air 5 series/Clip2 trị giá 400,000đ",
-    "Phiếu mua Tai nghe TWS Oppo trị giá 200,000đ"
-   ]
-  },
-  {
    "model": "A6c 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6c-4gb-128gb",
-   "at": "17-10 07:39",
+   "at": "17-10 12:28",
    "status": "active",
    "rrp": 5690000,
    "red": 5690000,
@@ -478,9 +476,29 @@
    ]
   },
   {
+   "model": "A6x 4GB/64GB",
+   "url": "https://www.thegioididong.com/dtdd/oppo-a6x-4gb-64gb",
+   "at": "17-10 12:28",
+   "status": "active",
+   "rrp": 4990000,
+   "red": 4540000,
+   "pmh": 0,
+   "online": 450000,
+   "total_online": 450000,
+   "choice": 0,
+   "kind": "moi-banner",
+   "rule": "flash_chon1",
+   "subs": [
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng mua Tai nghe TWS Oppo Air 5 series/Clip2 trị giá 400,000đ",
+    "Phiếu mua Tai nghe TWS Oppo trị giá 200,000đ"
+   ]
+  },
+  {
    "model": "A6c 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6c-4gb-64gb",
-   "at": "17-10 07:39",
+   "at": "17-10 12:28",
    "status": "active",
    "rrp": 4690000,
    "red": 4690000,
@@ -500,34 +518,16 @@
   {
    "model": "S26 Ultra 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s26-ultra-12gb-256gb",
-   "at": "17-10 07:39",
+   "at": "17-10 12:28",
    "status": "active",
    "rrp": 40990000,
    "red": 29490000,
-   "pmh": 0,
+   "pmh": 11500000,
    "online": 11500000,
    "total_online": 11500000,
    "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1",
-   "subs": [
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
-   ]
-  },
-  {
-   "model": "S25 Ultra 5G 12GB/256GB",
-   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s25-ultra",
-   "at": "17-10 07:39",
-   "status": "active",
-   "rrp": 33380000,
-   "red": 26590000,
-   "pmh": 0,
-   "online": 6790000,
-   "total_online": 6790000,
-   "choice": 0,
-   "kind": "moi-banner",
-   "rule": "flash_chon1",
+   "kind": "moi",
+   "rule": "den_tru_do",
    "subs": [
     "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
     "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
@@ -536,7 +536,7 @@
   {
    "model": "S26+ 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s26-plus-12gb-256gb",
-   "at": "17-10 07:39",
+   "at": "17-10 12:28",
    "status": "active",
    "rrp": 33990000,
    "red": 23790000,
@@ -552,9 +552,27 @@
    ]
   },
   {
+   "model": "S25 Ultra 5G 12GB/256GB",
+   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s25-ultra",
+   "at": "17-10 12:28",
+   "status": "active",
+   "rrp": 33380000,
+   "red": 26590000,
+   "pmh": 6790000,
+   "online": 6790000,
+   "total_online": 6790000,
+   "choice": 0,
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": [
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ hãng Apple, Beats) 50,000đ cho đơn hàng từ 250,000đ",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
+   ]
+  },
+  {
    "model": "S26 FE 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s26-fe-8gb-256gb",
-   "at": "17-10 07:39",
+   "at": "17-10 12:28",
    "status": "active",
    "rrp": 21990000,
    "red": 19790000,
@@ -572,7 +590,7 @@
   {
    "model": "S25 FE 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s25-fe-5g-8gb-256gb",
-   "at": "17-10 07:40",
+   "at": "17-10 12:28",
    "status": "active",
    "rrp": 19690000,
    "red": 16790000,
@@ -590,7 +608,7 @@
   {
    "model": "A57 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a57-12gb-256gb",
-   "at": "17-10 07:40",
+   "at": "17-10 12:28",
    "status": "active",
    "rrp": 16490000,
    "red": 13790000,
@@ -607,16 +625,16 @@
   {
    "model": "A57 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a57-8gb-256gb",
-   "at": "17-10 07:40",
+   "at": "17-10 12:28",
    "status": "active",
    "rrp": 15490000,
-   "red": 12690000,
-   "pmh": 2800000,
-   "online": 2800000,
-   "total_online": 2800000,
+   "red": 12290000,
+   "pmh": 0,
+   "online": 3200000,
+   "total_online": 3200000,
    "choice": 0,
-   "kind": "moi",
-   "rule": "den_tru_do",
+   "kind": "moi-banner",
+   "rule": "flash_chon1",
    "subs": [
     "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
    ]
@@ -624,7 +642,7 @@
   {
    "model": "A37 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a37-8gb-256gb",
-   "at": "17-10 07:40",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 13990000,
    "red": 10690000,
@@ -645,28 +663,24 @@
   {
    "model": "A37 5G 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a37-6gb-128gb",
-   "at": "17-10 07:40",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 11190000,
-   "red": 9390000,
-   "pmh": 1800000,
-   "online": 1800000,
-   "total_online": 2100000,
-   "choice": 300000,
-   "kind": "moi",
-   "rule": "den_tru_do",
+   "red": 9290000,
+   "pmh": 0,
+   "online": 1900000,
+   "total_online": 1900000,
+   "choice": 0,
+   "kind": "moi-banner",
+   "rule": "flash_chon1",
    "subs": [
-    "Giảm giá 300.000₫",
-    "Loa Bluetooth Hydrus Beat Đen",
-    "Loa Bluetooth Hydrus Beat Cam",
-    "Loa Bluetooth Hydrus Beat Xanh",
     "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
    ]
   },
   {
    "model": "A27 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a27-8gb-128gb",
-   "at": "17-10 07:40",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 10190000,
    "red": 8790000,
@@ -685,7 +699,7 @@
   {
    "model": "A27 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a27-6gb-128gb",
-   "at": "17-10 07:40",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 9090000,
    "red": 7990000,
@@ -702,9 +716,30 @@
    ]
   },
   {
+   "model": "A17 5G 8GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-5g-8gb-128gb",
+   "at": "17-10 12:29",
+   "status": "active",
+   "rrp": 8790000,
+   "red": 6690000,
+   "pmh": 2100000,
+   "online": 2100000,
+   "total_online": 2400000,
+   "choice": 300000,
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": [
+    "Giảm giá 300.000₫",
+    "Loa Bluetooth Hydrus Beat Đen",
+    "Loa Bluetooth Hydrus Beat Cam",
+    "Loa Bluetooth Hydrus Beat Xanh",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
+   ]
+  },
+  {
    "model": "A17 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-5g-8gb-256gb",
-   "at": "17-10 07:40",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 7990000,
    "red": 7190000,
@@ -725,7 +760,7 @@
   {
    "model": "A17 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-8gb-256gb",
-   "at": "17-10 07:40",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 6890000,
    "red": 5990000,
@@ -744,93 +779,9 @@
    ]
   },
   {
-   "model": "A17 4GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-4gb-128gb",
-   "at": "17-10 07:40",
-   "status": "active",
-   "rrp": 5690000,
-   "red": 4890000,
-   "pmh": 800000,
-   "online": 800000,
-   "total_online": 1000000,
-   "choice": 200000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Giảm giá 200.000₫",
-    "Loa Bluetooth Hydrus Beat Đen",
-    "Loa Bluetooth Hydrus Beat Cam",
-    "Loa Bluetooth Hydrus Beat Xanh",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
-   ]
-  },
-  {
-   "model": "A07 6GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-6gb-128gb",
-   "at": "17-10 07:40",
-   "status": "active",
-   "rrp": 4490000,
-   "red": 4090000,
-   "pmh": 400000,
-   "online": 400000,
-   "total_online": 600000,
-   "choice": 200000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Giảm giá 200.000₫",
-    "Loa Bluetooth Hydrus Beat Đen",
-    "Loa Bluetooth Hydrus Beat Cam",
-    "Loa Bluetooth Hydrus Beat Xanh",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
-   ]
-  },
-  {
-   "model": "A07 4GB/64GB",
-   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-4gb-64gb",
-   "at": "17-10 07:40",
-   "status": "active",
-   "rrp": 3890000,
-   "red": 3490000,
-   "pmh": 400000,
-   "online": 400000,
-   "total_online": 600000,
-   "choice": 200000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Giảm giá 200.000₫",
-    "Loa Bluetooth Hydrus Beat Đen",
-    "Loa Bluetooth Hydrus Beat Cam",
-    "Loa Bluetooth Hydrus Beat Xanh",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
-   ]
-  },
-  {
-   "model": "A17 5G 8GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-5g-8gb-128gb",
-   "at": "17-10 07:40",
-   "status": "active",
-   "rrp": 8790000,
-   "red": 6690000,
-   "pmh": 300000,
-   "online": 2100000,
-   "total_online": 2400000,
-   "choice": 300000,
-   "kind": "moi-banner",
-   "rule": "flash_chon1",
-   "subs": [
-    "Giảm giá 300.000₫",
-    "Loa Bluetooth Hydrus Beat Đen",
-    "Loa Bluetooth Hydrus Beat Cam",
-    "Loa Bluetooth Hydrus Beat Xanh",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
-   ]
-  },
-  {
    "model": "A17 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-8gb-128gb",
-   "at": "17-10 07:40",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 6190000,
    "red": 5790000,
@@ -851,7 +802,7 @@
   {
    "model": "A07 5G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-5g-4gb-128gb",
-   "at": "17-10 07:40",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 5890000,
    "red": 4490000,
@@ -867,15 +818,15 @@
    ]
   },
   {
-   "model": "A07 4GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-4gb-128gb",
-   "at": "17-10 07:40",
+   "model": "A17 4GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-4gb-128gb",
+   "at": "17-10 12:29",
    "status": "active",
-   "rrp": 4190000,
-   "red": 3790000,
-   "pmh": 400000,
-   "online": 400000,
-   "total_online": 600000,
+   "rrp": 5690000,
+   "red": 4890000,
+   "pmh": 800000,
+   "online": 800000,
+   "total_online": 1000000,
    "choice": 200000,
    "kind": "moi",
    "rule": "den_tru_do",
@@ -890,7 +841,7 @@
   {
    "model": "A08 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a08-4gb-64gb",
-   "at": "17-10 07:40",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 4790000,
    "red": 4590000,
@@ -906,32 +857,51 @@
    ]
   },
   {
-   "model": "A08 4GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a08-4gb-128gb",
-   "at": "17-10 07:41",
-   "status": "no_price",
-   "debug": "len=607823 box_main=False main=False h1=None",
-   "pmh": null
+   "model": "A07 6GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-6gb-128gb",
+   "at": "17-10 12:29",
+   "status": "active",
+   "rrp": 4490000,
+   "red": 4090000,
+   "pmh": 400000,
+   "online": 400000,
+   "total_online": 600000,
+   "choice": 200000,
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": [
+    "Giảm giá 200.000₫",
+    "Loa Bluetooth Hydrus Beat Đen",
+    "Loa Bluetooth Hydrus Beat Cam",
+    "Loa Bluetooth Hydrus Beat Xanh",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
+   ]
   },
   {
-   "model": "A07s 4GB/64GB",
-   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07s-4gb-64gb",
-   "at": "17-10 07:41",
+   "model": "A07 4GB/64GB",
+   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-4gb-64gb",
+   "at": "17-10 12:29",
    "status": "active",
-   "rrp": 4190000,
-   "red": 3990000,
-   "pmh": 200000,
-   "online": 200000,
-   "total_online": 200000,
-   "choice": 0,
-   "kind": "thuong",
+   "rrp": 3890000,
+   "red": 3490000,
+   "pmh": 400000,
+   "online": 400000,
+   "total_online": 600000,
+   "choice": 200000,
+   "kind": "moi",
    "rule": "den_tru_do",
-   "subs": []
+   "subs": [
+    "Giảm giá 200.000₫",
+    "Loa Bluetooth Hydrus Beat Đen",
+    "Loa Bluetooth Hydrus Beat Cam",
+    "Loa Bluetooth Hydrus Beat Xanh",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ"
+   ]
   },
   {
    "model": "Xiaomi 17 Ultra 5G 16GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17-ultra",
-   "at": "17-10 07:41",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 39990000,
    "red": 30490000,
@@ -954,7 +924,7 @@
   {
    "model": "Xiaomi 17 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17",
-   "at": "17-10 07:41",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 26990000,
    "red": 19290000,
@@ -977,7 +947,7 @@
   {
    "model": "17T Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17t-pro-5g-12gb-256gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 23990000,
    "red": 19790000,
@@ -1002,7 +972,7 @@
   {
    "model": "17T 5G 12GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17t-5g-12gb-512gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 20990000,
    "red": 17590000,
@@ -1027,7 +997,7 @@
   {
    "model": "17T 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17t-5g-12gb-256gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 20090000,
    "red": 15990000,
@@ -1052,7 +1022,7 @@
   {
    "model": "Redmi Note 17 Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-5g-12gb-256gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 13490000,
    "red": 11890000,
@@ -1081,7 +1051,7 @@
   {
    "model": "Redmi Note 17 Pro 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-5g-8gb-256gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 12490000,
    "red": 10990000,
@@ -1108,38 +1078,9 @@
    ]
   },
   {
-   "model": "Redmi Note 17 Pro 5G 6GB/256GB",
-   "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-5g-6gb-256gb",
-   "at": "17-10 07:41",
-   "status": "active",
-   "rrp": 11490000,
-   "red": 9990000,
-   "pmh": 1500000,
-   "online": 1500000,
-   "total_online": 2500000,
-   "choice": 1000000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Giảm giá 1.000.000₫",
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 1,300,000đ",
-    "Tặng thêm 6 tháng bảo hành mở rộng",
-    "Tặng Gói bảo hành vào nước 2 năm (1 lần)",
-    "Tặng Gói bảo hành rơi vỡ nắp lưng hoặc kính camera sau 2 năm (1 lần)",
-    "Tặng Gói bảo hành rơi vỡ màn hình 3 năm (1 lần)",
-    "Tặng Gói bảo hành Pin 5 năm (1 lần)",
-    "Phiếu mua hàng Xiaomi Redmi Watch 6 trị giá 800.000đ",
-    "Phiếu mua hàng mua Xiaomi Watch S5 trị giá 1.000.000đ",
-    "Phiếu mua Xiaomi Redmi Watch 6 Lite trị giá 300,000đ",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng mua Loa Bluetooth Xiaomi (Trừ models Xiaomi Pocket, Xiaomi Essential)  trị giá 100.000đ",
-    "Phiếu mua Tai nghe TWS Xiaomi Redmi Buds 8 Series trị giá 200.000đ"
-   ]
-  },
-  {
    "model": "Redmi Note 17 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-5g-8gb-256gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:29",
    "status": "active",
    "rrp": 10090000,
    "red": 9390000,
@@ -1167,7 +1108,7 @@
   {
    "model": "Redmi Note 17 5G 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-5g-6gb-256gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 9490000,
    "red": 8790000,
@@ -1195,7 +1136,7 @@
   {
    "model": "Redmi Note 17 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-4g-6gb-256gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 8290000,
    "red": 7590000,
@@ -1223,7 +1164,7 @@
   {
    "model": "Redmi Note 17 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-4g-6gb-128gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 7690000,
    "red": 6990000,
@@ -1251,7 +1192,7 @@
   {
    "model": "Redmi 17 4G 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-4g-6gb-256gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 7490000,
    "red": 6590000,
@@ -1275,7 +1216,7 @@
   {
    "model": "Redmi Note 15 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-15-8gb-256gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 7090000,
    "red": 5190000,
@@ -1299,7 +1240,7 @@
   {
    "model": "Redmi 17 4G 4GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-4g-4gb-256gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 6690000,
    "red": 5290000,
@@ -1323,7 +1264,7 @@
   {
    "model": "Redmi 17 5G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-5g-4gb-128gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 6490000,
    "red": 6090000,
@@ -1347,7 +1288,7 @@
   {
    "model": "Redmi 17 4G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-4g-4gb-128gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 5990000,
    "red": 5190000,
@@ -1371,7 +1312,7 @@
   {
    "model": "Redmi 15 5G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-15-5g-4gb-128gb",
-   "at": "17-10 07:41",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 5690000,
    "red": 4490000,
@@ -1393,41 +1334,9 @@
    ]
   },
   {
-   "model": "Redmi 15C 6GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-15c-6gb-128gb",
-   "at": "17-10 07:41",
-   "status": "ngung_kd",
-   "debug": "len=386570 box_main=False main=True h1=Điện thoại Xiaomi Redmi 15C 6GB/128GB",
-   "pmh": null
-  },
-  {
-   "model": "Redmi 15 6GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-15-6gb-128gb",
-   "at": "17-10 07:41",
-   "status": "active",
-   "rrp": 4790000,
-   "red": 3890000,
-   "pmh": 900000,
-   "online": 900000,
-   "total_online": 1600000,
-   "choice": 700000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Giảm giá 700.000₫",
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 900,000đ",
-    "Phiếu mua hàng Xiaomi Redmi Watch 6 trị giá 800.000đ",
-    "Phiếu mua hàng mua Xiaomi Watch S5 trị giá 1.000.000đ",
-    "Phiếu mua Xiaomi Redmi Watch 6 Lite trị giá 300,000đ",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng mua Loa Bluetooth Xiaomi (Trừ models Xiaomi Pocket, Xiaomi Essential)  trị giá 100.000đ",
-    "Phiếu mua Tai nghe TWS Xiaomi Redmi Buds 8 Series trị giá 200.000đ"
-   ]
-  },
-  {
-   "model": "Redmi A7 Pro 4GB/128GB",
+   "model": "Redmi A7 Pro 4/128G",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-a7-pro-4gb-128gb",
-   "at": "17-10 07:42",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 4990000,
    "red": 4290000,
@@ -1449,9 +1358,33 @@
    ]
   },
   {
-   "model": "Redmi A7 Pro 4GB/64GB",
+   "model": "Redmi 15 6GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-15-6gb-128gb",
+   "at": "17-10 12:30",
+   "status": "active",
+   "rrp": 4790000,
+   "red": 3890000,
+   "pmh": 900000,
+   "online": 900000,
+   "total_online": 1600000,
+   "choice": 700000,
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": [
+    "Giảm giá 700.000₫",
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 900,000đ",
+    "Phiếu mua hàng Xiaomi Redmi Watch 6 trị giá 800.000đ",
+    "Phiếu mua hàng mua Xiaomi Watch S5 trị giá 1.000.000đ",
+    "Phiếu mua Xiaomi Redmi Watch 6 Lite trị giá 300,000đ",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng mua Loa Bluetooth Xiaomi (Trừ models Xiaomi Pocket, Xiaomi Essential)  trị giá 100.000đ",
+    "Phiếu mua Tai nghe TWS Xiaomi Redmi Buds 8 Series trị giá 200.000đ"
+   ]
+  },
+  {
+   "model": "Redmi A7 Pro 4/64G",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-a7-pro",
-   "at": "17-10 07:42",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 4490000,
    "red": 3990000,
@@ -1475,7 +1408,7 @@
   {
    "model": "X300 Ultra 16GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-x300-ultra",
-   "at": "17-10 07:42",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 49990000,
    "red": 35990000,
@@ -1492,7 +1425,7 @@
   {
    "model": "V70 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-v70-8gb-256gb",
-   "at": "17-10 07:42",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 17990000,
    "red": 15990000,
@@ -1509,9 +1442,17 @@
    ]
   },
   {
+   "model": "V80 Lite 5G 6GB/256GB",
+   "url": "https://www.thegioididong.com/dtdd/vivo-v80-lite-5g-6gb-256gb",
+   "at": "17-10 12:30",
+   "status": "no_price",
+   "debug": "len=588619 box_main=False main=False h1=None",
+   "pmh": null
+  },
+  {
    "model": "V70 FE 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-v70-fe-8gb-256gb",
-   "at": "17-10 07:42",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 13990000,
    "red": 13690000,
@@ -1527,9 +1468,27 @@
    ]
   },
   {
+   "model": "V80 Lite 5G 6GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/vivo-v80-lite-5g-6gb-128gb",
+   "at": "17-10 12:30",
+   "status": "active",
+   "rrp": 12990000,
+   "red": 11990000,
+   "pmh": 1000000,
+   "online": 1000000,
+   "total_online": 1000000,
+   "choice": 0,
+   "kind": "brand_tab",
+   "rule": "den_tru_do",
+   "subs": [
+    "Trả chậm 0% trả trước 0đ",
+    "Quà 30.000₫"
+   ]
+  },
+  {
    "model": "V60 Lite 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-v60-lite-8gb-256gb",
-   "at": "17-10 07:42",
+   "at": "17-10 12:30",
    "status": "active",
    "rrp": 10490000,
    "red": 9190000,
@@ -1548,7 +1507,7 @@
   {
    "model": "Y31d 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y31d-8gb-128gb",
-   "at": "17-10 07:42",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 10090000,
    "red": 8790000,
@@ -1567,7 +1526,7 @@
   {
    "model": "Y31d 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y31d-6gb-128gb",
-   "at": "17-10 07:42",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 8990000,
    "red": 7890000,
@@ -1586,7 +1545,7 @@
   {
    "model": "Y39 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y39-5g",
-   "at": "17-10 07:42",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 7360000,
    "red": 6460000,
@@ -1605,7 +1564,7 @@
   {
    "model": "Y11d 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y11d-6gb-128gb",
-   "at": "17-10 07:42",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 7290000,
    "red": 7090000,
@@ -1623,7 +1582,7 @@
   {
    "model": "Y11d 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y11d-4gb-128gb",
-   "at": "17-10 07:42",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 6790000,
    "red": 6290000,
@@ -1644,7 +1603,7 @@
   {
    "model": "Y05 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y05-4gb-128gb",
-   "at": "17-10 07:42",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 5990000,
    "red": 5390000,
@@ -1665,7 +1624,7 @@
   {
    "model": "Y05 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y05-4gb-64gb",
-   "at": "17-10 07:42",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 4990000,
    "red": 4490000,
@@ -1686,7 +1645,7 @@
   {
    "model": "16 Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16-pro-5g-12gb-256gb",
-   "at": "17-10 07:42",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 14490000,
    "red": 13790000,
@@ -1707,7 +1666,7 @@
   {
    "model": "16 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16-5g-12gb-256gb",
-   "at": "17-10 07:42",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 12490000,
    "red": 11490000,
@@ -1728,7 +1687,7 @@
   {
    "model": "16 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16-5g-8gb-256gb",
-   "at": "17-10 07:42",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 11490000,
    "red": 10790000,
@@ -1749,7 +1708,7 @@
   {
    "model": "16T 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16t-5g-8gb-256gb",
-   "at": "17-10 07:43",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 10990000,
    "red": 10490000,
@@ -1770,7 +1729,7 @@
   {
    "model": "16T 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16t-5g-8gb-128gb",
-   "at": "17-10 07:43",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 10290000,
    "red": 9590000,
@@ -1791,7 +1750,7 @@
   {
    "model": "C100 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100-4g-8gb-256gb",
-   "at": "17-10 07:43",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 9490000,
    "red": 8340000,
@@ -1810,30 +1769,9 @@
    ]
   },
   {
-   "model": "C85 5G 8GB/256GB",
-   "url": "https://www.thegioididong.com/dtdd/realme-c85-5g-8gb-256gb",
-   "at": "17-10 07:43",
-   "status": "active",
-   "rrp": 8490000,
-   "red": 8090000,
-   "pmh": 400000,
-   "online": 400000,
-   "total_online": 600000,
-   "choice": 200000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Giảm giá 200.000₫",
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 250,000đ",
-    "Phiếu mua Realme Watch 5 trị giá 200.000đ",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng Tai nghe Realme Buds T200, TechLife Buds trị giá 200.000đ"
-   ]
-  },
-  {
    "model": "C100 4G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100-4g-8gb-128gb",
-   "at": "17-10 07:43",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 8790000,
    "red": 7740000,
@@ -1852,9 +1790,30 @@
    ]
   },
   {
+   "model": "C85 5G 8GB/256GB",
+   "url": "https://www.thegioididong.com/dtdd/realme-c85-5g-8gb-256gb",
+   "at": "17-10 12:31",
+   "status": "active",
+   "rrp": 8490000,
+   "red": 8090000,
+   "pmh": 400000,
+   "online": 400000,
+   "total_online": 600000,
+   "choice": 200000,
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": [
+    "Giảm giá 200.000₫",
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 250,000đ",
+    "Phiếu mua Realme Watch 5 trị giá 200.000đ",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng Tai nghe Realme Buds T200, TechLife Buds trị giá 200.000đ"
+   ]
+  },
+  {
    "model": "C100 4G 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100-4g-6gb-128gb",
-   "at": "17-10 07:43",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 8290000,
    "red": 7240000,
@@ -1875,7 +1834,7 @@
   {
    "model": "C85 Pro 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c85-pro-8gb-256gb",
-   "at": "17-10 07:43",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 7690000,
    "red": 7290000,
@@ -1894,98 +1853,9 @@
    ]
   },
   {
-   "model": "C85 8GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/realme-c85-8gb-128gb",
-   "at": "17-10 07:43",
-   "status": "active",
-   "rrp": 6290000,
-   "red": 5890000,
-   "pmh": 400000,
-   "online": 400000,
-   "total_online": 600000,
-   "choice": 200000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Giảm giá 200.000₫",
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 250,000đ",
-    "Phiếu mua Realme Watch 5 trị giá 200.000đ",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng Tai nghe Realme Buds T200, TechLife Buds trị giá 200.000đ"
-   ]
-  },
-  {
-   "model": "C100i 4G 4GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/realme-c100i-4gb-128gb",
-   "at": "17-10 07:43",
-   "status": "active",
-   "rrp": 6290000,
-   "red": 5990000,
-   "pmh": 300000,
-   "online": 300000,
-   "total_online": 400000,
-   "choice": 100000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Giảm giá 100.000₫",
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ Apple, Beats) 150,000đ áp dụng cho đơn hàng từ 250,000đ",
-    "Phiếu mua Realme Watch 5 trị giá 200.000đ",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng Tai nghe Realme Buds T200, TechLife Buds trị giá 200.000đ"
-   ]
-  },
-  {
-   "model": "C100i 4GB/64GB",
-   "url": "https://www.thegioididong.com/dtdd/realme-c100i-4gb-64gb",
-   "at": "17-10 07:43",
-   "status": "active",
-   "rrp": 5290000,
-   "red": 4890000,
-   "pmh": 400000,
-   "online": 400000,
-   "total_online": 600000,
-   "choice": 200000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Giảm giá 200.000₫",
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 250,000đ",
-    "Phiếu mua Realme Watch 5 trị giá 200.000đ",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng Tai nghe Realme Buds T200, TechLife Buds trị giá 200.000đ"
-   ]
-  },
-  {
-   "model": "V80 Lite 5G 6GB/256GB",
-   "url": "https://www.thegioididong.com/dtdd/vivo-v80-lite-5g-6gb-256gb",
-   "at": "17-10 07:43",
-   "status": "no_price",
-   "debug": "len=588619 box_main=False main=False h1=None",
-   "pmh": null
-  },
-  {
-   "model": "V80 Lite 5G 6GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/vivo-v80-lite-5g-6gb-128gb",
-   "at": "17-10 07:43",
-   "status": "active",
-   "rrp": 12990000,
-   "red": 11990000,
-   "pmh": 1000000,
-   "online": 1000000,
-   "total_online": 1000000,
-   "choice": 0,
-   "kind": "brand_tab",
-   "rule": "den_tru_do",
-   "subs": [
-    "Trả chậm 0% trả trước 0đ",
-    "Quà 30.000₫"
-   ]
-  },
-  {
    "model": "C100x 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100x-6gb-128gb",
-   "at": "17-10 07:43",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 7790000,
    "red": 6790000,
@@ -2006,7 +1876,7 @@
   {
    "model": "C100x 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100x-4gb-128gb",
-   "at": "17-10 07:43",
+   "at": "17-10 12:31",
    "status": "active",
    "rrp": 6990000,
    "red": 6090000,
@@ -2025,23 +1895,123 @@
    ]
   },
   {
-   "model": "A7 Pro 5G 6GB/256GB",
-   "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-6gb-256gb",
-   "at": "17-10 07:43",
+   "model": "C100i 4G 4GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/realme-c100i-4gb-128gb",
+   "at": "17-10 12:31",
+   "status": "active",
+   "rrp": 6290000,
+   "red": 5990000,
+   "pmh": 300000,
+   "online": 300000,
+   "total_online": 400000,
+   "choice": 100000,
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": [
+    "Giảm giá 100.000₫",
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, smartwatch, đồng hồ thời trang (trừ Apple, Beats) 150,000đ áp dụng cho đơn hàng từ 250,000đ",
+    "Phiếu mua Realme Watch 5 trị giá 200.000đ",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng Tai nghe Realme Buds T200, TechLife Buds trị giá 200.000đ"
+   ]
+  },
+  {
+   "model": "C85 8GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/realme-c85-8gb-128gb",
+   "at": "17-10 12:31",
+   "status": "active",
+   "rrp": 6290000,
+   "red": 5890000,
+   "pmh": 400000,
+   "online": 400000,
+   "total_online": 600000,
+   "choice": 200000,
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": [
+    "Giảm giá 200.000₫",
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 250,000đ",
+    "Phiếu mua Realme Watch 5 trị giá 200.000đ",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng Tai nghe Realme Buds T200, TechLife Buds trị giá 200.000đ"
+   ]
+  },
+  {
+   "model": "C100i 4GB/64GB",
+   "url": "https://www.thegioididong.com/dtdd/realme-c100i-4gb-64gb",
+   "at": "17-10 12:32",
+   "status": "active",
+   "rrp": 5290000,
+   "red": 4890000,
+   "pmh": 400000,
+   "online": 400000,
+   "total_online": 600000,
+   "choice": 200000,
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": [
+    "Giảm giá 200.000₫",
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 250,000đ",
+    "Phiếu mua Realme Watch 5 trị giá 200.000đ",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng Tai nghe Realme Buds T200, TechLife Buds trị giá 200.000đ"
+   ]
+  },
+  {
+   "model": "Redmi Note 17 Pro 5G 6GB/256GB",
+   "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-5g-6gb-256gb",
+   "at": "17-10 12:32",
+   "status": "active",
+   "rrp": 11490000,
+   "red": 9990000,
+   "pmh": 1500000,
+   "online": 1500000,
+   "total_online": 2500000,
+   "choice": 1000000,
+   "kind": "moi",
+   "rule": "den_tru_do",
+   "subs": [
+    "Giảm giá 1.000.000₫",
+    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 1,300,000đ",
+    "Tặng thêm 6 tháng bảo hành mở rộng",
+    "Tặng Gói bảo hành vào nước 2 năm (1 lần)",
+    "Tặng Gói bảo hành rơi vỡ nắp lưng hoặc kính camera sau 2 năm (1 lần)",
+    "Tặng Gói bảo hành rơi vỡ màn hình 3 năm (1 lần)",
+    "Tặng Gói bảo hành Pin 5 năm (1 lần)",
+    "Phiếu mua hàng Xiaomi Redmi Watch 6 trị giá 800.000đ",
+    "Phiếu mua hàng mua Xiaomi Watch S5 trị giá 1.000.000đ",
+    "Phiếu mua Xiaomi Redmi Watch 6 Lite trị giá 300,000đ",
+    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
+    "Phiếu mua hàng mua Loa Bluetooth Xiaomi (Trừ models Xiaomi Pocket, Xiaomi Essential)  trị giá 100.000đ",
+    "Phiếu mua Tai nghe TWS Xiaomi Redmi Buds 8 Series trị giá 200.000đ"
+   ]
+  },
+  {
+   "model": "Galaxy A18 8GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a18-8gb-128gb",
+   "at": "17-10 12:32",
    "status": "no_price",
-   "debug": "len=689291 box_main=False main=False h1=None",
+   "debug": "len=599933 box_main=False main=False h1=None",
    "pmh": null
   },
   {
-   "model": "A7 Pro 5G 8GB/128GB",
-   "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-8gb-128gb",
-   "at": "17-10 07:43",
+   "model": "Galaxy A18 6GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a18-6gb-128gb",
+   "at": "17-10 12:32",
+   "status": "no_price",
+   "debug": "len=599929 box_main=False main=False h1=None",
+   "pmh": null
+  },
+  {
+   "model": "Galaxy A18 4GB/128GB",
+   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a18-4gb-128gb",
+   "at": "17-10 12:32",
    "status": "active",
-   "rrp": 13490000,
-   "red": 11940000,
-   "pmh": 1550000,
-   "online": 1550000,
-   "total_online": 1550000,
+   "rrp": 6590000,
+   "red": 6390000,
+   "pmh": 200000,
+   "online": 200000,
+   "total_online": 200000,
    "choice": 0,
    "kind": "brand_tab",
    "rule": "den_tru_do",
@@ -2051,52 +2021,45 @@
    ]
   },
   {
-   "model": "Redmi A7 Pro 4/128G",
-   "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-a7-pro-4gb-128gb",
-   "at": "17-10 07:44",
+   "model": "Galaxy A07s 4GB/64GB",
+   "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07s-4gb-64gb",
+   "at": "17-10 12:32",
    "status": "active",
-   "rrp": 4990000,
-   "red": 4290000,
-   "pmh": 700000,
-   "online": 700000,
-   "total_online": 1200000,
-   "choice": 500000,
+   "rrp": 4190000,
+   "red": 3990000,
+   "pmh": 200000,
+   "online": 200000,
+   "total_online": 200000,
+   "choice": 0,
+   "kind": "thuong",
+   "rule": "den_tru_do",
+   "subs": []
+  },
+  {
+   "model": "iPhone 18 Pro 256GB",
+   "url": "https://www.thegioididong.com/dtdd/iphone-18-pro",
+   "at": "17-10 12:32",
+   "status": "active",
+   "rrp": 38990000,
+   "red": 38990000,
+   "pmh": 0,
+   "online": 0,
+   "total_online": 0,
+   "choice": 0,
    "kind": "moi",
    "rule": "den_tru_do",
    "subs": [
-    "Giảm giá 500.000₫",
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 600,000đ",
-    "Phiếu mua hàng Xiaomi Redmi Watch 6 trị giá 800.000đ",
-    "Phiếu mua hàng mua Xiaomi Watch S5 trị giá 1.000.000đ",
-    "Phiếu mua Xiaomi Redmi Watch 6 Lite trị giá 300,000đ",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng mua Loa Bluetooth Xiaomi (Trừ models Xiaomi Pocket, Xiaomi Essential)  trị giá 100.000đ",
-    "Phiếu mua Tai nghe TWS Xiaomi Redmi Buds 8 Series trị giá 200.000đ"
+    "Phiếu mua hàng sim data trị giá 500,000đ",
+    "Phiếu mua hàng 150,000đ mua ốp lưng, miếng dán từ 500,000đ"
    ]
   },
   {
-   "model": "Redmi A7 Pro 4/64G",
-   "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-a7-pro",
-   "at": "17-10 07:44",
-   "status": "active",
-   "rrp": 4490000,
-   "red": 3990000,
-   "pmh": 500000,
-   "online": 500000,
-   "total_online": 800000,
-   "choice": 300000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "subs": [
-    "Giảm giá 300.000₫",
-    "Phiếu mua hàng mua smartphone, tablet, phụ kiện, đồng hồ (trừ Apple, Beats) 350,000đ",
-    "Phiếu mua hàng Xiaomi Redmi Watch 6 trị giá 800.000đ",
-    "Phiếu mua hàng mua Xiaomi Watch S5 trị giá 1.000.000đ",
-    "Phiếu mua Xiaomi Redmi Watch 6 Lite trị giá 300,000đ",
-    "Phiếu mua hàng mua thẻ nhớ tại TGDĐ/ĐMX trị giá 50.000đ",
-    "Phiếu mua hàng mua Loa Bluetooth Xiaomi (Trừ models Xiaomi Pocket, Xiaomi Essential)  trị giá 100.000đ",
-    "Phiếu mua Tai nghe TWS Xiaomi Redmi Buds 8 Series trị giá 200.000đ"
-   ]
+   "model": "iPhone Duo 256GB",
+   "url": "https://www.thegioididong.com/dtdd/iphone-duo",
+   "at": "17-10 12:34",
+   "status": "error",
+   "error": "HTTPSConnectionPool(host='tgdd-proxy.datle90745.workers.dev', port=443): Read timed out. (read timeout=30)",
+   "pmh": null
   }
  ]
 }
