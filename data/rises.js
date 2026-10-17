@@ -1,2 +1,2 @@
 /* Tự sinh bởi bộ quét, đừng sửa tay. Các lần tăng giá đen do quét phát hiện. */
-window.RISE_AUTO = [];
+window.RISE_AUTO = [["T10", "SAMSUNG", "Samsung Galaxy S25 Ultra 5G 12GB 256GB", 23990000, 33380000, "2026-10-17", 39.1, "FPT Shop"], ["T10", "SAMSUNG", "Samsung Galaxy A08 4GB 64GB", 4190000, 4790000, "2026-10-17", 14.3, "FPT Shop"], ["T10", "SAMSUNG", "Samsung Galaxy S25 FE 5G 8GB 128GB", 12490000, 16690000, "2026-10-17", 33.6, "FPT Shop"], ["T10", "OPPO", "OPPO A6T 4GB 64GB", 4690000, 4990000, "2026-10-17", 6.4, "FPT Shop"]];
