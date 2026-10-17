@@ -75,6 +75,7 @@ td.model{white-space:normal;min-width:220px;font-weight:500}
 .badge.warn{background:var(--warn-bg);color:var(--warn)}
 .badge.fs{background:#e2252d;color:#fff}
 .badge.new-badge{background:linear-gradient(135deg,#ef4444,#f97316);color:#fff;font-weight:800;font-size:10.5px;padding:1px 6px;border-radius:4px;letter-spacing:.5px;display:inline-block;vertical-align:1px;margin-left:5px;box-shadow:0 1px 3px rgba(239,68,68,.35);text-transform:uppercase}
+.chip.active-new{background:linear-gradient(135deg,#ef4444,#f97316)!important;color:#fff!important;border-color:transparent!important;box-shadow:0 2px 6px rgba(239,68,68,.4);font-weight:800!important}
 /* ---- tab Toàn thị trường ---- */
 .rtl{display:inline-block;border-radius:5px;padding:1px 8px;font-size:12px;font-weight:700;white-space:nowrap}
 .rtl[data-r="TGDĐ"]{background:#ffd400;color:#2b2400}.rtl[data-r="CellphoneS"]{background:#d70018;color:#fff}
@@ -328,6 +329,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
     <div class="row"><label class="t">Phân khúc</label><span id="f-seg" class="row"></span></div>
     <div class="row"><label class="t">Loại KM</label><span id="f-kind" class="row"></span></div>
     <div class="row"><label class="t">Kênh</label><span id="f-ch" class="row"></span>
+      <button type="button" class="chip" id="btn-only-new" style="margin-left:auto;font-weight:700;cursor:pointer">✨ Hàng MỚI (NEW)</button>
       <input class="search" id="q" type="search" placeholder="Tìm theo tên máy, ví dụ: A6x 4GB/128GB" aria-label="Tìm theo tên máy"></div>
   </div>
   <div class="count" id="count"></div>
@@ -626,7 +628,7 @@ function cat(r){
 /* Loại KM của đợt quét mới nhất: khối "Online Giá Rẻ Quá" (flash sale) hay khuyến mãi thường */
 const KIND_FS="Flash Sale Online", KIND_KM="Khuyến mãi";
 const kindOf = r => !r.kind ? null : /banner/.test(r.kind) ? KIND_FS : KIND_KM;
-const F = {brand:"Tất cả", seg:"Tất cả", ch:"Tất cả", kind:"Tất cả", q:"", move:null, sort:"master", dir:1};
+const F = {brand:"Tất cả", seg:"Tất cả", ch:"Tất cả", kind:"Tất cả", onlyNew:false, q:"", move:null, sort:"master", dir:1};
 function chips(el, vals, key){
   el.innerHTML = vals.map(v=>`<button class="chip" aria-pressed="${F[key]===v}" data-k="${key}" data-v="${esc(v)}"${key==="brand"&&v!=="Tất cả"?` data-b="${esc(v)}"`:""}>${esc(key==="brand"?bdisp(v):v)}</button>`).join("");
 }
@@ -636,11 +638,18 @@ function renderFilters(){
   chips($("f-seg"), ["Tất cả",...SEG_ORDER.filter(s=>S.rows.some(r=>r.segment===s))], "seg");
   chips($("f-ch"), ["Tất cả","TGDD","Mass"], "ch");
   chips($("f-kind"), ["Tất cả",KIND_FS,KIND_KM], "kind");
+  const newBtn = $("btn-only-new");
+  if(newBtn){
+    newBtn.setAttribute("aria-pressed", F.onlyNew ? "true" : "false");
+    newBtn.className = F.onlyNew ? "chip active-new" : "chip";
+  }
 }
 function filtered(){
   let rows = S.rows.filter(r=>
     (F.brand==="Tất cả"||r.brand===F.brand)&&(F.seg==="Tất cả"||r.segment===F.seg)&&
-    (F.ch==="Tất cả"||r.channel===F.ch)&&(F.kind==="Tất cả"||kindOf(r)===F.kind)&&(!F.q||matchSmart(F.q, r.brand+" "+r.model))&&(!F.move||cat(r)===F.move));
+    (F.ch==="Tất cả"||r.channel===F.ch)&&(F.kind==="Tất cả"||kindOf(r)===F.kind)&&
+    (!F.onlyNew||isNewModel(r.model, r))&&
+    (!F.q||matchSmart(F.q, r.brand+" "+r.model))&&(!F.move||cat(r)===F.move));
   if(F.sort!=="master"){
     const k = {pmh:r=>r.pmh[r.pmh.length-1], rrp:r=>r.rrp, off:r=>offPrice(r), tot:r=>r.tot??null, delta:r=>delta(r), model:r=>r.model, pct:r=>{const p=r.pmh[r.pmh.length-1];return p==null?null:p/r.rrp}}[F.sort];
     rows = [...rows].sort((a,b)=>{const x=k(a),y=k(b); if(x==null&&y==null) return 0; if(x==null) return 1; if(y==null) return -1; return (x>y?1:x<y?-1:0)*F.dir;});
@@ -682,15 +691,22 @@ function deltaCell(r){
   if(d===0) return `<span class="d-flat">không đổi</span>`;
   return d>0?`<span class="d-up">▲ ${fmt(d)}</span>`:`<span class="d-down">▼ ${fmt(-d)}</span>`;
 }
-function isNewModel(m){
+function isNewModel(m, r){
+  if(r && (r.is_new === true || r.isNew === true)) return true;
   if(!m) return false;
   const s = String(m).toLowerCase();
-  return ((s.includes("a7 pro") || s.includes("a7pro")) && !s.includes("redmi"))
+  return s.includes("a18")
+      || s.includes("a7 pro") || s.includes("a7pro")
       || s.includes("a08")
-      || s.includes("a07s");
+      || s.includes("a07s")
+      || s.includes("v80")
+      || s.includes("c100x")
+      || s.includes("iphone 18")
+      || s.includes("duo")
+      || s.includes("note 17");
 }
-function newBadge(m){
-  return isNewModel(m) ? ` <span class="badge new-badge" title="Sản phẩm mới ra mắt">NEW</span>` : "";
+function newBadge(m, r){
+  return isNewModel(m, r) ? ` <span class="badge new-badge" title="Sản phẩm mới ra mắt">NEW</span>` : "";
 }
 function renderTable(){
   $("thead").innerHTML = COLS.map(([k,l,n])=>`<th class="${n?"num":""}" data-sort="${k}" scope="col">${l}${F.sort===k?(F.dir>0?" ▲":" ▼"):""}</th>`).join("");
@@ -700,7 +716,7 @@ function renderTable(){
     const p=r.pmh[r.pmh.length-1];
     const pct = (p==null||r.status!=="active")?"–":(p/r.rrp*100).toFixed(1)+"%";
     const flag = r.flags.length?` <span class="badge ${rrpUp(r)?"rrp":"warn"}" title="${esc(r.flags.join("; "))}">RRP${rrpUp(r)?" tăng":""}</span>`:"";
-    return `<tr tabindex="0" data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${newBadge(r.model)}${flag}</td>
+    return `<tr tabindex="0" data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${newBadge(r.model, r)}${flag}</td>
     <td><span class="badge ${r.channel==="TGDD"?"tgdd":"mass"}">${r.channel==="TGDD"?"Độc quyền":"Mass"}</span></td><td>${esc(r.segment)}</td>
     <td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td><td class="num" title="RRP trừ KM base. Flash sale chỉ có khi mua online nên không trừ vào giá này.">${fmt(offPrice(r))}</td><td class="num"><strong>${r.status==="active"?fmt(p):"–"}</strong></td><td class="num${r.tot?" fscell":""}"${r.tot?` title="Máy đang chạy flash sale online. Số đỏ là tổng tiền giảm khách thấy trên trang, chỉ để tham khảo."`:""}>${r.tot?fmt(r.tot):"–"}</td><td class="num">${deltaCell(r)}</td><td class="num">${pct}</td><td>${spark(r.pmh)}</td></tr>`;
   }).join("") || `<tr><td colspan="12">Không có SKU nào khớp bộ lọc. Bỏ bớt một bộ lọc để xem lại danh sách.</td></tr>`;
@@ -982,6 +998,7 @@ function renderAll(){
   document.title=`GTMVN — Theo dõi khuyến mãi (${S.rows.length} SKU)`;
 }
 document.addEventListener("click",e=>{
+  const newBtn=e.target.closest("#btn-only-new"); if(newBtn){ F.onlyNew = !F.onlyNew; renderFilters(); renderTable(); return; }
   const chip=e.target.closest(".chip:not([data-mk])"); if(chip){ F[chip.dataset.k]=chip.dataset.v; renderFilters(); renderTable(); return; }
   const seg=e.target.closest("#bar button"); if(seg){ F.move=F.move===seg.dataset.m?null:seg.dataset.m; renderBar(); renderTable(); return; }
   const th=e.target.closest("#thead th"); if(th&&th.dataset.sort!=="brand"&&th.dataset.sort!=="ch"&&th.dataset.sort!=="seg"&&th.dataset.sort!=="trend"&&th.dataset.sort!=="kind"){
