@@ -337,7 +337,15 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 </section>
 
 <section class="pane" id="p-history" hidden>
-  <div class="legend"><span><i class="lg-up"></i>PMH tăng so với đợt trước</span><span><i class="lg-down"></i>PMH giảm so với đợt trước</span><span><i class="lg-rrp"></i>RRP tăng</span><span>Ô trống: chưa có dữ liệu</span></div>
+  <div class="legend" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <span><i class="lg-up"></i>PMH tăng so với đợt trước</span>
+      <span><i class="lg-down"></i>PMH giảm so với đợt trước</span>
+      <span><i class="lg-rrp"></i>RRP tăng</span>
+      <span>Ô trống: chưa có dữ liệu</span>
+    </div>
+    <span class="badge" style="background:#e0e7ff;color:#3730a3;font-weight:700;padding:4px 10px;border-radius:6px;font-size:12px">Khóa 95 SKU Master List</span>
+  </div>
   <div class="panel tablewrap"><table class="matrix" id="mtx"></table></div>
 </section>
 
@@ -607,9 +615,15 @@ function build(){
     });
   });
   rows.forEach(r=>{ if(RRP_NOTES[r.model]) r.flags.unshift(RRP_NOTES[r.model]); });
-  // Giữ nguyên thứ tự hãng như trong dữ liệu gốc, trong mỗi hãng xếp giá đen từ cao xuống thấp.
-  const bOrder = []; rows.forEach(r=>{ if(!bOrder.includes(r.brand)) bOrder.push(r.brand); });
-  rows.sort((a,b)=> bOrder.indexOf(a.brand)-bOrder.indexOf(b.brand) || (b.rrp||0)-(a.rrp||0));
+  // Giữ nguyên thứ tự model theo Master List khai báo trong BASE.rows
+  const mOrder = (window.BASE && window.BASE.rows) ? window.BASE.rows.map(x=>x.model) : [];
+  rows.sort((a,b)=>{
+    const ia = mOrder.indexOf(a.model), ib = mOrder.indexOf(b.model);
+    if(ia>=0 && ib>=0) return ia - ib;
+    if(ia>=0) return -1;
+    if(ib>=0) return 1;
+    return (b.rrp||0) - (a.rrp||0);
+  });
   S = {dates, rows, todayDate};
 }
 function delta(r){
@@ -729,11 +743,17 @@ function renderBar(){
 }
 
 /* ---- history matrix ---- */
-/* Đợt quét mới nhất nằm bên trái để mở ra là thấy ngay. */
+/* Đợt quét mới nhất nằm bên trái để mở ra là thấy ngay. Khóa chuẩn theo 95 SKU Master List. */
 function renderMatrix(){
   const idx = S.dates.map((_,i)=>i).reverse();
   let h=`<thead><tr><th>Hãng</th><th>Model</th><th class="num">RRP</th>${idx.map(i=>`<th class="num">${esc(dlabel(S.dates[i]))}</th>`).join("")}</tr></thead><tbody>`;
-  S.rows.forEach(r=>{
+  
+  // Khóa tab Lịch sử theo đợt quét theo đúng 95 SKU Master List
+  const mList = (Array.isArray(window.MASTER_ORDER) && window.MASTER_ORDER.length)
+    ? window.MASTER_ORDER.map(m => S.rows.find(r => r.model === m)).filter(Boolean)
+    : S.rows.slice(0, 95);
+
+  mList.forEach(r=>{
     h+=`<tr data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${newBadge(r.model)}</td><td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td>`;
     idx.forEach(i=>{
       // Màu luôn so với đợt quét liền trước theo thời gian, dù hiển thị theo chiều nào.

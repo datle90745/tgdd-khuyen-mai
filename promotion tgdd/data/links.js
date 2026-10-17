@@ -16,7 +16,9 @@ window.LINKS = {
     "Reno16F 5G 8GB/256GB":  "https://www.thegioididong.com/dtdd/oppo-reno16-f",
     "Reno16F 5G 8GB/128GB":  "https://www.thegioididong.com/dtdd/oppo-reno16f-5g-8gb-128gb",
     "A7 Pro 5G 6GB/256GB":  "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-6gb-256gb",
+    "OPPO A7 Pro 5G 6GB/256GB":  "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-6gb-256gb",
     "A7 Pro 5G 8GB/128GB":  "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-8gb-128gb",
+    "OPPO A7 Pro 5G 8GB/128GB":  "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-8gb-128gb",
     "A6 8GB/256GB":  "https://www.thegioididong.com/dtdd/oppo-a6-8gb-256gb",
     "A6 8GB/128GB":  "https://www.thegioididong.com/dtdd/oppo-a6-8gb-128gb",
     "A6 Pro 5G 8GB/256GB":  "https://www.thegioididong.com/dtdd/oppo-a6-pro-5g-8gb-256gb",
@@ -94,5 +96,12 @@ window.LINKS = {
     "C100x 4GB/128GB":  "https://www.thegioididong.com/dtdd/realme-c100x-4gb-128gb",
     "C100i 4G 4GB/128GB":  "https://www.thegioididong.com/dtdd/realme-c100i-4gb-128gb",
     "C85 8GB/128GB":  "https://www.thegioididong.com/dtdd/realme-c85-8gb-128gb",
-    "C100i 4GB/64GB":  "https://www.thegioididong.com/dtdd/realme-c100i-4gb-64gb"
+    "C100i 4GB/64GB":  "https://www.thegioididong.com/dtdd/realme-c100i-4gb-64gb",
+    "Redmi Note 17 Pro 5G 6GB/256GB":  "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-5g-6gb-256gb",
+    "Galaxy A18 8GB/128GB":  "https://www.thegioididong.com/dtdd/samsung-galaxy-a18-8gb-128gb",
+    "Galaxy A18 6GB/128GB":  "https://www.thegioididong.com/dtdd/samsung-galaxy-a18-6gb-128gb",
+    "Galaxy A18 4GB/128GB":  "https://www.thegioididong.com/dtdd/samsung-galaxy-a18-4gb-128gb",
+    "Galaxy A07s 4GB/64GB":  "https://www.thegioididong.com/dtdd/samsung-galaxy-a07s-4gb-64gb",
+    "iPhone 18 Pro 256GB":  "https://www.thegioididong.com/dtdd/iphone-18-pro",
+    "iPhone Duo 256GB":  "https://www.thegioididong.com/dtdd/iphone-duo"
 };
