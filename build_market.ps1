@@ -493,6 +493,15 @@ if (Test-Path $FPT_JS) {
     [System.IO.File]::WriteAllText($FPT_JS, $fptNew, (New-Object System.Text.UTF8Encoding $false))
 }
 
+# Tu dong dong bo sang thu muc promotion tgdd/data neu co
+$mirrorData = Join-Path $ROOT "promotion tgdd\data"
+if (Test-Path $mirrorData) {
+    Copy-Item -Path $MARKET_JS -Destination (Join-Path $mirrorData "market.js") -Force
+    Copy-Item -Path $ALERTS_JS -Destination (Join-Path $mirrorData "alerts.js") -Force
+    Copy-Item -Path $RISES_JS  -Destination (Join-Path $mirrorData "rises.js") -Force
+    if (Test-Path $FPT_JS) { Copy-Item -Path $FPT_JS -Destination (Join-Path $mirrorData "fpt.js") -Force }
+}
+
 Write-Host "=========================================="
 Write-Host "DA DONG BO THANH CONG TOAN BO CAC TAB CHO NGAY $label LUC $at!"
 Write-Host "  - TGDD: $($tgddRows.Count) may"

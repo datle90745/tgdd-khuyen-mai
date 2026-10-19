@@ -115,8 +115,12 @@ foreach ($k in $keys) {
 
 $now = Get-Date -Format "dd-MMM HH:mm"
 $promosJson = $promos | ConvertTo-Json -Depth 5 -Compress
-$fileContent = "/* Tu dong cao uu dai & qua tang kem tu The Gioi Di Dong */`r`n/* Cap nhat: $now */`r`nwindow.PROMOS = $promosJson;`r`n"
-[System.IO.File]::WriteAllText("$PWD\data\promos.js", $fileContent, [System.Text.Encoding]::UTF8)
+$target1 = Join-Path $PWD "data\promos.js"
+[System.IO.File]::WriteAllText($target1, $fileContent, [System.Text.Encoding]::UTF8)
+$target2 = Join-Path $PWD "promotion tgdd\data\promos.js"
+if (Test-Path (Split-Path $target2)) {
+    [System.IO.File]::WriteAllText($target2, $fileContent, [System.Text.Encoding]::UTF8)
+}
 
 Write-Host "`nHoan thanh! Da luu data/promos.js:"
 Write-Host "- Tong so model: $($keys.Count)"
