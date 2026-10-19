@@ -4,10 +4,12 @@ Mỗi lần chạy tạo một đợt quét (ngày theo giờ Việt Nam), lưu:
   data/scans/scan_YYYY-MM-DD.json   bản ghi chi tiết của đợt quét
   data/scans.js                     window.SCANS = [...] cho web đọc
 
-PMH (`pmh`), theo tab "Quy tắc tính PMH" của web:
-  1. Có flash sale: PMH = khoản "Giảm giá X" trong mục "Chọn 1 trong".
+PMH (`pmh`), theo tab "Quy tắc tính PMH" của web và chuẩn vận hành:
+  1. Có flash sale: Phải có BANNER CAM chứa "Ưu đãi ONLINE" hoặc "Kết thúc sau" (hoặc "Online Giá Rẻ Quá", "Còn x/y suất").
+     Khi có banner cam: PMH = khoản "Giảm giá X" trong mục "Chọn 1 trong".
      Không có mục đó thì PMH = 0 (không lấy chênh lệch giá đen và giá đỏ của flash sale).
-  2. Không có flash sale: PMH = số lớn hơn giữa (giá đen − giá đỏ) và khoản "Chọn 1 trong".
+  2. Không có flash sale: Không có banner cam (kể cả có chữ ưu đãi thông thường).
+     PMH = số lớn hơn giữa (giá đen − giá đỏ) và khoản "Chọn 1 trong".
 Ghi kèm để đối chiếu: `online` = giá đen − giá đỏ, `choice` = khoản "Chọn 1 trong",
 `rule` = quy tắc đã dùng (flash_chon1 / den_tru_do / chon1).
 Không đoán số: trang lỗi/không đọc được giá thì để trống (null).
@@ -53,11 +55,20 @@ CF_PROXY_URL = os.environ.get("CF_PROXY_URL", "").rstrip("/")
 CF_PROXY_TOKEN = os.environ.get("CF_PROXY_TOKEN", "")
 
 BASE_RE = re.compile(r"Chọn 1 trong[\s\S]{0,600}?Giảm giá\s*([\d.,]+)\s*[₫đd]", re.I)
-BANNER_RE = re.compile(r"Online Giá Rẻ Quá", re.I)
-SLOTS_RE = re.compile(r"Còn\s*\d+\s*/\s*\d+\s*suất", re.I)  # flash sale ở bố cục mới: "Còn 2/5 suất"
-# Dạng flash sale đặc biệt có dải banner riêng (Online Giá Rẻ Quá, bg-fs-detail)
-ONLINE_DEAL_RE = re.compile(r"Online Giá Rẻ Quá|bg-fs-detail", re.I)
 DISCONTINUED_RE = re.compile(r"ngừng kinh doanh|ngưng kinh doanh", re.I)
+
+# Từ khóa nội dung của Flash sale: "Ưu đãi ONLINE", "Kết thúc sau", "Online Giá Rẻ Quá", "Còn x/y suất"
+FLASH_KEYWORDS_RE = re.compile(r"Ưu đãi ONLINE|Kết thúc sau|Online Giá Rẻ Quá|Còn\s*\d+\s*/\s*\d+\s*suất", re.I)
+
+# Nhận diện BANNER CAM của Flash sale (chuẩn vĩnh viễn):
+# Phải có khối banner màu cam / class flash sale (bg-fs-detail, bg-fs, box_saving, banner-fs, bg-orange...)
+ORANGE_BANNER_RE = re.compile(
+    r"bg-fs-detail|bg-fs|box_saving|banner-fs|flashsale|flash-sale"
+    r"|bg-orange|from-orange|to-orange|border-orange"
+    r"|#ff6b00|#f97316|#fb923c|#ea580c|#fd7e14|#ff7a00|#ff5722"
+    r"|rgb\(\s*255\s*,\s*10[0-9]\s*,\s*0\s*\)",
+    re.I
+)
 
 
 def http_get(url):
@@ -197,10 +208,15 @@ def money(text):
 def build_result(rrp, red, banner, choice, kind, choice_in_red=True):
     """rrp/red = giá đen/giá đỏ khách thật sự trả (đã trừ khoản "Chọn 1 trong").
     choice = khoản "Giảm giá X" trong mục "Chọn 1 trong".
-    choice_in_red = giá đỏ đã trừ sẵn khoản "Chọn 1 trong" hay chưa."""
+    choice_in_red = giá đỏ đã trừ sẵn khoản "Chọn 1 trong" hay chưa.
+    banner = True khi có BANNER CAM chứa 'Ưu đãi ONLINE' hoặc 'Kết thúc sau'.
+    """
     diff = max(rrp - red, 0)  # giá đen − giá đỏ
-    # PMH chuẩn theo dõi thị trường: số lớn hơn giữa (giá đen - giá đỏ) và "Chọn 1 trong"
-    if diff >= choice:
+    if banner:
+        # Có banner cam: là Flash sale, PMH = khoản "Chọn 1 trong", không có mục đó thì PMH = 0
+        pmh, rule = choice, "flash_chon1"
+    elif diff >= choice:
+        # Không có banner cam: không phải Flash sale, PMH = số lớn hơn giữa (giá đen − giá đỏ) và "Chọn 1 trong"
         pmh, rule = diff, "den_tru_do"
     else:
         pmh, rule = choice, "chon1"
@@ -212,7 +228,7 @@ def build_result(rrp, red, banner, choice, kind, choice_in_red=True):
 
 def parse_next_layout(soup):
     """Bố cục mới của TGDĐ (không có .box_main): giá đỏ ở span.text-24.text-red-5,
-    giá đen ở thẻ <del> cạnh đó. Flash sale có dòng "Còn x/y suất" cạnh giá."""
+    giá đen ở thẻ <del> cạnh đó. Flash sale có banner cam chứa 'Ưu đãi ONLINE' hoặc 'Kết thúc sau'."""
     page = soup.select_one("main") or soup.select_one("#__next") or soup.select_one("#app") or soup.body
     if page is None:
         return None
@@ -230,15 +246,24 @@ def parse_next_layout(soup):
     text = page.get_text(" ", strip=True)
     match = BASE_RE.search(text)
     choice = money(match.group(1)) if match else 0
-    # Xét khối giá của chính sản phẩm và dải banner flash sale cạnh giá
+    # Xét khối giá của chính sản phẩm và dải banner flash sale cạnh giá.
+    # Quy tắc chuẩn vĩnh viễn: "Ưu đãi ONLINE" và "Kết thúc sau" VẪN LÀ Flash sale,
+    # nhưng bắt buộc phải có BANNER CAM. Có banner cam -> Là Flash sale. Không có -> Không phải.
     box = red_node
     for _ in range(6):
         box = box.parent if box.parent is not None else box
     box_text = box.get_text(" ", strip=True)
     box_html = str(box)
-    has_fs_class = bool(box.select_one(".bg-fs-detail") or box.select_one("[class*='bg-fs']"))
-    banner = bool(has_fs_class or SLOTS_RE.search(box_text) or BANNER_RE.search(box_text)
-                  or ONLINE_DEAL_RE.search(box_text) or ONLINE_DEAL_RE.search(box_html))
+    has_banner_cam = bool(
+        box.select_one(".bg-fs-detail")
+        or box.select_one("[class*='bg-fs']")
+        or box.select_one("[class*='orange']")
+        or box.select_one("[class*='flash']")
+        or box.select_one(".box_saving")
+        or ORANGE_BANNER_RE.search(box_html)
+    )
+    has_flash_kw = bool(FLASH_KEYWORDS_RE.search(box_text) or FLASH_KEYWORDS_RE.search(box_html))
+    banner = bool(has_banner_cam and has_flash_kw)
     # Bố cục mới hiển thị giá đỏ chưa trừ khoản "Chọn 1 trong" (bấm chọn mới trừ tiếp).
     return build_result(rrp, red, banner, choice, "moi-banner" if banner else "moi",
                         choice_in_red=False)

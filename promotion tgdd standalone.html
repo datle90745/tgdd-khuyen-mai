@@ -547,9 +547,9 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 
 <section class="pane" id="p-rules" hidden>
   <div class="rules">
-    <div class="panel rule"><h3>Có flash sale, có “Chọn 1 trong”</h3><p>PMH = khoản “Giảm giá X” trong mục “Chọn 1 trong”. Không lấy chênh lệch giá đen và giá đỏ của flash sale.</p></div>
-    <div class="panel rule"><h3>Có flash sale, không có “Chọn 1 trong”</h3><p>PMH = 0. Ví dụ A6x 4GB/64GB: giá đen 4.990.000, giá đỏ flash sale 4.740.000 nhưng PMH vẫn là 0.</p></div>
-    <div class="panel rule"><h3>Không có flash sale</h3><p>PMH = số lớn hơn giữa (giá đen − giá đỏ) và khoản “Chọn 1 trong”.</p></div>
+    <div class="panel rule"><h3>Có Flash sale (Có Banner Cam), có “Chọn 1 trong”</h3><p>Có banner cam chứa “Ưu đãi ONLINE” hoặc “Kết thúc sau”: PMH = khoản “Giảm giá X” trong mục “Chọn 1 trong”. Không lấy chênh lệch giá đen và giá đỏ của flash sale.</p></div>
+    <div class="panel rule"><h3>Có Flash sale (Có Banner Cam), không có “Chọn 1 trong”</h3><p>Có banner cam: PMH = 0. Ví dụ S26 Ultra / A6x 4GB/64GB: có banner cam flash sale nhưng không có khoản chọn 1 trong thì PMH là 0.</p></div>
+    <div class="panel rule"><h3>Không có Flash sale (Không có Banner Cam)</h3><p>Không có banner cam: PMH = số lớn hơn giữa (giá đen − giá đỏ) và khoản “Chọn 1 trong”. Kể cả có chữ ưu đãi online thông thường nhưng không có banner cam thì không phải flash sale.</p></div>
     <div class="panel rule"><h3>Không flash sale, không giá gạch</h3><p>Giá đen trừ giá đỏ bằng 0 nên lấy khoản “Chọn 1 trong”. Ví dụ Reno16F 5G 8GB/256GB: PMH = 1.600.000.</p></div>
   </div>
   <div class="panel calc">
