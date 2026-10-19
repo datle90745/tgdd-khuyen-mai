@@ -8,8 +8,9 @@ $xlsxPath = Join-Path $root "xlsx.full.min.js"
 $index = [System.IO.File]::ReadAllText($indexPath, [System.Text.Encoding]::UTF8)
 
 if (Test-Path $xlsxPath) {
-    $xlsx = [System.IO.File]::ReadAllText($xlsxPath, [System.Text.Encoding]::UTF8)
-    $index = $index.Replace('<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>', "<script>`r`n/* Embedded SheetJS */`r`n$xlsx`r`n</script>")
+    $bytes = [System.IO.File]::ReadAllBytes($xlsxPath)
+    $b64 = [Convert]::ToBase64String($bytes)
+    $index = $index.Replace('<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>', "<script src=`"data:text/javascript;base64,$b64`"></script>")
 }
 
 $dataFiles = @('data.js', 'scans.js', 'latest.js', 'links.js', 'rises.js', 'fpt.js', 'alerts.js', 'market.js', 'promos.js')
