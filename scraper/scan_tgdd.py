@@ -55,8 +55,8 @@ CF_PROXY_TOKEN = os.environ.get("CF_PROXY_TOKEN", "")
 BASE_RE = re.compile(r"Chọn 1 trong[\s\S]{0,600}?Giảm giá\s*([\d.,]+)\s*[₫đd]", re.I)
 BANNER_RE = re.compile(r"Online Giá Rẻ Quá", re.I)
 SLOTS_RE = re.compile(r"Còn\s*\d+\s*/\s*\d+\s*suất", re.I)  # flash sale ở bố cục mới: "Còn 2/5 suất"
-# Dạng flash sale ở bố cục mới: dải đỏ "Ưu đãi ONLINE — Kết thúc sau ...", class bg-fs-detail, countdown
-ONLINE_DEAL_RE = re.compile(r"Ưu đãi ONLINE|Online Giá Rẻ Quá|Kết thúc sau|bg-fs-detail", re.I)
+# Dạng flash sale đặc biệt có dải banner riêng (Online Giá Rẻ Quá, bg-fs-detail)
+ONLINE_DEAL_RE = re.compile(r"Online Giá Rẻ Quá|bg-fs-detail", re.I)
 DISCONTINUED_RE = re.compile(r"ngừng kinh doanh|ngưng kinh doanh", re.I)
 
 
@@ -199,9 +199,8 @@ def build_result(rrp, red, banner, choice, kind, choice_in_red=True):
     choice = khoản "Giảm giá X" trong mục "Chọn 1 trong".
     choice_in_red = giá đỏ đã trừ sẵn khoản "Chọn 1 trong" hay chưa."""
     diff = max(rrp - red, 0)  # giá đen − giá đỏ
-    if banner:  # có flash sale: chỉ lấy khoản "Chọn 1 trong", không có thì 0
-        pmh, rule = choice, "flash_chon1"
-    elif diff >= choice:  # không flash sale: lấy số lớn hơn
+    # PMH chuẩn theo dõi thị trường: số lớn hơn giữa (giá đen - giá đỏ) và "Chọn 1 trong"
+    if diff >= choice:
         pmh, rule = diff, "den_tru_do"
     else:
         pmh, rule = choice, "chon1"
