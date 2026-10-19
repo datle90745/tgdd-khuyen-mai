@@ -1,21 +1,25 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%20%3Cpath%20d%3D%22M10%2018a8%208%200%200%201%208-8h14v22H10z%22%20fill%3D%22%238CC63F%22%2F%3E%20%3Cpath%20d%3D%22M32%2010h14a8%208%200%200%201%208%208v14H32z%22%20fill%3D%22%23EC2027%22%2F%3E%20%3Cpath%20d%3D%22M10%2032h22v22H18a8%208%200%200%201-8-8z%22%20fill%3D%22%2328335C%22%2F%3E%20%3Cpath%20d%3D%22M32%2032h22v14a8%208%200%200%201-8%208H32z%22%20fill%3D%22%2300B3BE%22%2F%3E%20%3Ccircle%20cx%3D%2213%22%20cy%3D%2213%22%20r%3D%229%22%20fill%3D%22%238CC63F%22%2F%3E%20%3Ccircle%20cx%3D%2251%22%20cy%3D%2213%22%20r%3D%229%22%20fill%3D%22%23EC2027%22%2F%3E%20%3Ccircle%20cx%3D%2213%22%20cy%3D%2251%22%20r%3D%229%22%20fill%3D%22%2328335C%22%2F%3E%20%3Ccircle%20cx%3D%2251%22%20cy%3D%2251%22%20r%3D%229%22%20fill%3D%22%2300B3BE%22%2F%3E%20%3Crect%20x%3D%2232%22%20y%3D%229%22%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20transform%3D%22rotate(45%2032%209)%22%20fill%3D%22%23fff%22%2F%3E%20%3Ccircle%20cx%3D%2232%22%20cy%3D%2229%22%20r%3D%2210%22%20fill%3D%22none%22%20stroke%3D%22%23F7B500%22%20stroke-width%3D%224.5%22%2F%3E%20%3Crect%20x%3D%2227%22%20y%3D%2238%22%20width%3D%2210%22%20height%3D%224%22%20rx%3D%222%22%20fill%3D%22%2328335C%22%2F%3E%20%3Crect%20x%3D%2228%22%20y%3D%2243%22%20width%3D%228%22%20height%3D%224%22%20rx%3D%222%22%20fill%3D%22%2328335C%22%2F%3E%20%3C%2Fsvg%3E">
 <title>GTMVN — Theo dõi khuyến mãi</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="data/data.js?v=sync_20261019_0919"></script>
-<script src="data/scans.js?v=sync_20261019_0919"></script>
-<script src="data/latest.js?v=sync_20261019_0919"></script>
-<script src="data/links.js?v=sync_20261019_0919"></script>
-<script src="data/rises.js?v=sync_20261019_0919"></script>
-<script src="data/fpt.js?v=sync_20261019_0919"></script>
-<script src="data/alerts.js?v=sync_20261019_0919"></script>
-<script src="data/market.js?v=sync_20261019_0919"></script>
-<script src="data/promos.js?v=sync_20261019_0919"></script>
+<script src="xlsx.full.min.js"></script>
+<script>if(!window.XLSX) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"><\/script>');</script>
+<script src="data/data.js?v=sync_20261019_1030"></script>
+<script src="data/scans.js?v=sync_20261019_1030"></script>
+<script src="data/latest.js?v=sync_20261019_1030"></script>
+<script src="data/links.js?v=sync_20261019_1030"></script>
+<script src="data/rises.js?v=sync_20261019_1030"></script>
+<script src="data/fpt.js?v=sync_20261019_1030"></script>
+<script src="data/alerts.js?v=sync_20261019_1030"></script>
+<script src="data/market.js?v=sync_20261019_1030"></script>
+<script src="data/promos.js?v=sync_20261019_1030"></script>
 <style>
 :root{
   --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
@@ -874,26 +878,30 @@ function save(filename,data,type){
   }catch(e){ toast("Không lưu được: "+(e.message||e)); }
 }
 function historySheetAoa(){
-  const idx = S.dates.map((_,i)=>i).reverse();
-  const head = ["Hãng", "Model", "Phân khúc", "Kênh", "RRP", "So đợt trước (đ)", ...idx.map(i => S.dates[i])];
+  const dates = Array.isArray(S.dates) ? S.dates : [];
+  const idx = dates.map((_,i)=>i).reverse();
+  const head = ["Hãng", "Model", "Phân khúc", "Kênh", "RRP", "So đợt trước (đ)", ...idx.map(i => dates[i])];
+  const allRows = Array.isArray(S.rows) ? S.rows : [];
   const mList = (Array.isArray(window.MASTER_ORDER) && window.MASTER_ORDER.length)
-    ? window.MASTER_ORDER.map(m => S.rows.find(r => r.model === m)).filter(Boolean)
-    : S.rows.slice(0, 95);
+    ? window.MASTER_ORDER.map(m => allRows.find(r => r && r.model === m)).filter(Boolean)
+    : allRows.slice(0, 95);
   const rows = mList.map(r => {
-    const curP = r.pmh[r.pmh.length - 1];
-    const prevP = r.pmh.length > 1 ? r.pmh[r.pmh.length - 2] : null;
+    if(!r) return [];
+    const pmh = Array.isArray(r.pmh) ? r.pmh : [];
+    const curP = pmh.length ? pmh[pmh.length - 1] : null;
+    const prevP = pmh.length > 1 ? pmh[pmh.length - 2] : null;
     let diff = "";
     if (curP != null && prevP != null) {
       diff = curP - prevP;
     }
     return [
-      r.brand,
-      r.model,
+      r.brand || "",
+      r.model || "",
       r.segment || "",
       r.channel === "TGDD" ? "Độc quyền" : "Mass",
-      r.rrp,
+      r.rrp != null ? r.rrp : "",
       diff,
-      ...idx.map(i => r.pmh[i] == null ? "" : r.pmh[i])
+      ...idx.map(i => (pmh[i] == null ? "" : pmh[i]))
     ];
   });
   return [head, ...rows];
@@ -906,16 +914,24 @@ function initExports(){
   if($("xlsx")) $("xlsx").onclick=()=>{
     if(!window.XLSX){ toast("Chưa tải được thư viện Excel, kiểm tra kết nối mạng"); return; }
     const wb=XLSX.utils.book_new();
-    const ws1=XLSX.utils.aoa_to_sheet(sheetAoa());
-    ws1["!cols"]=[{wch:10},{wch:38},{wch:14},{wch:16},{wch:11},...S.dates.map(()=>({wch:12})),{wch:18},{wch:20},{wch:20},{wch:40}];
-    XLSX.utils.book_append_sheet(wb,ws1,"KM_Chi_Tiet_TGDD");
+
+    // Sheet 1: KM Chi Tiết TGDĐ
     try{
-      // Tab 2: Lịch sử theo đợt quét (chuẩn 95 SKU Master List)
+      const ws1=XLSX.utils.aoa_to_sheet(sheetAoa());
+      ws1["!cols"]=[{wch:10},{wch:38},{wch:14},{wch:16},{wch:11},...S.dates.map(()=>({wch:12})),{wch:18},{wch:20},{wch:20},{wch:40}];
+      XLSX.utils.book_append_sheet(wb,ws1,"KM_Chi_Tiet_TGDD");
+    }catch(err1){ console.error("Export Sheet 1 error:", err1); }
+
+    // Sheet 2: Lịch sử theo đợt quét (chuẩn 95 SKU Master List) - BẮT BUỘC LUÔN CÓ
+    try{
       const hAoa = historySheetAoa();
       const wsHistory = XLSX.utils.aoa_to_sheet(hAoa);
       wsHistory["!cols"] = [{wch:10},{wch:36},{wch:12},{wch:12},{wch:14},{wch:16},...S.dates.map(()=>({wch:12}))];
       XLSX.utils.book_append_sheet(wb, wsHistory, "Lich_Su_Theo_Dot_Quet");
+    }catch(err2){ console.error("Export Sheet 2 error:", err2); }
 
+    // Sheet 3: Toàn thị trường 4 sàn
+    try{
       if(typeof buildH2HData==="function"){
         const h2h=buildH2HData();
         const h2hHead=["Hãng","Model","Phân khúc","Kênh","RRP","Giá TGDĐ","Giá CellphoneS","Giá FPT Shop","Giá Viettel Store","Sàn rẻ nhất","Chênh lệch cao nhất (đ)","% Chênh lệch"];
@@ -924,6 +940,10 @@ function initExports(){
         ws2["!cols"]=[{wch:10},{wch:36},{wch:12},{wch:12},{wch:14},{wch:14},{wch:14},{wch:14},{wch:14},{wch:18},{wch:22},{wch:14}];
         XLSX.utils.book_append_sheet(wb,ws2,"Ma_Tran_4_San");
       }
+    }catch(err3){ console.error("Export Sheet 3 error:", err3); }
+
+    // Sheet 4: Lịch sử tăng giá
+    try{
       if(Array.isArray(window.RISE)){
         const riseHead=["Tháng","Hãng","Model","Giá cũ","Giá mới","Mức tăng (đ)","% Thay đổi","Phân khúc","Ngày đổi"];
         const riseRows=RISE.map(r=>[r.mo,r.b,r.m,r.o,r.n,r.v,(r.p>0?"+":"")+r.p.toFixed(1)+"%",r.seg,rd(r.d)]);
@@ -931,7 +951,8 @@ function initExports(){
         ws3["!cols"]=[{wch:8},{wch:10},{wch:36},{wch:14},{wch:14},{wch:14},{wch:12},{wch:12},{wch:14}];
         XLSX.utils.book_append_sheet(wb,ws3,"Lich_Su_Tang_Gia");
       }
-    }catch(err){ console.error("Export multi-sheet error:",err); }
+    }catch(err4){ console.error("Export Sheet 4 error:", err4); }
+
     save(`Bao_Cao_GTM_Khuyen_Mai_${day()}.xlsx`,XLSX.write(wb,{type:"array",bookType:"xlsx"}),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
   };
   if($("history-xlsx")) $("history-xlsx").onclick=()=>{

@@ -10,7 +10,8 @@ $index = [System.IO.File]::ReadAllText($indexPath, [System.Text.Encoding]::UTF8)
 if (Test-Path $xlsxPath) {
     $bytes = [System.IO.File]::ReadAllBytes($xlsxPath)
     $b64 = [Convert]::ToBase64String($bytes)
-    $index = $index.Replace('<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>', "<script src=`"data:text/javascript;base64,$b64`"></script>")
+    $xlsxPattern = '(?s)<script src="xlsx\.full\.min\.js"></script>\s*<script>if\(!window\.XLSX\).*?<\/script>|<script src="https://cdnjs\.cloudflare\.com/ajax/libs/xlsx/0\.18\.5/xlsx\.full\.min\.js"></script>'
+    $index = [regex]::Replace($index, $xlsxPattern, "<script src=`"data:text/javascript;base64,$b64`"></script>")
 }
 
 $dataFiles = @('data.js', 'scans.js', 'latest.js', 'links.js', 'rises.js', 'fpt.js', 'alerts.js', 'market.js', 'promos.js')
@@ -19,8 +20,6 @@ foreach ($f in $dataFiles) {
     if (Test-Path $p) {
         $c = [System.IO.File]::ReadAllText($p, [System.Text.Encoding]::UTF8)
         $pattern = "(?s)<script src=`"data/$f[^`"]*`"></script>"
-        $replacement = "<script>`r`n/* Embedded data/$f */`r`n" + [System.Text.RegularExpressions.Regex]::Escape($c).Replace('\$', '$$') + "`r`n</script>"
-        # Using simple string replace where possible
         $m = [regex]::Match($index, $pattern)
         if ($m.Success) {
             $index = $index.Substring(0, $m.Index) + "<script>`r`n/* Embedded data/$f */`r`n" + $c + "`r`n</script>" + $index.Substring($m.Index + $m.Length)
@@ -37,4 +36,15 @@ $targets = @(
 foreach ($t in $targets) {
     [System.IO.File]::WriteAllText($t, $index, [System.Text.Encoding]::UTF8)
     Write-Host "Created: $t ($([math]::Round($index.Length / 1KB, 1)) KB)"
+}
+
+# Sync unbundled index.html and xlsx to promotion tgdd/
+$subIndex = Join-Path $root "promotion tgdd\index.html"
+$rawIndex = [System.IO.File]::ReadAllText($indexPath, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText($subIndex, $rawIndex, [System.Text.Encoding]::UTF8)
+Write-Host "Synced: $subIndex"
+
+$subXlsx = Join-Path $root "promotion tgdd\xlsx.full.min.js"
+if (Test-Path $xlsxPath) {
+    Copy-Item -Path $xlsxPath -Destination $subXlsx -Force
 }
