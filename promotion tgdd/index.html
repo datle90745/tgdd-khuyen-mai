@@ -11,15 +11,15 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <script src="xlsx.full.min.js"></script>
 <script>if(!window.XLSX) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"><\/script>');</script>
-<script src="data/data.js?v=sync_20261019_1030"></script>
-<script src="data/scans.js?v=sync_20261019_1030"></script>
-<script src="data/latest.js?v=sync_20261019_1030"></script>
-<script src="data/links.js?v=sync_20261019_1030"></script>
-<script src="data/rises.js?v=sync_20261019_1030"></script>
-<script src="data/fpt.js?v=sync_20261019_1030"></script>
-<script src="data/alerts.js?v=sync_20261019_1030"></script>
-<script src="data/market.js?v=sync_20261019_1030"></script>
-<script src="data/promos.js?v=sync_20261019_1030"></script>
+<script src="data/data.js?v=sync_20261019_1500"></script>
+<script src="data/scans.js?v=sync_20261019_1500"></script>
+<script src="data/latest.js?v=sync_20261019_1500"></script>
+<script src="data/links.js?v=sync_20261019_1500"></script>
+<script src="data/rises.js?v=sync_20261019_1500"></script>
+<script src="data/fpt.js?v=sync_20261019_1500"></script>
+<script src="data/alerts.js?v=sync_20261019_1500"></script>
+<script src="data/market.js?v=sync_20261019_1500"></script>
+<script src="data/promos.js?v=sync_20261019_1500"></script>
 <style>
 :root{
   --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
@@ -603,6 +603,10 @@ function canonKey(str, brand){
   s = s.replace(/\b(apple|iphone|oppo|samsung|galaxy|xiaomi|redmi|vivo|realme)\b/g, " ");
   s = s.replace(/(\d+)\s*(?:gb|\+|\/)\s*(\d+)\s*(?:gb|g)?/g, "$1gb$2gb");
   s = s.replace(/[^a-z0-9]/g, "");
+  // Đồng bộ biến thể RAM/ROM của OPPO A7 Pro 5G: TGDĐ đặt slug 6gb-256gb nhưng niêm yết 8GB/256GB
+  if((b === "oppo" || inferBrand(str) === "oppo") && /a7pro5g/i.test(s) && /256gb/i.test(s)){
+    return "oppo_a7pro5g8gb256gb";
+  }
   return (b ? b + "_" : "") + s;
 }
 

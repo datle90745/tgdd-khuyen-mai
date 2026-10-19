@@ -92,6 +92,21 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         $csvLines = (Get-Content "scraper/products.csv").Count
         $csvLines -ge 96 # 1 header + 95 SKU
     } "products.csv co it hon 95 SKU"
+
+    Assert-Check "scraper/products.csv phai chua model chuan 'A7 Pro 5G 8GB/256GB'" {
+        $csvText = Get-Content "scraper/products.csv" -Raw -Encoding UTF8
+        $csvText -match 'A7 Pro 5G 8GB/256GB'
+    } "products.csv khong chua 'A7 Pro 5G 8GB/256GB'"
+
+    Assert-Check "data/links.js phai chua link cho 'A7 Pro 5G 8GB/256GB'" {
+        $linksText = Get-Content "data/links.js" -Raw -Encoding UTF8
+        $linksText -match '"A7 Pro 5G 8GB/256GB"'
+    } "data/links.js thieu key 'A7 Pro 5G 8GB/256GB'"
+
+    Assert-Check "data/latest.js phai co 'A7 Pro 5G 8GB/256GB' active voi PMH 1.500.000 va red 12.990.000" {
+        $latestText = Get-Content "data/latest.js" -Raw -Encoding UTF8
+        $latestText -match '"model":"A7 Pro 5G 8GB/256GB"[^}]*"red":12990000[^}]*"pmh":1500000'
+    } "data/latest.js thieu hoac sai so lieu A7 Pro 5G 8GB/256GB"
 }
 
 # ------------------------------------------------------------------------------
@@ -171,6 +186,25 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
             Assert-Check "E2E: File toan_thi_truong phai co DUNG 3 SHEETS (them ca Lich_Su_Theo_Dot_Quet)" {
                 $mkFile.sheetCount -eq 3 -and ($mkFile.sheetNames -contains "Lich_Su_Theo_Dot_Quet")
             } "toan_thi_truong khong co dung 3 sheets kem Lich_Su_Theo_Dot_Quet"
+        }
+    }
+
+    # Kiem tra truc tiep DOM cua index.html va promotion tgdd.html xem A7 Pro 5G 8GB/256GB co bi thieu so lieu hay khong
+    $domCheckFiles = @("index.html", "promotion tgdd.html")
+    foreach ($dcf in $domCheckFiles) {
+        $fullDcf = (Get-Item $dcf).FullName
+        $tempDcf = "$env:TEMP\dom_check_$($dcf -replace '[^\w]','_').html"
+        cmd /c "`"$chromePath`" --headless=old --dump-dom `"file:///$fullDcf`" 2>nul > `"$tempDcf`""
+        if (Test-Path $tempDcf) {
+            $domContent = Get-Content $tempDcf -Raw -Encoding UTF8
+            $a7Match = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="A7 Pro 5G 8GB/256GB"[^>]*>(.*?)</tr>')
+            
+            Assert-Check "DOM E2E: $dcf phai render day du Gia offline 12.990.000 va KM base 1.500.000 cho A7 Pro 5G 8GB/256GB" {
+                $a7Match.Success -and 
+                ($a7Match.Groups[1].Value -match '12\.990\.000') -and 
+                ($a7Match.Groups[1].Value -match '1\.500\.000') -and
+                ($a7Match.Groups[1].Value -notmatch '<td>–</td>\s*<td>–</td>')
+            } "$dcf bi loi thieu so lieu (hien thi dau gach ngang -) cho A7 Pro 5G 8GB/256GB"
         }
     }
 }
