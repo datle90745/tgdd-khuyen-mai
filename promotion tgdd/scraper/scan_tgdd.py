@@ -55,8 +55,8 @@ CF_PROXY_TOKEN = os.environ.get("CF_PROXY_TOKEN", "")
 BASE_RE = re.compile(r"Chọn 1 trong[\s\S]{0,600}?Giảm giá\s*([\d.,]+)\s*[₫đd]", re.I)
 BANNER_RE = re.compile(r"Online Giá Rẻ Quá", re.I)
 SLOTS_RE = re.compile(r"Còn\s*\d+\s*/\s*\d+\s*suất", re.I)  # flash sale ở bố cục mới: "Còn 2/5 suất"
-# Dạng flash sale thứ hai ở bố cục mới: dải đỏ "Ưu đãi ONLINE — Kết thúc sau 09 : 07 : 58".
-ONLINE_DEAL_RE = re.compile(r"Ưu đãi ONLINE[\s\S]{0,100}?Kết thúc sau\s*\d|Kết thúc sau\s*\d", re.I)
+# Dạng flash sale ở bố cục mới: dải đỏ "Ưu đãi ONLINE — Kết thúc sau ...", class bg-fs-detail, countdown
+ONLINE_DEAL_RE = re.compile(r"Ưu đãi ONLINE|Online Giá Rẻ Quá|Kết thúc sau|bg-fs-detail", re.I)
 DISCONTINUED_RE = re.compile(r"ngừng kinh doanh|ngưng kinh doanh", re.I)
 
 
@@ -231,13 +231,15 @@ def parse_next_layout(soup):
     text = page.get_text(" ", strip=True)
     match = BASE_RE.search(text)
     choice = money(match.group(1)) if match else 0
-    # Chỉ xét khối giá của chính sản phẩm (vài tầng cha của giá đỏ), không xét sản phẩm gợi ý.
+    # Xét khối giá của chính sản phẩm và dải banner flash sale cạnh giá
     box = red_node
-    for _ in range(4):
+    for _ in range(6):
         box = box.parent if box.parent is not None else box
     box_text = box.get_text(" ", strip=True)
-    banner = bool(SLOTS_RE.search(box_text) or BANNER_RE.search(box_text)
-                  or ONLINE_DEAL_RE.search(box_text))
+    box_html = str(box)
+    has_fs_class = bool(box.select_one(".bg-fs-detail") or box.select_one("[class*='bg-fs']"))
+    banner = bool(has_fs_class or SLOTS_RE.search(box_text) or BANNER_RE.search(box_text)
+                  or ONLINE_DEAL_RE.search(box_text) or ONLINE_DEAL_RE.search(box_html))
     # Bố cục mới hiển thị giá đỏ chưa trừ khoản "Chọn 1 trong" (bấm chọn mới trừ tiếp).
     return build_result(rrp, red, banner, choice, "moi-banner" if banner else "moi",
                         choice_in_red=False)
