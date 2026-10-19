@@ -63,6 +63,7 @@ def filter_unregistered_rises(items):
     base_entries = []
     for row in re.findall(r'\["T\d+","([^"]+)","([^"]+)",(\d+),(\d+),', base):
         base_entries.append((row[0].upper(), _norm_tokens(row[1]), int(row[2]), int(row[3])))
+    base_rrp_map = {m.group(1): int(m.group(2)) for m in re.finditer(r'"model":\s*"([^"]+)",\s*"rrp":\s*(\d+)', base)}
     clean = []
     for it in items:
         # Bỏ qua hoàn toàn kênh FPT Shop theo chỉ đạo của người dùng
@@ -70,6 +71,11 @@ def filter_unregistered_rises(items):
             continue
         model, old, new = it.get("n"), it.get("old"), it.get("new")
         if not model or not old or not new or new <= old:
+            continue
+        # Chống báo tăng ảo: nếu giá mới <= giá RRP niêm yết chuẩn trong data.js thì đây chỉ là
+        # đợt quét phục hồi lại đúng giá chuẩn sau khi đợt trước bị lỗi đọc nhầm giá biến thể khác.
+        catalog_rrp = base_rrp_map.get(model)
+        if catalog_rrp and new <= catalog_rrp:
             continue
         brand = (it.get("b") or brand_of(model) or "").upper()
         tokens = _norm_tokens(model)

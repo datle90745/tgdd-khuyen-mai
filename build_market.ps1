@@ -316,12 +316,17 @@ $at = $now.ToString("HH:mm")
 
 # --- SO SANH GIA GOC TANG (ALERTS & RISES) ---
 $baseEntries = @()
+$baseRrpMap = @{}
 $dataJsPath = Join-Path $ROOT "data\data.js"
 if (Test-Path $dataJsPath) {
     $dataTxt = [System.IO.File]::ReadAllText($dataJsPath, [System.Text.Encoding]::UTF8)
     $mBase = [regex]::Matches($dataTxt, '\["T\d+","([^"]+)","([^"]+)",(\d+),(\d+),')
     foreach ($m in $mBase) {
         $baseEntries += ,@($m.Groups[1].Value.ToUpper(), $m.Groups[2].Value, [int64]$m.Groups[3].Value, [int64]$m.Groups[4].Value)
+    }
+    $mCatalog = [regex]::Matches($dataTxt, '"model":\s*"([^"]+)",\s*"rrp":\s*(\d+)')
+    foreach ($mc in $mCatalog) {
+        $baseRrpMap[$mc.Groups[1].Value] = [int64]$mc.Groups[2].Value
     }
 }
 

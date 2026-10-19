@@ -106,8 +106,6 @@ def catalog():
                     for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
                         vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
                         slugs.add(vslug)
-                        if red > 0 and vslug not in _CATALOG_ITEMS:
-                            _CATALOG_ITEMS[vslug] = {"red": red, "rrp": orig}
         except Exception as e:
             print(f"  Lỗi cào brand {b}: {e}", flush=True)
         time.sleep(0.5)
@@ -590,9 +588,15 @@ def main():
     if previous:
         old = {r["model"]: r.get("rrp") for r in
                json.loads(previous[-1].read_text(encoding="utf-8-sig"))["rows"]}
+        base_text = alerts._base_text()
+        base_rrp_map = {m.group(1): int(m.group(2)) for m in re.finditer(r'"model":\s*"([^"]+)",\s*"rrp":\s*(\d+)', base_text)}
         for r in rows:
             before, after = old.get(r["model"]), r.get("rrp")
             if before and after and after > before:
+                base_rrp = base_rrp_map.get(r["model"])
+                # Nếu giá sau <= RRP chuẩn trong catalogue data.js, đó là phục hồi sau lỗi quét cũ, không phải tăng giá
+                if base_rrp and after <= base_rrp:
+                    continue
                 ups.append({"r": "TGDĐ", "n": r["model"], "old": before, "new": after})
     alerts.record("tgdd-86", today, now.strftime("%H:%M"), ups)
     print(f"Giá đen tăng (86 SKU): {len(ups)}"

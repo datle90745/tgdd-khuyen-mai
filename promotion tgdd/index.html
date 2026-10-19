@@ -7,15 +7,15 @@
 <title>GTMVN — Theo dõi khuyến mãi</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="data/data.js?v=sync_20261017_1636"></script>
-<script src="data/scans.js?v=sync_20261017_1636"></script>
-<script src="data/latest.js?v=sync_20261017_1636"></script>
-<script src="data/links.js?v=sync_20261017_1636"></script>
-<script src="data/rises.js?v=sync_20261017_1636"></script>
-<script src="data/fpt.js?v=sync_20261017_1636"></script>
-<script src="data/alerts.js?v=sync_20261017_1636"></script>
-<script src="data/market.js?v=sync_20261017_1636"></script>
-<script src="data/promos.js?v=sync_20261017_1636"></script>
+<script src="data/data.js?v=sync_20261019_0919"></script>
+<script src="data/scans.js?v=sync_20261019_0919"></script>
+<script src="data/latest.js?v=sync_20261019_0919"></script>
+<script src="data/links.js?v=sync_20261019_0919"></script>
+<script src="data/rises.js?v=sync_20261019_0919"></script>
+<script src="data/fpt.js?v=sync_20261019_0919"></script>
+<script src="data/alerts.js?v=sync_20261019_0919"></script>
+<script src="data/market.js?v=sync_20261019_0919"></script>
+<script src="data/promos.js?v=sync_20261019_0919"></script>
 <style>
 :root{
   --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
@@ -344,7 +344,10 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
       <span><i class="lg-rrp"></i>RRP tăng</span>
       <span>Ô trống: chưa có dữ liệu</span>
     </div>
-    <span class="badge" style="background:#e0e7ff;color:#3730a3;font-weight:700;padding:4px 10px;border-radius:6px;font-size:12px">Khóa 95 SKU Master List</span>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="badge" style="background:#e0e7ff;color:#3730a3;font-weight:700;padding:4px 10px;border-radius:6px;font-size:12px">Khóa 95 SKU Master List</span>
+      <button class="btn" id="history-xlsx" style="padding:4px 12px">Xuất Excel tab này</button>
+    </div>
   </div>
   <div class="panel tablewrap"><table class="matrix" id="mtx"></table></div>
 </section>
@@ -532,9 +535,14 @@ const fmt = n => n==null ? "–" : n.toLocaleString("vi-VN");
 const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const BDISP={Apple:"APPLE",Samsung:"SAMSUNG",Xiaomi:"MI"};
 const bdisp=b=>BDISP[b]||b;
-const bcell=b=>`<td class="bcell" data-b="${esc(b)}">${esc(bdisp(b))}</td>`;
-const rrpUp=r=>r.flags.some(f=>{ if(/tăng/.test(f)) return true; const m=f.match(/([\d.]+) → ([\d.]+)/); return !!m && +m[2].replace(/\./g,"") > +m[1].replace(/\./g,""); });
-const $ = id => document.getElementById(id);
+const rrpUp = r => (r.flags || []).some(f => {
+  if (/^Giá đen.*tăng/i.test(f)) return true;
+  const m = f.match(/^Giá đen đổi ([\d.]+) → ([\d.]+)/);
+  if (!m) return false;
+  const oldP = +m[1].replace(/\./g, ""), newP = +m[2].replace(/\./g, "");
+  const orig = (window.BASE && window.BASE.rows) ? (window.BASE.rows.find(x => x.model === r.model) || {}).rrp : 0;
+  return newP > oldP && (!orig || newP > orig);
+});
 const removeAccents = s => String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9\s]/g," ").trim();
 function matchSmart(q, text){
   if(!q) return true;
@@ -863,6 +871,31 @@ function save(filename,data,type){
     toast("Đã lưu "+filename);
   }catch(e){ toast("Không lưu được: "+(e.message||e)); }
 }
+function historySheetAoa(){
+  const idx = S.dates.map((_,i)=>i).reverse();
+  const head = ["Hãng", "Model", "Phân khúc", "Kênh", "RRP", "So đợt trước (đ)", ...idx.map(i => S.dates[i])];
+  const mList = (Array.isArray(window.MASTER_ORDER) && window.MASTER_ORDER.length)
+    ? window.MASTER_ORDER.map(m => S.rows.find(r => r.model === m)).filter(Boolean)
+    : S.rows.slice(0, 95);
+  const rows = mList.map(r => {
+    const curP = r.pmh[r.pmh.length - 1];
+    const prevP = r.pmh.length > 1 ? r.pmh[r.pmh.length - 2] : null;
+    let diff = "";
+    if (curP != null && prevP != null) {
+      diff = curP - prevP;
+    }
+    return [
+      r.brand,
+      r.model,
+      r.segment || "",
+      r.channel === "TGDD" ? "Độc quyền" : "Mass",
+      r.rrp,
+      diff,
+      ...idx.map(i => r.pmh[i] == null ? "" : r.pmh[i])
+    ];
+  });
+  return [head, ...rows];
+}
 function csvText(){ return "﻿"+sheetAoa().map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(",")).join("\n"); }
 function initExports(){
   const day=()=>S.dates[S.dates.length-1];
@@ -873,8 +906,14 @@ function initExports(){
     const wb=XLSX.utils.book_new();
     const ws1=XLSX.utils.aoa_to_sheet(sheetAoa());
     ws1["!cols"]=[{wch:10},{wch:38},{wch:14},{wch:16},{wch:11},...S.dates.map(()=>({wch:12})),{wch:18},{wch:20},{wch:20},{wch:40}];
-    XLSX.utils.book_append_sheet(wb,ws1,"KM_86_SKU_TGDD");
+    XLSX.utils.book_append_sheet(wb,ws1,"KM_Chi_Tiet_TGDD");
     try{
+      // Tab 2: Lịch sử theo đợt quét (chuẩn 95 SKU Master List)
+      const hAoa = historySheetAoa();
+      const wsHistory = XLSX.utils.aoa_to_sheet(hAoa);
+      wsHistory["!cols"] = [{wch:10},{wch:36},{wch:12},{wch:12},{wch:14},{wch:16},...S.dates.map(()=>({wch:12}))];
+      XLSX.utils.book_append_sheet(wb, wsHistory, "Lich_Su_Theo_Dot_Quet");
+
       if(typeof buildH2HData==="function"){
         const h2h=buildH2HData();
         const h2hHead=["Hãng","Model","Phân khúc","Kênh","RRP","Giá TGDĐ","Giá CellphoneS","Giá FPT Shop","Giá Viettel Store","Sàn rẻ nhất","Chênh lệch cao nhất (đ)","% Chênh lệch"];
@@ -892,6 +931,15 @@ function initExports(){
       }
     }catch(err){ console.error("Export multi-sheet error:",err); }
     save(`Bao_Cao_GTM_Khuyen_Mai_${day()}.xlsx`,XLSX.write(wb,{type:"array",bookType:"xlsx"}),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+  };
+  if($("history-xlsx")) $("history-xlsx").onclick=()=>{
+    if(!window.XLSX){ toast("Chưa tải được thư viện Excel, kiểm tra kết nối mạng"); return; }
+    const wb=XLSX.utils.book_new();
+    const hAoa = historySheetAoa();
+    const ws = XLSX.utils.aoa_to_sheet(hAoa);
+    ws["!cols"] = [{wch:10},{wch:36},{wch:12},{wch:12},{wch:14},{wch:16},...S.dates.map(()=>({wch:12}))];
+    XLSX.utils.book_append_sheet(wb, ws, "Lich_Su_Theo_Dot_Quet");
+    save(`Lich_Su_Theo_Dot_Quet_${day()}.xlsx`, XLSX.write(wb, {type:"array", bookType:"xlsx"}), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
   };
 }
 
