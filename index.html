@@ -603,10 +603,6 @@ function canonKey(str, brand){
   s = s.replace(/\b(apple|iphone|oppo|samsung|galaxy|xiaomi|redmi|vivo|realme)\b/g, " ");
   s = s.replace(/(\d+)\s*(?:gb|\+|\/)\s*(\d+)\s*(?:gb|g)?/g, "$1gb$2gb");
   s = s.replace(/[^a-z0-9]/g, "");
-  // Đồng bộ biến thể RAM/ROM của OPPO A7 Pro 5G: TGDĐ đặt slug 6gb-256gb nhưng niêm yết 8GB/256GB
-  if((b === "oppo" || inferBrand(str) === "oppo") && /a7pro5g/i.test(s) && /256gb/i.test(s)){
-    return "oppo_a7pro5g8gb256gb";
-  }
   return (b ? b + "_" : "") + s;
 }
 

@@ -46,6 +46,14 @@
   - `data/scans.js`: `window.SCANS` chứa toàn bộ các đợt quét lịch sử (bao gồm cả đợt quét hôm nay khi đã hoàn thành).
   - Tránh tuyệt đối việc `latest.js` có đợt mới mà `scans.js` bị bỏ sót.
 
+### 2.5. Tính Độc Lập Biến Thể Cấu Hình (RAM/ROM) - Tuyệt Đối Không Gộp (Merge)
+- **Mọi biến thể RAM/ROM trên TGDĐ là một sản phẩm/SKU hoàn toàn riêng biệt**:
+  - Ví dụ: `OPPO A7 Pro 5G 6GB/256GB` và `OPPO A7 Pro 5G 8GB/128GB` là 2 sản phẩm độc lập có giá bán, khuyến mãi và đường link riêng.
+- **Cấm tuyệt đối việc tự ý can thiệp hoặc thêm quy tắc đồng bộ ép mã trong `canonKey()`**:
+  - Không bao giờ được map/ép phiên bản cấu hình này sang phiên bản cấu hình khác (ví dụ ép `6GB` về `8GB/256GB`).
+  - `canonKey()` chỉ chuẩn hóa format chuỗi (bỏ khoảng trắng, chuẩn hóa ký hiệu RAM/ROM dạng `XgbYgb`, loại bỏ ký tự đặc biệt), không được thay đổi giá trị dung lượng thực tế.
+- Nếu danh mục Master List hoặc file cấu hình bị sai tên biến thể, phải sửa đúng gốc rễ tên SKU tại `data/data.js`, `products.csv`, `latest.js`, `scans.js` thay vì dùng mã giả lập / hack trong code xử lý chuỗi.
+
 ---
 
 ## 3. Bảng Kiểm Tra & Công Cụ Đo Lường
