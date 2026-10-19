@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<script src="../xlsx.full.min.js"></script>
+<script src="../data/data.js"></script>
+<script src="../data/scans.js"></script>
+<script src="../data/latest.js"></script>
+<script src="../data/links.js"></script>
+<script src="../data/rises.js"></script>
+<script src="../data/fpt.js"></script>
+<script src="../data/alerts.js"></script>
+<script src="../data/market.js"></script>
+<script src="../data/promos.js"></script>
+</head>
+<body>
+<div id="test-output">Chưa chạy</div>
+<script>
+// Mock DOM elements needed by index.html export logic
+const elements = {};
+function $(id) {
+  if (!elements[id]) {
+    elements[id] = document.createElement("div");
+    elements[id].id = id;
+    document.body.appendChild(elements[id]);
+  }
+  return elements[id];
+}
+window.$ = $;
+window.toast = function(msg) { console.log("TOAST:", msg); };
+
+let exportResults = {};
+window.save = function(filename, data, mime) {
+  try {
+    const wb = XLSX.read(data, {type: 'array'});
+    exportResults[filename] = {
+      filename: filename,
+      sheetCount: wb.SheetNames.length,
+      sheetNames: wb.SheetNames,
+      sheetsInfo: wb.SheetNames.map(function(s) {
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[s], {header: 1});
+        return {
+          name: s,
+          rowCount: rows.length,
+          header: rows[0] || []
+        };
+      })
+    };
+  } catch(e) {
+    exportResults[filename] = { error: e.message };
+  }
+};
+</script>
+
+<!-- Embedded Logic from index.html for testing -->
+<script>
+const BASE = window.BASE;
+const SCANS = Array.isArray(window.SCANS) ? window.SCANS : [];
+const LATEST = window.LATEST && Array.isArray(window.LATEST.rows) ? window.LATEST : null;
+const LINKS = window.LINKS || {};
+const MASTER_ORDER = window.MASTER_ORDER || [];
+
+let S = {dates:[], rows:[]};
+
+function inferBrand(str){
+  if(!str) return "";
+  const s = String(str).trim();
+  if(/\b(oppo)\b/i.test(s) || /^Reno|^Find|^A\d[xct]/i.test(s)) return "oppo";
+  if(/\b(samsung|galaxy)\b/i.test(s) || /^S\d{2}|^A\d{2}|^A0\d|^Z\s*(Flip|Fold)/i.test(s)) return "samsung";
+  if(/\b(xiaomi|redmi)\b/i.test(s) || /^\d{1,2}T/i.test(s)) return "xiaomi";
+  if(/\b(vivo)\b/i.test(s) || /^[YV]\d{2}|^X\d{3}/i.test(s)) return "vivo";
+  if(/\b(realme)\b/i.test(s) || /^C\d{2,3}/i.test(s)) return "realme";
+  if(/\b(iphone|apple)\b/i.test(s)) return "apple";
+  return "";
+}
+
+function canonKey(str, brand){
+  if(!str) return "";
+  const b = (brand ? String(brand).toLowerCase().trim() : inferBrand(str));
+  let s = String(str).toLowerCase().trim();
+  s = s.replace(/\b(apple|iphone|oppo|samsung|galaxy|xiaomi|redmi|vivo|realme)\b/g, " ");
+  s = s.replace(/(\d+)\s*(?:gb|\+|\/)\s*(\d+)\s*(?:gb|g)?/g, "$1gb$2gb");
+  s = s.replace(/[^a-z0-9]/g, "");
+  return (b ? b + "_" : "") + s;
+}
+
+function build(){
+  const rows = BASE.rows.map(r=>({...r, pmh:[...r.pmh], flags:[]}));
+  const dates = [...BASE.dates];
+  const pubDates = new Set(SCANS.map(s=>s.date));
+  const feeds = [...SCANS];
+  if(LATEST && !pubDates.has(LATEST.date) && LATEST.rows.some(x=>typeof x.pmh==="number")){ feeds.push(LATEST); }
+  feeds.forEach(im=>{
+    let col = dates.indexOf(im.date);
+    if(col<0){ dates.push(im.date); col = dates.length-1; }
+    const m = new Map();
+    const canonM = new Map();
+    im.rows.forEach(x=>{
+      m.set(x.model, x);
+      const b = x.brand || inferBrand(x.model);
+      const ck = canonKey(x.model, b);
+      if(!canonM.has(ck)) canonM.set(ck, x);
+    });
+    rows.forEach(r=>{
+      const ck = canonKey(r.model, r.brand);
+      const x = m.get(r.model) || (ck ? canonM.get(ck) : null) || m.get(r.brand + " " + r.model);
+      if(!x){ if(r.pmh.length<=col) r.pmh.push(null); return; }
+      if(typeof x.rrp==="number" && x.rrp!==r.rrp){ r.rrp = x.rrp; }
+      if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||x.status==="active") r.status = x.status;
+      if(typeof x.pmh==="number") r.pmh[col] = x.pmh;
+      else if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||r.pmh[col]===undefined) r.pmh[col] = null;
+      if(typeof x.red==="number") r.red = x.red;
+      if("rule" in x){
+        r.online = typeof x.online==="number" ? x.online : null;
+        r.choice = typeof x.choice==="number" ? x.choice : null;
+        r.tot = typeof x.total_online==="number" ? x.total_online : (r.online||0);
+      }
+    });
+  });
+  S = {dates, rows};
+}
+build();
+
+function sheetAoa(){
+  const head=["Hãng","Model","RRP","Kênh","Phân khúc",...S.dates.map(d=>"KM base "+d),
+              "Giá offline","Loại KM (tham khảo)","Flash sale (tham khảo)","Link"];
+  const v=x=>x==null?"":x;
+  return [head,...S.rows.map(r=>[r.brand,r.model,r.rrp,r.channel==="TGDD"?"Độc quyền TGDĐ":"Mass",r.segment,
+                                 ...r.pmh.map(v), v(r.red), "", v(r.tot), LINKS[r.model]||""])];
+}
+
+function historySheetAoa(){
+  const dates = Array.isArray(S.dates) ? S.dates : [];
+  const idx = dates.map((_,i)=>i).reverse();
+  const head = ["Hãng", "Model", "Phân khúc", "Kênh", "RRP", "So đợt trước (đ)", ...idx.map(i => dates[i])];
+  const allRows = Array.isArray(S.rows) ? S.rows : [];
+  const mList = (Array.isArray(MASTER_ORDER) && MASTER_ORDER.length)
+    ? MASTER_ORDER.map(m => allRows.find(r => r && r.model === m)).filter(Boolean)
+    : allRows.slice(0, 95);
+  const rows = mList.map(r => {
+    if(!r) return [];
+    const pmh = Array.isArray(r.pmh) ? r.pmh : [];
+    const curP = pmh.length ? pmh[pmh.length - 1] : null;
+    const prevP = pmh.length > 1 ? pmh[pmh.length - 2] : null;
+    let diff = "";
+    if (curP != null && prevP != null) {
+      diff = curP - prevP;
+    }
+    return [
+      r.brand || "",
+      r.model || "",
+      r.segment || "",
+      r.channel === "TGDD" ? "Độc quyền" : "Mass",
+      r.rrp != null ? r.rrp : "",
+      diff,
+      ...idx.map(i => (pmh[i] == null ? "" : pmh[i]))
+    ];
+  });
+  return [head, ...rows];
+}
+
+function buildH2HData(){
+  return S.rows.map(r => ({
+    brand: r.brand,
+    model: r.model,
+    segment: r.segment,
+    channel: r.channel,
+    rrp: r.rrp,
+    p_tgdd: r.red || r.rrp,
+    p_cps: r.red || r.rrp,
+    p_fpt: r.red || r.rrp,
+    p_vt: r.red || r.rrp,
+    bests: ["TGDĐ"],
+    spread: 0,
+    spreadPct: 0
+  }));
+}
+
+// 1. Run main export (id="xlsx")
+const day = () => S.dates[S.dates.length - 1];
+const wb1 = XLSX.utils.book_new();
+const ws1 = XLSX.utils.aoa_to_sheet(sheetAoa());
+XLSX.utils.book_append_sheet(wb1, ws1, "KM_Chi_Tiet_TGDD");
+
+const hAoa = historySheetAoa();
+const wsHistory = XLSX.utils.aoa_to_sheet(hAoa);
+XLSX.utils.book_append_sheet(wb1, wsHistory, "Lich_Su_Theo_Dot_Quet");
+
+const h2h = buildH2HData();
+const h2hHead = ["Hãng","Model","Phân khúc","Kênh","RRP","Giá TGDĐ","Giá CellphoneS","Giá FPT Shop","Giá Viettel Store","Sàn rẻ nhất","Chênh lệch cao nhất (đ)","% Chênh lệch"];
+const h2hRows = h2h.map(x=>[x.brand,x.model,x.segment,x.channel==="TGDD"?"Độc quyền":"Mass",x.rrp,x.p_tgdd||"",x.p_cps||"",x.p_fpt||"",x.p_vt||"",x.bests.join(", "),x.spread||0,x.spreadPct?x.spreadPct.toFixed(1)+"%":"0%"]);
+const ws2 = XLSX.utils.aoa_to_sheet([h2hHead,...h2hRows]);
+XLSX.utils.book_append_sheet(wb1, ws2, "Ma_Tran_4_San");
+
+save(`Bao_Cao_GTM_Khuyen_Mai_${day()}.xlsx`, XLSX.write(wb1, {type:"array", bookType:"xlsx"}), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+// 2. Run market export (id="mk-xlsx")
+const wb2 = XLSX.utils.book_new();
+const wsM1 = XLSX.utils.aoa_to_sheet([h2hHead,...h2hRows]);
+XLSX.utils.book_append_sheet(wb2, wsM1, "Ma_Tran_Doi_Dau");
+
+const aoa=[["Sàn","Hãng","Tên sản phẩm","Loại KM","Giá gốc","Giá online","Giá trị KM","% giảm","So đợt trước","Thuộc 86 SKU","Link"]];
+const wsM2 = XLSX.utils.aoa_to_sheet(aoa);
+XLSX.utils.book_append_sheet(wb2, wsM2, "Toan_Bo_Danh_Sach");
+
+const wsM3 = XLSX.utils.aoa_to_sheet(hAoa);
+XLSX.utils.book_append_sheet(wb2, wsM3, "Lich_Su_Theo_Dot_Quet");
+
+save(`toan_thi_truong_${day()}.xlsx`, XLSX.write(wb2, {type:"array", bookType:"xlsx"}), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+document.getElementById("test-output").textContent = JSON.stringify(exportResults, null, 2);
+</script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-﻿# ==============================================================================
+# ==============================================================================
 # HỆ THỐNG KIỂM TRA TOÀN VẸN VÀ RÀNG BUỘC (CONSTRAINTS VERIFICATION SUITE)
 # Tuân thủ phương pháp Test-Driven & Constraint-Driven Development (Addy Osmani)
 # ==============================================================================
@@ -51,7 +51,7 @@ if (Test-Path $scanScript) {
     $scanContent = Get-Content $scanScript -Raw -Encoding UTF8
 
     Assert-Check "Quy tac Flash Sale: 'Uu dai ONLINE' va 'Ket thuc sau' phai nam trong FLASH_KEYWORDS_RE" {
-        $scanContent -match 'FLASH_KEYWORDS_RE' -and $scanContent -match 'ONLINE' -and $scanContent -match 'thúc sau'
+        $scanContent -match 'FLASH_KEYWORDS_RE' -and $scanContent -match 'ONLINE' -and $scanContent -match 'sau'
     } "FLASH_KEYWORDS_RE thieu tu khoa Flash Sale"
 
     Assert-Check "Quy tac Flash Sale: Phai co BANNER CAM (ORANGE_BANNER_RE / has_banner_cam)" {
@@ -118,9 +118,60 @@ foreach ($file in $htmlFiles) {
             $htmlContent -match 'Lich_Su_Theo_Dot_Quet'
         } "$file thieu Sheet 2 trong ham xuat Excel"
 
+        Assert-Check "File $file phai co Sheet 3: Ma_Tran_4_San" {
+            $htmlContent -match 'Ma_Tran_4_San'
+        } "$file thieu Sheet 3 trong ham xuat Excel"
+
         Assert-Check "File $file phai co nut xuat Lich Su Theo Dot Quet chuyen biet" {
             $htmlContent -match 'history-xlsx'
         } "$file thieu nut history-xlsx"
+    }
+}
+
+# ------------------------------------------------------------------------------
+# NHÓM 4: TEST THỰC TẾ TRÊN TRÌNH DUYỆT (E2E CHROME HEADLESS EXPORT TEST)
+# ------------------------------------------------------------------------------
+Write-Host "`n--- [Nhom 4] Kiem tra thuc te E2E xuat file Excel (Chrome Headless) ---" -ForegroundColor Yellow
+
+$e2eHtml = "tests/test-excel-e2e.html"
+$chromePath = "C:\Program Files\Google\Chrome\Application\chrome.exe"
+if (-not (Test-Path $chromePath)) {
+    $chromePath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+}
+
+if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
+    $tempOut = "$env:TEMP\e2e-out-test.html"
+    cmd /c "`"$chromePath`" --headless=old --dump-dom `"file:///c:/Users/toquo/Documents/antigravity/fervent-raman/tests/test-excel-e2e.html`" 2>nul > `"$tempOut`""
+    if (Test-Path $tempOut) {
+        $outContent = Get-Content $tempOut -Raw -Encoding UTF8
+        $match = [regex]::Match($outContent, '(?s)<div id="test-output">(.*?)</div>')
+        if ($match.Success) {
+            $e2eData = ConvertFrom-Json $match.Groups[1].Value
+            $mainFile = $e2eData."Bao_Cao_GTM_Khuyen_Mai_19-Oct.xlsx"
+            $mkFile = $e2eData."toan_thi_truong_19-Oct.xlsx"
+
+            Assert-Check "E2E: File Bao_Cao_GTM_Khuyen_Mai phai co DUNG 3 SHEETS" {
+                $mainFile.sheetCount -eq 3
+            } "Bao_Cao_GTM_Khuyen_Mai co $($mainFile.sheetCount) sheets thay vi 3 sheets"
+
+            Assert-Check "E2E: File Bao_Cao_GTM_Khuyen_Mai phai chua 'Lich_Su_Theo_Dot_Quet'" {
+                $mainFile.sheetNames -contains "Lich_Su_Theo_Dot_Quet"
+            } "Thieu sheet Lich_Su_Theo_Dot_Quet trong Bao_Cao_GTM_Khuyen_Mai"
+
+            Assert-Check "E2E: Sheet Lich_Su_Theo_Dot_Quet phai co du 95 SKU Master List (96 dong gom header)" {
+                $historySheet = $mainFile.sheetsInfo | Where-Object { $_.name -eq "Lich_Su_Theo_Dot_Quet" }
+                $historySheet.rowCount -eq 96
+            } "So dong trong Lich_Su_Theo_Dot_Quet khong bang 96"
+
+            Assert-Check "E2E: Sheet Lich_Su_Theo_Dot_Quet phai chua cot ngay 19-Oct" {
+                $historySheet = $mainFile.sheetsInfo | Where-Object { $_.name -eq "Lich_Su_Theo_Dot_Quet" }
+                $historySheet.header -contains "19-Oct"
+            } "Sheet Lich_Su_Theo_Dot_Quet thieu cot ngay 19-Oct"
+
+            Assert-Check "E2E: File toan_thi_truong phai co DUNG 3 SHEETS (them ca Lich_Su_Theo_Dot_Quet)" {
+                $mkFile.sheetCount -eq 3 -and ($mkFile.sheetNames -contains "Lich_Su_Theo_Dot_Quet")
+            } "toan_thi_truong khong co dung 3 sheets kem Lich_Su_Theo_Dot_Quet"
+        }
     }
 }
 

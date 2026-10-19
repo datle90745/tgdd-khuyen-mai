@@ -942,17 +942,10 @@ function initExports(){
       }
     }catch(err3){ console.error("Export Sheet 3 error:", err3); }
 
-    // Sheet 4: Lịch sử tăng giá
-    try{
-      if(Array.isArray(window.RISE)){
-        const riseHead=["Tháng","Hãng","Model","Giá cũ","Giá mới","Mức tăng (đ)","% Thay đổi","Phân khúc","Ngày đổi"];
-        const riseRows=RISE.map(r=>[r.mo,r.b,r.m,r.o,r.n,r.v,(r.p>0?"+":"")+r.p.toFixed(1)+"%",r.seg,rd(r.d)]);
-        const ws3=XLSX.utils.aoa_to_sheet([riseHead,...riseRows]);
-        ws3["!cols"]=[{wch:8},{wch:10},{wch:36},{wch:14},{wch:14},{wch:14},{wch:12},{wch:12},{wch:14}];
-        XLSX.utils.book_append_sheet(wb,ws3,"Lich_Su_Tang_Gia");
-      }
-    }catch(err4){ console.error("Export Sheet 4 error:", err4); }
-
+    // Đảm bảo file xuất chuẩn đúng 3 sheet:
+    // 1. KM_Chi_Tiet_TGDD (Khuyến mãi chi tiết TGDĐ)
+    // 2. Lich_Su_Theo_Dot_Quet (Lịch sử các đợt quét 95 SKU)
+    // 3. Ma_Tran_4_San (Ma trận đối đầu 4 sàn toàn thị trường)
     save(`Bao_Cao_GTM_Khuyen_Mai_${day()}.xlsx`,XLSX.write(wb,{type:"array",bookType:"xlsx"}),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
   };
   if($("history-xlsx")) $("history-xlsx").onclick=()=>{
@@ -2379,6 +2372,14 @@ if($("mk-xlsx")) $("mk-xlsx").onclick=()=>{
     ...L.map(x=>[x.r,x.b,x.n,x.k,x.o,x.p,x.v,Math.round(x.pct*1000)/10,x.dv==null?"":x.dv,x.focus?"Có":"",x.u])];
   const ws2=XLSX.utils.aoa_to_sheet(aoa); ws2["!cols"]=[{wch:13},{wch:9},{wch:42},{wch:16},{wch:12},{wch:12},{wch:12},{wch:8},{wch:12},{wch:8},{wch:50}];
   XLSX.utils.book_append_sheet(wb,ws2,"Toan_Bo_Danh_Sach");
+
+  // Sheet 3: Lịch sử theo đợt quét (chuẩn 95 SKU Master List)
+  try{
+    const hAoa = historySheetAoa();
+    const wsHistory = XLSX.utils.aoa_to_sheet(hAoa);
+    wsHistory["!cols"] = [{wch:10},{wch:36},{wch:12},{wch:12},{wch:14},{wch:16},...S.dates.map(()=>({wch:12}))];
+    XLSX.utils.book_append_sheet(wb, wsHistory, "Lich_Su_Theo_Dot_Quet");
+  }catch(errHistory){ console.error("Export Sheet 3 history error:", errHistory); }
 
   save(`toan_thi_truong_${D.cur?D.cur.date:"chua_co"}.xlsx`,XLSX.write(wb,{type:"array",bookType:"xlsx"}),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 };

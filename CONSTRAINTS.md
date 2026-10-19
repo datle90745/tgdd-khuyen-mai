@@ -28,11 +28,16 @@
 - Danh sách sản phẩm cào `scraper/products.csv` phải duy trì đủ 95 SKU.
 - Không được lược bỏ sản phẩm dù có trạng thái `ngung_kd` hay `chua_mo_ban`.
 
-### 2.3. Xuất file Excel (Toàn thị trường & Đợt quét)
-- Nút **Xuất Excel** chính phải luôn tạo Workbook có tối thiểu:
-  - **Sheet 1 (`KM_Chi_Tiet_TGDD`)**: Báo cáo chi tiết từng SKU của đợt quét hiện tại.
-  - **Sheet 2 (`Lich_Su_Theo_Dot_Quet`)**: Lịch sử giá & PMH qua các đợt quét (Thứ Hai & Thứ Sáu).
-- Nút **Xuất Excel tab này (`history-xlsx`)**: Xuất riêng Sheet `Lich_Su_Theo_Dot_Quet`.
+### 2.3. Quy tắc Xuất file Excel (Đúng chuẩn 3 Sheet)
+- Nút **Xuất Excel** chính (`id="xlsx"`) tạo Workbook gồm **ĐÚNG 3 SHEET**:
+  - **Sheet 1 (`KM_Chi_Tiet_TGDD`)**: Khuyến mãi chi tiết TGDĐ đợt mới nhất.
+  - **Sheet 2 (`Lich_Su_Theo_Dot_Quet`)**: Lịch sử giá & PMH qua các đợt quét (chuẩn 95 SKU Master List).
+  - **Sheet 3 (`Ma_Tran_4_San`)**: Ma trận đối đầu so sánh giá 4 sàn lớn (TGDĐ, CellphoneS, FPT Shop, Viettel Store).
+- Nút **Xuất Excel tab này (`id="mk-xlsx"`)** tại tab Toàn thị trường tạo Workbook gồm **ĐÚNG 3 SHEET**:
+  - **Sheet 1 (`Ma_Tran_Doi_Dau`)**: Ma trận đối đầu 4 sàn.
+  - **Sheet 2 (`Toan_Bo_Danh_Sach`)**: Danh sách phẳng toàn bộ sản phẩm 4 sàn.
+  - **Sheet 3 (`Lich_Su_Theo_Dot_Quet`)**: Lịch sử đợt quét 95 SKU Master List.
+- Nút **Xuất Excel tab này (`id="history-xlsx"`)** tại tab Lịch sử: Xuất riêng Sheet `Lich_Su_Theo_Dot_Quet`.
 
 ### 2.4. Đồng bộ hóa dữ liệu (Three-Way Sync)
 - Khi có đợt quét mới:
