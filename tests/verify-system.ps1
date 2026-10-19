@@ -1,0 +1,138 @@
+﻿# ==============================================================================
+# HỆ THỐNG KIỂM TRA TOÀN VẸN VÀ RÀNG BUỘC (CONSTRAINTS VERIFICATION SUITE)
+# Tuân thủ phương pháp Test-Driven & Constraint-Driven Development (Addy Osmani)
+# ==============================================================================
+
+$ErrorActionPreference = "Stop"
+$TotalChecks = 0
+$PassedChecks = 0
+$FailedChecks = 0
+
+function Assert-Check {
+    param(
+        [string]$Name,
+        [scriptblock]$Condition,
+        [string]$FailureMessage
+    )
+    $script:TotalChecks++
+    Write-Host -NoNewline "[$script:TotalChecks] Checking: $Name ... "
+    try {
+        $result = & $Condition
+        if ($result -eq $true) {
+            Write-Host "PASS" -ForegroundColor Green
+            $script:PassedChecks++
+        } else {
+            Write-Host "FAIL" -ForegroundColor Red
+            Write-Host "    -> ERROR: $FailureMessage" -ForegroundColor Red
+            $script:FailedChecks++
+        }
+    } catch {
+        Write-Host "ERROR" -ForegroundColor Red
+        Write-Host "    -> EXCEPTION: $($_.Exception.Message)" -ForegroundColor Red
+        $script:FailedChecks++
+    }
+}
+
+Write-Host "=================================================================" -ForegroundColor Cyan
+Write-Host "   BAT DAU KIEM TRA TOAN BO HE THONG THEO AGENT-SKILLS GATES     " -ForegroundColor Cyan
+Write-Host "=================================================================" -ForegroundColor Cyan
+
+# ------------------------------------------------------------------------------
+# NHÓM 1: QUY TẮC BẤT BIẾN SCRAPER (SCAN_TGDD.PY)
+# ------------------------------------------------------------------------------
+Write-Host "`n--- [Nhom 1] Kiem tra quy tac Scraper (scraper/scan_tgdd.py) ---" -ForegroundColor Yellow
+
+$scanScript = "scraper/scan_tgdd.py"
+Assert-Check "File scraper/scan_tgdd.py phai ton tai" {
+    Test-Path $scanScript
+} "Khong tim thay file $scanScript"
+
+if (Test-Path $scanScript) {
+    $scanContent = Get-Content $scanScript -Raw -Encoding UTF8
+
+    Assert-Check "Quy tac Flash Sale: 'Uu dai ONLINE' va 'Ket thuc sau' phai nam trong FLASH_KEYWORDS_RE" {
+        $scanContent -match 'FLASH_KEYWORDS_RE' -and $scanContent -match 'ONLINE' -and $scanContent -match 'thúc sau'
+    } "FLASH_KEYWORDS_RE thieu tu khoa Flash Sale"
+
+    Assert-Check "Quy tac Flash Sale: Phai co BANNER CAM (ORANGE_BANNER_RE / has_banner_cam)" {
+        $scanContent -match 'ORANGE_BANNER_RE' -and $scanContent -match 'has_banner_cam'
+    } "Khong tim thay bien phap xac minh BANNER CAM trong scan_tgdd.py"
+
+    Assert-Check "Quy tac Flash Sale: banner = has_banner_cam and has_flash_kw" {
+        $scanContent -match 'banner\s*=\s*bool\(has_banner_cam\s+and\s+has_flash_kw\)'
+    } "Dieu kien banner flash sale phai ket hop ca Banner Cam va Tu khoa Flash Sale"
+
+    Assert-Check "Quy tac PMH khi co Banner Cam: PMH = choice (flash_chon1)" {
+        $scanContent -match 'pmh,\s*rule\s*=\s*choice,\s*"flash_chon1"'
+    } "Thieu quy tac PMH = choice khi co banner cam"
+}
+
+# ------------------------------------------------------------------------------
+# NHÓM 2: TÍNH TOÀN VẸN DỮ LIỆU (DATA INTEGRITY & SYNCHRONIZATION)
+# ------------------------------------------------------------------------------
+Write-Host "`n--- [Nhom 2] Kiem tra dong bo du lieu (data/*.js) ---" -ForegroundColor Yellow
+
+Assert-Check "File data/latest.js phai ton tai" { Test-Path "data/latest.js" } "Thieu data/latest.js"
+Assert-Check "File data/scans.js phai ton tai" { Test-Path "data/scans.js" } "Thieu data/scans.js"
+Assert-Check "File data/data.js phai ton tai" { Test-Path "data/data.js" } "Thieu data/data.js"
+
+if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
+    $latestContent = Get-Content "data/latest.js" -Raw -Encoding UTF8
+    $scansContent = Get-Content "data/scans.js" -Raw -Encoding UTF8
+
+    Assert-Check "data/latest.js phai dinh nghia window.LATEST chua rows" {
+        $latestContent -match 'window\.LATEST\s*=' -and $latestContent -match '"rows":\['
+    } "latest.js thieu window.LATEST hoac rows"
+
+    Assert-Check "data/scans.js phai chua lich su dot quet 19-Oct" {
+        $scansContent -match '"19-Oct"'
+    } "scans.js thieu ban ghi dot quet ngay 19-Oct"
+
+    Assert-Check "Danh sach san pham trong products.csv phai co du 95 dong du lieu SKU" {
+        $csvLines = (Get-Content "scraper/products.csv").Count
+        $csvLines -ge 96 # 1 header + 95 SKU
+    } "products.csv co it hon 95 SKU"
+}
+
+# ------------------------------------------------------------------------------
+# NHÓM 3: GIAO DIỆN & XUẤT EXCEL (UI & EXCEL EXPORT INTEGRITY)
+# ------------------------------------------------------------------------------
+Write-Host "`n--- [Nhom 3] Kiem tra chuc nang Xuat Excel & UI Files ---" -ForegroundColor Yellow
+
+$htmlFiles = @("index.html", "promotion tgdd.html", "promotion tgdd standalone.html")
+
+foreach ($file in $htmlFiles) {
+    Assert-Check "File $file phai ton tai" { Test-Path $file } "Thieu file $file"
+    if (Test-Path $file) {
+        $htmlContent = Get-Content $file -Raw -Encoding UTF8
+
+        Assert-Check "File $file phai co thu vien SheetJS hoac XLSX object" {
+            $htmlContent -match 'xlsx(\.full)?\.min\.js' -or $htmlContent -match 'XLSX\.utils'
+        } "$file thieu thu vien SheetJS"
+
+        Assert-Check "File $file phai co Sheet 1: KM_Chi_Tiet_TGDD" {
+            $htmlContent -match 'KM_Chi_Tiet_TGDD'
+        } "$file thieu Sheet 1 trong ham xuat Excel"
+
+        Assert-Check "File $file phai co Sheet 2: Lich_Su_Theo_Dot_Quet" {
+            $htmlContent -match 'Lich_Su_Theo_Dot_Quet'
+        } "$file thieu Sheet 2 trong ham xuat Excel"
+
+        Assert-Check "File $file phai co nut xuat Lich Su Theo Dot Quet chuyen biet" {
+            $htmlContent -match 'history-xlsx'
+        } "$file thieu nut history-xlsx"
+    }
+}
+
+# ------------------------------------------------------------------------------
+# TỔNG KẾT
+# ------------------------------------------------------------------------------
+Write-Host "`n=================================================================" -ForegroundColor Cyan
+Write-Host "KET QUA KIEM TRA: $PassedChecks / $TotalChecks PASS ($FailedChecks FAILED)" -ForegroundColor $(if ($FailedChecks -eq 0) { "Green" } else { "Red" })
+Write-Host "=================================================================" -ForegroundColor Cyan
+
+if ($FailedChecks -gt 0) {
+    exit 1
+} else {
+    exit 0
+}

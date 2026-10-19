@@ -463,7 +463,7 @@ def write_scans_js(today=None):
             day = date.fromisoformat(day_str)
         except ValueError:
             continue
-        if today and day_str >= today:
+        if today and day_str > today:
             continue
         if day.weekday() not in alerts.KEEP_WEEKDAYS:
             continue
