@@ -236,13 +236,32 @@ def parse_next_layout(soup):
     if not reds:
         reds = [s for s in page.select("span[class*='text-red']") if re.search(r'\d+[.,]\d{3}', s.get_text())]
     if not reds:
+        for b in page.select("b"):
+            bt = b.get_text(strip=True)
+            if re.search(r"\u0047i\u00e1\s*b\u00e1n", bt, re.I) or re.search(r"\d+[.,]\d{3}\s*[\u20ab\u0111d]?", bt):
+                m_price = re.search(r"(\d+[.,]\d{3}(?:[.,]\d{3})*)", bt)
+                if m_price:
+                    reds = [b]
+                    break
+    if not reds:
+        gtm_p = page.select_one("input#DisPriceGTM") or page.select_one("input#DisPriceScenrioGTM")
+        if gtm_p and gtm_p.get("value") and money(gtm_p.get("value")) > 0:
+            gtm_val = money(gtm_p.get("value"))
+            gtm_orig = page.select_one("input#PriceOriginGTM")
+            rrp_val = money(gtm_orig.get("value")) if gtm_orig and gtm_orig.get("value") else gtm_val
+            text = page.get_text(" ", strip=True)
+            match = BASE_RE.search(text)
+            choice = money(match.group(1)) if match else 0
+            return build_result(rrp_val, gtm_val, False, choice, "moi", choice_in_red=False)
         return None
     red_node = next((r for r in reds if r.parent and r.parent.select_one("del")), reds[0])
     red = money(red_node.get_text())
     old = red_node.parent.select_one("del") if red_node.parent else None
     rrp = money(old.get_text()) if old is not None else red
-    if not red or not rrp:
+    if not red:
         return None
+    if not rrp or rrp < red:
+        rrp = red
     text = page.get_text(" ", strip=True)
     match = BASE_RE.search(text)
     choice = money(match.group(1)) if match else 0
