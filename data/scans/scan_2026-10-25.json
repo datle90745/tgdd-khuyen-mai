@@ -1109,9 +1109,16 @@
                      "model":  "Redmi 15 6GB/128GB",
                      "url":  "https://www.thegioididong.com/dtdd/xiaomi-redmi-15-6gb-128gb",
                      "at":  "25-10 15:25",
-                     "status":  "ngung_kd",
+                     "status":  "active",
                      "debug":  "len=357035 box_main=False main=True h1=Điện thoại Xiaomi Redmi 15 6GB/128GB",
-                     "pmh":  null
+                     "pmh":  0,
+                     "choice":  0,
+                     "red":  4790000,
+                     "online":  0,
+                     "rrp":  4790000,
+                     "total_online":  0,
+                     "rule":  "den_tru_do",
+                     "kind":  "moi"
                  },
                  {
                      "model":  "Redmi A7 Pro 4/64G",
@@ -1168,9 +1175,16 @@
                      "model":  "V80 Lite 5G 6GB/256GB",
                      "url":  "https://www.thegioididong.com/dtdd/vivo-v80-lite-5g-6gb-256gb",
                      "at":  "25-10 15:26",
-                     "status":  "no_price",
+                     "status":  "active",
                      "debug":  "len=591482 box_main=False main=False h1=None",
-                     "pmh":  null
+                     "pmh":  0,
+                     "choice":  0,
+                     "red":  14990000,
+                     "online":  0,
+                     "rrp":  14990000,
+                     "total_online":  0,
+                     "rule":  "den_tru_do",
+                     "kind":  "moi"
                  },
                  {
                      "model":  "V70 FE 5G 8GB/256GB",
@@ -1619,17 +1633,31 @@
                      "model":  "Galaxy A18 8GB/128GB",
                      "url":  "https://www.thegioididong.com/dtdd/samsung-galaxy-a18-8gb-128gb",
                      "at":  "25-10 15:28",
-                     "status":  "no_price",
+                     "status":  "active",
                      "debug":  "len=638822 box_main=False main=False h1=None",
-                     "pmh":  null
+                     "pmh":  0,
+                     "choice":  0,
+                     "red":  8490000,
+                     "online":  0,
+                     "rrp":  8490000,
+                     "total_online":  0,
+                     "rule":  "den_tru_do",
+                     "kind":  "moi"
                  },
                  {
                      "model":  "Galaxy A18 6GB/128GB",
                      "url":  "https://www.thegioididong.com/dtdd/samsung-galaxy-a18-6gb-128gb",
                      "at":  "25-10 15:28",
-                     "status":  "no_price",
+                     "status":  "active",
                      "debug":  "len=639693 box_main=False main=False h1=None",
-                     "pmh":  null
+                     "pmh":  0,
+                     "choice":  0,
+                     "red":  7190000,
+                     "online":  0,
+                     "rrp":  7190000,
+                     "total_online":  0,
+                     "rule":  "den_tru_do",
+                     "kind":  "moi"
                  },
                  {
                      "model":  "Galaxy A18 4GB/128GB",
@@ -1700,6 +1728,54 @@
                                   "Trả chậm 0% trả trước 0đ",
                                   "Quà 30.000₫"
                               ]
+                 },
+                 {
+                     "choice":  0,
+                     "red":  7540000,
+                     "online":  850000,
+                     "rrp":  8390000,
+                     "pmh":  850000,
+                     "total_online":  850000,
+                     "rule":  "den_tru_do",
+                     "kind":  "moi",
+                     "model":  "Galaxy A26 5G 8+256GB",
+                     "status":  "active"
+                 },
+                 {
+                     "choice":  0,
+                     "red":  5390000,
+                     "online":  200000,
+                     "rrp":  5590000,
+                     "pmh":  200000,
+                     "total_online":  200000,
+                     "rule":  "den_tru_do",
+                     "kind":  "moi",
+                     "model":  "Galaxy A08 4+128GB",
+                     "status":  "active"
+                 },
+                 {
+                     "choice":  0,
+                     "red":  14190000,
+                     "online":  1800000,
+                     "rrp":  15990000,
+                     "pmh":  1800000,
+                     "total_online":  1800000,
+                     "rule":  "den_tru_do",
+                     "kind":  "moi",
+                     "model":  "Redmi Note 17 Pro Max 8GB/256GB",
+                     "status":  "active"
+                 },
+                 {
+                     "choice":  0,
+                     "red":  4190000,
+                     "online":  500000,
+                     "rrp":  4690000,
+                     "pmh":  500000,
+                     "total_online":  500000,
+                     "rule":  "den_tru_do",
+                     "kind":  "moi",
+                     "model":  "Note 80 4GB/64GB",
+                     "status":  "active"
                  }
              ]
 }

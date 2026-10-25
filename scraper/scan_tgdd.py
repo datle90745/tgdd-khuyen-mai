@@ -295,6 +295,24 @@ def parse_page(html):
         result = parse_next_layout(soup)
         if result is not None:
             return result
+        gtm_p = soup.select_one("input#DisPriceGTM") or soup.select_one("input#DisPriceScenrioGTM")
+        if gtm_p and gtm_p.get("value") and money(gtm_p.get("value")) > 0:
+            gtm_val = money(gtm_p.get("value"))
+            gtm_orig = soup.select_one("input#PriceOriginGTM")
+            rrp_val = money(gtm_orig.get("value")) if gtm_orig and gtm_orig.get("value") else gtm_val
+            match = BASE_RE.search(soup.get_text(" ", strip=True))
+            choice = money(match.group(1)) if match else 0
+            return build_result(rrp_val, gtm_val, False, choice, "moi", choice_in_red=False)
+        m_price = re.search(r'\\"price\\":\s*([0-9.]+)|"price":\s*([0-9.]+)', html)
+        if m_price:
+            p_str = m_price.group(1) or m_price.group(2)
+            p_val = money(p_str)
+            if p_val > 0:
+                m_sys = re.search(r'\\"sysPrice\\":\s*([0-9.]+)|"sysPrice":\s*([0-9.]+)', html)
+                o_val = money(m_sys.group(1) or m_sys.group(2)) if m_sys else p_val
+                match = BASE_RE.search(soup.get_text(" ", strip=True))
+                choice = money(match.group(1)) if match else 0
+                return build_result(o_val, p_val, False, choice, "moi", choice_in_red=False)
         page = soup.select_one("main")
         if page is None:
             # Không có khối sản phẩm: trang lỗi/chặn chứ không phải TGDĐ gỡ SKU.
