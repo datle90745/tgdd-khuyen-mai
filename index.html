@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="utf-8">
@@ -540,14 +540,12 @@ const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&
 const BDISP={Apple:"APPLE",Samsung:"SAMSUNG",Xiaomi:"MI"};
 const bdisp=b=>BDISP[b]||b;
 const bcell=b=>`<td class="bcell" data-b="${esc(b)}">${esc(bdisp(b))}</td>`;
-const rrpUp = r => (r.flags || []).some(f => {
-  if (/^Giá đen.*tăng/i.test(f)) return true;
-  const m = f.match(/^Giá đen đổi ([\d.]+) → ([\d.]+)/);
-  if (!m) return false;
-  const oldP = +m[1].replace(/\./g, ""), newP = +m[2].replace(/\./g, "");
+const rrpUp = r => {
+  if (RRP_NOTES[r.model]) return true;
   const orig = (window.BASE && window.BASE.rows) ? (window.BASE.rows.find(x => x.model === r.model) || {}).rrp : 0;
-  return newP > oldP && (!orig || newP > orig);
-});
+  if (orig) return r.rrp > orig;
+  return false;
+};
 const $ = id => document.getElementById(id);
 const removeAccents = s => String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9\s]/g," ").trim();
 function matchSmart(q, text){
