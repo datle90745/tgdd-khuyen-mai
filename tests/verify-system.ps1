@@ -109,6 +109,24 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         ($latestText -match '"model"\s*:\s*"A7 Pro 5G 8GB/128GB"[^}]*"status"\s*:\s*"active"')
     } "data/latest.js thieu hoac sai so lieu A7 Pro 5G cac bien the"
 
+    Assert-Check "data/latest.js phai co 'V80 Lite 5G 6GB/256GB' (RRP 14.990.000, PMH 700.000) va 'V80 Lite 5G 6GB/128GB' (RRP 12.990.000, PMH 700.000)" {
+        $latestText = Get-Content "data/latest.js" -Raw -Encoding UTF8
+        ($latestText -match '"model"\s*:\s*"V80 Lite 5G 6GB/256GB"[^}]*"rrp"\s*:\s*14990000' -and $latestText -match '"model"\s*:\s*"V80 Lite 5G 6GB/256GB"[^}]*"pmh"\s*:\s*700000') -and
+        ($latestText -match '"model"\s*:\s*"V80 Lite 5G 6GB/128GB"[^}]*"rrp"\s*:\s*12990000' -and $latestText -match '"model"\s*:\s*"V80 Lite 5G 6GB/128GB"[^}]*"pmh"\s*:\s*700000')
+    } "data/latest.js thieu hoac sai so lieu V80 Lite 5G"
+
+    Assert-Check "data/scans.js dot quet 26-Oct phai co 'V80 Lite 5G 6GB/256GB' va 'V80 Lite 5G 6GB/128GB' voi PMH 700.000" {
+        $scansText = Get-Content "data/scans.js" -Raw -Encoding UTF8
+        $raw = $scansText -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.SCANS\s*=\s*', ''
+        $raw = $raw.TrimEnd(" ;
+")
+        $scansObj = $raw | ConvertFrom-Json
+        $s26Obj = $scansObj | Where-Object { $_.date -eq "26-Oct" }
+        $v256 = $s26Obj.rows | Where-Object { $_.model -eq "V80 Lite 5G 6GB/256GB" }
+        $v128 = $s26Obj.rows | Where-Object { $_.model -eq "V80 Lite 5G 6GB/128GB" }
+        ($v256.pmh -eq 700000) -and ($v256.rrp -eq 14990000) -and ($v128.pmh -eq 700000) -and ($v128.rrp -eq 12990000)
+    } "data/scans.js dot quet 26-Oct sai PMH hoac RRP cua V80 Lite"
+
     Assert-Check "canonKey() trong index.html tuyet doi khong co quy tac hack dong bo bien the a7pro5g" {
         $idxText = Get-Content "index.html" -Raw -Encoding UTF8
         $idxText -notmatch 'oppo_a7pro5g8gb256gb'
@@ -212,6 +230,23 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
                 ($a7_6_256.Groups[1].Value -match '1\.500\.000') -and
                 ($a7_6_256.Groups[1].Value -notmatch '<td>–</td>\s*<td>–</td>')
             } "$dcf bi loi thieu so lieu hoac khong render cho A7 Pro 5G 6GB/256GB"
+
+            $v80_256 = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="V80 Lite 5G 6GB/256GB"[^>]*>(.*?)</tr>')
+            $v80_128 = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="V80 Lite 5G 6GB/128GB"[^>]*>(.*?)</tr>')
+
+            Assert-Check "DOM E2E: $dcf phai render rieng biet V80 Lite 5G 6GB/256GB (RRP 14.990.000, PMH 700.000)" {
+                $v80_256.Success -and 
+                ($v80_256.Groups[1].Value -match '14\.990\.000') -and 
+                ($v80_256.Groups[1].Value -match '14\.290\.000') -and 
+                ($v80_256.Groups[1].Value -match '700\.000')
+            } "$dcf bi loi thieu so lieu hoac khong render cho V80 Lite 5G 6GB/256GB"
+
+            Assert-Check "DOM E2E: $dcf phai render rieng biet V80 Lite 5G 6GB/128GB (RRP 12.990.000, PMH 700.000)" {
+                $v80_128.Success -and 
+                ($v80_128.Groups[1].Value -match '12\.990\.000') -and 
+                ($v80_128.Groups[1].Value -match '12\.290\.000') -and 
+                ($v80_128.Groups[1].Value -match '700\.000')
+            } "$dcf bi loi thieu so lieu hoac khong render cho V80 Lite 5G 6GB/128GB"
 
             Assert-Check "DOM E2E: $dcf phai render rieng biet A7 Pro 5G 8GB/128GB (Gia offline hop le, khong de trong)" {
                 $a7_8_128.Success -and 

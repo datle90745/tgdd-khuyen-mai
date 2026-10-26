@@ -601,7 +601,7 @@ function canonKey(str, brand){
   const b = (brand ? String(brand).toLowerCase().trim() : inferBrand(str));
   let s = String(str).toLowerCase().trim();
   s = s.replace(/\b(apple|iphone|oppo|samsung|galaxy|xiaomi|redmi|vivo|realme)\b/g, " ");
-  s = s.replace(/(\d+)\s*(?:gb|\+|\/)\s*(\d+)\s*(?:gb|g)?/g, "$1gb$2gb");
+  s = s.replace(/(\d+)\s*(?:gb|g)?\s*(?:\/|\+)\s*(\d+)\s*(?:gb|g)?/g, "$1gb$2gb");
   s = s.replace(/[^a-z0-9]/g, "");
   return (b ? b + "_" : "") + s;
 }

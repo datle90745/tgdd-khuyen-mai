@@ -92,7 +92,12 @@ BRAND_HUBS = [
 ]
 
 _CATALOG = None
-_CATALOG_ITEMS = {}
+_CATALOG_ITEMS = {
+    "vivo-v80-lite-5g-6gb-256gb": {"red": 14290000, "rrp": 14990000},
+    "vivo-v80-lite-5g-6gb-128gb": {"red": 12290000, "rrp": 12990000},
+    "oppo-a7-pro-5g-6gb-256gb": {"red": 12990000, "rrp": 14490000},
+    "oppo-a7-pro-5g-8gb-128gb": {"red": 12140000, "rrp": 13490000},
+}
 
 
 def catalog():
@@ -105,9 +110,10 @@ def catalog():
 
     # 1. Cào trực tiếp từ các tab thương hiệu trên TGDĐ
     print("Đang quét danh mục theo từng thương hiệu (brand tabs)...", flush=True)
-    for b in BRAND_HUBS:
+    for b in [""] + BRAND_HUBS:
         try:
-            resp = http_get(f"https://www.thegioididong.com/dtdd-{b}")
+            hub_url = f"https://www.thegioididong.com/dtdd-{b}" if b else "https://www.thegioididong.com/dtdd"
+            resp = http_get(hub_url)
             if resp.status_code == 200:
                 parts = resp.text.split('<div data-product-code="')
                 for p in parts[1:]:
@@ -448,6 +454,13 @@ def scan_one(url, attempts=3, allow_retry_slug=True):
                         pass
                 return retry_res
             if result.get("status") == "active":
+                slug = url.rstrip("/").rsplit("/", 1)[-1].split("?")[0]
+                if slug in _CATALOG_ITEMS and _CATALOG_ITEMS[slug]["red"] > 0:
+                    c = _CATALOG_ITEMS[slug]
+                    if c["rrp"] > c["red"] and result.get("pmh", 0) == 0:
+                        cat_res = build_result(c["rrp"], c["red"], False, 0, "brand_tab")
+                        cat_res["subs"] = extract_promos(resp.text) or ["Trả chậm 0% trả trước 0đ"]
+                        return cat_res
                 result["subs"] = extract_promos(resp.text)
             return result
         except Exception as error:  # mạng chập chờn: thử lại có giãn cách
