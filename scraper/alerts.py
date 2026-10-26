@@ -72,6 +72,9 @@ def filter_unregistered_rises(items):
         model, old, new = it.get("n"), it.get("old"), it.get("new")
         if not model or not old or not new or new <= old:
             continue
+        # Chong bao gia rac / loi boc tach: dien thoai khong qua 200M hoac tang dot bien > 100%
+        if new > 200000000 or new < 500000 or (old > 0 and (new - old) / old > 1.0):
+            continue
         # Chống báo tăng ảo: nếu giá mới <= giá RRP niêm yết chuẩn trong data.js thì đây chỉ là
         # đợt quét phục hồi lại đúng giá chuẩn sau khi đợt trước bị lỗi đọc nhầm giá biến thể khác.
         catalog_rrp = base_rrp_map.get(model)

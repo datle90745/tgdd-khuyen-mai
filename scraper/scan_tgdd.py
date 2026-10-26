@@ -195,14 +195,25 @@ def find_slug_by_model(model_name):
 
 def to_int(value):
     """Số trong thuộc tính data-*, ví dụ '13990000.0' -> 13990000."""
-    digits = re.sub(r"[^0-9]", "", str(value or "").split(".")[0])
-    return int(digits) if digits else 0
+    if not value:
+        return 0
+    m = re.search(r"(\d+)", str(value).split(".")[0])
+    if not m:
+        return 0
+    val = int(m.group(1))
+    return val if val <= 200_000_000 else 0
 
 
 def money(text):
-    """Giá dạng chữ hiển thị trên trang, ví dụ '11.190.000đ' -> 11190000."""
-    digits = re.sub(r"[^0-9]", "", str(text or ""))
-    return int(digits) if digits else 0
+    """Giá dạng chữ hiển thị trên trang, ví dụ '11.190.000₫' -> 11190000."""
+    if not text:
+        return 0
+    m = re.search(r"(\d{1,3}(?:[.,]\d{3})+|\d+)", str(text))
+    if not m:
+        return 0
+    digits = re.sub(r"[^0-9]", "", m.group(1))
+    val = int(digits) if digits else 0
+    return val if val <= 200_000_000 else 0
 
 
 def build_result(rrp, red, banner, choice, kind, choice_in_red=True):
