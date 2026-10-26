@@ -349,7 +349,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
       <span>Ô trống: chưa có dữ liệu</span>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
-      <span class="badge" style="background:#e0e7ff;color:#3730a3;font-weight:700;padding:4px 10px;border-radius:6px;font-size:12px">Khóa 95 SKU Master List</span>
+      <span class="badge" style="background:#e0e7ff;color:#3730a3;font-weight:700;padding:4px 10px;border-radius:6px;font-size:12px">Khóa 94 SKU Master List</span>
       <button class="btn" id="history-xlsx" style="padding:4px 12px">Xuất Excel tab này</button>
     </div>
   </div>
@@ -394,7 +394,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
   <div class="panel rise-kpi" id="mk-kpi"></div>
   <div id="mk-fake-alerts"></div>
   <div class="sub-nav" style="margin-top:14px">
-    <button class="btn primary" id="mk-tab-h2h">Ma trận đối đầu 4 sàn (86 SKU)</button>
+    <button class="btn primary" id="mk-tab-h2h">Ma trận đối đầu 4 sàn (94 SKU)</button>
     <button class="btn" id="mk-tab-list">Toàn bộ danh sách 4 sàn</button>
   </div>
   
@@ -415,7 +415,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
       <div class="row"><label class="t">Sàn</label><span id="mk-f-r" class="row"></span></div>
       <div class="row"><label class="t">Hãng</label><span id="mk-f-b" class="row"></span></div>
       <div class="row"><label class="t">Loại KM</label><span id="mk-f-k" class="row"></span>
-        <label style="display:flex;gap:6px;align-items:center;color:var(--muted);margin-left:8px"><input type="checkbox" id="mk-focus"> Chỉ máy thuộc 86 SKU</label></div>
+        <label style="display:flex;gap:6px;align-items:center;color:var(--muted);margin-left:8px"><input type="checkbox" id="mk-focus"> Chỉ máy thuộc 94 SKU</label></div>
       <div class="row"><label class="t">Tìm</label><input class="search" id="mk-q" type="search" placeholder="Tên máy, viết tắt: a57, reno 16..." aria-label="Tìm theo tên máy"></div>
     </div>
     <div class="count" id="mk-count"></div>
@@ -788,7 +788,7 @@ function renderBar(){
 }
 
 /* ---- history matrix ---- */
-/* Đợt quét mới nhất nằm bên trái để mở ra là thấy ngay. Khóa chuẩn theo 95 SKU Master List. */
+/* Đợt quét mới nhất nằm bên trái để mở ra là thấy ngay. Khóa chuẩn theo 94 SKU Master List. */
 function renderMatrix(){
   const idx = S.dates.map((_,i)=>i).reverse();
   let h=`<thead><tr><th>Hãng</th><th>Model</th><th class="num">RRP</th>${idx.map(i=>`<th class="num">${esc(dlabel(S.dates[i]))}</th>`).join("")}</tr></thead><tbody>`;
@@ -922,7 +922,7 @@ function initExports(){
       XLSX.utils.book_append_sheet(wb,ws1,"KM_Chi_Tiet_TGDD");
     }catch(err1){ console.error("Export Sheet 1 error:", err1); }
 
-    // Sheet 2: Lịch sử theo đợt quét (chuẩn 95 SKU Master List) - BẮT BUỘC LUÔN CÓ
+    // Sheet 2: Lịch sử theo đợt quét (chuẩn 94 SKU Master List) - BẮT BUỘC LUÔN CÓ
     try{
       const hAoa = historySheetAoa();
       const wsHistory = XLSX.utils.aoa_to_sheet(hAoa);
@@ -944,7 +944,7 @@ function initExports(){
 
     // Đảm bảo file xuất chuẩn đúng 3 sheet:
     // 1. KM_Chi_Tiet_TGDD (Khuyến mãi chi tiết TGDĐ)
-    // 2. Lich_Su_Theo_Dot_Quet (Lịch sử các đợt quét 95 SKU)
+    // 2. Lich_Su_Theo_Dot_Quet (Lịch sử các đợt quét 94 SKU)
     // 3. Ma_Tran_4_San (Ma trận đối đầu 4 sàn toàn thị trường)
     save(`Bao_Cao_GTM_Khuyen_Mai_${day()}.xlsx`,XLSX.write(wb,{type:"array",bookType:"xlsx"}),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
   };
@@ -1151,7 +1151,7 @@ $("reset").onclick=()=>{ imports=[]; try{localStorage.removeItem("tp_imports");}
 const MK = window.MARKET || {scans:[]};
 const MK_RET = ["TGDĐ","CellphoneS","FPT Shop","Viettel Store"];
 const MF = {r:"Tất cả", b:"Tất cả", k:"Tất cả", q:"", focus:false, sort:"v", dir:-1};
-// Khoá so khớp tên máy giữa các sàn và danh sách 86 SKU: bỏ dấu, tên hãng, 4G (giữ 5G để tránh đụng độ model), ký tự đặc biệt.
+// Khoá so khớp tên máy giữa các sàn và danh sách 94 SKU: bỏ dấu, tên hãng, 4G (giữ 5G để tránh đụng độ model), ký tự đặc biệt.
 const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d").replace(/\+/g,"plus")
   .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|4g|nfc)\b/g," ")
     .replace(/\b(titan|xam|den|trang|xanh|vang|bac|hong|tim|gold|silver|black|white|blue|green|purple|pink|grey|gray)\b/g," ")
@@ -1410,7 +1410,7 @@ function renderFakePromoAlerts(){
     html += `<div class="fake-alert" style="border-left-color:var(--accent);background:var(--soft)">
       <h4>⚔ Cuộc chiến giá giữa 4 sàn: ${priceWars.length} SKU chênh lệch từ 500.000₫ trở lên</h4>
       <p style="margin:2px 0 4px;color:var(--muted);font-size:12.5px">
-        Thống kê sàn nắm giữ giá tốt nhất trong 86 SKU: 
+        Thống kê sàn nắm giữ giá tốt nhất trong 94 SKU: 
         <b>CellphoneS</b>: ${bestCount["CellphoneS"]} SKU | 
         <b>TGDĐ</b>: ${bestCount["TGDĐ"]} SKU | 
         <b>Viettel Store</b>: ${bestCount["Viettel Store"]} SKU | 
@@ -1520,7 +1520,7 @@ function renderMarket(){
   const errs=Object.entries(D.cur.report||{}).filter(([,v])=>typeof v!=="number").map(([k])=>k);
   $("mk-sub").textContent=`Đợt quét ${D.cur.date} lúc ${D.cur.at}${D.prev?`, so với đợt ${D.prev.date}`:""}. Giá lấy từ trang danh sách của từng sàn, chỉ 6 hãng đang theo dõi, chỉ để tham khảo.${D.cur.src==="erp"?" Nguồn: file Excel của hệ thống ERP, không phải bộ quét này — cách họ tính khuyến mãi khác quy tắc KM base nên đừng dùng để so sánh.":""}${D.cur.fptLocal?` Riêng FPT Shop lấy từ máy nhà lúc ${D.cur.fptLocal} vì FPT chặn máy chủ.`:""}${errs.length?` Lỗi đợt này: ${errs.join(", ")}.`:""}`;
   $("mk-kpi").innerHTML=MK_RET.map(r=>{ const L=D.rows.filter(x=>x.r===r), withKM=L.filter(x=>x.v>0), avg=withKM.length?withKM.reduce((t,x)=>t+x.pct,0)/withKM.length*100:0;
-    return `<div class="rk"><small><span class="rtl" data-r="${r}">${r}</span></small><b>${L.length} máy</b><span>${withKM.length} máy đang giảm giá, trung bình ${avg.toFixed(1)}%</span><span>${L.filter(x=>x.focus).length} máy thuộc 86 SKU</span></div>`; }).join("");
+    return `<div class="rk"><small><span class="rtl" data-r="${r}">${r}</span></small><b>${L.length} máy</b><span>${withKM.length} máy đang giảm giá, trung bình ${avg.toFixed(1)}%</span><span>${L.filter(x=>x.focus).length} máy thuộc 94 SKU</span></div>`; }).join("");
 
   renderFakePromoAlerts();
   renderMarketH2H();
@@ -1535,7 +1535,7 @@ function renderMarket(){
   const cols=[["r","Sàn"],["b","Hãng"],["n","Tên sản phẩm"],["k","Loại KM"],["o","Giá gốc",1],["p","Giá online",1],["v","Giá trị KM",1],["pct","% giảm",1],["dv","So đợt trước",1],["u","Xem"]];
   $("mk-head").innerHTML=cols.map(([k,l,n])=>`<th class="${n?"n":""}" data-mksort="${k}">${l}${MF.sort===k?(MF.dir>0?" ▲":" ▼"):""}</th>`).join("");
   $("mk-count").textContent=`Hiển thị ${L.length} / ${D.rows.length} máy`;
-  $("mk-body").innerHTML=L.map(x=>`<tr><td><span class="rtl" data-r="${esc(x.r)}">${esc(x.r)}</span></td>${bcell(x.b)}<td class="model">${esc(x.n)}${newBadge(x.n)}${x.focus?`<span class="focus-dot" title="Thuộc danh sách 86 SKU">86</span>`:""}</td>
+  $("mk-body").innerHTML=L.map(x=>`<tr><td><span class="rtl" data-r="${esc(x.r)}">${esc(x.r)}</span></td>${bcell(x.b)}<td class="model">${esc(x.n)}${newBadge(x.n)}${x.focus?`<span class="focus-dot" title="Thuộc danh sách 94 SKU">94</span>`:""}</td>
     <td>${x.k==="Flash Sale Online"?`<span class="badge fs">Flash Sale Online</span>`:`<span class="badge mass">Khuyến mãi</span>`}</td>
     <td class="n">${fmt(x.o)}</td><td class="n"><strong>${fmt(x.p)}</strong></td><td class="n">${x.v?fmt(x.v):"–"}</td><td class="n">${x.v?(x.pct*100).toFixed(0)+"%":"0%"}</td>
     <td class="n">${x.dv==null?`<span class="d-flat">mới</span>`:x.dv===0?`<span class="d-flat">không đổi</span>`:x.dv>0?`<span class="d-up">▲ ${fmt(x.dv)}</span>`:`<span class="d-down">▼ ${fmt(-x.dv)}</span>`}</td>
@@ -2369,12 +2369,12 @@ if($("mk-xlsx")) $("mk-xlsx").onclick=()=>{
   XLSX.utils.book_append_sheet(wb,ws1,"Ma_Tran_Doi_Dau");
 
   // Sheet 2: Danh sách phẳng toàn bộ sản phẩm
-  const aoa=[["Sàn","Hãng","Tên sản phẩm","Loại KM","Giá gốc","Giá online","Giá trị KM","% giảm","So đợt trước","Thuộc 86 SKU","Link"],
+  const aoa=[["Sàn","Hãng","Tên sản phẩm","Loại KM","Giá gốc","Giá online","Giá trị KM","% giảm","So đợt trước","Thuộc 94 SKU","Link"],
     ...L.map(x=>[x.r,x.b,x.n,x.k,x.o,x.p,x.v,Math.round(x.pct*1000)/10,x.dv==null?"":x.dv,x.focus?"Có":"",x.u])];
   const ws2=XLSX.utils.aoa_to_sheet(aoa); ws2["!cols"]=[{wch:13},{wch:9},{wch:42},{wch:16},{wch:12},{wch:12},{wch:12},{wch:8},{wch:12},{wch:8},{wch:50}];
   XLSX.utils.book_append_sheet(wb,ws2,"Toan_Bo_Danh_Sach");
 
-  // Sheet 3: Lịch sử theo đợt quét (chuẩn 95 SKU Master List)
+  // Sheet 3: Lịch sử theo đợt quét (chuẩn 94 SKU Master List)
   try{
     const hAoa = historySheetAoa();
     const wsHistory = XLSX.utils.aoa_to_sheet(hAoa);
