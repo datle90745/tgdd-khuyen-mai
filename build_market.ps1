@@ -156,6 +156,42 @@ for ($page = 0; $page -lt 25; $page++) {
 }
 Write-Host "  TGDD hoan tat: $($tgddRows.Count) may"
 
+# 1.3 Bo sung toan bo 106 SKU Master List tu latest.js cho TGDD
+$latestPath = Join-Path $ROOT "data\latest.js"
+if (Test-Path $latestPath) {
+    try {
+        $lRaw = [System.IO.File]::ReadAllText($latestPath, [System.Text.Encoding]::UTF8)
+        $lMatch = [regex]::Match($lRaw, '(?s)window\.LATEST\s*=\s*(\{.*?\});')
+        if ($lMatch.Success) {
+            $lObj = $lMatch.Groups[1].Value | ConvertFrom-Json
+            $basePath = Join-Path $ROOT "data\data.js"
+            $bRaw = [System.IO.File]::ReadAllText($basePath, [System.Text.Encoding]::UTF8)
+            $bMatch = [regex]::Match($bRaw, '(?s)window\.BASE\s*=\s*(\{.*?\n\s*\});')
+            $baseObj = if ($bMatch.Success) { $bMatch.Groups[1].Value | ConvertFrom-Json } else { $null }
+            $bMap = @{}
+            if ($baseObj -and $baseObj.rows) {
+                foreach ($br in $baseObj.rows) { $bMap[$br.model] = $br.brand }
+            }
+            foreach ($lr in $lObj.rows) {
+                $uKey = $lr.url.Replace("https://www.thegioididong.com", "").Split("?")[0]
+                if ($tgddSeen.Add($uKey)) {
+                    $brand = if ($bMap.ContainsKey($lr.model)) { $bMap[$lr.model] } else { Get-MarketBrand "" $lr.model }
+                    $mName = if ($brand -and $lr.model.StartsWith($brand)) { $lr.model } else { "$brand $($lr.model)" }
+                    $p = if ($lr.red) { $lr.red } else { $lr.rrp }
+                    $o = if ($lr.rrp) { $lr.rrp } else { $lr.red }
+                    $k = if ($lr.rule -eq "flash_chon1") { "Flash Sale Online" } else { $KM_NAME }
+                    [void]$tgddRows.Add([pscustomobject]@{
+                        r = $TGDD_NAME; b = $brand; n = $mName; u = $lr.url; p = $p; o = $o; k = $k
+                    })
+                }
+            }
+        }
+    } catch {
+        Write-Host "  Loi bo sung Master List vao TGDD: $_"
+    }
+}
+Write-Host "  TGDD sau khi gop Master List: $($tgddRows.Count) may"
+
 # --- 2. CellphoneS ---
 Write-Host "2/4. Dang quet CellphoneS..."
 $cpsRows = New-Object System.Collections.ArrayList

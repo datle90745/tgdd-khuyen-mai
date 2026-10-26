@@ -234,6 +234,27 @@ def parse_next_layout(soup):
         return None
     reds = page.select("span.text-24.font-700.text-red-5") or page.select("span.text-24.text-red-5") or page.select(".box-price .price")
     if not reds:
+        gtm_p = page.select_one("input#DisPriceGTM") or page.select_one("input#DisPriceScenrioGTM")
+        if gtm_p and gtm_p.get("value") and money(gtm_p.get("value")) > 0:
+            gtm_val = money(gtm_p.get("value"))
+            gtm_orig = page.select_one("input#PriceOriginGTM")
+            rrp_val = money(gtm_orig.get("value")) if gtm_orig and gtm_orig.get("value") else gtm_val
+            text = page.get_text(" ", strip=True)
+            match = BASE_RE.search(text)
+            choice = money(match.group(1)) if match else 0
+            has_banner_cam = bool(
+                page.select_one(".bg-fs-detail")
+                or page.select_one("[class*='bg-fs']")
+                or page.select_one("[class*='orange']")
+                or page.select_one("[class*='flash']")
+                or page.select_one(".box_saving")
+                or ORANGE_BANNER_RE.search(str(page))
+            )
+            has_flash_kw = bool(FLASH_KEYWORDS_RE.search(text))
+            banner = bool(has_banner_cam and has_flash_kw)
+            actual_red = gtm_val - (choice if not banner else 0)
+            return build_result(rrp_val, actual_red, banner, choice, "moi-banner" if banner else "moi", choice_in_red=True)
+    if not reds:
         reds = [s for s in page.select("span[class*='text-red']") if re.search(r'\d+[.,]\d{3}', s.get_text())]
     if not reds:
         for b in page.select("b"):
@@ -244,15 +265,6 @@ def parse_next_layout(soup):
                     reds = [b]
                     break
     if not reds:
-        gtm_p = page.select_one("input#DisPriceGTM") or page.select_one("input#DisPriceScenrioGTM")
-        if gtm_p and gtm_p.get("value") and money(gtm_p.get("value")) > 0:
-            gtm_val = money(gtm_p.get("value"))
-            gtm_orig = page.select_one("input#PriceOriginGTM")
-            rrp_val = money(gtm_orig.get("value")) if gtm_orig and gtm_orig.get("value") else gtm_val
-            text = page.get_text(" ", strip=True)
-            match = BASE_RE.search(text)
-            choice = money(match.group(1)) if match else 0
-            return build_result(rrp_val, gtm_val, False, choice, "moi", choice_in_red=False)
         return None
     red_node = next((r for r in reds if r.parent and r.parent.select_one("del")), reds[0])
     red = money(red_node.get_text())
