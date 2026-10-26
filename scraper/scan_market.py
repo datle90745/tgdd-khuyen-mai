@@ -1,4 +1,4 @@
-"""Quét giá điện thoại toàn thị trường (tab "Toàn thị trường" của web) — chỉ để tham khảo.
+﻿"""Quét giá điện thoại toàn thị trường (tab "Toàn thị trường" của web) — chỉ để tham khảo.
 
 Lấy từ trang danh sách của 4 nhà bán lẻ, chỉ 6 hãng đang theo dõi
 (Apple, Samsung, OPPO, Xiaomi gồm Redmi/POCO, Vivo, Realme):
@@ -57,15 +57,22 @@ def brand_of(*texts):
 
 
 def money(text):
-    """Giá dạng chữ hiển thị trên trang, ví dụ '45.490.000 ₫' -> 45490000."""
-    digits = re.sub(r"[^0-9]", "", str(text or ""))
-    return int(digits) if digits else 0
+    """GiÃ¡ dáº¡ng chá»¯ hiá»ƒn thá»‹ trÃªn trang, vÃ­ dá»¥ '45.490.000 â‚«' -> 45490000."""
+    if not text:
+        return 0
+    m = re.search(r"(\d{1,3}(?:[.,]\d{3})+|\d+)", str(text))
+    if not m:
+        return 0
+    digits = re.sub(r"[^0-9]", "", m.group(1))
+    val = int(digits) if digits else 0
+    return val if val <= 200_000_000 else 0
 
 
 def num(value):
-    """Số dạng 3.899e+07 / 6490000.0 / 6490000 -> int."""
+    """Sá»‘ dáº¡ng 3.899e+07 / 6490000.0 / 6490000 -> int."""
     try:
-        return int(round(float(value)))
+        val = int(round(float(value)))
+        return val if val <= 200_000_000 else 0
     except (TypeError, ValueError):
         return 0
 

@@ -57,8 +57,16 @@ CF_PROXY_TOKEN = os.environ.get("CF_PROXY_TOKEN", "")
 BASE_RE = re.compile(r"Chọn 1 trong[\s\S]{0,600}?Giảm giá\s*([\d.,]+)\s*[₫đd]", re.I)
 DISCONTINUED_RE = re.compile(r"ngừng kinh doanh|ngưng kinh doanh", re.I)
 
-# Từ khóa nội dung của Flash sale: "Ưu đãi ONLINE", "Kết thúc sau", "Online Giá Rẻ Quá", "Còn x/y suất"
-FLASH_KEYWORDS_RE = re.compile(r"Ưu đãi ONLINE|Kết thúc sau|Online Giá Rẻ Quá|Còn\s*\d+\s*/\s*\d+\s*suất", re.I)
+# Từ khóa nội dung của Flash sale: "Ưu đãi ONLINE", "Kết thúc sau", "Online Giá Rẻ Quá", "Còn x/y suất", "Flash sale"
+FLASH_KEYWORDS_RE = re.compile(
+    r"Ưu đãi ONLINE|Kết thúc sau|Online Giá Rẻ Quá"
+    r"|Flash\s*sale|Flashsale"
+    r"|bg-fs-detail|bg-stock-quantity"
+    r"|Còn\s*(?:<!--.*?-->|\s)*\d+\s*(?:<!--.*?-->|\s)*/\s*(?:<!--.*?-->|\s)*\d+\s*(?:<!--.*?-->|\s)*suất"
+    r"|Còn\s*\d+\s*/\s*\d+\s*suất"
+    r"|suất",
+    re.I
+)
 
 # Nhận diện BANNER CAM của Flash sale (chuẩn vĩnh viễn):
 # Phải có khối banner màu cam / class flash sale (bg-fs-detail, bg-fs, box_saving, banner-fs, bg-orange...)
