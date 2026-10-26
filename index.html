@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="utf-8">
@@ -793,10 +793,10 @@ function renderMatrix(){
   const idx = S.dates.map((_,i)=>i).reverse();
   let h=`<thead><tr><th>Hãng</th><th>Model</th><th class="num">RRP</th>${idx.map(i=>`<th class="num">${esc(dlabel(S.dates[i]))}</th>`).join("")}</tr></thead><tbody>`;
   
-  // Khóa tab Lịch sử theo đợt quét theo đúng 95 SKU Master List
+  // Khoa tab Lich su theo dot quet theo dung 94 SKU Master List chuan
   const mList = (Array.isArray(window.MASTER_ORDER) && window.MASTER_ORDER.length)
-    ? window.MASTER_ORDER.map(m => S.rows.find(r => r.model === m)).filter(Boolean)
-    : S.rows.slice(0, 95);
+    ? window.MASTER_ORDER.map(m => S.rows.find(r => r.model === m || canonKey(r.model, r.brand) === canonKey(m))).filter(Boolean)
+    : S.rows.slice(0, 94);
 
   mList.forEach(r=>{
     h+=`<tr data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${newBadge(r.model)}</td><td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td>`;
@@ -883,8 +883,8 @@ function historySheetAoa(){
   const head = ["Hãng", "Model", "Phân khúc", "Kênh", "RRP", "So đợt trước (đ)", ...idx.map(i => dates[i])];
   const allRows = Array.isArray(S.rows) ? S.rows : [];
   const mList = (Array.isArray(window.MASTER_ORDER) && window.MASTER_ORDER.length)
-    ? window.MASTER_ORDER.map(m => allRows.find(r => r && r.model === m)).filter(Boolean)
-    : allRows.slice(0, 95);
+    ? window.MASTER_ORDER.map(m => allRows.find(r => r && (r.model === m || canonKey(r.model, r.brand) === canonKey(m)))).filter(Boolean)
+    : allRows.slice(0, 94);
   const rows = mList.map(r => {
     if(!r) return [];
     const pmh = Array.isArray(r.pmh) ? r.pmh : [];

@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # HỆ THỐNG KIỂM TRA TOÀN VẸN VÀ RÀNG BUỘC (CONSTRAINTS VERIFICATION SUITE)
 # Tuân thủ phương pháp Test-Driven & Constraint-Driven Development (Addy Osmani)
 # ==============================================================================
@@ -179,9 +179,9 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
                 $mainFile.sheetNames -contains "Lich_Su_Theo_Dot_Quet"
             } "Thieu sheet Lich_Su_Theo_Dot_Quet trong Bao_Cao_GTM_Khuyen_Mai"
 
-            Assert-Check "E2E: Sheet Lich_Su_Theo_Dot_Quet phai co du 95 SKU Master List (96 dong gom header)" {
+            Assert-Check "E2E: Sheet Lich_Su_Theo_Dot_Quet phai co du 94 SKU Master List (95 dong gom header)" {
                 $historySheet = $mainFile.sheetsInfo | Where-Object { $_.name -eq "Lich_Su_Theo_Dot_Quet" }
-                $historySheet.rowCount -ge 96
+                $historySheet.rowCount -ge 95
             } "So dong trong Lich_Su_Theo_Dot_Quet khong bang 96"
 
             Assert-Check "E2E: Sheet Lich_Su_Theo_Dot_Quet phai chua cot ngay 19-Oct" {

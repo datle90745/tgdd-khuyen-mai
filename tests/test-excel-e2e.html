@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="utf-8">
@@ -135,8 +135,8 @@ function historySheetAoa(){
   const head = ["Hãng", "Model", "Phân khúc", "Kênh", "RRP", "So đợt trước (đ)", ...idx.map(i => dates[i])];
   const allRows = Array.isArray(S.rows) ? S.rows : [];
   const mList = (Array.isArray(MASTER_ORDER) && MASTER_ORDER.length)
-    ? MASTER_ORDER.map(m => allRows.find(r => r && r.model === m)).filter(Boolean)
-    : allRows.slice(0, 95);
+    ? MASTER_ORDER.map(m => allRows.find(r => r && (r.model === m || canonKey(r.model, r.brand) === canonKey(m)))).filter(Boolean)
+    : allRows.slice(0, 94);
   const rows = mList.map(r => {
     if(!r) return [];
     const pmh = Array.isArray(r.pmh) ? r.pmh : [];
