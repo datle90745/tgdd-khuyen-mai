@@ -1,4 +1,4 @@
-﻿"""Quét giá điện thoại toàn thị trường (tab "Toàn thị trường" của web) — chỉ để tham khảo.
+"""Quét giá điện thoại toàn thị trường (tab "Toàn thị trường" của web) — chỉ để tham khảo.
 
 Lấy từ trang danh sách của 4 nhà bán lẻ, chỉ 6 hãng đang theo dõi
 (Apple, Samsung, OPPO, Xiaomi gồm Redmi/POCO, Vivo, Realme):
@@ -513,18 +513,6 @@ def scan_fpt():
     Tuyệt đối KHÔNG lấy số cũ từ các ngày trước để tránh gây hiểu lầm về giá thực tế."""
     today_label = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%b")
     fpt_file = ROOT / "data" / "fpt.js"
-
-    # 0. Ưu tiên nạp từ data/fpt.js do máy nhà quét đầy đủ cùng ngày hôm nay (~124 máy đủ 4 hãng)
-    if fpt_file.exists():
-        try:
-            m = re.search(r"window\.FPT_LOCAL\s*=\s*(\{.*\});", fpt_file.read_text(encoding="utf-8-sig"), re.S)
-            if m:
-                obj = json.loads(m.group(1))
-                if obj.get("date") == today_label and obj.get("rows") and len(obj["rows"]) >= 80:
-                    print(f"  FPT ưu tiên lấy từ data/fpt.js (máy nhà quét đầy đủ cùng ngày {today_label}): {len(obj['rows'])} máy", flush=True)
-                    return obj["rows"]
-        except Exception as e:
-            print(f"  FPT đọc fpt.js không thành công: {e}", flush=True)
 
     # 1. Thử Retail Deal Crawler API nội bộ
     try:
