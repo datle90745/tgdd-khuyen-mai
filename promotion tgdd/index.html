@@ -1222,7 +1222,7 @@ const MK_FOCUS_ALL = new Set(BASE.rows.map(r=>((r.brand||"").toLowerCase() + "|"
 // máy nhà (data/fpt.js) thì thay toàn bộ phần FPT bằng bản đó.
 function mkMergeFpt(scan){
   const L = window.FPT_LOCAL;
-  if(!scan || !L || !Array.isArray(L.rows) || L.rows.length <= scan.rows.filter(x=>x.r==="FPT Shop").length) return scan;
+  if(!scan || !L || !Array.isArray(L.rows) || L.date !== scan.date || L.rows.length <= scan.rows.filter(x=>x.r==="FPT Shop").length) return scan;
   const rows = scan.rows.filter(x=>x.r!=="FPT Shop").concat(L.rows);
   const report = {...(scan.report||{}), "FPT Shop": L.rows.length};
   return {...scan, rows, report, fptLocal:`${L.date} ${L.at}`};
