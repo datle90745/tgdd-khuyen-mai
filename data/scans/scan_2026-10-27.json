@@ -997,8 +997,8 @@
                      "red":  6790000,
                      "pmh":  700000,
                      "online":  700000,
-                     "total_online":  900000,
-                     "choice":  200000,
+                     "total_online":  700000,
+                     "choice":  0,
                      "kind":  "moi",
                      "rule":  "den_tru_do",
                      "subs":  [
@@ -1656,8 +1656,8 @@
                      "url":  "https://www.thegioididong.com/dtdd/samsung-galaxy-a18-6gb-128gb",
                      "at":  "27-10 07:43",
                      "status":  "active",
-                     "rrp":  5590000,
-                     "red":  5590000,
+                     "rrp":  7190000,
+                     "red":  7190000,
                      "pmh":  0,
                      "online":  0,
                      "total_online":  0,
@@ -1791,23 +1791,6 @@
                  {
                      "model":  "Galaxy A08 4+128GB",
                      "url":  "https://www.thegioididong.com/dtdd/samsung-galaxy-a08-4gb-128gb",
-                     "at":  "27-10 07:44",
-                     "status":  "active",
-                     "rrp":  5590000,
-                     "red":  5590000,
-                     "pmh":  0,
-                     "online":  0,
-                     "total_online":  0,
-                     "choice":  0,
-                     "kind":  "moi-banner",
-                     "rule":  "flash_chon1",
-                     "subs":  [
-
-                              ]
-                 },
-                 {
-                     "model":  "Galaxy A18 4G/128GB",
-                     "url":  "https://www.thegioididong.com/dtdd/samsung-galaxy-a18-4gb-128gb",
                      "at":  "27-10 07:44",
                      "status":  "active",
                      "rrp":  5590000,

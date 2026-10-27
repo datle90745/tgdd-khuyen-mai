@@ -281,6 +281,40 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
                 ($domContent -notmatch "A08 4GB/64GB:\s*4\.790\.000.*5\.590\.000") -and
                 ($domContent -notmatch "26-10-2026.*tang gia den")
             } "$dcf van con hien thi banner canh bao tang gia ao A08 4GB/64GB"
+
+            $a57Row = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="A57 5G 12GB/256GB"[^>]*>(.*?)</tr>')
+            Assert-Check "DOM E2E: $dcf phai an to vang va bo co RRP tang cho Samsung A57 (tang > 15 ngay)" {
+                $a57Row.Success -and 
+                ($a57Row.Groups[1].Value -notmatch 'rrpup') -and 
+                ($a57Row.Groups[1].Value -notmatch 'RRP tÄƒng')
+            } "$dcf van hien thi to vang hoac co RRP tang cho Samsung A57 du da qua 15 ngay"
+
+            $r16Row = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="16 5G 8GB/256GB"[^>]*>(.*?)</tr>')
+            Assert-Check "DOM E2E: $dcf phai to vang va co co RRP tang cho Realme 16 (tang <= 15 ngay)" {
+                $r16Row.Success -and 
+                ($r16Row.Groups[1].Value -match 'rrpup') -and 
+                ($r16Row.Groups[1].Value -match 'RRP tÄƒng')
+            } "$dcf khong to vang hoac thieu co RRP tang cho Realme 16 (trong vong 15 ngay)"
+
+            $redmiRow = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="Redmi 17 4G 6GB/256GB"[^>]*>(.*?)</tr>')
+            Assert-Check "DOM E2E: $dcf phai render gia online Redmi 17 4G 6GB/256GB dung 6.790.000" {
+                $redmiRow.Success -and 
+                ($redmiRow.Groups[1].Value -match '6\.790\.000') -and
+                ($redmiRow.Groups[1].Value -notmatch '6\.590\.000')
+            } "$dcf hien thi sai gia online cho Redmi 17 4G 6GB/256GB (khong phai 6.790.000)"
+
+            $a18Row = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="Galaxy A18 6GB/128GB"[^>]*>(.*?)</tr>')
+            Assert-Check "DOM E2E: $dcf phai hien thi Galaxy A18 6GB/128GB la kenh Mass (RRP 7.190.000)" {
+                $a18Row.Success -and 
+                ($a18Row.Groups[1].Value -match 'class="badge mass">Mass<') -and
+                ($a18Row.Groups[1].Value -match '7\.190\.000')
+            } "$dcf khong hien thi Galaxy A18 6GB/128GB kenh Mass RRP 7.190.000"
+
+            $renoRow = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="Reno16F 5G 8GB/256GB"[^>]*>(.*?)</tr>')
+            Assert-Check "DOM E2E: $dcf phai hien thi Reno16F 5G 8GB/256GB la kenh Mass" {
+                $renoRow.Success -and 
+                ($renoRow.Groups[1].Value -match 'class="badge mass">Mass<')
+            } "$dcf khong hien thi Reno16F 5G 8GB/256GB la kenh Mass"
         }
     }
 }

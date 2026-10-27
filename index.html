@@ -540,11 +540,73 @@ const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&
 const BDISP={Apple:"APPLE",Samsung:"SAMSUNG",Xiaomi:"MI"};
 const bdisp=b=>BDISP[b]||b;
 const bcell=b=>`<td class="bcell" data-b="${esc(b)}">${esc(bdisp(b))}</td>`;
+function getLatestRiseDate(r) {
+  let latestDate = null;
+  const updateLatest = d => {
+    if (!d || isNaN(d.getTime())) return;
+    if (!latestDate || d > latestDate) latestDate = d;
+  };
+  
+  if (window.RISE_AUTO && Array.isArray(window.RISE_AUTO)) {
+    window.RISE_AUTO.forEach(item => {
+      const model = item[2];
+      if (model === r.model || (typeof canonKey === "function" && canonKey(model, r.brand) === canonKey(r.model, r.brand))) {
+        if (item[5]) updateLatest(new Date(item[5]));
+      }
+    });
+  }
+  
+  if (window.RRP_NOTES && window.RRP_NOTES[r.model]) {
+    const note = window.RRP_NOTES[r.model];
+    const m = note.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    if (m) updateLatest(new Date(`${m[3]}-${m[2]}-${m[1]}`));
+    else {
+      const m2 = note.match(/(\d{2})\/(\d{4})/);
+      if (m2) updateLatest(new Date(`${m2[2]}-${m2[1]}-01`));
+    }
+  }
+
+  if (window.RISE_RAW && Array.isArray(window.RISE_RAW)) {
+    window.RISE_RAW.forEach(item => {
+      const model = item[2];
+      if (model === r.model || (typeof canonKey === "function" && canonKey(model, r.brand) === canonKey(r.model, r.brand))) {
+        if (item[5]) updateLatest(new Date(item[5]));
+      }
+    });
+  }
+
+  if (Array.isArray(r.flags)) {
+    r.flags.forEach(f => {
+      const m = f.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+      if (m) updateLatest(new Date(`${m[3]}-${m[2]}-${m[1]}`));
+    });
+  }
+
+  return latestDate;
+}
+
 const rrpUp = r => {
-  if (RRP_NOTES[r.model]) return true;
-  const orig = (window.BASE && window.BASE.rows) ? (window.BASE.rows.find(x => x.model === r.model) || {}).rrp : 0;
-  if (orig) return r.rrp > orig;
-  return false;
+  const riseDate = getLatestRiseDate(r);
+  if (!riseDate) return false;
+  let refDate = new Date();
+  if (window.LATEST && window.LATEST.date) {
+    const m = window.LATEST.date.match(/(\d{1,2})-([A-Za-z]{3})/);
+    if (m) {
+      const months = {Jan:0, Feb:1, Mar:2, Apr:3, May:4, Jun:5, Jul:6, Aug:7, Sep:8, Oct:9, Nov:10, Dec:11};
+      refDate = new Date(2026, months[m[2]] !== undefined ? months[m[2]] : 9, parseInt(m[1], 10));
+    }
+  } else if (window.SCANS && window.SCANS.length) {
+    const last = window.SCANS[window.SCANS.length - 1];
+    if (last.date) {
+      const m = last.date.match(/(\d{1,2})-([A-Za-z]{3})/);
+      if (m) {
+        const months = {Jan:0, Feb:1, Mar:2, Apr:3, May:4, Jun:5, Jul:6, Aug:7, Sep:8, Oct:9, Nov:10, Dec:11};
+        refDate = new Date(2026, months[m[2]] !== undefined ? months[m[2]] : 9, parseInt(m[1], 10));
+      }
+    }
+  }
+  const diffDays = (refDate.getTime() - riseDate.getTime()) / (1000 * 60 * 60 * 24);
+  return diffDays >= 0 && diffDays <= 15;
 };
 const $ = id => document.getElementById(id);
 const removeAccents = s => String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/[^a-z0-9\s]/g," ").trim();
@@ -772,7 +834,7 @@ function renderTable(){
   $("tbody").innerHTML = rows.map(r=>{
     const p=r.pmh[r.pmh.length-1];
     const pct = (p==null||r.status!=="active")?"–":(p/r.rrp*100).toFixed(1)+"%";
-    const flag = r.flags.length?` <span class="badge ${rrpUp(r)?"rrp":"warn"}" title="${esc(r.flags.join("; "))}">RRP${rrpUp(r)?" tăng":""}</span>`:"";
+    const flag = rrpUp(r) ? ` <span class="badge rrp" title="${esc(r.flags.join("; "))}">RRP tÄƒng</span>` : "";
     return `<tr tabindex="0" data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${newBadge(r.model, r)}${flag}</td>
     <td><span class="badge ${r.channel==="TGDD"?"tgdd":"mass"}">${r.channel==="TGDD"?"Độc quyền":"Mass"}</span></td><td>${esc(r.segment)}</td>
     <td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td><td class="num" title="RRP trừ KM base. Flash sale chỉ có khi mua online nên không trừ vào giá này.">${fmt(offPrice(r))}</td><td class="num"><strong>${r.status==="active"?fmt(p):"–"}</strong></td><td class="num${r.tot?" fscell":""}"${r.tot?` title="Máy đang chạy flash sale online. Số đỏ là tổng tiền giảm khách thấy trên trang, chỉ để tham khảo."`:""}>${r.tot?fmt(r.tot):"–"}</td><td class="num">${deltaCell(r)}</td><td class="num">${pct}</td><td>${spark(r.pmh)}</td></tr>`;
@@ -1151,7 +1213,7 @@ const MK_RET = ["TGDĐ","CellphoneS","FPT Shop","Viettel Store"];
 const MF = {r:"Tất cả", b:"Tất cả", k:"Tất cả", q:"", focus:false, sort:"v", dir:-1};
 // Khoá so khớp tên máy giữa các sàn và danh sách 94 SKU: bỏ dấu, tên hãng, 4G (giữ 5G để tránh đụng độ model), ký tự đặc biệt.
 const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d").replace(/\+/g,"plus")
-  .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|4g|nfc)\b/g," ")
+  .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|4g|lte|nfc)\b/g," ")
     .replace(/\b(titan|xam|den|trang|xanh|vang|bac|hong|tim|gold|silver|black|white|blue|green|purple|pink|grey|gray)\b/g," ")
   .replace(/[^a-z0-9]/g,"");
 const MK_FOCUS_MASS = new Set(BASE.rows.filter(r=>r.channel!=="TGDD").map(r=>((r.brand||"").toLowerCase() + "|" + mkKey(r.model))));
@@ -1561,10 +1623,15 @@ function isNonMwg(ret){
 function getAvailableModels(ret){
   if(!S || !S.rows) return [];
   if(isNonMwg(ret)){
-    // Non-MWG chỉ phân phối model Mass (ẩn hoàn toàn các model độc quyền MWG)
-    return S.rows.filter(r => r.channel !== "TGDD").map(r => r.model);
+    const D = (typeof mkData === "function") ? mkData() : null;
+    const curRows = (D && D.cur && D.cur.rows) ? D.cur.rows : [];
+    const bLower = b => (b||"").toLowerCase();
+    return S.rows.filter(r => {
+      if (r.channel !== "TGDD") return true;
+      const k = mkKey(r.model);
+      return curRows.some(x => (x.r === ret || (ret === "TGDÄ" && x.r === "Tháº¿ Giá»›i Di Äá»™ng")) && bLower(x.b) === bLower(r.brand) && mkKey(x.n) === k);
+    }).map(r => r.model);
   }
-  // TGDĐ có đầy đủ tất cả model
   return S.rows.map(r => r.model);
 }
 
@@ -2057,9 +2124,13 @@ function getRetailerData(model, ret){
     };
   }
 
-  // Toàn bộ sản phẩm Độc quyền MWG (channel === "TGDD") khi xem ở kênh non-MWG:
-  // Kênh non-MWG không kinh doanh chính hãng, trả về price null và chặn tuyệt đối khuyến mãi ảo.
-  if(rBase && rBase.channel === "TGDD"){
+  const D = mkData();
+  const k = mkKey(model);
+  const bLower = (brand || "").toLowerCase();
+  const rows = (D.cur && D.cur.rows) || [];
+  const match = rows.find(x => (x.r === ret || (ret.startsWith("TGD") && x.r.startsWith("TGD")) || ((ret === "TGD\u0110" || ret === "Th\u1EBF Gi\u1EDBi Di \u0110\u1ED9ng") && (x.r === "TGD\u0110" || x.r === "Th\u1EBF Gi\u1EDBi Di \u0110\u1ED9ng"))) && (x.b || "").toLowerCase() === bLower && mkKey(x.n) === k);
+
+  if(isNonMwg(ret) && rBase && rBase.channel === "TGDD" && !match){
     return {
       ret,
       brand,
@@ -2070,16 +2141,9 @@ function getRetailerData(model, ret){
       pmh: 0,
       fs: null,
       url: "",
-      kind: "Độc quyền MWG (Không kinh doanh)"
+      kind: "\u0110\u1ED9c quy\u1EC1n MWG (Kh\u00F4ng kinh doanh)"
     };
   }
-
-  const D = mkData();
-  const k = mkKey(model);
-  const bLower = (brand || "").toLowerCase();
-  const rows = (D.cur && D.cur.rows) || [];
-  // So khớp chặt chẽ cho hàng Mass: Phải khớp đúng sàn, đúng thương hiệu và đúng khóa model (bỏ hẳn substring lỏng lẻo)
-  const match = rows.find(x => (x.r === ret || (ret === "TGDĐ" && x.r === "Thế Giới Di Động")) && (x.b || "").toLowerCase() === bLower && mkKey(x.n) === k);
   
   const price = match ? match.p : null;
   const oPrice = (match && match.o) || rrp;
@@ -2203,7 +2267,7 @@ function renderCompare(){
 
     // 2. Kênh non-MWG nhưng model là hàng độc quyền MWG:
     // Tuyệt đối KHÔNG hiển thị khuyến mãi của kênh này vì họ không bán sản phẩm này
-    if(rBase && rBase.channel === "TGDD"){
+    if(rBase && rBase.channel === "TGDD" && (!item || !item.price)){
       return `
         <div class="cmp-exclusive-box" style="margin-top:14px;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:12px 14px">
           <div style="display:flex;align-items:center;gap:6px;color:#991b1b;font-weight:700;font-size:13px">
@@ -2239,7 +2303,7 @@ function renderCompare(){
     const pct = rrp && item.price ? ((rrp - item.price) / rrp * 100) : 0;
 
     let priceDisplay = "";
-    if(isNonMwg && isExclusive){
+    if(isNonMwg && isExclusive && (!item.price || item.price <= 0)){
       priceDisplay = `<span style="font-size:14px;color:#dc2626;font-weight:700">Không kinh doanh (Độc quyền MWG)</span>`;
     } else if(!item.price || item.price <= 0){
       priceDisplay = `<span style="font-size:14px;color:var(--muted);font-weight:600">Liên hệ / Hết hàng online</span>`;
@@ -2247,7 +2311,7 @@ function renderCompare(){
       priceDisplay = `<span style="font-size:17px;color:${color};font-weight:800">${fmt(item.price)}</span>`;
     }
 
-    const chBadge = isExclusive
+    const chBadge = (isExclusive && (!item.price || item.price <= 0))
       ? `<span class="badge tgdd" style="font-weight:700">🔒 Độc quyền MWG</span>`
       : `<span class="badge mass">Phân phối Mass</span>`;
 
