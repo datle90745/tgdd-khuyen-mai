@@ -3,6 +3,7 @@ param([string]$CommitMsg = "Dong bo du lieu toan thi truong va FPT Shop $(Get-Da
 $ErrorActionPreference = "Stop"
 
 $git = "C:\Users\toquo\AppData\Local\Microsoft\WinGet\Packages\Git.MinGit_Microsoft.Winget.Source_8wekyb3d8bbwe\cmd\git.exe"
+if (!(Test-Path $git)) { $git = "git" }
 
 Write-Host "1. Chuan bi files va commit tai cho..." -ForegroundColor Cyan
 & $git add -A
