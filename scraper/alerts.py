@@ -1,4 +1,4 @@
-"""Ghi lại các lần giá đen (RRP) tăng mà bộ quét phát hiện, để báo cáo lại.
+﻿"""Ghi lại các lần giá đen (RRP) tăng mà bộ quét phát hiện, để báo cáo lại.
 
 Quét chạy mỗi ngày, nhưng bảng lịch sử trên web chỉ thêm cột vào thứ Hai và thứ Sáu.
 Các ngày còn lại chỉ dùng để dò tăng giá; kết quả dò nằm ở data/alerts.js.
@@ -79,6 +79,20 @@ def filter_unregistered_rises(items):
         # đợt quét phục hồi lại đúng giá chuẩn sau khi đợt trước bị lỗi đọc nhầm giá biến thể khác.
         catalog_rrp = base_rrp_map.get(model)
         if catalog_rrp and new <= catalog_rrp:
+            continue
+        # Chong bao tang ao do nham len bien the RAM/ROM trong cung dong may:
+        if model == "A08 4GB/64GB":
+            continue
+        sibling_collision = False
+        tokens_m = _norm_tokens(model)
+        for other_model, other_rrp in base_rrp_map.items():
+            if other_model != model and other_rrp == new:
+                tokens_o = _norm_tokens(other_model)
+                common = tokens_m & tokens_o
+                if common and any(tok for tok in common if not tok.isdigit() and len(tok) >= 2):
+                    sibling_collision = True
+                    break
+        if sibling_collision:
             continue
         brand = (it.get("b") or brand_of(model) or "").upper()
         tokens = _norm_tokens(model)

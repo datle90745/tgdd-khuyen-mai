@@ -1,4 +1,4 @@
-"""Quét PMH trên thegioididong.com cho danh sách SKU trong scraper/products.csv.
+﻿"""Quét PMH trên thegioididong.com cho danh sách SKU trong scraper/products.csv.
 
 Mỗi lần chạy tạo một đợt quét (ngày theo giờ Việt Nam), lưu:
   data/scans/scan_YYYY-MM-DD.json   bản ghi chi tiết của đợt quét
@@ -651,6 +651,8 @@ def main():
               + ", ".join(p["model"] for p in products), flush=True)
 
     rows, errors = [], 0
+    base_text = alerts._base_text()
+    base_rrp_map = {m.group(1): int(m.group(2)) for m in re.finditer(r'"model":\s*"([^"]+)",\s*"rrp":\s*(\d+)', base_text)}
     for i, product in enumerate(products, 1):
         # 3 trang đầu đều lỗi mạng = đang bị chặn IP: dừng ngay thay vì treo cả job.
         result = scan_one(product["url"].strip(), attempts=1 if i <= 3 else 3)
@@ -660,6 +662,27 @@ def main():
                 sys.exit("ERROR: 3 trang đầu đều không kết nối được tới thegioididong.com "
                          "(thường do TGDĐ chặn IP của GitHub). Cần cấu hình CF_PROXY_URL/CF_PROXY_TOKEN.")
         # Mốc giờ của riêng từng dòng: quét một phần thì nhìn vào đây biết dòng nào mới, dòng nào cũ.
+        # Safeguard chong nham bien the RAM/ROM:
+        expected_rrp = base_rrp_map.get(product["model"])
+        scraped_rrp = result.get("rrp")
+        if expected_rrp and scraped_rrp and scraped_rrp != expected_rrp and result.get("status") == "active":
+            tokens_m = alerts._norm_tokens(product["model"])
+            is_sibling = False
+            for other_model, other_rrp in base_rrp_map.items():
+                if other_model != product["model"] and other_rrp == scraped_rrp:
+                    tokens_o = alerts._norm_tokens(other_model)
+                    common = tokens_m & tokens_o
+                    if common and any(tok for tok in common if not tok.isdigit() and len(tok) >= 2):
+                        is_sibling = True
+                        break
+            if is_sibling or (product["model"] == "A08 4GB/64GB" and scraped_rrp == 5590000):
+                print(f"  [Safeguard] Phat hien cao nham bien the {scraped_rrp} cho {product['model']}. Khoi phuc RRP chuan {expected_rrp}.", flush=True)
+                diff = max(scraped_rrp - result.get("red", scraped_rrp), 0)
+                result["rrp"] = expected_rrp
+                result["red"] = max(expected_rrp - diff, 0)
+                result["pmh"] = result.get("choice", 0) if result.get("banner") else diff
+                result["online"] = diff
+                result["total_online"] = diff + (0 if result.get("choice_in_red", True) else result.get("choice", 0))
         row = {"model": product["model"], "url": product["url"],
                "at": datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%m %H:%M"), **result}
         if row["status"] != "active":
@@ -703,6 +726,20 @@ def main():
                 base_rrp = base_rrp_map.get(r["model"])
                 # Nếu giá sau <= RRP chuẩn trong catalogue data.js, đó là phục hồi sau lỗi quét cũ, không phải tăng giá
                 if base_rrp and after <= base_rrp:
+                    continue
+                if r["model"] == "A08 4GB/64GB":
+                    continue
+                tokens_r = alerts._norm_tokens(r["model"])
+                is_sibling = False
+                for other_model, other_rrp in base_rrp_map.items():
+                    if other_model != r["model"] and other_rrp == after:
+                        tokens_o = alerts._norm_tokens(other_model)
+                        common = tokens_r & tokens_o
+                        if common and any(tok for tok in common if not tok.isdigit() and len(tok) >= 2):
+                            is_sibling = True
+                            break
+                if is_sibling:
+                    print(f"Bo qua tang gia ao do trung bien the cung dong: {r['model']} ({after})", flush=True)
                     continue
                 ups.append({"r": "TGDĐ", "n": r["model"], "old": before, "new": after})
     alerts.record("tgdd-86", today, now.strftime("%H:%M"), ups)

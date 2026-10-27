@@ -127,6 +127,28 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         ($v256.pmh -eq 700000) -and ($v256.rrp -eq 14990000) -and ($v128.pmh -eq 700000) -and ($v128.rrp -eq 12990000)
     } "data/scans.js dot quet 26-Oct sai PMH hoac RRP cua V80 Lite"
 
+    Assert-Check "data/latest.js phai co A08 4GB/64GB RRP 4.790.000 (khong bi nham 5.590.000)" {
+        $latestText = Get-Content "data/latest.js" -Raw -Encoding UTF8
+        ($latestText -match '"model"\s*:\s*"A08 4GB/64GB"[^}]*"rrp"\s*:\s*4790000') -and
+        ($latestText -notmatch '"model"\s*:\s*"A08 4GB/64GB"[^}]*"rrp"\s*:\s*5590000')
+    } "data/latest.js bi nham RRP A08 4GB/64GB thanh 5.590.000"
+
+    Assert-Check "data/alerts.js va data/rises.js tuyet doi khong bao tang gia ao cho A08 4GB/64GB" {
+        $alertsText = Get-Content "data/alerts.js" -Raw -Encoding UTF8
+        $risesText = Get-Content "data/rises.js" -Raw -Encoding UTF8
+        ($alertsText -notmatch "A08 4GB/64GB") -and ($risesText -notmatch "A08 4GB/64GB")
+    } "alerts.js hoac rises.js van con chua bao tang gia ao A08 4GB/64GB"
+
+    Assert-Check "data/scans.js dot quet 26-Oct phai co A08 4GB/64GB voi RRP 4.790.000" {
+        $scansText = Get-Content "data/scans.js" -Raw -Encoding UTF8
+        $raw = $scansText -replace "^\s*/\*.*?\*/\s*", "" -replace "^\s*window\.SCANS\s*=\s*", ""
+        $raw = $raw.TrimEnd(" ;`r`n")
+        $scansObj = $raw | ConvertFrom-Json
+        $s26Obj = $scansObj | Where-Object { $_.date -eq "26-Oct" }
+        $a08 = $s26Obj.rows | Where-Object { $_.model -eq "A08 4GB/64GB" }
+        $a08.rrp -eq 4790000
+    } "data/scans.js 26-Oct sai RRP A08 4GB/64GB"
+
     Assert-Check "canonKey() trong index.html tuyet doi khong co quy tac hack dong bo bien the a7pro5g" {
         $idxText = Get-Content "index.html" -Raw -Encoding UTF8
         $idxText -notmatch 'oppo_a7pro5g8gb256gb'
@@ -254,6 +276,11 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
                 ($a7_8_128.Groups[1].Value -match '1\.550\.000|1\.350\.000') -and
                 ($a7_8_128.Groups[1].Value -notmatch '<td>–</td>\s*<td>–</td>')
             } "$dcf bi loi thieu so lieu hoac khong render cho A7 Pro 5G 8GB/128GB"
+
+            Assert-Check "DOM E2E: $dcf tuyet doi khong hien thi banner canh bao tang gia ao A08 4GB/64GB" {
+                ($domContent -notmatch "A08 4GB/64GB:\s*4\.790\.000.*5\.590\.000") -and
+                ($domContent -notmatch "26-10-2026.*tang gia den")
+            } "$dcf van con hien thi banner canh bao tang gia ao A08 4GB/64GB"
         }
     }
 }

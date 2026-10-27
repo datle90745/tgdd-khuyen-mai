@@ -1012,7 +1012,7 @@ function riseAlertBox(){
     return `${brand}|${mdl}|${o}|${n}`;
   };
   const baseNorm = new Set(base.map(r => normKey(r[1], r[2], r[3], r[4])));
-  items = items.filter(x => (x.r||"") !== "FPT Shop" && !baseNorm.has(normKey(x.b, x.n, x.old, x.new)));
+  items = items.filter(x => (x.r||"") !== "FPT Shop" && x.n !== "A08 4GB/64GB" && !baseNorm.has(normKey(x.b, x.n, x.old, x.new)));
   if(!items.length) return "";
   const li = items.slice(0,20).map(x=>`<li>${esc(x.b||"")} ${esc(x.n)}: ${fmt(x.old)} → <b>${fmt(x.new)}</b> (+${(((x.new-x.old)/x.old)*100).toFixed(1)}%)${x.r?` — <b>${esc(x.r)}</b>`:""}</li>`).join("");
   return `<div class="rwarn"><b>Đợt quét ${esc(rd(last))} phát hiện ${items.length} máy tăng giá đen.</b><ul>${li}`
