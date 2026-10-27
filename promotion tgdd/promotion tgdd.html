@@ -1283,7 +1283,7 @@ const MK = window.MARKET || {scans:[]};
 const MK_RET = ["TGDĐ","CellphoneS","FPT Shop","Viettel Store"];
 const MF = {r:"Tất cả", b:"Tất cả", k:"Tất cả", q:"", focus:false, sort:"v", dir:-1};
 // Khoá so khớp tên máy giữa các sàn và danh sách 94 SKU: bỏ dấu, tên hãng, 4G (giữ 5G để tránh đụng độ model), ký tự đặc biệt.
-const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d").replace(/\+/g,"plus")
+const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d").replace(/(\d+)\+(\d+)/g, "$1gb$2").replace(/(\d+)\/(\d+)g\b/g, "$1gb$2gb").replace(/\+/g,"plus")
   .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|4g|lte|nfc)\b/g," ")
     .replace(/\b(titan|xam|den|trang|xanh|vang|bac|hong|tim|gold|silver|black|white|blue|green|purple|pink|grey|gray)\b/g," ")
   .replace(/[^a-z0-9]/g,"");
