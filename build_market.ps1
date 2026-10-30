@@ -1,4 +1,4 @@
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+﻿[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 $ErrorActionPreference = "Stop"
 
@@ -424,6 +424,10 @@ $newPrices = [ordered]@{}
 foreach ($r in $allRows) {
     # Người dùng yêu cầu: Không check tăng giá từ web của FPT Shop nữa
     if ($r.r -eq "FPT Shop") {
+        continue
+    }
+    # Tuyet doi khong ghi nhan tang gia cho cac dong placeholder/chua mo ban (Galaxy A18, A08 4GB/64GB)
+    if ($r.n -match 'Galaxy A18|A08 4GB/64GB') {
         continue
     }
     $key = "$($r.r)|$($r.u)|$($r.n)"

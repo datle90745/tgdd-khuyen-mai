@@ -138,6 +138,16 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         $risesText = Get-Content "data/rises.js" -Raw -Encoding UTF8
         ($alertsText -notmatch "A08 4GB/64GB") -and ($risesText -notmatch "A08 4GB/64GB")
     } "alerts.js hoac rises.js van con chua bao tang gia ao A08 4GB/64GB"
+    Assert-Check "data/alerts.js va data/rises.js tuyet doi khong bao tang gia ao cho Galaxy A18" {
+        $alertsText = Get-Content "data/alerts.js" -Raw -Encoding UTF8
+        $risesText = Get-Content "data/rises.js" -Raw -Encoding UTF8
+        ($alertsText -notmatch "Galaxy A18 4G") -and ($risesText -notmatch "Galaxy A18 4G")
+    } "alerts.js hoac rises.js van con chua bao tang gia ao Galaxy A18"
+
+    Assert-Check "data/rises.js khong chua bat ky dong tang gia nao co Brand bi trong" {
+        $risesText = Get-Content "data/rises.js" -Raw -Encoding UTF8
+        $risesText -notmatch '\["T\d+",\s*"",'
+    } "data/rises.js van con ton tai dong co Brand bi trong"
 
     Assert-Check "data/scans.js dot quet 26-Oct phai co A08 4GB/64GB voi RRP 4.790.000" {
         $scansText = Get-Content "data/scans.js" -Raw -Encoding UTF8
@@ -312,6 +322,10 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
                 ($domContent -notmatch "A08 4GB/64GB:\s*4\.790\.000.*5\.590\.000") -and
                 ($domContent -notmatch "26-10-2026.*tang gia den")
             } "$dcf van con hien thi banner canh bao tang gia ao A08 4GB/64GB"
+            Assert-Check "DOM E2E: $dcf tuyet doi khong render dong tang gia ao Galaxy A18 4G/128GB" {
+                ($domContent -notmatch '<td[^>]*>\s*Galaxy A18 4G/128GB\s*</td>') -and
+                ($domContent -notmatch 'data-m="Galaxy A18 4G/128GB"')
+            } "$dcf van con hien thi dong tang gia ao Galaxy A18 4G/128GB"
 
             $a57Row = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="A57 5G 12GB/256GB"[^>]*>(.*?)</tr>')
             Assert-Check "DOM E2E: $dcf phai an to vang va bo co RRP tang cho Samsung A57 (tang > 15 ngay)" {

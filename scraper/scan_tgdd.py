@@ -1,4 +1,4 @@
-﻿"""Quét PMH trên thegioididong.com cho danh sách SKU trong scraper/products.csv.
+"""Quét PMH trên thegioididong.com cho danh sách SKU trong scraper/products.csv.
 
 Mỗi lần chạy tạo một đợt quét (ngày theo giờ Việt Nam), lưu:
   data/scans/scan_YYYY-MM-DD.json   bản ghi chi tiết của đợt quét
@@ -727,7 +727,9 @@ def main():
                 # Nếu giá sau <= RRP chuẩn trong catalogue data.js, đó là phục hồi sau lỗi quét cũ, không phải tăng giá
                 if base_rrp and after <= base_rrp:
                     continue
-                if r["model"] == "A08 4GB/64GB":
+                if r["model"] not in base_rrp_map:
+                    continue
+                if r["model"] in ("A08 4GB/64GB", "Galaxy A18 4G/128GB", "Galaxy A18 4GB/128GB", "Galaxy A18 8GB/128GB") or (r["model"].startswith("Galaxy A18") and r["model"] != "Galaxy A18 6GB/128GB"):
                     continue
                 tokens_r = alerts._norm_tokens(r["model"])
                 is_sibling = False

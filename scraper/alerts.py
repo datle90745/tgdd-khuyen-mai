@@ -1,4 +1,4 @@
-﻿"""Ghi lại các lần giá đen (RRP) tăng mà bộ quét phát hiện, để báo cáo lại.
+"""Ghi lại các lần giá đen (RRP) tăng mà bộ quét phát hiện, để báo cáo lại.
 
 Quét chạy mỗi ngày, nhưng bảng lịch sử trên web chỉ thêm cột vào thứ Hai và thứ Sáu.
 Các ngày còn lại chỉ dùng để dò tăng giá; kết quả dò nằm ở data/alerts.js.
@@ -27,10 +27,25 @@ def _base_text():
 
 
 def brand_of(model):
-    """Hãng của một model, lấy từ dữ liệu gốc của trang."""
+    """Hãng của một model, lấy từ dữ liệu gốc của trang hoặc suy luận từ tên máy."""
     text = _base_text()
     match = re.search(r'"brand":\s*"([^"]+)",\s*"model":\s*"' + re.escape(model) + '"', text)
-    return match.group(1).upper() if match else ""
+    if match:
+        return match.group(1).upper()
+    s = (model or "").lower()
+    if re.search(r"\b(samsung|galaxy)\b|^s\d{2}|^a\d{2}|^a0\d|^z\s*(flip|fold)", s):
+        return "SAMSUNG"
+    if re.search(r"\b(apple|iphone)\b", s):
+        return "APPLE"
+    if re.search(r"\b(oppo|reno|find)\b", s):
+        return "OPPO"
+    if re.search(r"\b(xiaomi|redmi|poco)\b|^\d{1,2}t", s):
+        return "XIAOMI"
+    if re.search(r"\bvivo\b|^[yvx]\d{2,3}", s):
+        return "VIVO"
+    if re.search(r"\brealme\b|^c\d{2,3}", s):
+        return "REALME"
+    return ""
 
 
 def _rise_key(brand, model, old, new, channel=""):
@@ -80,8 +95,11 @@ def filter_unregistered_rises(items):
         catalog_rrp = base_rrp_map.get(model)
         if catalog_rrp and new <= catalog_rrp:
             continue
-        # Chong bao tang ao do nham len bien the RAM/ROM trong cung dong may:
-        if model == "A08 4GB/64GB":
+        # Chong bao tang ao do nham len bien the RAM/ROM trong cung dong may hoac may mo ban placeholder:
+        if model in ("A08 4GB/64GB", "Galaxy A18 4G/128GB", "Galaxy A18 4GB/128GB", "Galaxy A18 8GB/128GB") or (model.startswith("Galaxy A18") and model != "Galaxy A18 6GB/128GB"):
+            continue
+        # Chi theo doi tang gia cho 94 SKU Master List trong data.js
+        if model not in base_rrp_map:
             continue
         sibling_collision = False
         tokens_m = _norm_tokens(model)
