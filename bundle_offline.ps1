@@ -33,15 +33,17 @@ $targets = @(
     (Join-Path $root "promotion tgdd\promotion tgdd.html")
 )
 
+$utf8NoBom = New-Object System.Text.UTF8Encoding $false
+
 foreach ($t in $targets) {
-    [System.IO.File]::WriteAllText($t, $index, [System.Text.Encoding]::UTF8)
+    [System.IO.File]::WriteAllText($t, $index, $utf8NoBom)
     Write-Host "Created: $t ($([math]::Round($index.Length / 1KB, 1)) KB)"
 }
 
 # Sync unbundled index.html and xlsx to promotion tgdd/
 $subIndex = Join-Path $root "promotion tgdd\index.html"
 $rawIndex = [System.IO.File]::ReadAllText($indexPath, [System.Text.Encoding]::UTF8)
-[System.IO.File]::WriteAllText($subIndex, $rawIndex, [System.Text.Encoding]::UTF8)
+[System.IO.File]::WriteAllText($subIndex, $rawIndex, $utf8NoBom)
 Write-Host "Synced: $subIndex"
 
 $subXlsx = Join-Path $root "promotion tgdd\xlsx.full.min.js"

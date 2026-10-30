@@ -166,14 +166,25 @@ if (Test-Path $latestPath) {
             $lObj = $lMatch.Groups[1].Value | ConvertFrom-Json
             $basePath = Join-Path $ROOT "data\data.js"
             $bRaw = [System.IO.File]::ReadAllText($basePath, [System.Text.Encoding]::UTF8)
-            $bMatch = [regex]::Match($bRaw, '(?s)window\.BASE\s*=\s*(\{.*?\n\s*\});')
+            $bMatch = [regex]::Match($bRaw, '(?s)window\.BASE\s*=\s*(\{.*?\});\s*(?:window\.|$)')
             $baseObj = if ($bMatch.Success) { $bMatch.Groups[1].Value | ConvertFrom-Json } else { $null }
             $bMap = @{}
             if ($baseObj -and $baseObj.rows) {
                 foreach ($br in $baseObj.rows) { $bMap[$br.model] = $br.brand }
             }
+            $linksPath = Join-Path $ROOT "data\links.js"
+            $linkMap = @{}
+            if (Test-Path $linksPath) {
+                $lkRaw = [System.IO.File]::ReadAllText($linksPath, [System.Text.Encoding]::UTF8)
+                $lkMatch = [regex]::Match($lkRaw, '(?s)window\.LINKS\s*=\s*(\{.*?\});')
+                if ($lkMatch.Success) {
+                    $lkObj = $lkMatch.Groups[1].Value | ConvertFrom-Json
+                    foreach ($prop in $lkObj.PSObject.Properties) { $linkMap[$prop.Name] = $prop.Value }
+                }
+            }
             foreach ($lr in $lObj.rows) {
-                $uKey = $lr.url.Replace("https://www.thegioididong.com", "").Split("?")[0]
+                $u = if ($lr.url) { $lr.url } elseif ($linkMap.ContainsKey($lr.model)) { $linkMap[$lr.model] } else { "" }
+                $uKey = if ($u) { $u.Replace("https://www.thegioididong.com", "").Split("?")[0] } else { $lr.model }
                 if ($tgddSeen.Add($uKey)) {
                     $brand = if ($bMap.ContainsKey($lr.model)) { $bMap[$lr.model] } else { Get-MarketBrand "" $lr.model }
                     $mName = if ($brand -and $lr.model.StartsWith($brand)) { $lr.model } else { "$brand $($lr.model)" }
@@ -181,7 +192,7 @@ if (Test-Path $latestPath) {
                     $o = if ($lr.rrp) { $lr.rrp } else { $lr.red }
                     $k = if ($lr.rule -eq "flash_chon1") { "Flash Sale Online" } else { $KM_NAME }
                     [void]$tgddRows.Add([pscustomobject]@{
-                        r = $TGDD_NAME; b = $brand; n = $mName; u = $lr.url; p = $p; o = $o; k = $k
+                        r = $TGDD_NAME; b = $brand; n = $mName; u = $u; p = $p; o = $o; k = $k
                     })
                 }
             }
@@ -196,9 +207,9 @@ Write-Host "  TGDD sau khi gop Master List: $($tgddRows.Count) may"
 Write-Host "2/4. Dang quet CellphoneS..."
 $cpsRows = New-Object System.Collections.ArrayList
 $cpsTemplate = @'
-query { products(filter:{static:{categories:["3"],province_id:30,stock:{from:0},stock_available_id:[46],filter_price:{from:0,to:200000000}},dynamic:{}}, page:{0}, size:100, sort:[{view:desc}]) { general{ name url_path manufacturer } filterable{ price special_price } } }
+query { products(filter:{static:{categories:["3"],province_id:30,stock:{from:0},filter_price:{from:0,to:200000000}},dynamic:{}}, page:{0}, size:100, sort:[{view:desc}]) { general{ name url_path manufacturer } filterable{ price special_price } } }
 '@
-for ($page = 1; $page -le 10; $page++) {
+for ($page = 1; $page -le 15; $page++) {
     try {
         $q = $cpsTemplate.Replace("{0}", "$page")
         $body = @{ query = $q; variables = @{} } | ConvertTo-Json

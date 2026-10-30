@@ -229,7 +229,7 @@ def scan_tgdd():
     return rows
 
 CPS_QUERY = """query { products(filter:{static:{categories:["3"],province_id:30,stock:{from:0},
- stock_available_id:[46],filter_price:{from:0,to:200000000}},dynamic:{}}, page:%d, size:100,
+ filter_price:{from:0,to:200000000}},dynamic:{}}, page:%d, size:100,
  sort:[{view:desc}]) { general{ name url_path manufacturer } filterable{ price special_price } } }"""
 
 

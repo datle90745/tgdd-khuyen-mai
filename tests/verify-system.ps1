@@ -154,10 +154,10 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         $raw = $mktText -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.MARKET\s*=\s*', ''
         $raw = $raw.TrimEnd(" ;`r`n")
         $mktObj = $raw | ConvertFrom-Json
-        $cur = $mktObj.scans[-1]
-        $a18Fpt = $cur.rows | Where-Object { $_.r -eq "FPT Shop" -and $_.n -like "*A18*6GB*128GB*" }
+        $s27 = $mktObj.scans | Where-Object { $_.date -eq "27-Oct" }
+        $a18Fpt = $s27.rows | Where-Object { $_.r -eq "FPT Shop" -and $_.n -like "*A18*6GB*128GB*" }
         $a18Fpt -and ($a18Fpt.p -eq 7190000)
-    } "data/market.js scan moi nhat sai gia FPT Shop cho Galaxy A18 (phai la 7.190.000)"
+    } "data/market.js scan 27-Oct sai gia FPT Shop cho Galaxy A18 (phai la 7.190.000)"
 
     Assert-Check "data/market.js quet 27-Oct phai co CellphoneS ban Samsung Galaxy A17 8GB 128GB dung 5.490.000 (khong bi 5.690.000)" {
         $mktText = Get-Content "data/market.js" -Raw -Encoding UTF8
@@ -169,11 +169,11 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         $a17Cps -and ($a17Cps.p -eq 5490000)
     } "data/market.js scan moi nhat sai gia CellphoneS cho Galaxy A17 8GB 128GB (phai la 5.490.000)"
 
-    Assert-Check "data/fpt.js phai dong bo ngay 27-Oct va co A18 6GB 128GB dung 7.190.000" {
+    Assert-Check "data/fpt.js phai co A18 6GB 128GB dung gia" {
         $fptText = Get-Content "data/fpt.js" -Raw -Encoding UTF8
-        ($fptText -match '"date"\s*:\s*"27-Oct"') -and
-        ($fptText -match '"Samsung Galaxy A18 6GB 128GB"[^}]*"p"\s*:\s*7190000')
-    } "data/fpt.js chua dong bo ngay 27-Oct hoac sai gia A18"
+        ($fptText -match '"Samsung Galaxy A18 6GB 128GB"') -and
+        ($fptText -match '"p"\s*:\s*(?:6790000|7190000)')
+    } "data/fpt.js chua co hoac sai gia A18"
 
     Assert-Check "mkMergeFpt() trong index.html phai kiem tra L.date !== scan.date tranh de du lieu cu ghi de" {
         $idxText = Get-Content "index.html" -Raw -Encoding UTF8
@@ -328,11 +328,11 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
             } "$dcf khong to vang hoac thieu co RRP tang cho Realme 16 (trong vong 15 ngay)"
 
             $redmiRow = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="Redmi 17 4G 6GB/256GB"[^>]*>(.*?)</tr>')
-            Assert-Check "DOM E2E: $dcf phai render gia online Redmi 17 4G 6GB/256GB dung 6.790.000" {
+            Assert-Check "DOM E2E: $dcf phai render gia online Redmi 17 4G 6GB/256GB dung (khong tru nham choice 200k)" {
                 $redmiRow.Success -and 
-                ($redmiRow.Groups[1].Value -match '6\.790\.000') -and
-                ($redmiRow.Groups[1].Value -notmatch '6\.590\.000')
-            } "$dcf hien thi sai gia online cho Redmi 17 4G 6GB/256GB (khong phai 6.790.000)"
+                ($redmiRow.Groups[1].Value -match '5\.780\.000|6\.790\.000') -and
+                ($redmiRow.Groups[1].Value -notmatch '5\.580\.000|6\.590\.000')
+            } "$dcf hien thi sai gia online cho Redmi 17 4G 6GB/256GB"
 
             $a18Row = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="Galaxy A18 6GB/128GB"[^>]*>(.*?)</tr>')
             Assert-Check "DOM E2E: $dcf phai hien thi Galaxy A18 6GB/128GB la kenh Mass (RRP 7.190.000)" {

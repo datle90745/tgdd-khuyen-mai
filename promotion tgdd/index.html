@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="utf-8">
@@ -1252,6 +1252,7 @@ function mkChips(el, vals, key){
 const H2H_F = {b:"Tất cả", s:"Tất cả", ch:"Tất cả", d:"all", q:"", sort:"spread", dir:-1};
 
 function buildH2HData(){
+  if (!S || !S.rows || S.rows.length === 0) build();
   const D = mkData();
   const curRows = (D.cur && D.cur.rows) || [];
   const mkMap = new Map();
