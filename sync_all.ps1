@@ -8,6 +8,11 @@ Write-Host "=========================================================="
 Write-Host "   BAT DAU DONG BO TOAN BO HE THONG (ALL TABS) CHO HOM NAY"
 Write-Host "=========================================================="
 
+# 0. Quet gia ban & Flash Sale TGDD (latest.js, scans.js, scan_YYYY-MM-DD.json)
+Write-Host ""
+Write-Host "[0/4] Quet gia ban & Flash Sale TGDD..."
+& (Join-Path $ROOT "build_latest.ps1")
+
 # 1. Quet qua tang & khuyen mai chi tiet TGDD (promos.js)
 Write-Host ""
 Write-Host "[1/3] Quet khuyen mai qua tang TGDD..."

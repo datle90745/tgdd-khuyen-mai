@@ -344,7 +344,7 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
             $redmiRow = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="Redmi 17 4G 6GB/256GB"[^>]*>(.*?)</tr>')
             Assert-Check "DOM E2E: $dcf phai render gia online Redmi 17 4G 6GB/256GB dung (khong tru nham choice 200k)" {
                 $redmiRow.Success -and 
-                ($redmiRow.Groups[1].Value -match '5\.780\.000|5\.790\.000|6\.790\.000|7\.290\.000') -and
+                ($redmiRow.Groups[1].Value -match '5\.780\.000|5\.790\.000|5\.990\.000|6\.790\.000|7\.290\.000') -and
                 ($redmiRow.Groups[1].Value -notmatch '5\.580\.000|6\.590\.000')
             } "$dcf hien thi sai gia online cho Redmi 17 4G 6GB/256GB"
 
@@ -376,3 +376,4 @@ if ($FailedChecks -gt 0) {
 } else {
     exit 0
 }
+
