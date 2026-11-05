@@ -1,4 +1,4 @@
-﻿"""Quét PMH trên thegioididong.com cho danh sách SKU trong scraper/products.csv.
+"""Quét PMH trên thegioididong.com cho danh sách SKU trong scraper/products.csv.
 
 Mỗi lần chạy tạo một đợt quét (ngày theo giờ Việt Nam), lưu:
   data/scans/scan_YYYY-MM-DD.json   bản ghi chi tiết của đợt quét
@@ -251,6 +251,41 @@ def build_result(rrp, red, banner, choice, kind, choice_in_red=True):
             "total_online": total, "choice": choice, "kind": kind, "rule": rule}
 
 
+def extract_choice(soup, text=""):
+    """Bóc tách khoản giảm giá từ mục 'Chọn 1 trong các quà' (nếu có)."""
+    raw_html = str(soup)
+    choice = 0
+    # 1. Tìm trong HTML chuỗi 'Chọn 1 trong' (hỗ trợ cả Unicode escape \u1ECDn và Giảm giá)
+    m_choice = re.search(
+        r"(?:Chọn 1 trong|Ch\\u1ECDn 1 trong)[\s\S]{0,1500}?(?:Giảm giá|Gi\\u1EA3m gi\\u00E1)\s*([\d.,]+)",
+        raw_html,
+        re.I,
+    )
+    if m_choice:
+        cval = money(m_choice.group(1))
+        if 50_000 <= cval <= 20_000_000:
+            choice = cval
+    # 2. Tìm trong cấu trúc JSON lstGift của TGDĐ
+    if choice == 0:
+        m_gift = re.search(
+            r'lstGift[\\"]*:\s*\[[\s\S]*?name[\\"]*:\s*\\*"(?:Giảm giá|Gi\\u1EA3m gi\\u00E1)\s*([\d.,]+)',
+            raw_html,
+            re.I,
+        )
+        if m_gift:
+            cval = money(m_gift.group(1))
+            if 50_000 <= cval <= 20_000_000:
+                choice = cval
+    # 3. Fallback tìm trong text thuần
+    if choice == 0 and text:
+        match = BASE_RE.search(text)
+        if match:
+            cval = money(match.group(1))
+            if 50_000 <= cval <= 20_000_000:
+                choice = cval
+    return choice
+
+
 def parse_next_layout(soup):
     """Bố cục mới của TGDĐ (không có .box_main): giá đỏ ở span.text-24.text-red-5,
     giá đen ở thẻ <del> cạnh đó. Flash sale có banner cam chứa 'Ưu đãi ONLINE' hoặc 'Kết thúc sau'."""
@@ -265,25 +300,7 @@ def parse_next_layout(soup):
             gtm_orig = page.select_one("input#PriceOriginGTM")
             rrp_val = money(gtm_orig.get("value")) if gtm_orig and gtm_orig.get("value") else gtm_val
             text = page.get_text(" ", strip=True)
-            match = BASE_RE.search(text)
-            raw_html = str(soup)
-    choice = 0
-    if "Chọn 1 trong" in raw_html:
-        idx = raw_html.find("Chọn 1 trong")
-        sub = raw_html[idx:idx + 1500]
-        mg = re.search(r"Giảm giá\s*([\d.,]+)", sub, re.I)
-        if mg:
-            cval = money(mg.group(1))
-            if 50_000 <= cval <= 20_000_000:
-                choice = cval
-    if choice == 0:
-        m_gift = re.search(r'lstGift[\\"]*:\s*\[[\s\S]*?name[\\"]*:\s*"Giảm giá\s*([\d.,]+)', raw_html)
-        if m_gift:
-            cval = money(m_gift.group(1))
-            if 50_000 <= cval <= 20_000_000:
-                choice = cval
-    if choice == 0:
-        choice = money(match.group(1)) if match else 0
+            choice = extract_choice(soup, text)
             has_banner_cam = bool(
                 page.select_one(".bg-fs-detail")
                 or page.select_one("[class*='bg-fs']")
@@ -317,42 +334,22 @@ def parse_next_layout(soup):
     if not rrp or rrp < red:
         rrp = red
     text = page.get_text(" ", strip=True)
-    match = BASE_RE.search(text)
-    raw_html = str(soup)
-    choice = 0
-    if "Chọn 1 trong" in raw_html:
-        idx = raw_html.find("Chọn 1 trong")
-        sub = raw_html[idx:idx + 1500]
-        mg = re.search(r"Giảm giá\s*([\d.,]+)", sub, re.I)
-        if mg:
-            cval = money(mg.group(1))
-            if 50_000 <= cval <= 20_000_000:
-                choice = cval
-    if choice == 0:
-        m_gift = re.search(r'lstGift[\\"]*:\s*\[[\s\S]*?name[\\"]*:\s*"Giảm giá\s*([\d.,]+)', raw_html)
-        if m_gift:
-            cval = money(m_gift.group(1))
-            if 50_000 <= cval <= 20_000_000:
-                choice = cval
-    if choice == 0:
-        choice = money(match.group(1)) if match else 0
+    choice = extract_choice(soup, text)
     # Xét khối giá của chính sản phẩm và dải banner flash sale cạnh giá.
-    # Quy tắc chuẩn vĩnh viễn: "Ưu đãi ONLINE" và "Kết thúc sau" VẪN LÀ Flash sale,
-    # nhưng bắt buộc phải có BANNER CAM. Có banner cam -> Là Flash sale. Không có -> Không phải.
     box = red_node
     for _ in range(6):
         box = box.parent if box.parent is not None else box
     box_text = box.get_text(" ", strip=True)
     box_html = str(box)
+    raw_html = str(soup)
     has_banner_cam = bool(
-        page.select_one(".bg-fs-detail") or (page.select_one(".bg-stock-quantity") and ("suất" in raw_html or "su\\u1EA5t" in raw_html))
+        page.select_one(".bg-fs-detail")
+        or (page.select_one(".bg-stock-quantity") and ("suất" in raw_html or "su\\u1EA5t" in raw_html))
         or box.select_one("[class*='bg-fs']")
-        # or orange
-        # or flash
         or box.select_one(".box_saving")
         or (ORANGE_BANNER_RE.search(box_html) and "bg-fs" in box_html)
     )
-    has_flash_kw = bool(FLASH_KEYWORDS_RE.search(box_text) and ("suất" in box_text.lower() or "su\u1EA5t" in box_text.lower() or "kết thúc sau" in box_text.lower() or "ưu đãi online" in box_text.lower()))
+    has_flash_kw = bool(FLASH_KEYWORDS_RE.search(box_text) or FLASH_KEYWORDS_RE.search(box_html))
     banner = bool(has_banner_cam and has_flash_kw)
     # Bố cục mới hiển thị giá đỏ chưa trừ khoản "Chọn 1 trong" (bấm chọn mới trừ tiếp).
     return build_result(rrp, red, banner, choice, "moi-banner" if banner else "moi",
@@ -371,25 +368,8 @@ def parse_page(html):
             gtm_val = money(gtm_p.get("value"))
             gtm_orig = soup.select_one("input#PriceOriginGTM")
             rrp_val = money(gtm_orig.get("value")) if gtm_orig and gtm_orig.get("value") else gtm_val
-            match = BASE_RE.search(soup.get_text(" ", strip=True))
-            raw_html = str(soup)
-    choice = 0
-    if "Chọn 1 trong" in raw_html:
-        idx = raw_html.find("Chọn 1 trong")
-        sub = raw_html[idx:idx + 1500]
-        mg = re.search(r"Giảm giá\s*([\d.,]+)", sub, re.I)
-        if mg:
-            cval = money(mg.group(1))
-            if 50_000 <= cval <= 20_000_000:
-                choice = cval
-    if choice == 0:
-        m_gift = re.search(r'lstGift[\\"]*:\s*\[[\s\S]*?name[\\"]*:\s*"Giảm giá\s*([\d.,]+)', raw_html)
-        if m_gift:
-            cval = money(m_gift.group(1))
-            if 50_000 <= cval <= 20_000_000:
-                choice = cval
-    if choice == 0:
-        choice = money(match.group(1)) if match else 0
+            text = soup.get_text(" ", strip=True)
+            choice = extract_choice(soup, text)
             return build_result(rrp_val, gtm_val, False, choice, "moi", choice_in_red=False)
         m_price = re.search(r'\\"price\\":\s*([0-9.]+)|"price":\s*([0-9.]+)', html)
         if m_price:
@@ -398,25 +378,8 @@ def parse_page(html):
             if p_val > 0:
                 m_sys = re.search(r'\\"sysPrice\\":\s*([0-9.]+)|"sysPrice":\s*([0-9.]+)', html)
                 o_val = money(m_sys.group(1) or m_sys.group(2)) if m_sys else p_val
-                match = BASE_RE.search(soup.get_text(" ", strip=True))
-                raw_html = str(soup)
-    choice = 0
-    if "Chọn 1 trong" in raw_html:
-        idx = raw_html.find("Chọn 1 trong")
-        sub = raw_html[idx:idx + 1500]
-        mg = re.search(r"Giảm giá\s*([\d.,]+)", sub, re.I)
-        if mg:
-            cval = money(mg.group(1))
-            if 50_000 <= cval <= 20_000_000:
-                choice = cval
-    if choice == 0:
-        m_gift = re.search(r'lstGift[\\"]*:\s*\[[\s\S]*?name[\\"]*:\s*"Giảm giá\s*([\d.,]+)', raw_html)
-        if m_gift:
-            cval = money(m_gift.group(1))
-            if 50_000 <= cval <= 20_000_000:
-                choice = cval
-    if choice == 0:
-        choice = money(match.group(1)) if match else 0
+                text = soup.get_text(" ", strip=True)
+                choice = extract_choice(soup, text)
                 return build_result(o_val, p_val, False, choice, "moi", choice_in_red=False)
         page = soup.select_one("main")
         if page is None:
@@ -460,6 +423,7 @@ def parse_page(html):
     return build_result(rrp, red, flash is not None, choice,
                         "banner" if flash is not None else "thuong",
                         choice_in_red=flash is None)
+
 
 
 def retry_other_slug(url, bad_result, allowed):
@@ -613,8 +577,6 @@ def write_scans_js(today=None):
         except ValueError:
             continue
         if today and day_str > today:
-            continue
-        if day.weekday() not in alerts.KEEP_WEEKDAYS:
             continue
         data = json.loads(path.read_text(encoding="utf-8-sig"))
         scans.append({"date": data["date"], "rows": [

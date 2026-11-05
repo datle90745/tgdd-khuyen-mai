@@ -65,6 +65,19 @@ if (Test-Path $scanScript) {
     Assert-Check "Quy tac PMH khi co Banner Cam: PMH = choice (flash_chon1)" {
         $scanContent -match 'pmh,\s*rule\s*=\s*choice,\s*"flash_chon1"'
     } "Thieu quy tac PMH = choice khi co banner cam"
+
+    Assert-Check "Quy tac Scraper: Ham extract_choice phai tach rieng va xu ly chon 1 trong, lstGift" {
+        $scanContent -match 'def extract_choice\(' -and $scanContent -match 'lstGift'
+    } "Thieu ham extract_choice xu ly tong the cac dang choice"
+
+    Assert-Check "Quy tac Scraper: write_scans_js khong duoc bo sot cac dot quet giua tuan" {
+        $scanContent -notmatch 'if\s+day\.weekday\(\)\s+not\s+in\s+alerts\.KEEP_WEEKDAYS'
+    } "write_scans_js khong duoc bo sot dot quet vi KEEP_WEEKDAYS"
+
+    Assert-Check "Quy tac Alerts: load_base_rrp_map phai nap ca baseline data.js va scans.js" {
+        $alertsText = Get-Content "scraper/alerts.py" -Raw -Encoding UTF8
+        $alertsText -match 'def load_base_rrp_map\(\):' -and $alertsText -match 'scans_file\.exists\(\)'
+    } "load_base_rrp_map phai nap ca baseline data.js va scans.js de theo doi du 106+ SKU"
 }
 
 # ------------------------------------------------------------------------------

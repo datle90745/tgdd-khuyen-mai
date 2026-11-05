@@ -1,4 +1,4 @@
-﻿"""Ghi lại các lần giá đen (RRP) tăng mà bộ quét phát hiện, để báo cáo lại.
+"""Ghi lại các lần giá đen (RRP) tăng mà bộ quét phát hiện, để báo cáo lại.
 
 Quét chạy mỗi ngày, nhưng bảng lịch sử trên web chỉ thêm cột vào thứ Hai và thứ Sáu.
 Các ngày còn lại chỉ dùng để dò tăng giá; kết quả dò nằm ở data/alerts.js.
@@ -69,6 +69,30 @@ def _norm_tokens(name):
     return {w for w in t.split() if w not in ("5g", "4g", "lte", "gb", "tb")}
 
 
+def load_base_rrp_map():
+    """Load baseline RRP map for all SKUs from data/data.js and data/scans.js."""
+    rrp_map = {}
+    base = _base_text()
+    if base:
+        for m in re.finditer(r'"model":\s*"([^"]+)",\s*"rrp":\s*(\d+)', base):
+            rrp_map[m.group(1)] = int(m.group(2))
+    scans_file = DATA_DIR / "scans.js"
+    if scans_file.exists():
+        try:
+            txt = scans_file.read_text(encoding="utf-8-sig")
+            m_scans = re.search(r"window\.SCANS\s*=\s*(\[[\s\S]*\]);", txt)
+            if m_scans:
+                scans = json.loads(m_scans.group(1))
+                for s in scans:
+                    for r in s.get("rows", []):
+                        mdl = r.get("model")
+                        rrp = r.get("rrp")
+                        if mdl and rrp and mdl not in rrp_map:
+                            rrp_map[mdl] = int(rrp)
+        except Exception:
+            pass
+    return rrp_map
+
 def filter_unregistered_rises(items):
     """Lọc bỏ các máy đã có sẵn trong bảng giá gốc nhập tay data.js, giá mới <= giá cũ,
     hoặc máy từ FPT Shop (theo yêu cầu người dùng không check tăng giá từ web FPT)."""
@@ -78,7 +102,7 @@ def filter_unregistered_rises(items):
     base_entries = []
     for row in re.findall(r'\["T\d+","([^"]+)","([^"]+)",(\d+),(\d+),', base):
         base_entries.append((row[0].upper(), _norm_tokens(row[1]), int(row[2]), int(row[3])))
-    base_rrp_map = {m.group(1): int(m.group(2)) for m in re.finditer(r'"model":\s*"([^"]+)",\s*"rrp":\s*(\d+)', base)}
+    base_rrp_map = load_base_rrp_map()
     clean = []
     for it in items:
         # Bỏ qua hoàn toàn kênh FPT Shop theo chỉ đạo của người dùng
@@ -124,7 +148,9 @@ def filter_unregistered_rises(items):
                         break
         if sibling_collision:
             continue
-        brand = (it.get("b") or brand_of(cat_model) or "").upper()
+        brand = (it.get("b") or brand_of(cat_model) or brand_of(model) or "").upper()
+        if not brand:
+            continue
         it["b"] = brand
         it["n"] = cat_model
         tokens = _norm_tokens(cat_model)

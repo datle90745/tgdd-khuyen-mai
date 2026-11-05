@@ -1,4 +1,4 @@
-﻿[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 $ErrorActionPreference = "Stop"
 
@@ -503,10 +503,13 @@ if ($ups.Count -gt 0 -and (Test-Path $RISES_JS)) {
         $mRises = [regex]::Match($rTxt, 'window\.RISE_AUTO\s*=\s*(\[.*?\]);')
         if ($mRises.Success) {
             $risesList = $mRises.Groups[1].Value | ConvertFrom-Json
-            $risesArr = New-Object System.Collections.ArrayList (,)
+            $risesArr = New-Object System.Collections.ArrayList
             $seenKeys = New-Object System.Collections.Generic.HashSet[string]
-            foreach ($row in $risesArr) {
-                [void]$seenKeys.Add("$($row[1].ToString().ToUpper())|$($row[2])|$($row[3])|$($row[4])")
+            if ($risesList) {
+                foreach ($row in $risesList) {
+                    [void]$risesArr.Add($row)
+                    [void]$seenKeys.Add("$($row[1].ToString().ToUpper())|$($row[2])|$($row[3])|$($row[4])")
+                }
             }
             foreach ($be in $baseEntries) {
                 [void]$seenKeys.Add("$($be[0].ToUpper())|$($be[1])|$($be[2])|$($be[3])")
@@ -519,6 +522,10 @@ if ($ups.Count -gt 0 -and (Test-Path $RISES_JS)) {
                     $cleanModel = $cleanModel.Substring($u.b.Length + 1).Trim()
                 }
                 $brandUpper = if ($u.b) { $u.b.ToUpper() } else { (Get-MarketBrand $u.n).ToUpper() }
+                if (!$brandUpper) {
+                    # Tuyet doi khong luu dong khong xac dinh duoc Brand
+                    continue
+                }
                 $key = "$brandUpper|$cleanModel|$($u.old)|$($u.new)"
                 if (-not $seenKeys.Contains($key)) {
                     $pct = [Math]::Round((($u.new - $u.old) / $u.old) * 100, 1)
@@ -528,7 +535,7 @@ if ($ups.Count -gt 0 -and (Test-Path $RISES_JS)) {
                 }
             }
             if ($addedRise) {
-                $risesJs = "/* Tá»± sinh bá»Ÿi bá»™ quÃ©t, Ä‘á»«ng sá»­a tay. CÃ¡c láº§n tÄƒng giÃ¡ Ä‘en do quÃ©t phÃ¡t hiá»‡n. */
+                $risesJs = "/* Tự sinh bởi bộ quét, đừng sửa tay. Các lần tăng giá đen do quét phát hiện. */
 window.RISE_AUTO = " + ($risesArr | ConvertTo-Json -Depth 4 -Compress) + ";
 "
                 [System.IO.File]::WriteAllText($RISES_JS, $risesJs, (New-Object System.Text.UTF8Encoding $false))
