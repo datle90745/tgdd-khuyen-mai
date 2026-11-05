@@ -1,4 +1,4 @@
-"""Ghi lại các lần giá đen (RRP) tăng mà bộ quét phát hiện, để báo cáo lại.
+﻿"""Ghi lại các lần giá đen (RRP) tăng mà bộ quét phát hiện, để báo cáo lại.
 
 Quét chạy mỗi ngày, nhưng bảng lịch sử trên web chỉ thêm cột vào thứ Hai và thứ Sáu.
 Các ngày còn lại chỉ dùng để dò tăng giá; kết quả dò nằm ở data/alerts.js.
@@ -98,22 +98,36 @@ def filter_unregistered_rises(items):
         # Chong bao tang ao do nham len bien the RAM/ROM trong cung dong may hoac may mo ban placeholder:
         if model in ("A08 4GB/64GB", "Galaxy A18 4G/128GB", "Galaxy A18 4GB/128GB", "Galaxy A18 8GB/128GB") or (model.startswith("Galaxy A18") and model != "Galaxy A18 6GB/128GB"):
             continue
-        # Chi theo doi tang gia cho 94 SKU Master List trong data.js
-        if model not in base_rrp_map:
+        # Chi theo doi tang gia cho 94 SKU Master List trong data.js (chuan hoa bo brand neu co)
+        cat_model = model
+        if cat_model not in base_rrp_map:
+            tokens_m = _norm_tokens(model)
+            for c_model in base_rrp_map:
+                if _norm_tokens(c_model) == tokens_m:
+                    cat_model = c_model
+                    break
+        if cat_model not in base_rrp_map:
             continue
         sibling_collision = False
-        tokens_m = _norm_tokens(model)
+        tokens_m = _norm_tokens(cat_model)
         for other_model, other_rrp in base_rrp_map.items():
-            if other_model != model and other_rrp == new:
+            if other_model != cat_model and other_rrp == new:
                 tokens_o = _norm_tokens(other_model)
                 common = tokens_m & tokens_o
+                diff_m = tokens_m - tokens_o
+                diff_o = tokens_o - tokens_m
+                ram_rom_tokens = {"64", "128", "256", "512", "1tb", "4", "6", "8", "12", "16"}
+                has_distinct_specs = bool((diff_m & ram_rom_tokens) and (diff_o & ram_rom_tokens))
                 if common and any(tok for tok in common if not tok.isdigit() and len(tok) >= 2):
-                    sibling_collision = True
-                    break
+                    if not has_distinct_specs:
+                        sibling_collision = True
+                        break
         if sibling_collision:
             continue
-        brand = (it.get("b") or brand_of(model) or "").upper()
-        tokens = _norm_tokens(model)
+        brand = (it.get("b") or brand_of(cat_model) or "").upper()
+        it["b"] = brand
+        it["n"] = cat_model
+        tokens = _norm_tokens(cat_model)
         # Bỏ qua nếu đã có sẵn trong bảng nhập tay data.js (cùng hãng, cùng mức giá tăng, model khớp)
         if any(b == brand and o == old and n == new and (tokens == bt or tokens.issubset(bt) or bt.issubset(tokens))
                for b, bt, o, n in base_entries):

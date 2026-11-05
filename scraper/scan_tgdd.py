@@ -1,4 +1,4 @@
-"""Quét PMH trên thegioididong.com cho danh sách SKU trong scraper/products.csv.
+﻿"""Quét PMH trên thegioididong.com cho danh sách SKU trong scraper/products.csv.
 
 Mỗi lần chạy tạo một đợt quét (ngày theo giờ Việt Nam), lưu:
   data/scans/scan_YYYY-MM-DD.json   bản ghi chi tiết của đợt quét
@@ -740,9 +740,14 @@ def main():
                 if other_model != product["model"] and other_rrp == scraped_rrp:
                     tokens_o = alerts._norm_tokens(other_model)
                     common = tokens_m & tokens_o
+                    diff_m = tokens_m - tokens_o
+                    diff_o = tokens_o - tokens_m
+                    ram_rom_tokens = {"64", "128", "256", "512", "1tb", "4", "6", "8", "12", "16"}
+                    has_distinct_specs = bool((diff_m & ram_rom_tokens) and (diff_o & ram_rom_tokens))
                     if common and any(tok for tok in common if not tok.isdigit() and len(tok) >= 2):
-                        is_sibling = True
-                        break
+                        if not has_distinct_specs:
+                            is_sibling = True
+                            break
             if is_sibling or (product["model"] == "A08 4GB/64GB" and scraped_rrp == 5590000):
                 print(f"  [Safeguard] Phat hien cao nham bien the {scraped_rrp} cho {product['model']}. Khoi phuc RRP chuan {expected_rrp}.", flush=True)
                 diff = max(scraped_rrp - result.get("red", scraped_rrp), 0)
@@ -805,9 +810,14 @@ def main():
                     if other_model != r["model"] and other_rrp == after:
                         tokens_o = alerts._norm_tokens(other_model)
                         common = tokens_r & tokens_o
+                        diff_r = tokens_r - tokens_o
+                        diff_o = tokens_o - tokens_r
+                        ram_rom_tokens = {"64", "128", "256", "512", "1tb", "4", "6", "8", "12", "16"}
+                        has_distinct_specs = bool((diff_r & ram_rom_tokens) and (diff_o & ram_rom_tokens))
                         if common and any(tok for tok in common if not tok.isdigit() and len(tok) >= 2):
-                            is_sibling = True
-                            break
+                            if not has_distinct_specs:
+                                is_sibling = True
+                                break
                 if is_sibling:
                     print(f"Bo qua tang gia ao do trung bien the cung dong: {r['model']} ({after})", flush=True)
                     continue

@@ -149,6 +149,15 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         $risesText -notmatch '\["T\d+",\s*"",'
     } "data/rises.js van con ton tai dong co Brand bi trong"
 
+    Assert-Check "data/rises.js phai co du 5 model Realme C100 va C100x tang gia trong T11" {
+        $risesText = Get-Content "data/rises.js" -Raw -Encoding UTF8
+        ($risesText -match '"C100 8GB/256GB"') -and
+        ($risesText -match '"C100 4G 8GB/128GB"') -and
+        ($risesText -match '"C100 4G 6GB/128GB"') -and
+        ($risesText -match '"C100x 6GB/128GB"') -and
+        ($risesText -match '"C100x 4GB/128GB"')
+    } "data/rises.js thieu model Realme C100 hoac C100x tang gia T11"
+
     Assert-Check "data/scans.js dot quet 26-Oct phai co A08 4GB/64GB voi RRP 4.790.000" {
         $scansText = Get-Content "data/scans.js" -Raw -Encoding UTF8
         $raw = $scansText -replace "^\s*/\*.*?\*/\s*", "" -replace "^\s*window\.SCANS\s*=\s*", ""
@@ -360,6 +369,14 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
                 $renoRow.Success -and 
                 ($renoRow.Groups[1].Value -match 'class="badge mass">Mass<')
             } "$dcf khong hien thi Reno16F 5G 8GB/256GB la kenh Mass"
+
+            Assert-Check "DOM E2E: $dcf phai render du 5 model Realme C100/C100x trong tab Lich su tang gia T11" {
+                ($domContent -match 'C100x 6GB/128GB') -and
+                ($domContent -match 'C100 4G 6GB/128GB') -and
+                ($domContent -match 'C100 4G 8GB/128GB') -and
+                ($domContent -match 'C100 8GB/256GB') -and
+                ($domContent -match 'C100x 4GB/128GB')
+            } "$dcf khong render du 5 model Realme C100/C100x tang gia T11"
         }
     }
 }

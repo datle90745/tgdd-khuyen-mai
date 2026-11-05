@@ -496,6 +496,50 @@ $alertsJs = "/* T\u1EF1 sinh b\u1EDFi b\u1ED9 qu\u00E9t, \u0111\u1EEBng s\u1EEDa
 $alertsJs = [regex]::Unescape($alertsJs) + "window.ALERTS = " + ($alerts | ConvertTo-Json -Depth 6 -Compress) + ";`n"
 [System.IO.File]::WriteAllText($ALERTS_JS, $alertsJs, (New-Object System.Text.UTF8Encoding $false))
 
+# --- CAP NHAT DATA/RISES.JS ---
+if ($ups.Count -gt 0 -and (Test-Path $RISES_JS)) {
+    try {
+        $rTxt = [System.IO.File]::ReadAllText($RISES_JS, [System.Text.Encoding]::UTF8)
+        $mRises = [regex]::Match($rTxt, 'window\.RISE_AUTO\s*=\s*(\[.*?\]);')
+        if ($mRises.Success) {
+            $risesList = $mRises.Groups[1].Value | ConvertFrom-Json
+            $risesArr = New-Object System.Collections.ArrayList (,)
+            $seenKeys = New-Object System.Collections.Generic.HashSet[string]
+            foreach ($row in $risesArr) {
+                [void]$seenKeys.Add("$($row[1].ToString().ToUpper())|$($row[2])|$($row[3])|$($row[4])")
+            }
+            foreach ($be in $baseEntries) {
+                [void]$seenKeys.Add("$($be[0].ToUpper())|$($be[1])|$($be[2])|$($be[3])")
+            }
+            $month = "T" + [int]$now.ToString("MM")
+            $addedRise = $false
+            foreach ($u in $ups) {
+                $cleanModel = $u.n
+                if ($u.b -and $cleanModel.ToLower().StartsWith($u.b.ToLower() + " ")) {
+                    $cleanModel = $cleanModel.Substring($u.b.Length + 1).Trim()
+                }
+                $brandUpper = if ($u.b) { $u.b.ToUpper() } else { (Get-MarketBrand $u.n).ToUpper() }
+                $key = "$brandUpper|$cleanModel|$($u.old)|$($u.new)"
+                if (-not $seenKeys.Contains($key)) {
+                    $pct = [Math]::Round((($u.new - $u.old) / $u.old) * 100, 1)
+                    [void]$risesArr.Add(@($month, $brandUpper, $cleanModel, [int64]$u.old, [int64]$u.new, $today, $pct, $u.r))
+                    [void]$seenKeys.Add($key)
+                    $addedRise = $true
+                }
+            }
+            if ($addedRise) {
+                $risesJs = "/* Tá»± sinh bá»Ÿi bá»™ quÃ©t, Ä‘á»«ng sá»­a tay. CÃ¡c láº§n tÄƒng giÃ¡ Ä‘en do quÃ©t phÃ¡t hiá»‡n. */
+window.RISE_AUTO = " + ($risesArr | ConvertTo-Json -Depth 4 -Compress) + ";
+"
+                [System.IO.File]::WriteAllText($RISES_JS, $risesJs, (New-Object System.Text.UTF8Encoding $false))
+                Write-Host "Da dong bo tang gia vao data/rises.js"
+            }
+        }
+    } catch {
+        Write-Warning "Loi cap nhat rises.js: $_"
+    }
+}
+
 # --- CAP NHAT DATA/MARKET.JS ---
 $market = [pscustomobject]@{ scans = @() }
 if (Test-Path $MARKET_JS) {
