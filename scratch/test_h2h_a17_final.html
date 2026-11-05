@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../xlsx.full.min.js"></script>
+  <script src="../data/data.js"></script>
+  <script src="../data/scans.js"></script>
+  <script src="../data/latest.js"></script>
+  <script src="../data/links.js"></script>
+  <script src="../data/rises.js"></script>
+  <script src="../data/fpt.js"></script>
+  <script src="../data/alerts.js"></script>
+  <script src="../data/market.js"></script>
+  <script src="../data/promos.js"></script>
+</head>
+<body>
+<div id="output"></div>
+<script>
+window.$ = id => document.getElementById(id) || document.createElement("div");
+window.toast = () => {};
+</script>
+<script>
+// Mock functions needed by buildH2HData
+const BASE = window.BASE;
+const SCANS = Array.isArray(window.SCANS) ? window.SCANS : [];
+const LATEST = window.LATEST && Array.isArray(window.LATEST.rows) ? window.LATEST : null;
+const LINKS = window.LINKS || {};
+
+function fmt(n) { return (n||0).toLocaleString('vi-VN'); }
+const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/(\d+)\+(\d+)/g, "$1gb$2").replace(/(\d+)\/(\d+)g\b/g, "$1gb$2gb").replace(/\+/g,"plus")
+  .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|4g|lte|nfc)\b/g," ")
+  .replace(/\b(titan|xam|den|trang|xanh|vang|bac|hong|tim|gold|silver|black|white|blue|green|purple|pink|grey|gray)\b/g," ")
+  .replace(/[^a-z0-9]/g,"");
+
+function mkData(){
+  const all = window.MARKET && Array.isArray(window.MARKET.scans) ? window.MARKET.scans : [];
+  const validScans = all.filter(s => Array.isArray(s.rows) && s.rows.length > 0);
+  const n = validScans.length, cur = n ? validScans[n-1] : null;
+  return {cur, rows: cur ? cur.rows : []};
+}
+
+let S = {rows: BASE.rows};
+function onPrice(r) { return r.red || r.rrp; }
+function offPrice(r) { return r.rrp; }
+
+function buildH2HData(){
+  const D = mkData();
+  const curRows = (D.cur && D.cur.rows) || [];
+  const mkMap = new Map();
+  curRows.forEach(x => {
+    const k = x.r + "|" + (x.b||"").toLowerCase() + "|" + mkKey(x.n);
+    if (!mkMap.has(k) || (x.p && (!mkMap.get(k).p || x.p < mkMap.get(k).p))) {
+      mkMap.set(k, x);
+    }
+  });
+
+  return S.rows.map(r => {
+    const k = (r.brand||"").toLowerCase() + "|" + mkKey(r.model);
+    const tgddItem = mkMap.get("TGDĐ|" + k);
+    const p_tgdd = (tgddItem && tgddItem.p) ? tgddItem.p
+                 : (typeof r.red === "number" ? r.red
+                 : ((onPrice(r) != null) ? onPrice(r) : offPrice(r)));
+    const u_tgdd = LINKS[r.model] || (tgddItem ? tgddItem.u : null);
+
+    const cpsMatch = mkMap.get("CellphoneS|" + k);
+    const fptMatch = mkMap.get("FPT Shop|" + k);
+    const vtMatch = mkMap.get("Viettel Store|" + k);
+
+    const hasCompetitor = Boolean((cpsMatch && cpsMatch.p > 0) || (fptMatch && fptMatch.p > 0) || (vtMatch && vtMatch.p > 0));
+    const effectiveChannel = hasCompetitor ? "Mass" : r.channel;
+    const isExcl = (effectiveChannel === "TGDD");
+
+    const cpsItem = isExcl ? null : cpsMatch;
+    const p_cps = cpsItem ? cpsItem.p : null;
+    const u_cps = cpsItem ? cpsItem.u : null;
+
+    const fptItem = isExcl ? null : fptMatch;
+    const p_fpt = fptItem ? fptItem.p : null;
+    const u_fpt = fptItem ? fptItem.u : null;
+
+    const vtItem = isExcl ? null : vtMatch;
+    const p_vt = vtItem ? vtItem.p : null;
+    const u_vt = vtItem ? vtItem.u : null;
+
+    const prices = [
+      {r: "TGDĐ", p: p_tgdd, u: u_tgdd},
+      {r: "CellphoneS", p: p_cps, u: u_cps},
+      {r: "FPT Shop", p: p_fpt, u: u_fpt},
+      {r: "Viettel Store", p: p_vt, u: u_vt}
+    ].filter(x => x.p && x.p > 0);
+
+    const minP = prices.length ? Math.min(...prices.map(x => x.p)) : null;
+    const maxP = prices.length ? Math.max(...prices.map(x => x.p)) : null;
+    const bests = prices.filter(x => x.p === minP).map(x => x.r);
+    const spread = (minP && maxP) ? maxP - minP : 0;
+    const spreadPct = (minP && spread) ? (spread / minP * 100) : 0;
+
+    return {
+      brand: r.brand,
+      model: r.model,
+      segment: r.segment,
+      channel: effectiveChannel,
+      rrp: r.rrp,
+      p_tgdd, u_tgdd,
+      p_cps, u_cps,
+      p_fpt, u_fpt,
+      p_vt, u_vt,
+      minP, maxP, bests, count: prices.length, spread, spreadPct
+    };
+  });
+}
+
+const data = buildH2HData();
+const a17 = data.find(x => x.model === "A17 8GB/128GB");
+document.getElementById("output").textContent = JSON.stringify(a17, null, 2);
+</script>
+</body>
+</html>

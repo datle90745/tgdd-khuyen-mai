@@ -1,9 +1,7 @@
-$raw = Get-Content "data/scans.js" -Raw -Encoding UTF8
-$idx = $raw.IndexOf("[")
-$lastIdx = $raw.LastIndexOf("]")
-$json = $raw.Substring($idx, $lastIdx - $idx + 1)
-$data = ConvertFrom-Json $json
-Write-Host "Scans count: $($data.Count)"
-foreach ($d in $data) {
-    Write-Host "  Date: $($d.date), Rows: $($d.rows.Count)"
+$m = Get-Content 'data/market.js' -Raw -Encoding UTF8
+if ($m -match 'window\.MARKET\s*=\s*(\{.*?\});') {
+    $j = $matches[1] | ConvertFrom-Json
+    foreach ($s in $j.scans) {
+        Write-Host "Date: $($s.date) at $($s.at) | Rows: $($s.rows.Count)"
+    }
 }

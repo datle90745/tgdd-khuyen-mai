@@ -1,4 +1,4 @@
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+﻿[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
 $linksRaw = Get-Content "data\links.js" -Raw -Encoding UTF8
@@ -115,6 +115,7 @@ foreach ($k in $keys) {
 
 $now = Get-Date -Format "dd-MMM HH:mm"
 $promosJson = $promos | ConvertTo-Json -Depth 5 -Compress
+$fileContent = "/* Tu dong cao uu dai & qua tang kem tu The Gioi Di Dong */`r`n/* Cap nhat: $now */`r`nwindow.PROMOS = $promosJson;`r`n"
 $target1 = Join-Path $PWD "data\promos.js"
 [System.IO.File]::WriteAllText($target1, $fileContent, [System.Text.Encoding]::UTF8)
 $target2 = Join-Path $PWD "promotion tgdd\data\promos.js"

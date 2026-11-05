@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../xlsx.full.min.js"></script>
+  <script src="../data/data.js"></script>
+  <script src="../data/scans.js"></script>
+  <script src="../data/latest.js"></script>
+  <script src="../data/links.js"></script>
+  <script src="../data/rises.js"></script>
+  <script src="../data/fpt.js"></script>
+  <script src="../data/alerts.js"></script>
+  <script src="../data/market.js"></script>
+  <script src="../data/promos.js"></script>
+</head>
+<body>
+<div id="output"></div>
+<script>
+window.$ = id => document.getElementById(id) || document.createElement("div");
+window.toast = () => {};
+</script>
+<script>
+// Load index.html logic by evaluating scripts or defining buildH2HData
+</script>
+<script>
+const BASE = window.BASE;
+const SCANS = Array.isArray(window.SCANS) ? window.SCANS : [];
+const LATEST = window.LATEST && Array.isArray(window.LATEST.rows) ? window.LATEST : null;
+const LINKS = window.LINKS || {};
+
+function fmt(n) { return (n||0).toLocaleString('vi-VN'); }
+const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").replace(/(\d+)\+(\d+)/g, "$1gb$2").replace(/(\d+)\/(\d+)g\b/g, "$1gb$2gb").replace(/\+/g,"plus")
+  .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|4g|lte|nfc)\b/g," ")
+  .replace(/\b(titan|xam|den|trang|xanh|vang|bac|hong|tim|gold|silver|black|white|blue|green|purple|pink|grey|gray)\b/g," ")
+  .replace(/[^a-z0-9]/g,"");
+
+const lastScan = window.MARKET.scans[window.MARKET.scans.length - 1];
+const curRows = lastScan.rows;
+const mkMap = new Map();
+curRows.forEach(x => {
+  const k = x.r + "|" + (x.b||"").toLowerCase() + "|" + mkKey(x.n);
+  if (!mkMap.has(k) || (x.p && (!mkMap.get(k).p || x.p < mkMap.get(k).p))) {
+    mkMap.set(k, x);
+  }
+});
+
+const k = "samsung|" + mkKey("A17 8GB/128GB");
+const res = {
+  scanDate: lastScan.date + " " + lastScan.at,
+  tgdd: mkMap.get("TGDĐ|" + k),
+  cps: mkMap.get("CellphoneS|" + k),
+  fpt: mkMap.get("FPT Shop|" + k),
+  vt: mkMap.get("Viettel Store|" + k)
+};
+document.getElementById("output").textContent = JSON.stringify(res, null, 2);
+</script>
+</body>
+</html>

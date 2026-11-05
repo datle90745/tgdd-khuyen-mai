@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"></head>
+<body>
+<div id="h2h-body"></div>
+<script src="../data/data.js"></script>
+<script src="../data/latest.js"></script>
+<script src="../data/scans.js"></script>
+<script src="../data/market.js"></script>
+<script>
+window.onload = () => {
+    // Let's check how buildH2HData processes A18 and A17
+    const curRows = window.MARKET.scans[window.MARKET.scans.length - 1].rows;
+    const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[Ì€-Í¯]/g,"").replace(/Ä‘/g,"d").replace(/(\d+)\+(\d+)/g, "").replace(/(\d+)\/(\d+)g\b/g, "").replace(/\+/g,"plus")
+      .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|4g|lte|nfc)\b/g," ")
+      .replace(/\b(titan|xam|den|trang|xanh|vang|bac|hong|tim|gold|silver|black|white|blue|green|purple|pink|grey|gray)\b/g," ")
+      .replace(/[^a-z0-9]/g,"");
+
+    const mkMap = new Map();
+    curRows.forEach(x => {
+        const k = x.r + "|" + (x.b||"").toLowerCase() + "|" + mkKey(x.n);
+        if (!mkMap.has(k) || (x.p && (!mkMap.get(k).p || x.p < mkMap.get(k).p))) {
+            mkMap.set(k, x);
+        }
+    });
+
+    const targetModels = ["Galaxy A18 6GB/128GB", "A17 8GB/128GB", "Galaxy A18 4GB/128GB", "Galaxy A18 8GB/128GB"];
+    const out = [];
+    window.BASE.rows.forEach(r => {
+        if (targetModels.includes(r.model) || r.model.includes("A18") || r.model.includes("A17")) {
+            const k = (r.brand||"").toLowerCase() + "|" + mkKey(r.model);
+            const tgddItem = mkMap.get("TGDÄ|" + k);
+            const cpsMatch = mkMap.get("CellphoneS|" + k);
+            const fptMatch = mkMap.get("FPT Shop|" + k);
+            const vtMatch = mkMap.get("Viettel Store|" + k);
+
+            out.push({
+                model: r.model,
+                channel: r.channel,
+                tgdd: tgddItem ? tgddItem.p : null,
+                cps: cpsMatch ? cpsMatch.p : null,
+                fpt: fptMatch ? fptMatch.p : null,
+                vt: vtMatch ? vtMatch.p : null,
+                cpsName: cpsMatch ? cpsMatch.n : null,
+                fptName: fptMatch ? fptMatch.n : null,
+                vtName: vtMatch ? vtMatch.n : null
+            });
+        }
+    });
+    document.body.innerHTML = '<pre>' + JSON.stringify(out, null, 2) + '</pre>';
+};
+</script>
+</body>
+</html>

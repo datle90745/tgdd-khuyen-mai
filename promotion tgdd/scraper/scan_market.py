@@ -29,6 +29,8 @@ ROOT = Path(__file__).resolve().parent.parent
 MARKET_JS = ROOT / "data" / "market.js"
 LAST_JSON = ROOT / "data" / "market_last.json"  # giá lần quét trước, chỉ dùng để dò tăng giá
 KEEP_SCANS = 20
+TGDD_NAME = "TGD\u0110"
+KM_NAME = "Khuy\u1ebfn m\u00e3i"
 
 CF_PROXY_URL = os.environ.get("CF_PROXY_URL", "").rstrip("/")
 CF_PROXY_TOKEN = os.environ.get("CF_PROXY_TOKEN", "")
@@ -95,7 +97,7 @@ def request(method, url, *, headers=None, data=None, json_body=None, timeout=40)
     raise RuntimeError("; ".join(errors))
 
 
-def row(retailer, brand, name, url, price, orig, kind="Khuyến mãi"):
+def row(retailer, brand, name, url, price, orig, kind=KM_NAME):
     orig = orig if orig and orig > price else price
     return {"r": retailer, "b": brand, "n": " ".join(name.split()), "u": url,
             "p": price, "o": orig, "k": kind}
@@ -142,8 +144,8 @@ def scan_tgdd():
                 if price <= 0:
                     continue
                 seen.add(href)
-                rows.append(row("TGDĐ", brand, name, "https://www.thegioididong.com" + href,
-                                price, orig, "Khuyến mãi"))
+                rows.append(row(TGDD_NAME, brand, name, "https://www.thegioididong.com" + href,
+                                price, orig, KM_NAME))
             time.sleep(0.5)
         except Exception as e:
             print(f"    Lỗi cào brand TGDĐ {hub}: {e}", flush=True)
@@ -173,13 +175,51 @@ def scan_tgdd():
                 old = li.select_one(".price-old") if li else None
                 if not price:
                     continue
-                rows.append(row("TGDĐ", brand, name, "https://www.thegioididong.com" + href,
+                rows.append(row(TGDD_NAME, brand, name, "https://www.thegioididong.com" + href,
                                 price, money(old.get_text()) if old else 0,
-                                "Flash Sale Online" if "utm_flashsale=1" in (a.get("href") or "") else "Khuyến mãi"))
+                                "Flash Sale Online" if "utm_flashsale=1" in (a.get("href") or "") else KM_NAME))
             time.sleep(0.5)
         except Exception:
             break
-    print(f"  TGDĐ: Đã thu thập {len(rows)} sản phẩm.", flush=True)
+        # 4. Bo sung toan bo SKU Master List tu latest.js cho TGDD
+    latest_file = ROOT / "data" / "latest.js"
+    if latest_file.exists():
+        try:
+            l_txt = latest_file.read_text(encoding="utf-8")
+            lm = re.search(r'window\.LATEST\s*=\s*(\{.*?\});', l_txt, re.DOTALL)
+            if lm:
+                latest_data = json.loads(lm.group(1))
+                b_map = {}
+                data_file = ROOT / "data" / "data.js"
+                if data_file.exists():
+                    d_txt = data_file.read_text(encoding="utf-8")
+                    dm = re.search(r'window\.BASE\s*=\s*(\{.*?\});', d_txt, re.DOTALL)
+                    if dm:
+                        base_data = json.loads(dm.group(1))
+                        for br in base_data.get("rows", []):
+                            b_map[br.get("model")] = br.get("brand")
+                links_map = {}
+                links_file = ROOT / "data" / "links.js"
+                if links_file.exists():
+                    lk_txt = links_file.read_text(encoding="utf-8")
+                    lkm = re.search(r'window\.LINKS\s*=\s*(\{.*?\});', lk_txt, re.DOTALL)
+                    if lkm:
+                        links_map = json.loads(lkm.group(1))
+                for lr in latest_data.get("rows", []):
+                    u = lr.get("url") or links_map.get(lr.get("model")) or ""
+                    u_key = u.replace("https://www.thegioididong.com", "").split("?")[0] if u else lr.get("model")
+                    if u_key not in seen:
+                        seen.add(u_key)
+                        brand = b_map.get(lr.get("model")) or brand_of("", lr.get("model"))
+                        m_name = lr.get("model") if brand and lr.get("model", "").startswith(brand) else f"{brand} {lr.get('model')}".strip()
+                        p = lr.get("red") or lr.get("rrp") or 0
+                        o = lr.get("rrp") or lr.get("red") or 0
+                        k = "Flash Sale Online" if lr.get("rule") == "flash_chon1" else KM_NAME
+                        rows.append(row(TGDD_NAME, brand, m_name, u, p, o, k))
+        except Exception as e:
+            print(f"  Loi bo sung Master List vao TGDD: {e}", flush=True)
+
+    print(f"  TGDÄ: ÄÃ£ thu tháº­p {len(rows)} sáº£n pháº©m.", flush=True)
     return rows
 
 
@@ -428,7 +468,7 @@ def _parse_erp_portal_deals(deals):
         if not u or not p or u in seen:
             continue
         seen.add(u)
-        rows.append(row("FPT Shop", brand, name, u, p, o, it.get("promo_type") or "Khuyến mãi"))
+        rows.append(row("FPT Shop", brand, name, u, p, o, it.get("promo_type") or KM_NAME))
     return rows
 
 
@@ -556,7 +596,7 @@ def scan_viettel():
 def main():
     now = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh"))
     rows, report = [], {}
-    for name, fn in (("TGDĐ", scan_tgdd), ("CellphoneS", scan_cellphones),
+    for name, fn in ((TGDD_NAME, scan_tgdd), ("CellphoneS", scan_cellphones),
                      ("FPT Shop", scan_fpt), ("Viettel Store", scan_viettel)):
         try:
             got = fn()
