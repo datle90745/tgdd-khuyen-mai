@@ -1,4 +1,4 @@
-"""Quét giá điện thoại toàn thị trường (tab "Toàn thị trường" của web) — chỉ để tham khảo.
+﻿"""Quét giá điện thoại toàn thị trường (tab "Toàn thị trường" của web) — chỉ để tham khảo.
 
 Lấy từ trang danh sách của 4 nhà bán lẻ, chỉ 6 hãng đang theo dõi
 (Apple, Samsung, OPPO, Xiaomi gồm Redmi/POCO, Vivo, Realme):
@@ -170,9 +170,7 @@ def scan_tgdd():
         except Exception as e:
             print(f"    Lá»—i cÃ o URL {url}: {e}", flush=True)
 
-    # 2. CÃ o bá»• sung cÃ¡c biáº¿n thá»ƒ chÆ°a cÃ³ trong danh sÃ¡ch chÃ­nh
-    if unseen_variants:
-            # 4. Bo sung toan bo SKU Master List tu latest.js cho TGDD
+    # 2. Bo sung toan bo SKU Master List tu latest.js cho TGDD
     latest_file = ROOT / "data" / "latest.js"
     if latest_file.exists():
         try:
