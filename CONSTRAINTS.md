@@ -54,6 +54,17 @@
   - `canonKey()` chỉ chuẩn hóa format chuỗi (bỏ khoảng trắng, chuẩn hóa ký hiệu RAM/ROM dạng `XgbYgb`, loại bỏ ký tự đặc biệt), không được thay đổi giá trị dung lượng thực tế.
 - Nếu danh mục Master List hoặc file cấu hình bị sai tên biến thể, phải sửa đúng gốc rễ tên SKU tại `data/data.js`, `products.csv`, `latest.js`, `scans.js` thay vì dùng mã giả lập / hack trong code xử lý chuỗi.
 
+### 2.6. Quy Trình Fast-Check Hằng Ngày Qua Trang "Mới Ra Mắt" MWG (`#o=3`)
+- **Đường dẫn chuẩn tham chiếu (Ground Truth Reference):** [https://www.thegioididong.com/dtdd#o=3&pi=0](https://www.thegioididong.com/dtdd#o=3&pi=0) (hoặc API `Category/FilterProductBox?c=42&o=3`).
+- **Bản chất nghiệp vụ:**
+  - Trang chi tiết (PDP) của các sản phẩm chiến dịch (như OPPO A7 Pro, vivo V80 Lite, Galaxy A18, Redmi A7 Pro,...) thường là Landing Page Marketing, không render giá đỏ trực tiếp trong HTML tĩnh.
+  - Trang danh mục `#o=3` chuẩn hóa toàn bộ về card danh mục, hiển thị trực tiếp giá đỏ, RRP và variant pills (RAM/ROM) của mọi model mới nhất.
+- **Thực thi vận hành:**
+  - Hằng ngày sau khi hoàn thành đợt quét, thực hiện fast-check đối chiếu qua link `#o=3`.
+  - Trên giao diện Dashboard ([index.html](file:///c:/Users/toquo/Documents/antigravity/fervent-raman/index.html)) và các file HTML offline, tích hợp sẵn nút bấm trực tiếp `⚡ Fast-Check MWG (#o=3)` để người dùng và quản trị viên đối soát nhanh 1-click.
+  - Scraper và bot tự động phải tích hợp bước kiểm tra nhanh `fast_check_o3()` để log đối soát Ground Truth ngay trong console.
+  - Tuyệt đối không phán đoán hay dùng số liệu cũ khi có nghi vấn về giá và khuyến mãi của các model mới.
+
 ---
 
 ## 3. Bảng Kiểm Tra & Công Cụ Đo Lường

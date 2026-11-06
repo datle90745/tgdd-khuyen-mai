@@ -78,6 +78,15 @@ if (Test-Path $scanScript) {
         $alertsText = Get-Content "scraper/alerts.py" -Raw -Encoding UTF8
         $alertsText -match 'def load_base_rrp_map\(\):' -and $alertsText -match 'scans_file\.exists\(\)'
     } "load_base_rrp_map phai nap ca baseline data.js va scans.js de theo doi du 106+ SKU"
+
+    Assert-Check "Quy tac Fast-Check: scan_tgdd.py phai dinh nghia ham fast_check_o3" {
+        $scanContent -match 'def fast_check_o3\('
+    } "scan_tgdd.py thieu ham fast_check_o3"
+
+    Assert-Check "CONSTRAINTS.md phai quy dinh chuan tham chieu Ground Truth dtdd#o=3" {
+        $cText = Get-Content "CONSTRAINTS.md" -Raw -Encoding UTF8
+        ($cText -match 'dtdd#o=3') -and ($cText -match 'Ground Truth')
+    } "CONSTRAINTS.md thieu muc 2.6 ve chuan tham chieu Ground Truth dtdd#o=3"
 }
 
 # ------------------------------------------------------------------------------
@@ -249,6 +258,10 @@ foreach ($file in $htmlFiles) {
         Assert-Check "File $file phai co nut xuat Lich Su Theo Dot Quet chuyen biet" {
             $htmlContent -match 'history-xlsx'
         } "$file thieu nut history-xlsx"
+
+        Assert-Check "File $file phai co nut lien ket Fast-Check MWG #o=3" {
+            $htmlContent -match 'thegioididong\.com/dtdd#o=3'
+        } "$file thieu nut Fast-Check MWG #o=3"
     }
 }
 

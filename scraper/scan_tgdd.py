@@ -835,6 +835,32 @@ def main():
     write_promos_js(rows)
     print(f"Đã lưu đợt {scan['date']}: {ok}/{len(products)} SKU đọc được giá, {errors} lỗi mạng. "
           f"Tổng cộng {len(scan['rows'])} model trong đợt.")
+    fast_check_o3(scan)
+
+
+def fast_check_o3(scan):
+    """Fast-check hằng ngày qua web mwg https://www.thegioididong.com/dtdd#o=3&pi=0
+    đối soát nhanh giá đỏ, RRP của các model mới ra mắt / campaign layout so với latest scan."""
+    print("\n--- FAST-CHECK MWG MỚI RA MẮT (dtdd#o=3) ---", flush=True)
+    try:
+        resp = requests.post(
+            "https://www.thegioididong.com/Category/FilterProductBox?c=42&o=3&pi=0",
+            headers={**HEADERS, "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                     "X-Requested-With": "XMLHttpRequest",
+                     "Referer": "https://www.thegioididong.com/dtdd"},
+            data="IsParentCate=False&IsShowCompare=True&prevent=true", timeout=(10, 20))
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.json().get("listproducts") or "", "html.parser")
+            items = soup.select("li.item[data-id]")
+            print(f"Đã tải {len(items)} card từ https://www.thegioididong.com/dtdd#o=3&pi=0", flush=True)
+            for li in items[:6]:
+                title_el = li.select_one("h3") or li.select_one(".name-product")
+                name = title_el.get_text(strip=True) if title_el else ""
+                price_box = li.select_one(".price, .price-current, [data-price]")
+                price_str = price_box.get_text(strip=True) if price_box else ""
+                print(f"  [#o=3 Ground Truth] {name}: {price_str}", flush=True)
+    except Exception as e:
+        print(f"  Fast-check warning: {e}", flush=True)
 
 
 if __name__ == "__main__":
