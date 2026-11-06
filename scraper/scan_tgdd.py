@@ -236,6 +236,8 @@ def build_result(rrp, red, banner, choice, kind, choice_in_red=True):
     choice_in_red = giá đỏ đã trừ sẵn khoản "Chọn 1 trong" hay chưa.
     banner = True khi có BANNER CAM chứa 'Ưu đãi ONLINE' hoặc 'Kết thúc sau'.
     """
+    if red and red % 1000 != 0:
+        red = int(round(red / 1000.0)) * 1000
     diff = max(rrp - red, 0)  # giá đen − giá đỏ
     if banner:
         # Có banner cam: là Flash sale, PMH = khoản "Chọn 1 trong", không có mục đó thì PMH = 0
@@ -417,9 +419,14 @@ def parse_page(html):
     discount = to_int(price.get("data-discountorigin"))
     if not rrp:
         return {"status": "no_price"}
+    # Làm tròn chiết khấu về hàng nghìn (TGDĐ tính % nội bộ bị lẻ số như 299.800đ thay vì 300.000đ)
+    if discount and discount % 1000 != 0:
+        discount = int(round(discount / 1000.0)) * 1000
     # Bố cục cũ chưa trừ lựa chọn "Giảm giá X" vào giá đỏ; bố cục mới (người dùng đang thấy) thì
     # đã trừ. Trừ thêm ở đây để hai bố cục cho cùng một giá đỏ.
     red = rrp - discount - (choice if flash is None else 0)
+    if red and red % 1000 != 0:
+        red = int(round(red / 1000.0)) * 1000
     return build_result(rrp, red, flash is not None, choice,
                         "banner" if flash is not None else "thuong",
                         choice_in_red=flash is None)
