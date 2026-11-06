@@ -116,10 +116,10 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         ($linksText -match '"A7 Pro 5G 6GB/256GB"') -and ($linksText -match '"A7 Pro 5G 8GB/128GB"')
     } "data/links.js thieu key 'A7 Pro 5G 6GB/256GB' hoac 'A7 Pro 5G 8GB/128GB'"
 
-    Assert-Check "data/latest.js phai co 'A7 Pro 5G 6GB/256GB' active (red 12.990.000, PMH 1.500.000) va 'A7 Pro 5G 8GB/128GB' active" {
+    Assert-Check "data/latest.js phai co 'A7 Pro 5G 6GB/256GB' active (red 13.990.000, PMH 500.000) va 'A7 Pro 5G 8GB/128GB' active (red 11.870.000, PMH 1.620.000)" {
         $latestText = Get-Content "data/latest.js" -Raw -Encoding UTF8
-        ($latestText -match '"model"\s*:\s*"A7 Pro 5G 6GB/256GB"[^}]*"red"\s*:\s*12990000' -and $latestText -match '"model"\s*:\s*"A7 Pro 5G 6GB/256GB"[^}]*"pmh"\s*:\s*1500000') -and
-        ($latestText -match '"model"\s*:\s*"A7 Pro 5G 8GB/128GB"[^}]*"status"\s*:\s*"active"')
+        ($latestText -match '"model"\s*:\s*"A7 Pro 5G 6GB/256GB"[^}]*"red"\s*:\s*13990000' -and $latestText -match '"model"\s*:\s*"A7 Pro 5G 6GB/256GB"[^}]*"pmh"\s*:\s*500000') -and
+        ($latestText -match '"model"\s*:\s*"A7 Pro 5G 8GB/128GB"[^}]*"red"\s*:\s*11870000' -and $latestText -match '"model"\s*:\s*"A7 Pro 5G 8GB/128GB"[^}]*"pmh"\s*:\s*1620000')
     } "data/latest.js thieu hoac sai so lieu A7 Pro 5G cac bien the"
 
     Assert-Check "data/latest.js phai co 'V80 Lite 5G 6GB/256GB' (RRP 14.990.000) va 'V80 Lite 5G 6GB/128GB' (RRP 12.990.000) active" {
@@ -309,10 +309,10 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
             $a7_6_256 = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="A7 Pro 5G 6GB/256GB"[^>]*>(.*?)</tr>')
             $a7_8_128 = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="A7 Pro 5G 8GB/128GB"[^>]*>(.*?)</tr>')
             
-            Assert-Check "DOM E2E: $dcf phai render rieng biet A7 Pro 5G 6GB/256GB (Gia offline 12.990.000, KM 1.500.000)" {
+            Assert-Check "DOM E2E: $dcf phai render rieng biet A7 Pro 5G 6GB/256GB (Gia offline 13.990.000, KM 500.000)" {
                 $a7_6_256.Success -and 
-                ($a7_6_256.Groups[1].Value -match '12\.990\.000') -and 
-                ($a7_6_256.Groups[1].Value -match '1\.500\.000') -and
+                ($a7_6_256.Groups[1].Value -match '13\.990\.000') -and 
+                ($a7_6_256.Groups[1].Value -match '500\.000') -and
                 ($a7_6_256.Groups[1].Value -notmatch '<td>–</td>\s*<td>–</td>')
             } "$dcf bi loi thieu so lieu hoac khong render cho A7 Pro 5G 6GB/256GB"
 
@@ -333,10 +333,10 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
 
             } "$dcf bi loi thieu so lieu hoac khong render cho V80 Lite 5G 6GB/128GB"
 
-            Assert-Check "DOM E2E: $dcf phai render rieng biet A7 Pro 5G 8GB/128GB (Gia offline hop le, khong de trong)" {
+            Assert-Check "DOM E2E: $dcf phai render rieng biet A7 Pro 5G 8GB/128GB (Gia offline 11.870.000, KM 1.620.000)" {
                 $a7_8_128.Success -and 
-                ($a7_8_128.Groups[1].Value -match '11\.940\.000|12\.140\.000') -and 
-                ($a7_8_128.Groups[1].Value -match '1\.550\.000|1\.350\.000') -and
+                ($a7_8_128.Groups[1].Value -match '11\.870\.000') -and 
+                ($a7_8_128.Groups[1].Value -match '1\.620\.000') -and
                 ($a7_8_128.Groups[1].Value -notmatch '<td>–</td>\s*<td>–</td>')
             } "$dcf bi loi thieu so lieu hoac khong render cho A7 Pro 5G 8GB/128GB"
 

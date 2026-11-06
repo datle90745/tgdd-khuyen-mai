@@ -233,15 +233,16 @@
    "at": "06-11 10:21",
    "status": "active",
    "rrp": 14490000,
-   "red": 12990000,
-   "pmh": 1500000,
-   "online": 1500000,
-   "total_online": 1500000,
+   "red": 13990000,
+   "pmh": 500000,
+   "online": 500000,
+   "total_online": 500000,
    "choice": 0,
    "kind": "brand_tab",
    "rule": "den_tru_do",
    "subs": [
-    "Trả chậm 0% trả trước 0đ"
+    "Trả chậm 0% trả trước 0đ",
+    "Quà 40.000₫"
    ]
   },
   {
@@ -250,15 +251,16 @@
    "at": "06-11 10:21",
    "status": "active",
    "rrp": 13490000,
-   "red": 12140000,
-   "pmh": 1350000,
-   "online": 1350000,
-   "total_online": 1350000,
+   "red": 11870000,
+   "pmh": 1620000,
+   "online": 1620000,
+   "total_online": 1620000,
    "choice": 0,
    "kind": "brand_tab",
    "rule": "den_tru_do",
    "subs": [
-    "Trả chậm 0% trả trước 0đ"
+    "Trả chậm 0% trả trước 0đ",
+    "Quà 40.000₫"
    ]
   },
   {

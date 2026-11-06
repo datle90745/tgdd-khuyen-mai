@@ -93,10 +93,11 @@ BRAND_HUBS = [
 
 _CATALOG = None
 _CATALOG_ITEMS = {
-    "vivo-v80-lite-5g-6gb-256gb": {"red": 14290000, "rrp": 14990000},
-    "vivo-v80-lite-5g-6gb-128gb": {"red": 12290000, "rrp": 12990000},
-    "oppo-a7-pro-5g-6gb-256gb": {"red": 12990000, "rrp": 14490000},
-    "oppo-a7-pro-5g-8gb-128gb": {"red": 12140000, "rrp": 13490000},
+    "vivo-v80-lite-5g-6gb-256gb": {"red": 13990000, "rrp": 14990000},
+    "vivo-v80-lite-5g-6gb-128gb": {"red": 12030000, "rrp": 12990000},
+    "oppo-a7-pro-5g-6gb-256gb": {"red": 13990000, "rrp": 14490000},
+    "oppo-a7-pro-5g-8gb-128gb": {"red": 11870000, "rrp": 13490000},
+    "oppo-a7-pro-5g-8gb-256gb": {"red": 14680000, "rrp": 15490000},
 }
 
 
@@ -124,8 +125,8 @@ def catalog():
                     slugs.add(main_slug)
                     price_m = re.search(r'<a[^>]*class="[^"]*text-red-7[^"]*"[^>]*><span>([0-9.,]+)[^<]*</span>', p)
                     del_m = re.search(r'<del[^>]*>([0-9.,]+)[^<]*</del>', p)
-                    red = money(price_m.group(1)) if price_m else 0
-                    orig = money(del_m.group(1)) if del_m else red
+                    red = round(money(price_m.group(1)) / 1000.0) * 1000 if price_m else 0
+                    orig = round(money(del_m.group(1)) / 1000.0) * 1000 if del_m else red
                     if red > 0:
                         _CATALOG_ITEMS[main_slug] = {"red": red, "rrp": orig}
                     for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
@@ -135,34 +136,46 @@ def catalog():
             print(f"  Lỗi cào brand {b}: {e}", flush=True)
         time.sleep(0.5)
 
-    # 2. Quét thêm từ FilterProductBox để bổ sung các máy khác
-    for page in range(25):
-        try:
-            resp = requests.post(
-                f"https://www.thegioididong.com/Category/FilterProductBox?c=42&o=13&pi={page}",
-                headers={**HEADERS, "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                         "X-Requested-With": "XMLHttpRequest",
-                         "Referer": "https://www.thegioididong.com/dtdd"},
-                data="IsParentCate=False&IsShowCompare=True&prevent=true", timeout=(10, 30))
-            html = resp.json().get("listproducts") or ""
-        except Exception:
-            break
-        links = BeautifulSoup(html, "html.parser").select("li.item[data-id] a.main-contain")
-        if not links:
-            break
-        for a in links:
-            li = a.find_parent("li")
-            href = (a.get("href") or "").split("?")[0].strip("/")
-            if href.startswith("dtdd/"):
-                slug = href[len("dtdd/"):].split("?")[0]
-                slugs.add(slug)
-                red = to_int(a.get("data-price"))
-                orig = money(li.select_one(".price-old").get_text()) if (li and li.select_one(".price-old")) else to_int(li.get("data-price") if li else None)
-                if not orig or orig < red:
-                    orig = red
-                if red > 0:
-                    _CATALOG_ITEMS[slug] = {"red": red, "rrp": orig}
-        time.sleep(0.5)
+    # 2. Quét thêm từ FilterProductBox cả o=3 (Mới ra mắt) và o=13 (Bán chạy)
+    for order in [3, 13]:
+        for page in range(15):
+            try:
+                resp = requests.post(
+                    f"https://www.thegioididong.com/Category/FilterProductBox?c=42&o={order}&pi={page}",
+                    headers={**HEADERS, "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                             "X-Requested-With": "XMLHttpRequest",
+                             "Referer": "https://www.thegioididong.com/dtdd"},
+                    data="IsParentCate=False&IsShowCompare=True&prevent=true", timeout=(10, 30))
+                html = resp.json().get("listproducts") or ""
+            except Exception:
+                break
+            soup = BeautifulSoup(html, "html.parser")
+            items = soup.select("li.item[data-id]")
+            if not items:
+                break
+            for li in items:
+                a = li.select_one("a.main-contain")
+                if not a:
+                    continue
+                href = (a.get("href") or "").split("?")[0].strip("/")
+                if href.startswith("dtdd/"):
+                    slug = href[len("dtdd/"):].split("?")[0]
+                    slugs.add(slug)
+                    raw_red = to_int(a.get("data-price"))
+                    red = round(raw_red / 1000.0) * 1000 if raw_red else 0
+                    orig = money(li.select_one(".price-old").get_text()) if (li and li.select_one(".price-old")) else to_int(li.get("data-price") if li else None)
+                    if orig:
+                        orig = round(orig / 1000.0) * 1000
+                    if not orig or orig < red:
+                        orig = red
+                    if red > 0:
+                        _CATALOG_ITEMS[slug] = {"red": red, "rrp": orig}
+                for pill in li.select(".prods-group li.merge__item"):
+                    p_url = pill.get("data-url") or ""
+                    if p_url.startswith("/dtdd/"):
+                        p_slug = p_url.replace("/dtdd/", "").split("?")[0].strip("/")
+                        slugs.add(p_slug)
+            time.sleep(0.3)
     _CATALOG = sorted(slugs)
     print(f"Danh mục TGDĐ: {len(_CATALOG)} đường dẫn điện thoại (thu thập từ từng brand & danh mục).", flush=True)
     return _CATALOG
@@ -479,7 +492,7 @@ def scan_one(url, attempts=3, allow_retry_slug=True):
                 if slug in _CATALOG_ITEMS and _CATALOG_ITEMS[slug]["red"] > 0:
                     c = _CATALOG_ITEMS[slug]
                     cat_res = build_result(c["rrp"], c["red"], False, 0, "brand_tab")
-                    cat_res["subs"] = ["Trả chậm 0% trả trước 0đ", "Quà 30.000₫"]
+                    cat_res["subs"] = ["Trả chậm 0% trả trước 0đ", "Quà 40.000₫"]
                     return cat_res
                 # Nếu trang tạm thời lỗi hoặc chặn, không ghi đè số active đã có bằng no_price
                 today_path = SCAN_DIR / f"scan_{datetime.now(ZoneInfo('Asia/Ho_Chi_Minh')).date().isoformat()}.json"
