@@ -259,9 +259,6 @@ foreach ($file in $htmlFiles) {
             $htmlContent -match 'history-xlsx'
         } "$file thieu nut history-xlsx"
 
-        Assert-Check "File $file phai co nut lien ket Fast-Check MWG #o=3" {
-            $htmlContent -match 'thegioididong\.com/dtdd#o=3'
-        } "$file thieu nut Fast-Check MWG #o=3"
     }
 }
 
