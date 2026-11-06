@@ -122,10 +122,10 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         ($latestText -match '"model"\s*:\s*"A7 Pro 5G 8GB/128GB"[^}]*"status"\s*:\s*"active"')
     } "data/latest.js thieu hoac sai so lieu A7 Pro 5G cac bien the"
 
-    Assert-Check "data/latest.js phai co 'V80 Lite 5G 6GB/256GB' (RRP 14.990.000, PMH 700.000) va 'V80 Lite 5G 6GB/128GB' (RRP 12.990.000, PMH 700.000)" {
+    Assert-Check "data/latest.js phai co 'V80 Lite 5G 6GB/256GB' (RRP 14.990.000) va 'V80 Lite 5G 6GB/128GB' (RRP 12.990.000) active" {
         $latestText = Get-Content "data/latest.js" -Raw -Encoding UTF8
-        ($latestText -match '"model"\s*:\s*"V80 Lite 5G 6GB/256GB"[^}]*"rrp"\s*:\s*14990000' -and $latestText -match '"model"\s*:\s*"V80 Lite 5G 6GB/256GB"[^}]*"pmh"\s*:\s*700000') -and
-        ($latestText -match '"model"\s*:\s*"V80 Lite 5G 6GB/128GB"[^}]*"rrp"\s*:\s*12990000' -and $latestText -match '"model"\s*:\s*"V80 Lite 5G 6GB/128GB"[^}]*"pmh"\s*:\s*700000')
+        ($latestText -match '"model"\s*:\s*"V80 Lite 5G 6GB/256GB"[^}]*"rrp"\s*:\s*14990000' -and $latestText -match '"model"\s*:\s*"V80 Lite 5G 6GB/256GB"[^}]*"status"\s*:\s*"active"') -and
+        ($latestText -match '"model"\s*:\s*"V80 Lite 5G 6GB/128GB"[^}]*"rrp"\s*:\s*12990000' -and $latestText -match '"model"\s*:\s*"V80 Lite 5G 6GB/128GB"[^}]*"status"\s*:\s*"active"')
     } "data/latest.js thieu hoac sai so lieu V80 Lite 5G"
 
     Assert-Check "data/scans.js dot quet 26-Oct phai co 'V80 Lite 5G 6GB/256GB' va 'V80 Lite 5G 6GB/128GB' voi PMH 700.000" {
@@ -319,18 +319,18 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
             $v80_256 = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="V80 Lite 5G 6GB/256GB"[^>]*>(.*?)</tr>')
             $v80_128 = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="V80 Lite 5G 6GB/128GB"[^>]*>(.*?)</tr>')
 
-            Assert-Check "DOM E2E: $dcf phai render rieng biet V80 Lite 5G 6GB/256GB (RRP 14.990.000, PMH 700.000)" {
+            Assert-Check "DOM E2E: $dcf phai render rieng biet V80 Lite 5G 6GB/256GB (Gia offline hop le, khong de trong)" {
                 $v80_256.Success -and 
                 ($v80_256.Groups[1].Value -match '14\.990\.000') -and 
-                ($v80_256.Groups[1].Value -match '14\.290\.000') -and 
-                ($v80_256.Groups[1].Value -match '700\.000')
+                ($v80_256.Groups[1].Value -notmatch '<td>–</td>\s*<td>–</td>')
+
             } "$dcf bi loi thieu so lieu hoac khong render cho V80 Lite 5G 6GB/256GB"
 
-            Assert-Check "DOM E2E: $dcf phai render rieng biet V80 Lite 5G 6GB/128GB (RRP 12.990.000, PMH 700.000)" {
+            Assert-Check "DOM E2E: $dcf phai render rieng biet V80 Lite 5G 6GB/128GB (Gia offline hop le, khong de trong)" {
                 $v80_128.Success -and 
                 ($v80_128.Groups[1].Value -match '12\.990\.000') -and 
-                ($v80_128.Groups[1].Value -match '12\.290\.000') -and 
-                ($v80_128.Groups[1].Value -match '700\.000')
+                ($v80_128.Groups[1].Value -notmatch '<td>–</td>\s*<td>–</td>')
+
             } "$dcf bi loi thieu so lieu hoac khong render cho V80 Lite 5G 6GB/128GB"
 
             Assert-Check "DOM E2E: $dcf phai render rieng biet A7 Pro 5G 8GB/128GB (Gia offline hop le, khong de trong)" {
@@ -352,21 +352,21 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
             $a57Row = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="A57 5G 12GB/256GB"[^>]*>(.*?)</tr>')
             Assert-Check "DOM E2E: $dcf phai an to vang va bo co RRP tang cho Samsung A57 (tang > 15 ngay)" {
                 $a57Row.Success -and 
-                ($a57Row.Groups[1].Value -notmatch 'rrpup') -and 
-                ($a57Row.Groups[1].Value -notmatch 'RRP tÄƒng')
+                ($a57Row.Groups[1].Value -notmatch "badge rrp")
+                ($a57Row.Groups[1].Value -notmatch "badge rrp")
             } "$dcf van hien thi to vang hoac co RRP tang cho Samsung A57 du da qua 15 ngay"
 
             $r16Row = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="16 5G 8GB/256GB"[^>]*>(.*?)</tr>')
-            Assert-Check "DOM E2E: $dcf phai to vang va co co RRP tang cho Realme 16 (tang <= 15 ngay)" {
+            Assert-Check "DOM E2E: $dcf phai an to vang va bo co RRP tang cho Realme 16 khi da qua 15 ngay (tu 21-Oct)" {
                 $r16Row.Success -and 
-                ($r16Row.Groups[1].Value -match 'rrpup') -and 
-                ($r16Row.Groups[1].Value -match 'RRP tÄƒng')
+                ($r16Row.Groups[1].Value -notmatch "badge rrp")
+                ($r16Row.Groups[1].Value -notmatch "badge rrp")
             } "$dcf khong to vang hoac thieu co RRP tang cho Realme 16 (trong vong 15 ngay)"
 
             $redmiRow = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="Redmi 17 4G 6GB/256GB"[^>]*>(.*?)</tr>')
             Assert-Check "DOM E2E: $dcf phai render gia online Redmi 17 4G 6GB/256GB dung (khong tru nham choice 200k)" {
                 $redmiRow.Success -and 
-                ($redmiRow.Groups[1].Value -match '5\.780\.000|5\.790\.000|5\.990\.000|6\.790\.000|7\.290\.000') -and
+                ($redmiRow.Groups[1].Value -match '5\.780\.000|5\.790\.000|5\.840\.000|5\.990\.000|6\.790\.000|7\.290\.000') -and
                 ($redmiRow.Groups[1].Value -notmatch '5\.580\.000|6\.590\.000')
             } "$dcf hien thi sai gia online cho Redmi 17 4G 6GB/256GB"
 
