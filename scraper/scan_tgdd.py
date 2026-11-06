@@ -98,6 +98,16 @@ _CATALOG_ITEMS = {
     "oppo-a7-pro-5g-6gb-256gb": {"red": 13990000, "rrp": 14490000},
     "oppo-a7-pro-5g-8gb-128gb": {"red": 11870000, "rrp": 13490000},
     "oppo-a7-pro-5g-8gb-256gb": {"red": 14680000, "rrp": 15490000},
+    "samsung-galaxy-a18-8gb-128gb": {"red": 7890000, "rrp": 8490000},
+    "samsung-galaxy-a18-6gb-128gb": {"red": 6890000, "rrp": 7190000},
+    "samsung-galaxy-a18-4gb-128gb": {"red": 6140000, "rrp": 6590000},
+    "xiaomi-redmi-a7-pro": {"red": 3800000, "rrp": 4490000},
+    "xiaomi-redmi-a7-pro-4gb-128gb": {"red": 4090000, "rrp": 4990000},
+    "realme-16t-5g-8gb-128gb": {"red": 9750000, "rrp": 11990000},
+    "realme-16t-5g-8gb-256gb": {"red": 11390000, "rrp": 12990000},
+    "realme-c01-4gb-64gb": {"red": 5490000, "rrp": 5990000},
+    "samsung-galaxy-a08-4gb-128gb": {"red": 4690000, "rrp": 5590000},
+    "samsung-galaxy-a08-4gb-64gb": {"red": 4240000, "rrp": 4790000},
 }
 
 
