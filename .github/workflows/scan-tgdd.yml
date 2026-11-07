@@ -69,6 +69,7 @@ jobs:
           fi
           echo "::warning::Bước quét toàn thị trường hỏng; dữ liệu TGDĐ vẫn hợp lệ nên tiếp tục."
       - name: Đóng gói Offline HTML Bundles
+        continue-on-error: true
         run: python scraper/bundle.py
       # Circuit breaker bắt buộc đợt quét phải là CỦA HÔM NAY, nên scan hỏng là chặn commit.
       - name: Kiểm định toàn vẹn dữ liệu (CI Circuit Breaker)
