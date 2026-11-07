@@ -43,7 +43,10 @@ function parseWindowVar(file, varName) {
   if (i < 0) return { err: `khong tim thay \`${marker}\`` };
   const eq = text.indexOf('=', i + marker.length);
   if (eq < 0) return { err: `\`${marker}\` khong co dau =` };
-  const body = text.slice(eq + 1).trim().replace(/;\s*$/, '');
+  // Dung o khai bao window.* ke tiep - data.js co nhieu bien trong cung mot file.
+  const rest = text.slice(eq + 1);
+  const next = rest.indexOf('\nwindow.');
+  const body = (next < 0 ? rest : rest.slice(0, next)).trim().replace(/;\s*$/, '');
   try {
     return { value: JSON.parse(body) };
   } catch (e) {
@@ -100,13 +103,37 @@ if (!fs.existsSync(PRODUCTS_CSV)) {
 // No phai cung kich thuoc voi Master List, neu khong Excel se im lang thieu SKU.
 const DATA_JS = path.join(ROOT, 'data', 'data.js');
 if (fs.existsSync(DATA_JS)) {
-  const catalogCount = (fs.readFileSync(DATA_JS, 'utf8').match(/"model"\s*:/g) || []).length;
-  if (catalogCount !== CFG.masterSkuCount) {
-    fail(
-      `data/data.js co ${catalogCount} model nhung Master List la ${CFG.masterSkuCount} SKU. ` +
-      `Sheet Excel "Lich_Su_Theo_Dot_Quet" va baseline RRP doc tu data.js nen dang thieu ` +
-      `${CFG.masterSkuCount - catalogCount} SKU so voi dot quet.`
-    );
+  // Parse that window.BASE / window.MASTER_ORDER - dem `"model":` tren ca file se lech
+  // vi cac bien khac (RRP_NOTES, RISE_RAW...) cung chua khoa do.
+  const baseRes = parseWindowVar(DATA_JS, 'BASE');
+  if (baseRes.err) {
+    fail(`data/data.js: window.BASE ${baseRes.err}`);
+  } else {
+    const catalog = baseRes.value.rows || [];
+    if (catalog.length !== CFG.masterSkuCount) {
+      fail(
+        `data/data.js co ${catalog.length} model nhung Master List la ${CFG.masterSkuCount} SKU. ` +
+        `Sheet Excel "Lich_Su_Theo_Dot_Quet" va baseline RRP doc tu data.js nen dang thieu ` +
+        `${CFG.masterSkuCount - catalog.length} SKU so voi dot quet.`
+      );
+    }
+    const catModels = new Set(catalog.map((r) => r.model));
+    const notInCatalog = masterModels.filter((m) => !catModels.has(m));
+    if (notInCatalog.length) {
+      fail(
+        `${notInCatalog.length} SKU trong products.csv khong co trong data/data.js: ` +
+        notInCatalog.slice(0, 10).join(', ') + (notInCatalog.length > 10 ? ', ...' : '')
+      );
+    }
+    // index.html dung MASTER_ORDER de dung bang va sheet Excel; lech voi BASE la mat dong.
+    const moRes = parseWindowVar(DATA_JS, 'MASTER_ORDER');
+    if (moRes.err) {
+      fail(`data/data.js: window.MASTER_ORDER ${moRes.err}`);
+    } else if (moRes.value.length !== catalog.length) {
+      fail(
+        `data/data.js: MASTER_ORDER co ${moRes.value.length} muc nhung BASE.rows co ${catalog.length}`
+      );
+    }
   }
 }
 
