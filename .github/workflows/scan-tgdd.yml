@@ -42,7 +42,7 @@ jobs:
       # FPT Shop chặn kết nối từ máy chủ, cài đặt Playwright & Xvfb
       - run: python -m playwright install --with-deps chromium
       - run: sudo apt-get install -y --no-install-recommends xvfb
-      - name: Quét 85 SKU
+      - name: Quét Master List TGDĐ (số SKU theo tests/gate-config.json)
         id: focus
         continue-on-error: true
         env:
@@ -57,10 +57,22 @@ jobs:
           CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
           ERP_PORTAL_COOKIE: ${{ secrets.ERP_PORTAL_COOKIE }}
         run: xvfb-run -a python scraper/scan_market.py
+      # Trước đây bước báo lỗi nằm SAU bước commit, nên một bước quét hỏng thì hoàn toàn
+      # im lặng, còn cả hai hỏng thì vẫn commit dữ liệu cũ rồi mới báo đỏ. Giờ chặn trước.
+      - name: Chặn sớm nếu bước quét thất bại
+        if: steps.focus.outcome == 'failure' || steps.market.outcome == 'failure'
+        run: |
+          echo "::error::Quét TGDĐ: ${{ steps.focus.outcome }} | Quét toàn thị trường: ${{ steps.market.outcome }}"
+          if [ "${{ steps.focus.outcome }}" = "failure" ]; then
+            echo "::error::Bước quét TGDĐ hỏng - không có đợt quét hôm nay, dừng trước khi commit."
+            exit 1
+          fi
+          echo "::warning::Bước quét toàn thị trường hỏng; dữ liệu TGDĐ vẫn hợp lệ nên tiếp tục."
       - name: Đóng gói Offline HTML Bundles
         run: python scraper/bundle.py
+      # Circuit breaker bắt buộc đợt quét phải là CỦA HÔM NAY, nên scan hỏng là chặn commit.
       - name: Kiểm định toàn vẹn dữ liệu (CI Circuit Breaker)
-        run: python tests/verify_scan.py
+        run: node tests/verify_scan.js
       - name: Lưu kết quả
         run: |
           git config user.name "github-actions[bot]"
@@ -85,8 +97,5 @@ jobs:
             fi
             sleep 10
           done
-          echo "::error::Không đẩy được kết quả sau 3 lần thử."
+          echo "::error::Không đẩy được kết quả sau 5 lần thử."
           exit 1
-      - name: Báo lỗi nếu cả hai bước quét đều lỗi
-        if: steps.focus.outcome == 'failure' && steps.market.outcome == 'failure'
-        run: exit 1

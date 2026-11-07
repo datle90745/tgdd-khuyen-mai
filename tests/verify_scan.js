@@ -1,80 +1,401 @@
+/**
+ * CI/CD CIRCUIT BREAKER - Kiem dinh toan ven du lieu truoc khi cho phep commit.
+ *
+ * Day la BAN TRIEN KHAI DUY NHAT cua circuit breaker. tests/verify_scan.py chi la
+ * vo boc goi sang file nay, de khong bao gio ton tai hai ban logic lech nhau.
+ *
+ * Khac biet so voi ban cu (va ly do):
+ *  - Kiem dung dot quet HOM NAY, khong phai "file moi nhat tren dia". Ban cu khi scan
+ *    that bai se lang le kiem lai file hom qua roi bao PASS.
+ *  - Dem SKU theo tests/gate-config.json (so chinh xac), khong phai >= mot so ma thuat.
+ *  - Kiem ca 3 rule (flash_chon1 / den_tru_do / chon1) va ca truong `kind`,
+ *    khong con menh de thoat `|| pmh === diff` lam check vo hieu.
+ *  - Three-way sync kiem bang parse JSON that, khong phai so khop chuoi con.
+ *  - Gom TAT CA loi roi moi thoat, thay vi dung o loi dau tien.
+ *
+ * Chay: node tests/verify_scan.js
+ */
+
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-function fail(msg) {
-  console.error(`\n[CIRCUIT BREAKER ERROR] ${msg}`);
-  process.exit(1);
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const CFG = JSON.parse(fs.readFileSync(path.join(ROOT, 'tests', 'gate-config.json'), 'utf8'));
+
+const SCANS_DIR = path.join(ROOT, 'data', 'scans');
+const LATEST_JS = path.join(ROOT, 'data', 'latest.js');
+const SCANS_JS = path.join(ROOT, 'data', 'scans.js');
+const PRODUCTS_CSV = path.join(ROOT, 'scraper', 'products.csv');
+
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const errors = [];
+const warnings = [];
+const fail = (msg) => errors.push(msg);
+const warn = (msg) => warnings.push(msg);
+
+/** Doc `window.X = <json>;` o cuoi file (bo qua dong comment dau file). */
+function parseWindowVar(file, varName) {
+  const text = fs.readFileSync(file, 'utf8').replace(/^﻿/, '');
+  const marker = `window.${varName}`;
+  const i = text.indexOf(marker);
+  if (i < 0) return { err: `khong tim thay \`${marker}\`` };
+  const eq = text.indexOf('=', i + marker.length);
+  if (eq < 0) return { err: `\`${marker}\` khong co dau =` };
+  const body = text.slice(eq + 1).trim().replace(/;\s*$/, '');
+  try {
+    return { value: JSON.parse(body) };
+  } catch (e) {
+    return { err: `JSON khong hop le: ${e.message}` };
+  }
 }
 
-console.log("=================================================================");
-console.log("   CHẠY CI/CD CIRCUIT BREAKER: KIỂM ĐỊNH TOÀN VẸN DỮ LIỆU       ");
-console.log("=================================================================");
+/** '2026-11-07' -> '07-Nov' (dung de doi chieu field `date` voi ten file). */
+function isoToDdMmm(iso) {
+  const [, m, d] = iso.split('-');
+  return `${d}-${MON[Number(m) - 1]}`;
+}
 
-const PRODUCTS_CSV = 'scraper/products.csv';
-if (!fs.existsSync(PRODUCTS_CSV)) fail(`Không tìm thấy ${PRODUCTS_CSV}`);
-const lines = fs.readFileSync(PRODUCTS_CSV, 'utf8').split(/\r?\n/).filter(l => l.trim());
-if (lines.length < 95) fail(`products.csv chỉ có ${lines.length} dòng (yêu cầu đủ 95 SKU)`);
+function todayInTz(tz) {
+  // 'en-CA' tra ve dung dinh dang YYYY-MM-DD.
+  return new Date().toLocaleDateString('en-CA', { timeZone: tz });
+}
 
-const SCANS_DIR = 'data/scans';
-const scanFiles = fs.readdirSync(SCANS_DIR).filter(f => f.startsWith('scan_') && f.endsWith('.json')).sort();
-if (scanFiles.length === 0) fail(`Không tìm thấy file scan nào trong ${SCANS_DIR}`);
+console.log('=================================================================');
+console.log('   CI/CD CIRCUIT BREAKER - KIEM DINH TOAN VEN DU LIEU');
+console.log('=================================================================');
 
-const latestScanFile = scanFiles[scanFiles.length - 1];
-console.log(`Kiểm tra file scan mới nhất: ${latestScanFile}`);
+// ---------------------------------------------------------------------------
+// 1. Master list: scraper/products.csv
+// ---------------------------------------------------------------------------
+let masterModels = [];
+if (!fs.existsSync(PRODUCTS_CSV)) {
+  fail(`Khong tim thay danh muc ${path.relative(ROOT, PRODUCTS_CSV)}`);
+} else {
+  const lines = fs.readFileSync(PRODUCTS_CSV, 'utf8')
+    .replace(/^﻿/, '')
+    .split(/\r?\n/)
+    .filter((l) => l.trim());
+  const header = lines.shift() || '';
+  if (!/^model\s*,\s*url/i.test(header)) {
+    fail(`products.csv co header la "${header}", mong doi "model,url"`);
+  }
+  masterModels = lines.map((l) => l.split(',')[0].trim());
 
-const scanData = JSON.parse(fs.readFileSync(path.join(SCANS_DIR, latestScanFile), 'utf8').replace(/^\uFEFF/, ''));
-const rows = scanData.rows || [];
-if (rows.length < 90) fail(`Số lượng SKU quét được quá thấp: ${rows.length} < 90`);
+  if (masterModels.length !== CFG.masterSkuCount) {
+    fail(
+      `products.csv co ${masterModels.length} SKU, Master List quy dinh DUNG ${CFG.masterSkuCount} ` +
+      `(sua tests/gate-config.json neu day la thay doi co chu y)`
+    );
+  }
+  const dupMaster = masterModels.filter((m, i) => masterModels.indexOf(m) !== i);
+  if (dupMaster.length) {
+    fail(`products.csv co model trung lap: ${[...new Set(dupMaster)].join(', ')}`);
+  }
+  console.log(`[1] Master List: ${masterModels.length} SKU trong products.csv`);
+}
 
-const seenModels = new Set();
-for (let idx = 0; idx < rows.length; idx++) {
-  const r = rows[idx];
-  const model = r.model;
-  if (!model) fail(`Dòng ${idx} trong ${latestScanFile} bị thiếu tên model!`);
-  if (seenModels.has(model)) fail(`Phát hiện model bị TRÙNG LẶP (Duplicate): ${model}`);
-  seenModels.add(model);
+// data/data.js la catalogue nuoi sheet "Lich_Su_Theo_Dot_Quet" va baseline RRP.
+// No phai cung kich thuoc voi Master List, neu khong Excel se im lang thieu SKU.
+const DATA_JS = path.join(ROOT, 'data', 'data.js');
+if (fs.existsSync(DATA_JS)) {
+  const catalogCount = (fs.readFileSync(DATA_JS, 'utf8').match(/"model"\s*:/g) || []).length;
+  if (catalogCount !== CFG.masterSkuCount) {
+    fail(
+      `data/data.js co ${catalogCount} model nhung Master List la ${CFG.masterSkuCount} SKU. ` +
+      `Sheet Excel "Lich_Su_Theo_Dot_Quet" va baseline RRP doc tu data.js nen dang thieu ` +
+      `${CFG.masterSkuCount - catalogCount} SKU so voi dot quet.`
+    );
+  }
+}
 
-  if (r.status === 'active') {
-    const rrp = r.rrp;
-    const red = r.red;
-    const pmh = r.pmh;
-    const choice = r.choice || 0;
-    const rule = r.rule;
+// ---------------------------------------------------------------------------
+// 2. Dot quet phai la cua HOM NAY (gio Viet Nam)
+// ---------------------------------------------------------------------------
+const today = todayInTz(CFG.timezone);
+let scanData = null;
+let scanFileName = null;
 
-    if (rrp == null || rrp <= 0) fail(`Model ${model} có RRP không hợp lệ: ${rrp}`);
-    if (red != null && (red <= 0 || red > rrp)) fail(`Model ${model} có giá đỏ không hợp lệ: red=${red}, rrp=${rrp}`);
-    if (pmh != null && (pmh < 0 || pmh > rrp)) fail(`Model ${model} có PMH không hợp lệ: pmh=${pmh}, rrp=${rrp}`);
+if (!fs.existsSync(SCANS_DIR)) {
+  fail(`Khong tim thay thu muc ${path.relative(ROOT, SCANS_DIR)}`);
+} else {
+  const scanFiles = fs.readdirSync(SCANS_DIR)
+    .filter((f) => /^scan_\d{4}-\d{2}-\d{2}\.json$/.test(f))
+    .sort();
 
-    const diff = red != null ? rrp - red : 0;
-    if (rule === 'flash_chon1' && pmh !== choice) {
-      fail(`Model ${model} vi phạm Domain Invariant 2.1: rule=flash_chon1 nhưng pmh=${pmh} != choice=${choice}`);
+  if (!scanFiles.length) {
+    fail(`Khong co file scan nao trong ${path.relative(ROOT, SCANS_DIR)}`);
+  } else {
+    const newest = scanFiles[scanFiles.length - 1];
+    const newestIso = newest.slice(5, 15);
+
+    if (CFG.requireScanToday && newestIso !== today) {
+      fail(
+        `Dot quet moi nhat la ${newestIso} nhung hom nay (${CFG.timezone}) la ${today}. ` +
+        `Buoc quet da that bai hoac chua chay - TUYET DOI khong commit du lieu cu.`
+      );
     }
-    if (rule === 'den_tru_do' && red != null) {
-      const expected = Math.max(diff, choice);
-      if (pmh !== expected && pmh !== diff) {
-        fail(`Model ${model} vi phạm Domain Invariant 2.1: rule=den_tru_do nhưng pmh=${pmh} != expected=${expected}`);
+
+    scanFileName = newest;
+    try {
+      scanData = JSON.parse(fs.readFileSync(path.join(SCANS_DIR, newest), 'utf8').replace(/^﻿/, ''));
+    } catch (e) {
+      fail(`Loi cu phap JSON trong ${newest}: ${e.message}`);
+    }
+
+    if (scanData) {
+      const expectedDate = isoToDdMmm(newestIso);
+      if (scanData.date !== expectedDate) {
+        fail(
+          `${newest} co field date="${scanData.date}" nhung ten file ung voi "${expectedDate}". ` +
+          `(strftime("%d-%b") phu thuoc locale - day la dau hieu chay sai moi truong.)`
+        );
       }
+    }
+    console.log(`[2] Dot quet kiem tra: ${newest} (hom nay: ${today})`);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// 3. Domain Invariants tren tung dong cua dot quet
+// ---------------------------------------------------------------------------
+const rows = (scanData && scanData.rows) || [];
+
+if (scanData) {
+  if (rows.length !== CFG.masterSkuCount) {
+    fail(`${scanFileName} co ${rows.length} dong, Master List quy dinh DUNG ${CFG.masterSkuCount}`);
+  }
+
+  const seen = new Set();
+  let activeCount = 0;
+
+  rows.forEach((r, idx) => {
+    const model = r.model;
+    if (!model) {
+      fail(`${scanFileName} dong ${idx} thieu ten model`);
+      return;
+    }
+    if (seen.has(model)) fail(`Model TRUNG LAP trong ${scanFileName}: ${model}`);
+    seen.add(model);
+
+    if (r.status !== 'active') {
+      if (r.pmh !== null && r.pmh !== undefined) {
+        fail(`${model}: status=${r.status} nhung pmh=${r.pmh} (phai la null)`);
+      }
+      return;
+    }
+
+    activeCount++;
+    const { rrp, red, pmh, kind, rule } = r;
+    const choice = r.choice || 0;
+
+    // --- Gia tri co ban (CONSTRAINTS 1 + docstring cua enforce_domain_invariants) ---
+    if (typeof rrp !== 'number' || rrp <= 0) {
+      fail(`${model}: RRP khong hop le (${rrp}) - active bat buoc RRP > 0`);
+      return;
+    }
+    if (typeof red !== 'number' || red <= 0) {
+      fail(`${model}: gia do khong hop le (${red}) - active bat buoc red > 0`);
+      return;
+    }
+    if (red > rrp) {
+      fail(`${model}: red=${red} > rrp=${rrp}`);
+      return;
+    }
+    if (typeof pmh !== 'number' || pmh < 0 || pmh > rrp) {
+      fail(`${model}: PMH khong hop le (pmh=${pmh}, rrp=${rrp})`);
+      return;
+    }
+
+    // `kind` CO Y khong bi gate - xem _kindNote trong gate-config.json.
+    // Chi kiem no ton tai de bat loi dong bi cat xen.
+    if (typeof kind !== 'string' || !kind) {
+      fail(`${model}: thieu truong kind`);
+    }
+    if (!CFG.allowedRules.includes(rule)) {
+      fail(`${model}: rule="${rule}" khong thuoc {${CFG.allowedRules.join(', ')}}`);
+      return;
+    }
+
+    const diff = rrp - red;
+
+    // --- CONSTRAINTS 2.1: ba nhanh, kiem day du, khong co menh de thoat ---
+    if (rule === 'flash_chon1') {
+      if (pmh !== choice) {
+        fail(`${model}: vi pham 2.1.2 - rule=flash_chon1 nhung pmh=${pmh} != choice=${choice}`);
+      }
+    } else if (rule === 'den_tru_do') {
+      if (diff < choice) {
+        fail(
+          `${model}: vi pham 2.1.3 - diff=${diff} < choice=${choice} nen rule phai la "chon1", ` +
+          `khong phai "den_tru_do"`
+        );
+      }
+      if (pmh !== diff) {
+        fail(`${model}: vi pham 2.1.3 - rule=den_tru_do nhung pmh=${pmh} != diff=${diff}`);
+      }
+    } else if (rule === 'chon1') {
+      if (choice <= diff) {
+        fail(
+          `${model}: vi pham 2.1.3 - choice=${choice} <= diff=${diff} nen rule phai la "den_tru_do", ` +
+          `khong phai "chon1"`
+        );
+      }
+      if (pmh !== choice) {
+        fail(`${model}: vi pham 2.1.3 - rule=chon1 nhung pmh=${pmh} != choice=${choice}`);
+      }
+    }
+
+    // --- online luon la chenh lech den-do (enforce_domain_invariants dong 308) ---
+    if (typeof r.online === 'number' && r.online !== diff) {
+      fail(`${model}: online=${r.online} != diff=${diff}`);
+    }
+  });
+
+  // Ban cu chi dem len(rows) >= 90, ma rows gom ca dong loi. Day moi la nguong that.
+  const minActive = Math.ceil((CFG.masterSkuCount * CFG.minActivePct) / 100);
+  if (activeCount < minActive) {
+    fail(
+      `Chi co ${activeCount}/${rows.length} SKU doc duoc gia (status=active), ` +
+      `toi thieu ${minActive} (${CFG.minActivePct}% Master List)`
+    );
+  }
+
+  // Moi SKU trong Master List phai co mat trong dot quet.
+  const missing = masterModels.filter((m) => !seen.has(m));
+  if (missing.length) {
+    fail(`${missing.length} SKU trong products.csv bi thieu khoi dot quet: ${missing.slice(0, 10).join(', ')}${missing.length > 10 ? ', ...' : ''}`);
+  }
+
+  console.log(`[3] Domain Invariants: ${rows.length} dong, ${activeCount} active`);
+}
+
+// ---------------------------------------------------------------------------
+// 4. Three-Way Sync (CONSTRAINTS 2.4) - parse that, khong so khop chuoi con
+// ---------------------------------------------------------------------------
+let latestObj = null;
+if (!fs.existsSync(LATEST_JS)) {
+  fail('Khong tim thay data/latest.js');
+} else {
+  const res = parseWindowVar(LATEST_JS, 'LATEST');
+  if (res.err) fail(`data/latest.js: ${res.err}`);
+  else latestObj = res.value;
+}
+
+if (latestObj && scanData) {
+  if (latestObj.date !== scanData.date) {
+    fail(`data/latest.js date="${latestObj.date}" lech voi dot quet "${scanData.date}"`);
+  }
+  const lRows = latestObj.rows || [];
+  if (lRows.length !== rows.length) {
+    fail(`data/latest.js co ${lRows.length} dong, dot quet co ${rows.length} dong`);
+  }
+  // Doi chieu tung so, khong chi dem.
+  const scanByModel = new Map(rows.map((r) => [r.model, r]));
+  let drift = 0;
+  for (const lr of lRows) {
+    const sr = scanByModel.get(lr.model);
+    if (!sr) {
+      fail(`data/latest.js co model "${lr.model}" khong ton tai trong ${scanFileName}`);
+      continue;
+    }
+    for (const k of ['rrp', 'red', 'pmh', 'rule', 'kind', 'status']) {
+      if (sr[k] !== lr[k]) {
+        if (drift < 10) fail(`Lech latest.js vs ${scanFileName} - ${lr.model}.${k}: ${lr[k]} vs ${sr[k]}`);
+        drift++;
+      }
+    }
+  }
+  if (drift >= 10) fail(`... va ${drift - 10} sai lech khac giua latest.js va ${scanFileName}`);
+}
+
+let scansArr = null;
+if (!fs.existsSync(SCANS_JS)) {
+  fail('Khong tim thay data/scans.js');
+} else {
+  const res = parseWindowVar(SCANS_JS, 'SCANS');
+  if (res.err) fail(`data/scans.js: ${res.err}`);
+  else if (!Array.isArray(res.value)) fail('data/scans.js: window.SCANS khong phai mang');
+  else scansArr = res.value;
+}
+
+if (scansArr && scanData) {
+  const byDate = new Map(scansArr.map((s) => [s.date, s]));
+
+  const todayEntry = byDate.get(scanData.date);
+  if (!todayEntry) {
+    fail(`data/scans.js thieu dot quet "${scanData.date}" (latest.js co dot moi ma scans.js bo sot)`);
+  } else if ((todayEntry.rows || []).length !== rows.length) {
+    fail(
+      `data/scans.js dot "${scanData.date}" co ${(todayEntry.rows || []).length} dong, ` +
+      `file scan goc co ${rows.length} dong`
+    );
+  }
+
+  // write_scans_js() co chu y giu lai `scansJsRetention` dot gan nhat (scans[-30:]),
+  // nen dot cu hon bi rot ra KHONG phai loi dong bo. Thu phai kiem la: trong cua so
+  // duoc giu lai, khong duoc thung mot dot nao.
+  const onDisk = fs.readdirSync(SCANS_DIR)
+    .filter((f) => /^scan_\d{4}-\d{2}-\d{2}\.json$/.test(f))
+    .sort()
+    .map((f) => ({ file: f, date: isoToDdMmm(f.slice(5, 15)) }));
+  const retained = onDisk.slice(-CFG.scansJsRetention);
+  const gaps = retained.filter((o) => !byDate.has(o.date));
+  if (gaps.length) {
+    fail(
+      `CONSTRAINTS 2.4 - ${gaps.length} dot quet nam trong cua so ${CFG.scansJsRetention} dot gan nhat ` +
+      `nhung bi bo sot khoi window.SCANS: ${gaps.map((o) => o.file).join(', ')}`
+    );
+  }
+  if (scansArr.length !== retained.length) {
+    fail(
+      `data/scans.js co ${scansArr.length} dot, mong doi ${retained.length} ` +
+      `(${onDisk.length} file scan, giu lai ${CFG.scansJsRetention} dot gan nhat)`
+    );
+  }
+  console.log(
+    `[4] Three-Way Sync: ${onDisk.length} file scan, giu ${retained.length}, ` +
+    `scans.js co ${scansArr.length} dot`
+  );
+}
+
+// ---------------------------------------------------------------------------
+// 5. Ban sao long nhau (nguon du lieu ma / divergent copy)
+// ---------------------------------------------------------------------------
+if (CFG.nestedCopyPath) {
+  const nested = path.join(ROOT, CFG.nestedCopyPath, 'data', 'latest.js');
+  if (fs.existsSync(nested)) {
+    const res = parseWindowVar(nested, 'LATEST');
+    const nestedDate = res.value ? res.value.date : '(khong doc duoc)';
+    // Canh bao chu khong chan commit: ban sao cu khong lam sai du lieu dang phuc vu web,
+    // nhung no van bi `git add "promotion tgdd"` dua vao moi dot commit.
+    if (!latestObj || nestedDate !== latestObj.date) {
+      warn(
+        `Ban sao long nhau "${CFG.nestedCopyPath}/data/latest.js" dang o dot "${nestedDate}" ` +
+        `trong khi ban chinh o "${latestObj ? latestObj.date : '?'}". ` +
+        `Workflow van \`git add "${CFG.nestedCopyPath}"\` nen ban cu nay duoc commit moi dot - ` +
+        `nen xoa thu muc do hoac bo khoi buoc git add.`
+      );
     }
   }
 }
 
-console.log(`-> Kiểm tra ${rows.length} SKU trong ${latestScanFile}: 100% HỢP LỆ!`);
+// ---------------------------------------------------------------------------
+// Tong ket
+// ---------------------------------------------------------------------------
+console.log('');
+for (const w of warnings) console.log(`[CANH BAO] ${w}`);
 
-// Check data/latest.js
-const latestContent = fs.readFileSync('data/latest.js', 'utf8').replace(/^\uFEFF/, '');
-const matchLatest = latestContent.match(/window\.LATEST\s*=\s*(\{.*?\});?\s*$/s);
-if (!matchLatest) fail('data/latest.js không định nghĩa window.LATEST hợp lệ!');
-const latestJson = JSON.parse(matchLatest[1]);
-if (latestJson.date !== scanData.date) {
-  fail(`data/latest.js lệch date so với file scan (${latestJson.date} vs ${scanData.date})`);
+if (errors.length) {
+  console.error('=================================================================');
+  console.error(`   CIRCUIT BREAKER: ${errors.length} VI PHAM - CHAN COMMIT`);
+  console.error('=================================================================');
+  errors.forEach((e, i) => console.error(`  ${String(i + 1).padStart(2, ' ')}. ${e}`));
+  console.error('');
+  process.exit(1);
 }
 
-// Check data/scans.js
-const scansContent = fs.readFileSync('data/scans.js', 'utf8');
-if (!scansContent.includes(scanData.date)) {
-  fail(`data/scans.js thiếu đợt quét ngày ${scanData.date}`);
-}
-
-console.log("=================================================================");
-console.log("   CIRCUIT BREAKER: 100% PASS - DỮ LIỆU ĐẠT CHUẨN ĐỂ COMMIT!   ");
-console.log("=================================================================");
+console.log('=================================================================');
+console.log('   CIRCUIT BREAKER: 100% PASS - DU LIEU DAT CHUAN DE COMMIT');
+console.log('=================================================================');

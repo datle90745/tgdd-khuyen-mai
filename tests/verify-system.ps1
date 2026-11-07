@@ -33,9 +33,79 @@ function Assert-Check {
     }
 }
 
+# Ghi nhan mot that bai cung (dung cho truong hop mot nhom test khong the chay duoc:
+# truoc day Chrome khong co thi Nhom 4 bi bo qua am tham va suite van bao "PASS").
+function Assert-Hard-Fail {
+    param([string]$Name, [string]$FailureMessage)
+    $script:TotalChecks++
+    Write-Host "[$script:TotalChecks] Checking: $Name ... FAIL" -ForegroundColor Red
+    Write-Host "    -> ERROR: $FailureMessage" -ForegroundColor Red
+    $script:FailedChecks++
+}
+
+# Moi nguong so lieu doc tu MOT nguon duy nhat.
+$RepoRoot = Split-Path -Parent $PSScriptRoot
+Set-Location $RepoRoot
+$GateCfg = Get-Content (Join-Path $PSScriptRoot "gate-config.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+$TodayVN = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId(
+    [datetime]::UtcNow, 'UTC', 'SE Asia Standard Time')
+
 Write-Host "=================================================================" -ForegroundColor Cyan
 Write-Host "   BAT DAU KIEM TRA TOAN BO HE THONG THEO AGENT-SKILLS GATES     " -ForegroundColor Cyan
+Write-Host "   Master List: $($GateCfg.masterSkuCount) SKU | Hom nay (VN): $($TodayVN.ToString('yyyy-MM-dd'))" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
+
+# ------------------------------------------------------------------------------
+# NHÓM 0: DỮ LIỆU CỦA ĐỢT QUÉT HÔM NAY (DYNAMIC - KHÔNG NEO VÀO NGÀY CỨNG)
+#
+# Toàn bộ các nhóm phía dưới là regression guard cho những lỗi đã xảy ra trong
+# tháng 10 - chúng neo vào ngày và giá cố định nên KHÔNG soi vào dữ liệu mới.
+# Nhóm 0 này mới là thứ kiểm dữ liệu của ngày hôm nay.
+# ------------------------------------------------------------------------------
+Write-Host "`n--- [Nhom 0] Kiem dinh du lieu dot quet HOM NAY ---" -ForegroundColor Yellow
+
+$node = (Get-Command node -ErrorAction SilentlyContinue)
+if (-not $node) {
+    Assert-Hard-Fail "Circuit Breaker (tests/verify_scan.js) phai chay duoc" `
+        "Khong tim thay Node.js tren PATH - khong the kiem dinh du lieu dot quet. Cai Node.js roi chay lai."
+} else {
+    # $ErrorActionPreference='Stop' + `2>&1` tren lenh native se bien stderr thanh
+    # NativeCommandError va lam abort ca suite. Ha xuong 'Continue' quanh loi goi nay.
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = 'Continue'
+    $cbOutput = & node "tests/verify_scan.js" 2>&1 | ForEach-Object { "$_" }
+    $cbExit = $LASTEXITCODE
+    $ErrorActionPreference = $prevEap
+    Assert-Check "Circuit Breaker: du lieu dot quet hom nay phai thoa man toan bo Domain Invariants" {
+        $cbExit -eq 0
+    } ("Circuit breaker bao loi (chay 'node tests/verify_scan.js' de xem day du):`n" +
+       (($cbOutput | Where-Object { $_ -match '\d+\.\s' -or $_ -match 'VI PHAM' }) -join "`n"))
+}
+
+Assert-Check "data/scans/ phai co dot quet cua HOM NAY ($($TodayVN.ToString('yyyy-MM-dd')))" {
+    Test-Path ("data/scans/scan_{0}.json" -f $TodayVN.ToString('yyyy-MM-dd'))
+} "Khong co data/scans/scan_$($TodayVN.ToString('yyyy-MM-dd')).json - buoc quet hom nay da that bai hoac chua chay"
+
+Assert-Check "data/latest.js phai tro dung vao dot quet hom nay" {
+    $ltRaw = (Get-Content "data/latest.js" -Raw -Encoding UTF8) -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.LATEST\s*=\s*', ''
+    $ltObj = $ltRaw.TrimEnd(" ;`r`n") | ConvertFrom-Json
+    $ltObj.date -eq $TodayVN.ToString('dd-MMM', [cultureinfo]::GetCultureInfo('en-US'))
+} "data/latest.js khong phai dot quet hom nay ($($TodayVN.ToString('dd-MMM', [cultureinfo]::GetCultureInfo('en-US'))))"
+
+# write_scans_js() co chu y chi giu `scansJsRetention` dot gan nhat (scans[-30:]),
+# nen dot cu hon bi rot ra KHONG phai loi. Chi thung TRONG cua so giu lai moi la loi.
+Assert-Check "Trong cua so $($GateCfg.scansJsRetention) dot gan nhat, data/scans.js khong duoc bo sot dot nao" {
+    $scansRaw = (Get-Content "data/scans.js" -Raw -Encoding UTF8) -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.SCANS\s*=\s*', ''
+    $scansObj = $scansRaw.TrimEnd(" ;`r`n") | ConvertFrom-Json
+    $known = @{}; foreach ($s in $scansObj) { $known[$s.date] = $true }
+    $retained = Get-ChildItem "data/scans" -Filter "scan_*.json" | Sort-Object Name | Select-Object -Last $GateCfg.scansJsRetention
+    $gap = @()
+    foreach ($f in $retained) {
+        $d = ([datetime]($f.BaseName -replace 'scan_', '')).ToString('dd-MMM', [cultureinfo]::GetCultureInfo('en-US'))
+        if (-not $known.ContainsKey($d)) { $gap += $f.Name }
+    }
+    ($gap.Count -eq 0) -and ($scansObj.Count -eq $retained.Count)
+} "data/scans.js thung dot quet trong cua so $($GateCfg.scansJsRetention) dot gan nhat (vi pham CONSTRAINTS 2.4)"
 
 # ------------------------------------------------------------------------------
 # NHÓM 1: QUY TẮC BẤT BIẾN SCRAPER (SCAN_TGDD.PY)
@@ -110,10 +180,10 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         $scansContent -match '"19-Oct"'
     } "scans.js thieu ban ghi dot quet ngay 19-Oct"
 
-    Assert-Check "Danh sach san pham trong products.csv phai co du 95 dong du lieu SKU" {
-        $csvLines = (Get-Content "scraper/products.csv").Count
-        $csvLines -ge 96 # 1 header + 95 SKU
-    } "products.csv co it hon 95 SKU"
+    Assert-Check "products.csv phai co DUNG $($GateCfg.masterSkuCount) SKU theo Master List" {
+        $csvSku = ((Get-Content "scraper/products.csv") | Where-Object { $_.Trim() }).Count - 1
+        $csvSku -eq $GateCfg.masterSkuCount
+    } "products.csv co $(((Get-Content 'scraper/products.csv') | Where-Object { $_.Trim() }).Count - 1) SKU, Master List quy dinh DUNG $($GateCfg.masterSkuCount) (sua tests/gate-config.json neu day la thay doi co chu y)"
 
     Assert-Check "scraper/products.csv phai chua model chuan 'A7 Pro 5G 6GB/256GB' va 'A7 Pro 5G 8GB/128GB'" {
         $csvText = Get-Content "scraper/products.csv" -Raw -Encoding UTF8
@@ -305,13 +375,26 @@ if (-not (Test-Path $chromePath)) {
     $chromePath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
 }
 
-if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
+# Truoc day: thieu Chrome thi ca Nhom 4 bi bo qua am tham, suite tut tu 81 xuong 52 check
+# va van in "52/52 PASS". Mot cong co the tu thu nho lai thi khong con la cong.
+if (-not (Test-Path $e2eHtml)) {
+    Assert-Hard-Fail "Nhom 4 (E2E) phai chay duoc" "Khong tim thay $e2eHtml"
+} elseif (-not (Test-Path $chromePath)) {
+    Assert-Hard-Fail "Nhom 4 (E2E) phai chay duoc" "Khong tim thay Chrome/Edge headless - khong the kiem E2E xuat Excel va DOM"
+} else {
     $tempOut = "$env:TEMP\e2e-out-test.html"
-    cmd /c "`"$chromePath`" --headless=old --dump-dom `"file:///c:/Users/toquo/Documents/antigravity/fervent-raman/tests/test-excel-e2e.html`" 2>nul > `"$tempOut`""
-    if (Test-Path $tempOut) {
+    # Xoa truoc: con sot output cua lan chay truoc thi Chrome loi van "PASS" tren file cu.
+    if (Test-Path $tempOut) { Remove-Item $tempOut -Force }
+    $e2eFull = (Get-Item $e2eHtml).FullName
+    cmd /c "`"$chromePath`" --headless=old --dump-dom `"file:///$($e2eFull -replace '\\','/')`" 2>nul > `"$tempOut`""
+    if (-not (Test-Path $tempOut)) {
+        Assert-Hard-Fail "Nhom 4 (E2E): Chrome phai xuat duoc DOM" "Chrome khong tao ra $tempOut"
+    } else {
         $outContent = Get-Content $tempOut -Raw -Encoding UTF8
         $match = [regex]::Match($outContent, '(?s)<div id="test-output">(.*?)</div>')
-        if ($match.Success) {
+        if (-not $match.Success) {
+            Assert-Hard-Fail "Nhom 4 (E2E): trang test phai tra ve khoi #test-output" "Khong tim thay <div id=`"test-output`"> trong DOM - 5 check E2E xuat Excel khong chay duoc"
+        } else {
             $e2eData = ConvertFrom-Json $match.Groups[1].Value
             $mainProp = $e2eData.PSObject.Properties | Where-Object { $_.Name -like "Bao_Cao_GTM_Khuyen_Mai_*.xlsx" } | Select-Object -First 1; $mainFile = if ($mainProp) { $mainProp.Value } else { $null }
             $mkProp = $e2eData.PSObject.Properties | Where-Object { $_.Name -like "toan_thi_truong_*.xlsx" } | Select-Object -First 1; $mkFile = if ($mkProp) { $mkProp.Value } else { $null }
@@ -324,10 +407,12 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
                 $mainFile.sheetNames -contains "Lich_Su_Theo_Dot_Quet"
             } "Thieu sheet Lich_Su_Theo_Dot_Quet trong Bao_Cao_GTM_Khuyen_Mai"
 
-            Assert-Check "E2E: Sheet Lich_Su_Theo_Dot_Quet phai co du 94 SKU Master List (95 dong gom header)" {
+            # Truoc day ten test noi 94, dieu kien kiem >= 95, thong bao loi noi 96.
+            # Gio lay tu mot nguon: masterSkuCount + 1 dong header.
+            Assert-Check "E2E: Sheet Lich_Su_Theo_Dot_Quet phai co $($GateCfg.masterSkuCount) SKU + 1 dong header" {
                 $historySheet = $mainFile.sheetsInfo | Where-Object { $_.name -eq "Lich_Su_Theo_Dot_Quet" }
-                $historySheet.rowCount -ge 95
-            } "So dong trong Lich_Su_Theo_Dot_Quet khong bang 96"
+                $historySheet.rowCount -eq ($GateCfg.masterSkuCount + 1)
+            } "Sheet Lich_Su_Theo_Dot_Quet co $(($mainFile.sheetsInfo | Where-Object { $_.name -eq 'Lich_Su_Theo_Dot_Quet' }).rowCount) dong, mong doi $($GateCfg.masterSkuCount + 1)"
 
             Assert-Check "E2E: Sheet Lich_Su_Theo_Dot_Quet phai chua cot ngay 19-Oct" {
                 $historySheet = $mainFile.sheetsInfo | Where-Object { $_.name -eq "Lich_Su_Theo_Dot_Quet" }
@@ -392,18 +477,17 @@ if ((Test-Path $e2eHtml) -and (Test-Path $chromePath)) {
             } "$dcf van con hien thi dong tang gia ao Galaxy A18 4G/128GB"
 
             $a57Row = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="A57 5G 12GB/256GB"[^>]*>(.*?)</tr>')
+            # Loi cu: scriptblock co HAI cau lenh roi nhau nen tra ve mang @(x, y).
+            # `$result -eq $true` tren mang luon cho ra mang khac rong => test LUON PASS,
+            # ke ca khi dong khong he duoc render ($a57Row.Success = $false).
             Assert-Check "DOM E2E: $dcf phai an to vang va bo co RRP tang cho Samsung A57 (tang > 15 ngay)" {
-                $a57Row.Success -and 
-                ($a57Row.Groups[1].Value -notmatch "badge rrp")
-                ($a57Row.Groups[1].Value -notmatch "badge rrp")
-            } "$dcf van hien thi to vang hoac co RRP tang cho Samsung A57 du da qua 15 ngay"
+                $a57Row.Success -and ($a57Row.Groups[1].Value -notmatch "badge rrp")
+            } "$dcf van hien thi to vang hoac co RRP tang cho Samsung A57 du da qua 15 ngay (hoac khong render duoc dong nay)"
 
             $r16Row = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="16 5G 8GB/256GB"[^>]*>(.*?)</tr>')
             Assert-Check "DOM E2E: $dcf phai an to vang va bo co RRP tang cho Realme 16 khi da qua 15 ngay (tu 21-Oct)" {
-                $r16Row.Success -and 
-                ($r16Row.Groups[1].Value -notmatch "badge rrp")
-                ($r16Row.Groups[1].Value -notmatch "badge rrp")
-            } "$dcf khong to vang hoac thieu co RRP tang cho Realme 16 (trong vong 15 ngay)"
+                $r16Row.Success -and ($r16Row.Groups[1].Value -notmatch "badge rrp")
+            } "$dcf khong an to vang hoac van con co RRP tang cho Realme 16 (hoac khong render duoc dong nay)"
 
             $redmiRow = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="Redmi 17 4G 6GB/256GB"[^>]*>(.*?)</tr>')
             Assert-Check "DOM E2E: $dcf phai render gia online Redmi 17 4G 6GB/256GB dung (khong tru nham choice 200k)" {
