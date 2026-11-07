@@ -39,7 +39,7 @@ def bundle():
             r'<script src="xlsx\.full\.min\.js"></script>\s*<script>if\(!window\.XLSX\).*?</script>|<script src="https://cdnjs\.cloudflare\.com/ajax/libs/xlsx/0\.18\.5/xlsx\.full\.min\.js"></script>',
             re.DOTALL
         )
-        content = xlsx_pattern.sub(f'<script src="{data_uri}"></script>', content)
+        content = xlsx_pattern.sub(lambda _: f'<script src="{data_uri}"></script>', content)
 
     # 2. Nhúng toàn bộ các file data/*.js
     for df in DATA_FILES:
@@ -48,7 +48,8 @@ def bundle():
             c = p.read_text(encoding="utf-8")
             pattern = re.compile(rf'<script src="data/{re.escape(df)}[^"]*"></script>', re.DOTALL)
             replacement = f"<script>\n/* Embedded data/{df} */\n{c}\n</script>"
-            content = pattern.sub(replacement, content)
+            # Dùng lambda để Python không coi các ký tự '\u' trong data.js là regex escape sequence
+            content = pattern.sub(lambda _, r=replacement: r, content)
 
     # 3. Ghi vào các file đích
     PROMO_DIR.mkdir(parents=True, exist_ok=True)
