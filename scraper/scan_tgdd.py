@@ -745,9 +745,21 @@ def main():
                 diff = max(scraped_rrp - result.get("red", scraped_rrp), 0)
                 result["rrp"] = expected_rrp
                 result["red"] = max(expected_rrp - diff, 0)
-                result["pmh"] = result.get("choice", 0) if result.get("banner") else diff
+                choice_val = result.get("choice", 0)
+                if result.get("banner"):
+                    result["pmh"] = choice_val
+                    result["rule"] = "flash_chon1"
+                    result["kind"] = "moi-banner"
+                elif diff >= choice_val:
+                    result["pmh"] = diff
+                    result["rule"] = "den_tru_do"
+                    result["kind"] = "moi"
+                else:
+                    result["pmh"] = choice_val
+                    result["rule"] = "chon1"
+                    result["kind"] = "moi"
                 result["online"] = diff
-                result["total_online"] = diff + (0 if result.get("choice_in_red", True) else result.get("choice", 0))
+                result["total_online"] = diff + (0 if result.get("choice_in_red", True) else choice_val)
         row = {"model": product["model"], "url": product["url"],
                "at": datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%m %H:%M"), **result}
         if row["status"] != "active":
@@ -842,23 +854,42 @@ def fast_check_o3(scan):
     """Fast-check hằng ngày qua web mwg https://www.thegioididong.com/dtdd#o=3&pi=0
     đối soát nhanh giá đỏ, RRP của các model mới ra mắt / campaign layout so với latest scan."""
     print("\n--- FAST-CHECK MWG MỚI RA MẮT (dtdd#o=3) ---", flush=True)
+    o3_items = {}
     try:
-        resp = requests.post(
-            "https://www.thegioididong.com/Category/FilterProductBox?c=42&o=3&pi=0",
-            headers={**HEADERS, "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                     "X-Requested-With": "XMLHttpRequest",
-                     "Referer": "https://www.thegioididong.com/dtdd"},
-            data="IsParentCate=False&IsShowCompare=True&prevent=true", timeout=(10, 20))
-        if resp.status_code == 200:
+        for page in range(6):
+            resp = requests.post(
+                f"https://www.thegioididong.com/Category/FilterProductBox?c=42&o=3&pi={page}",
+                headers={**HEADERS, "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                         "X-Requested-With": "XMLHttpRequest",
+                         "Referer": "https://www.thegioididong.com/dtdd"},
+                data="IsParentCate=False&IsShowCompare=True&prevent=true", timeout=(10, 20))
+            if resp.status_code != 200:
+                break
             soup = BeautifulSoup(resp.json().get("listproducts") or "", "html.parser")
             items = soup.select("li.item[data-id]")
-            print(f"Đã tải {len(items)} card từ https://www.thegioididong.com/dtdd#o=3&pi=0", flush=True)
-            for li in items[:6]:
-                title_el = li.select_one("h3") or li.select_one(".name-product")
-                name = title_el.get_text(strip=True) if title_el else ""
-                price_box = li.select_one(".price, .price-current, [data-price]")
-                price_str = price_box.get_text(strip=True) if price_box else ""
-                print(f"  [#o=3 Ground Truth] {name}: {price_str}", flush=True)
+            if not items:
+                break
+            for li in items:
+                a = li.select_one("a.main-contain")
+                if not a:
+                    continue
+                href = (a.get("href") or "").split("?")[0].strip("/")
+                slug = href.replace("dtdd/", "") if href.startswith("dtdd/") else href
+                raw_red = to_int(a.get("data-price"))
+                red = round(raw_red / 1000.0) * 1000 if raw_red else 0
+                orig = money(li.select_one(".price-old").get_text()) if li.select_one(".price-old") else to_int(li.get("data-price"))
+                orig = round(orig / 1000.0) * 1000 if orig else red
+                if orig < red:
+                    orig = red
+                o3_items[slug] = {"red": red, "rrp": orig}
+        print(f"Đã đối soát {len(o3_items)} card từ dtdd#o=3.", flush=True)
+        for r in scan.get("rows", []):
+            if r.get("status") == "active":
+                slug = r.get("url", "").rstrip("/").rsplit("/", 1)[-1].split("?")[0]
+                if slug in o3_items:
+                    ref = o3_items[slug]
+                    if ref["red"] > 0 and abs(ref["red"] - r.get("red", 0)) > 50000:
+                        print(f"  [#o=3 Warning] {r['model']}: Scan red={r.get('red')} != #o=3 red={ref['red']}", flush=True)
     except Exception as e:
         print(f"  Fast-check warning: {e}", flush=True)
 

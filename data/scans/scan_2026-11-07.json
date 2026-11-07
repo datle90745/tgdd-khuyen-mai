@@ -1247,8 +1247,8 @@
    "online": 1700000,
    "total_online": 1700000,
    "choice": 400000,
-   "kind": "moi-banner",
-   "rule": "flash_chon1",
+   "kind": "moi",
+   "rule": "den_tru_do",
    "subs": []
   },
   {
@@ -1292,8 +1292,8 @@
    "online": 1400000,
    "total_online": 1400000,
    "choice": 400000,
-   "kind": "moi-banner",
-   "rule": "flash_chon1",
+   "kind": "moi",
+   "rule": "den_tru_do",
    "subs": []
   },
   {

@@ -225,6 +225,38 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         $idxText = Get-Content "index.html" -Raw -Encoding UTF8
         $idxText -notmatch 'oppo_a7pro5g8gb256gb'
     } "index.html van con chua ma hack canonKey dong bo bien the a7pro5g"
+
+    Assert-Check "Toan bo cac file trong data/scans/ khong chua model bi duplicate va khong lech quy tac flash_chon1" {
+        $scanFiles = Get-ChildItem -Path "data/scans" -Filter "scan_*.json"
+        $allValid = $true
+        foreach ($sf in $scanFiles) {
+            $raw = Get-Content $sf.FullName -Raw -Encoding UTF8
+            $scanObj = $raw | ConvertFrom-Json
+            $seen = @{}
+            foreach ($r in $scanObj.rows) {
+                if ($seen.ContainsKey($r.model)) {
+                    $allValid = $false
+                    break
+                }
+                $seen[$r.model] = $true
+                if ($r.rule -eq "flash_chon1" -and $r.choice -ne $null -and $r.pmh -ne $r.choice) {
+                    $allValid = $false
+                    break
+                }
+            }
+            if (-not $allValid) { break }
+        }
+        $allValid
+    } "Phat hien loi duplicate hoac rule flash_chon1 lech choice trong data/scans/"
+
+    Assert-Check "data/latest.js phai chua dung gia va rule cho OPPO A6 8GB/256GB (red 11.490.000, PMH 500.000, den_tru_do)" {
+        $ltText = Get-Content "data/latest.js" -Raw -Encoding UTF8
+        $raw = $ltText -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.LATEST\s*=\s*', ''
+        $raw = $raw.TrimEnd(" ;`r`n")
+        $ltObj = $raw | ConvertFrom-Json
+        $a6 = $ltObj.rows | Where-Object { $_.model -eq "A6 8GB/256GB" }
+        $a6 -and ($a6.rrp -eq 11990000) -and ($a6.red -eq 11490000) -and ($a6.pmh -eq 500000) -and ($a6.rule -eq "den_tru_do")
+    } "data/latest.js sai thong so gia / PMH cua OPPO A6 8GB/256GB"
 }
 
 # ------------------------------------------------------------------------------
