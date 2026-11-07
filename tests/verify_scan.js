@@ -86,9 +86,9 @@ if (!fs.existsSync(PRODUCTS_CSV)) {
   }
   masterModels = lines.map((l) => l.split(',')[0].trim());
 
-  if (masterModels.length !== CFG.masterSkuCount) {
+  if (masterModels.length !== CFG.crawlSkuCount) {
     fail(
-      `products.csv co ${masterModels.length} SKU, Master List quy dinh DUNG ${CFG.masterSkuCount} ` +
+      `products.csv co ${masterModels.length} SKU, danh sach cao quy dinh DUNG ${CFG.crawlSkuCount} ` +
       `(sua tests/gate-config.json neu day la thay doi co chu y)`
     );
   }
@@ -96,11 +96,12 @@ if (!fs.existsSync(PRODUCTS_CSV)) {
   if (dupMaster.length) {
     fail(`products.csv co model trung lap: ${[...new Set(dupMaster)].join(', ')}`);
   }
-  console.log(`[1] Master List: ${masterModels.length} SKU trong products.csv`);
+  console.log(`[1] Danh sach cao: ${masterModels.length} SKU trong products.csv`);
 }
 
-// data/data.js la catalogue nuoi sheet "Lich_Su_Theo_Dot_Quet" va baseline RRP.
-// No phai cung kich thuoc voi Master List, neu khong Excel se im lang thieu SKU.
+// data/data.js = Master List BAO CAO da khoa (bang tracking). No KHAC danh sach cao va
+// khong duoc ep bang nhau - xem _twoLists trong gate-config.json. Rang buoc that la:
+// kich thuoc dung nhu da khoa, MASTER_ORDER khop BASE.rows, va products.csv phu het no.
 const DATA_JS = path.join(ROOT, 'data', 'data.js');
 if (fs.existsSync(DATA_JS)) {
   // Parse that window.BASE / window.MASTER_ORDER - dem `"model":` tren ca file se lech
@@ -110,19 +111,22 @@ if (fs.existsSync(DATA_JS)) {
     fail(`data/data.js: window.BASE ${baseRes.err}`);
   } else {
     const catalog = baseRes.value.rows || [];
-    if (catalog.length !== CFG.masterSkuCount) {
+    if (catalog.length !== CFG.masterListCount) {
       fail(
-        `data/data.js co ${catalog.length} model nhung Master List la ${CFG.masterSkuCount} SKU. ` +
-        `Sheet Excel "Lich_Su_Theo_Dot_Quet" va baseline RRP doc tu data.js nen dang thieu ` +
-        `${CFG.masterSkuCount - catalog.length} SKU so voi dot quet.`
+        `data/data.js co ${catalog.length} model nhung Master List bao cao da khoa o ` +
+        `${CFG.masterListCount} SKU. Day la bang tracking - chi doi khi nguoi dung yeu cau, ` +
+        `va phai sua masterListCount trong tests/gate-config.json cung luc.`
       );
     }
-    const catModels = new Set(catalog.map((r) => r.model));
-    const notInCatalog = masterModels.filter((m) => !catModels.has(m));
-    if (notInCatalog.length) {
+    // Chieu dung: moi model DUOC BAO CAO deu phai nam trong danh sach cao.
+    // Chieu nguoc lai (products.csv nhieu hon data.js) la BINH THUONG.
+    const crawled = new Set(masterModels);
+    const reportedNotCrawled = catalog.map((r) => r.model).filter((m) => !crawled.has(m));
+    if (reportedNotCrawled.length) {
       fail(
-        `${notInCatalog.length} SKU trong products.csv khong co trong data/data.js: ` +
-        notInCatalog.slice(0, 10).join(', ') + (notInCatalog.length > 10 ? ', ...' : '')
+        `${reportedNotCrawled.length} model co trong Master List bao cao nhung KHONG duoc cao ` +
+        `(thieu trong products.csv): ` + reportedNotCrawled.slice(0, 10).join(', ') +
+        (reportedNotCrawled.length > 10 ? ', ...' : '')
       );
     }
     // index.html dung MASTER_ORDER de dung bang va sheet Excel; lech voi BASE la mat dong.
@@ -190,8 +194,8 @@ if (!fs.existsSync(SCANS_DIR)) {
 const rows = (scanData && scanData.rows) || [];
 
 if (scanData) {
-  if (rows.length !== CFG.masterSkuCount) {
-    fail(`${scanFileName} co ${rows.length} dong, Master List quy dinh DUNG ${CFG.masterSkuCount}`);
+  if (rows.length !== CFG.crawlSkuCount) {
+    fail(`${scanFileName} co ${rows.length} dong, danh sach cao quy dinh DUNG ${CFG.crawlSkuCount}`);
   }
 
   const seen = new Set();
@@ -281,7 +285,7 @@ if (scanData) {
   });
 
   // Ban cu chi dem len(rows) >= 90, ma rows gom ca dong loi. Day moi la nguong that.
-  const minActive = Math.ceil((CFG.masterSkuCount * CFG.minActivePct) / 100);
+  const minActive = Math.ceil((CFG.crawlSkuCount * CFG.minActivePct) / 100);
   if (activeCount < minActive) {
     fail(
       `Chi co ${activeCount}/${rows.length} SKU doc duoc gia (status=active), ` +

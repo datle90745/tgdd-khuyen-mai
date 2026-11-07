@@ -2,12 +2,27 @@
   "_doc": [
     "NGUON SO LIEU DUY NHAT cho toan bo cong kiem tra (quality gate).",
     "Truoc day cung mot con so SKU bi viet cung o 5 noi khac nhau (85 / 86 / 94 / 95 / 106)",
-    "nen moi check deu dung >= va mat SKU van PASS. Tu nay MOI nguong deu doc tu file nay.",
-    "Them / bot SKU trong scraper/products.csv thi PHAI sua masterSkuCount o day - do la chu y,",
-    "khong phai tai nan."
+    "nen moi check deu dung >= va mat SKU van PASS. Tu nay MOI nguong deu doc tu file nay."
   ],
 
-  "masterSkuCount": 106,
+  "_twoLists": [
+    "He thong CO Y co HAI danh sach khac nhau - khong duoc ep chung bang nhau:",
+    "",
+    "  crawlSkuCount  = scraper/products.csv = danh sach CAO.",
+    "                   Scraper quet bay nhieu URL; latest.js / scans.js / data/scans/*.json",
+    "                   deu co dung bay nhieu dong. Trang web goi la 'Hien thi 106 / 106 SKU'.",
+    "",
+    "  masterListCount= data/data.js (window.BASE.rows + window.MASTER_ORDER) = danh sach BAO CAO,",
+    "                   la bang tracking da KHOA. No quyet dinh thu tu dong tren bang, sheet Excel",
+    "                   'Lich_Su_Theo_Dot_Quet' va ma tran 4 san. Trang web goi la 'Khoa 94 SKU",
+    "                   Master List'. Chi them bot khi nguoi dung yeu cau.",
+    "",
+    "Rang buoc that giua hai danh sach: products.csv phai PHU HET data.js (moi model duoc bao cao",
+    "thi phai duoc cao), chu KHONG phai bang nhau."
+  ],
+
+  "crawlSkuCount": 106,
+  "masterListCount": 94,
 
   "minActivePct": 90,
 

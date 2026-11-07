@@ -52,7 +52,7 @@ $TodayVN = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId(
 
 Write-Host "=================================================================" -ForegroundColor Cyan
 Write-Host "   BAT DAU KIEM TRA TOAN BO HE THONG THEO AGENT-SKILLS GATES     " -ForegroundColor Cyan
-Write-Host "   Master List: $($GateCfg.masterSkuCount) SKU | Hom nay (VN): $($TodayVN.ToString('yyyy-MM-dd'))" -ForegroundColor Cyan
+Write-Host "   Danh sach cao: $($GateCfg.crawlSkuCount) SKU | Master List bao cao: $($GateCfg.masterListCount) SKU | Hom nay (VN): $($TodayVN.ToString('yyyy-MM-dd'))" -ForegroundColor Cyan
 Write-Host "=================================================================" -ForegroundColor Cyan
 
 # ------------------------------------------------------------------------------
@@ -180,10 +180,10 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         $scansContent -match '"19-Oct"'
     } "scans.js thieu ban ghi dot quet ngay 19-Oct"
 
-    Assert-Check "products.csv phai co DUNG $($GateCfg.masterSkuCount) SKU theo Master List" {
+    Assert-Check "products.csv (danh sach cao) phai co DUNG $($GateCfg.crawlSkuCount) SKU" {
         $csvSku = ((Get-Content "scraper/products.csv") | Where-Object { $_.Trim() }).Count - 1
-        $csvSku -eq $GateCfg.masterSkuCount
-    } "products.csv co $(((Get-Content 'scraper/products.csv') | Where-Object { $_.Trim() }).Count - 1) SKU, Master List quy dinh DUNG $($GateCfg.masterSkuCount) (sua tests/gate-config.json neu day la thay doi co chu y)"
+        $csvSku -eq $GateCfg.crawlSkuCount
+    } "products.csv co $(((Get-Content 'scraper/products.csv') | Where-Object { $_.Trim() }).Count - 1) SKU, danh sach cao quy dinh DUNG $($GateCfg.crawlSkuCount) (sua tests/gate-config.json neu day la thay doi co chu y)"
 
     Assert-Check "scraper/products.csv phai chua model chuan 'A7 Pro 5G 6GB/256GB' va 'A7 Pro 5G 8GB/128GB'" {
         $csvText = Get-Content "scraper/products.csv" -Raw -Encoding UTF8
@@ -408,11 +408,12 @@ if (-not (Test-Path $e2eHtml)) {
             } "Thieu sheet Lich_Su_Theo_Dot_Quet trong Bao_Cao_GTM_Khuyen_Mai"
 
             # Truoc day ten test noi 94, dieu kien kiem >= 95, thong bao loi noi 96.
-            # Gio lay tu mot nguon: masterSkuCount + 1 dong header.
-            Assert-Check "E2E: Sheet Lich_Su_Theo_Dot_Quet phai co $($GateCfg.masterSkuCount) SKU + 1 dong header" {
+            # Gio lay tu mot nguon: masterListCount + 1 dong header.
+            # Sheet nay khoa theo Master List BAO CAO (data.js), khong phai danh sach cao.
+            Assert-Check "E2E: Sheet Lich_Su_Theo_Dot_Quet phai co $($GateCfg.masterListCount) SKU Master List + 1 dong header" {
                 $historySheet = $mainFile.sheetsInfo | Where-Object { $_.name -eq "Lich_Su_Theo_Dot_Quet" }
-                $historySheet.rowCount -eq ($GateCfg.masterSkuCount + 1)
-            } "Sheet Lich_Su_Theo_Dot_Quet co $(($mainFile.sheetsInfo | Where-Object { $_.name -eq 'Lich_Su_Theo_Dot_Quet' }).rowCount) dong, mong doi $($GateCfg.masterSkuCount + 1)"
+                $historySheet.rowCount -eq ($GateCfg.masterListCount + 1)
+            } "Sheet Lich_Su_Theo_Dot_Quet co $(($mainFile.sheetsInfo | Where-Object { $_.name -eq 'Lich_Su_Theo_Dot_Quet' }).rowCount) dong, mong doi $($GateCfg.masterListCount + 1)"
 
             Assert-Check "E2E: Sheet Lich_Su_Theo_Dot_Quet phai chua cot ngay 19-Oct" {
                 $historySheet = $mainFile.sheetsInfo | Where-Object { $_.name -eq "Lich_Su_Theo_Dot_Quet" }
