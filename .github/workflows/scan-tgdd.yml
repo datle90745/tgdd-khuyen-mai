@@ -57,13 +57,17 @@ jobs:
           CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
           ERP_PORTAL_COOKIE: ${{ secrets.ERP_PORTAL_COOKIE }}
         run: xvfb-run -a python scraper/scan_market.py
+      - name: Đóng gói Offline HTML Bundles
+        run: python scraper/bundle.py
+      - name: Kiểm định toàn vẹn dữ liệu (CI Circuit Breaker)
+        run: python tests/verify_scan.py
       - name: Lưu kết quả
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           TAG="sync_$(TZ=Asia/Ho_Chi_Minh date +%Y%m%d_%H%M)"
           sed -i -E "s/\\?v=[^\"]+/?v=$TAG/g" index.html || true
-          for f in data/scans data/scans.js data/latest.js data/links.js data/promos.js data/market.js data/alerts.js data/rises.js data/fpt.js data/market_last.json scraper/products.csv index.html; do
+          for f in data/scans data/scans.js data/latest.js data/links.js data/promos.js data/market.js data/alerts.js data/rises.js data/fpt.js data/market_last.json scraper/products.csv index.html "promotion tgdd.html" "promotion tgdd standalone.html" "promotion tgdd"; do
             if [ -e "$f" ]; then git add "$f"; fi
           done
           if git diff --cached --quiet; then

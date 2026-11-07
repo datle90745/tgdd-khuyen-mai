@@ -276,6 +276,39 @@ def build_result(rrp, red, banner, choice, kind, choice_in_red=True):
             "total_online": total, "choice": choice, "kind": kind, "rule": rule}
 
 
+def enforce_domain_invariants(row):
+    """Bắt buộc toàn bộ dữ liệu phải thỏa mãn Domain Invariants (CONSTRAINTS.md).
+    Tuyệt đối không để rule và pmh mâu thuẫn nhau."""
+    if row.get("status") != "active":
+        row["pmh"] = None
+        return row
+    rrp = row.get("rrp") or 0
+    red = row.get("red") or rrp
+    if red and red % 1000 != 0:
+        red = int(round(red / 1000.0)) * 1000
+        row["red"] = red
+    diff = max(0, rrp - red)
+    choice = row.get("choice") or 0
+    has_banner = bool(row.get("banner"))
+    choice_in_red = row.get("choice_in_red", True)
+    
+    if has_banner:
+        row["rule"] = "flash_chon1"
+        row["kind"] = "moi-banner"
+        row["pmh"] = choice
+    elif diff >= choice:
+        row["rule"] = "den_tru_do"
+        row["kind"] = "moi"
+        row["pmh"] = diff
+    else:
+        row["rule"] = "chon1"
+        row["kind"] = "moi"
+        row["pmh"] = choice
+        
+    row["online"] = diff
+    row["total_online"] = diff + (0 if choice_in_red else choice)
+    return row
+
 def extract_choice(soup, text=""):
     """Bóc tách khoản giảm giá từ mục 'Chọn 1 trong các quà' (nếu có)."""
     raw_html = str(soup)
@@ -762,6 +795,7 @@ def main():
                 result["total_online"] = diff + (0 if result.get("choice_in_red", True) else choice_val)
         row = {"model": product["model"], "url": product["url"],
                "at": datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%m %H:%M"), **result}
+        row = enforce_domain_invariants(row)
         if row["status"] != "active":
             row["pmh"] = None
         rows.append(row)
@@ -782,6 +816,14 @@ def main():
             writer.writerows({"model": p["model"], "url": p["url"]} for p in all_products)
         print("Đã cập nhật link mới: " + "; ".join(f"{m} -> {u}" for m, u in moved.items()), flush=True)
 
+    # Chống trùng lặp tuyệt đối (Zero Duplicate Invariant)
+    unique_rows = []
+    seen_models = set()
+    for r in rows:
+        if r["model"] not in seen_models:
+            unique_rows.append(r)
+            seen_models.add(r["model"])
+    rows = unique_rows
     ok = sum(1 for r in rows if r["status"] == "active")
     if ok < len(products) * 0.5:
         # Đa số trang lỗi (thường do bị chặn IP): không ghi đè dữ liệu.
