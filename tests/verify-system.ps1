@@ -157,6 +157,32 @@ if (Test-Path $scanScript) {
         $cText = Get-Content "CONSTRAINTS.md" -Raw -Encoding UTF8
         ($cText -match 'dtdd#o=3') -and ($cText -match 'Ground Truth')
     } "CONSTRAINTS.md thieu muc 2.6 ve chuan tham chieu Ground Truth dtdd#o=3"
+
+    # Bay cu: `red = row.get("red") or rrp`. Trang loi -> red=0 -> am tham gan red=rrp
+    # -> diff=0 -> PMH boc hoi, ma moi truong con lai van nhat quan nen khong check nao bat duoc.
+    # Neo vao dau DONG LENH that, khong tinh dong comment - ban than comment trong
+    # scan_tgdd.py co nhac lai bay cu de giai thich tai sao no bi bo.
+    Assert-Check "enforce_domain_invariants KHONG duoc suy ra gia do tu RRP khi thieu gia" {
+        $scanContent -notmatch '(?m)^\s*red\s*=\s*row\.get\("red"\)\s*or\s*rrp'
+    } "scan_tgdd.py da quay lai bay suy gia do tu rrp - thieu gia phai ha xuong no_price, khong duoc doan"
+
+    Assert-Check "enforce_domain_invariants phai ha status xuong no_price khi thieu rrp/red" {
+        $scanContent -match 'row\["status"\]\s*=\s*"no_price"'
+    } "enforce_domain_invariants khong con nhanh ha no_price khi khong doc duoc gia"
+
+    Assert-Check "Moi lan hieu chinh gia do phai in log, khong sua ground truth trong im lang" {
+        $scanContent -match '\[INVARIANT\]'
+    } "scan_tgdd.py lam tron / doi gia ma khong in log [INVARIANT]"
+
+    Assert-Check "CONSTRAINTS.md phai mo ta HAI danh sach tach biet va tro ve tests/gate-config.json" {
+        $cText = Get-Content "CONSTRAINTS.md" -Raw -Encoding UTF8
+        ($cText -match 'tests/gate-config\.json') -and ($cText -match 'crawlSkuCount') -and ($cText -match 'masterListCount')
+    } "CONSTRAINTS.md chua mo ta quan he danh sach CAO vs Master List BAO CAO theo gate-config.json"
+
+    Assert-Check "CONSTRAINTS.md tuyet doi khong con viet cung so SKU" {
+        $cText = Get-Content "CONSTRAINTS.md" -Raw -Encoding UTF8
+        $cText -notmatch '\d+\s*SKU\s*Master\s*List' -and $cText -notmatch 'duy tr.{0,3} d.{0,3}\s*\d+\s*SKU'
+    } "CONSTRAINTS.md van viet cung mot con so SKU - moi nguong phai doc tu tests/gate-config.json"
 }
 
 # ------------------------------------------------------------------------------

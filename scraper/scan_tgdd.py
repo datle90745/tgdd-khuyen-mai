@@ -277,16 +277,40 @@ def build_result(rrp, red, banner, choice, kind, choice_in_red=True):
 
 
 def enforce_domain_invariants(row):
-    """Bắt buộc toàn bộ dữ liệu phải thỏa mãn Domain Invariants (CONSTRAINTS.md).
-    Tuyệt đối không để rule và pmh mâu thuẫn nhau."""
+    """Ép dữ liệu thỏa mãn Domain Invariant §2.1 của CONSTRAINTS.md: quan hệ
+    banner cam ⇄ choice ⇄ PMH. Tuyệt đối không để rule và pmh mâu thuẫn nhau.
+
+    Hàm này KHÔNG bịa số để dòng trông hợp lệ. Một dòng "active" mà không đọc
+    được giá là LỖI CÀO, không phải máy không giảm giá — nó bị hạ xuống
+    `no_price` để lộ ra, chứ không được lấp liếm.
+    """
     if row.get("status") != "active":
         row["pmh"] = None
         return row
+
     rrp = row.get("rrp") or 0
-    red = row.get("red") or rrp
-    if red and red % 1000 != 0:
-        red = int(round(red / 1000.0)) * 1000
+    red = row.get("red")
+
+    # Trước đây dòng này là `red = row.get("red") or rrp`. Khi trang lỗi và
+    # red = 0/None, nó âm thầm gán red = rrp -> diff = 0 -> PMH bốc hơi, mà mọi
+    # trường còn lại vẫn nhất quán nên không một check nào báo được. Qua 3.228
+    # dòng active / 32 đợt quét nhánh đó chưa từng chạy, nên thà hỏng to còn hơn đoán.
+    if not rrp or not red:
+        print(f"  [INVARIANT] {row.get('model')}: status=active nhưng rrp={rrp} red={red}. "
+              f"Hạ xuống no_price thay vì suy ra giá.", flush=True)
+        row["status"] = "no_price"
+        row["pmh"] = None
+        return row
+
+    if red % 1000 != 0:
+        # Giá TGDĐ luôn là bội 1000; lẻ nghĩa là bóc sai. Vẫn làm tròn để không vỡ
+        # cả đợt quét, nhưng phải in ra — không sửa ground truth trong im lặng.
+        rounded = int(round(red / 1000.0)) * 1000
+        print(f"  [INVARIANT] {row.get('model')}: red={red} không chia hết 1000, "
+              f"làm tròn thành {rounded}.", flush=True)
+        red = rounded
         row["red"] = red
+
     diff = max(0, rrp - red)
     choice = row.get("choice") or 0
     has_banner = bool(row.get("banner"))
