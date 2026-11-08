@@ -812,17 +812,11 @@ function deltaCell(r){
 }
 function isNewModel(m, r){
   if(r && (r.is_new === true || r.isNew === true)) return true;
-  if(!m) return false;
-  const s = String(m).toLowerCase();
-  return s.includes("a18")
-      || s.includes("a7 pro") || s.includes("a7pro")
-      || s.includes("a08")
-      || s.includes("a07s")
-      || s.includes("v80")
-      || s.includes("c100x")
-      || s.includes("iphone 18")
-      || s.includes("duo")
-      || s.includes("note 17");
+  if(!r && m && typeof window !== "undefined" && window.BASE && Array.isArray(window.BASE.rows)){
+    const found = window.BASE.rows.find(x => x && x.model === m);
+    if(found && (found.is_new === true || found.isNew === true)) return true;
+  }
+  return false;
 }
 function newBadge(m, r){
   return isNewModel(m, r) ? ` <span class="badge new-badge" title="Sản phẩm mới ra mắt">NEW</span>` : "";
