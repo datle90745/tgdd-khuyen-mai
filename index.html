@@ -349,7 +349,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
       <span>Ô trống: chưa có dữ liệu</span>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
-      <span class="badge" style="background:#e0e7ff;color:#3730a3;font-weight:700;padding:4px 10px;border-radius:6px;font-size:12px">Khóa 94 SKU Master List</span>
+      <span class="badge" style="background:#e0e7ff;color:#3730a3;font-weight:700;padding:4px 10px;border-radius:6px;font-size:12px">Khóa 122 SKU Master List</span>
       <button class="btn" id="history-xlsx" style="padding:4px 12px">Xuất Excel tab này</button>
     </div>
   </div>
@@ -394,7 +394,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
   <div class="panel rise-kpi" id="mk-kpi"></div>
   <div id="mk-fake-alerts"></div>
   <div class="sub-nav" style="margin-top:14px">
-    <button class="btn primary" id="mk-tab-h2h">Ma trận đối đầu 4 sàn (94 SKU)</button>
+    <button class="btn primary" id="mk-tab-h2h">Ma trận đối đầu 4 sàn (122 SKU)</button>
     <button class="btn" id="mk-tab-list">Toàn bộ danh sách 4 sàn</button>
   </div>
   
@@ -415,7 +415,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
       <div class="row"><label class="t">Sàn</label><span id="mk-f-r" class="row"></span></div>
       <div class="row"><label class="t">Hãng</label><span id="mk-f-b" class="row"></span></div>
       <div class="row"><label class="t">Loại KM</label><span id="mk-f-k" class="row"></span>
-        <label style="display:flex;gap:6px;align-items:center;color:var(--muted);margin-left:8px"><input type="checkbox" id="mk-focus"> Chỉ máy thuộc 94 SKU</label></div>
+        <label style="display:flex;gap:6px;align-items:center;color:var(--muted);margin-left:8px"><input type="checkbox" id="mk-focus"> Chỉ máy thuộc 122 SKU</label></div>
       <div class="row"><label class="t">Tìm</label><input class="search" id="mk-q" type="search" placeholder="Tên máy, viết tắt: a57, reno 16..." aria-label="Tìm theo tên máy"></div>
     </div>
     <div class="count" id="mk-count"></div>
@@ -856,7 +856,7 @@ function renderMatrix(){
   // Khoa tab Lich su theo dot quet theo dung 94 SKU Master List chuan
   const mList = (Array.isArray(window.MASTER_ORDER) && window.MASTER_ORDER.length)
     ? window.MASTER_ORDER.map(m => S.rows.find(r => r.model === m || canonKey(r.model, r.brand) === canonKey(m))).filter(Boolean)
-    : S.rows.slice(0, 94);
+    : S.rows;
 
   mList.forEach(r=>{
     h+=`<tr data-m="${esc(r.model)}">${bcell(r.brand)}<td class="model">${esc(r.model)}${newBadge(r.model)}</td><td class="num${rrpUp(r)?" rrpup":""}">${fmt(r.rrp)}</td>`;
@@ -944,7 +944,7 @@ function historySheetAoa(){
   const allRows = Array.isArray(S.rows) ? S.rows : [];
   const mList = (Array.isArray(window.MASTER_ORDER) && window.MASTER_ORDER.length)
     ? window.MASTER_ORDER.map(m => allRows.find(r => r && (r.model === m || canonKey(r.model, r.brand) === canonKey(m)))).filter(Boolean)
-    : allRows.slice(0, 94);
+    : allRows;
   const rows = mList.map(r => {
     if(!r) return [];
     const pmh = Array.isArray(r.pmh) ? r.pmh : [];
@@ -1585,7 +1585,7 @@ function renderMarket(){
   const errs=Object.entries(D.cur.report||{}).filter(([,v])=>typeof v!=="number").map(([k])=>k);
   $("mk-sub").textContent=`Đợt quét ${D.cur.date} lúc ${D.cur.at}${D.prev?`, so với đợt ${D.prev.date}`:""}. Giá lấy từ trang danh sách của từng sàn, chỉ 6 hãng đang theo dõi, chỉ để tham khảo.${D.cur.src==="erp"?" Nguồn: file Excel của hệ thống ERP, không phải bộ quét này — cách họ tính khuyến mãi khác quy tắc KM base nên đừng dùng để so sánh.":""}${D.cur.fptLocal?` Riêng FPT Shop lấy từ máy nhà lúc ${D.cur.fptLocal} vì FPT chặn máy chủ.`:""}${errs.length?` Lỗi đợt này: ${errs.join(", ")}.`:""}`;
   $("mk-kpi").innerHTML=MK_RET.map(r=>{ const L=D.rows.filter(x=>x.r===r), withKM=L.filter(x=>x.v>0), avg=withKM.length?withKM.reduce((t,x)=>t+x.pct,0)/withKM.length*100:0;
-    return `<div class="rk"><small><span class="rtl" data-r="${r}">${r}</span></small><b>${L.length} máy</b><span>${withKM.length} máy đang giảm giá, trung bình ${avg.toFixed(1)}%</span><span>${L.filter(x=>x.focus).length} máy thuộc 94 SKU</span></div>`; }).join("");
+    return `<div class="rk"><small><span class="rtl" data-r="${r}">${r}</span></small><b>${L.length} máy</b><span>${withKM.length} máy đang giảm giá, trung bình ${avg.toFixed(1)}%</span><span>${L.filter(x=>x.focus).length} máy thuộc 122 SKU</span></div>`; }).join("");
 
   renderFakePromoAlerts();
   renderMarketH2H();
@@ -2436,7 +2436,7 @@ if($("mk-xlsx")) $("mk-xlsx").onclick=()=>{
   XLSX.utils.book_append_sheet(wb,ws1,"Ma_Tran_Doi_Dau");
 
   // Sheet 2: Danh sách phẳng toàn bộ sản phẩm
-  const aoa=[["Sàn","Hãng","Tên sản phẩm","Loại KM","Giá gốc","Giá online","Giá trị KM","% giảm","So đợt trước","Thuộc 94 SKU","Link"],
+  const aoa=[["Sàn","Hãng","Tên sản phẩm","Loại KM","Giá gốc","Giá online","Giá trị KM","% giảm","So đợt trước","Thuộc 122 SKU","Link"],
     ...L.map(x=>[x.r,x.b,x.n,x.k,x.o,x.p,x.v,Math.round(x.pct*1000)/10,x.dv==null?"":x.dv,x.focus?"Có":"",x.u])];
   const ws2=XLSX.utils.aoa_to_sheet(aoa); ws2["!cols"]=[{wch:13},{wch:9},{wch:42},{wch:16},{wch:12},{wch:12},{wch:12},{wch:8},{wch:12},{wch:8},{wch:50}];
   XLSX.utils.book_append_sheet(wb,ws2,"Toan_Bo_Danh_Sach");

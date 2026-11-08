@@ -136,7 +136,7 @@ function historySheetAoa(){
   const allRows = Array.isArray(S.rows) ? S.rows : [];
   const mList = (Array.isArray(MASTER_ORDER) && MASTER_ORDER.length)
     ? MASTER_ORDER.map(m => allRows.find(r => r && (r.model === m || canonKey(r.model, r.brand) === canonKey(m)))).filter(Boolean)
-    : allRows.slice(0, 94);
+    : allRows;
   const rows = mList.map(r => {
     if(!r) return [];
     const pmh = Array.isArray(r.pmh) ? r.pmh : [];

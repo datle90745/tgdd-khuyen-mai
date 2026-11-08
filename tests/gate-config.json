@@ -4,7 +4,6 @@
     "Truoc day cung mot con so SKU bi viet cung o 5 noi khac nhau (85 / 86 / 94 / 95 / 106)",
     "nen moi check deu dung >= va mat SKU van PASS. Tu nay MOI nguong deu doc tu file nay."
   ],
-
   "_twoLists": [
     "He thong CO Y co HAI danh sach khac nhau - khong duoc ep chung bang nhau:",
     "",
@@ -20,16 +19,15 @@
     "Rang buoc that giua hai danh sach: products.csv phai PHU HET data.js (moi model duoc bao cao",
     "thi phai duoc cao), chu KHONG phai bang nhau."
   ],
-
-  "crawlSkuCount": 106,
-  "masterListCount": 94,
-
+  "crawlSkuCount": 134,
+  "masterListCount": 122,
   "minActivePct": 90,
-
   "timezone": "Asia/Ho_Chi_Minh",
-
-  "allowedRules": ["flash_chon1", "den_tru_do", "chon1"],
-
+  "allowedRules": [
+    "flash_chon1",
+    "den_tru_do",
+    "chon1"
+  ],
   "_kindNote": [
     "CO Y KHONG gate truong `kind`. `kind` la NGUON DU LIEU, khong phai quy tac PMH:",
     "  banner / thuong  -> boc tu trang chi tiet (PDP)",
@@ -38,15 +36,19 @@
     "CONSTRAINTS.md khong he rang buoc `kind`. Rang buoc duy nhat o muc 2.1 la quan he",
     "giua banner cam, choice va PMH - do la thu phai gate, va no nam o `rule` + `pmh`."
   ],
-
   "requireScanToday": true,
-
   "scansJsRetention": 30,
-
   "nestedCopyPath": "promotion tgdd",
-
   "excelSheets": {
-    "main": ["KM_Chi_Tiet_TGDD", "Lich_Su_Theo_Dot_Quet", "Ma_Tran_4_San"],
-    "market": ["Ma_Tran_Doi_Dau", "Toan_Bo_Danh_Sach", "Lich_Su_Theo_Dot_Quet"]
+    "main": [
+      "KM_Chi_Tiet_TGDD",
+      "Lich_Su_Theo_Dot_Quet",
+      "Ma_Tran_4_San"
+    ],
+    "market": [
+      "Ma_Tran_Doi_Dau",
+      "Toan_Bo_Danh_Sach",
+      "Lich_Su_Theo_Dot_Quet"
+    ]
   }
 }
