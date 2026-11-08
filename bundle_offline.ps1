@@ -50,3 +50,14 @@ $subXlsx = Join-Path $root "promotion tgdd\xlsx.full.min.js"
 if (Test-Path $xlsxPath) {
     Copy-Item -Path $xlsxPath -Destination $subXlsx -Force
 }
+
+# Sync data/*.js to promotion tgdd/data/ so nested copy is never stale
+$subData = Join-Path $root "promotion tgdd\data"
+if (!(Test-Path $subData)) { New-Item -ItemType Directory -Path $subData | Out-Null }
+foreach ($f in $dataFiles) {
+    $p = Join-Path $root ("data\" + $f)
+    if (Test-Path $p) {
+        Copy-Item -Path $p -Destination (Join-Path $subData $f) -Force
+    }
+}
+Write-Host "Synced data files to: $subData"

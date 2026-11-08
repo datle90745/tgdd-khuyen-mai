@@ -282,6 +282,21 @@ if (scanData) {
     if (typeof r.online === 'number' && r.online !== diff) {
       fail(`${model}: online=${r.online} != diff=${diff}`);
     }
+
+    // --- CONSTRAINTS 2.1: Banner cam phai di cung flash_chon1 ---
+    if (r.banner === true && rule !== 'flash_chon1') {
+      fail(`${model}: vi pham 2.1 - row co banner=true nhung rule="${rule}" khong phai "flash_chon1"`);
+    }
+    if (rule === 'flash_chon1' && choice === 0 && pmh !== 0) {
+      fail(`${model}: vi pham 2.1.2 - rule=flash_chon1 voi choice=0 bat buoc pmh=0, nhung pmh=${pmh}`);
+    }
+
+    // --- So lieu phai la so hop le, khong duoc chua NaN hoac null ---
+    for (const f of ['rrp', 'red', 'pmh', 'online', 'total_online', 'choice']) {
+      if (typeof r[f] !== 'number' || isNaN(r[f])) {
+        fail(`${model}: truong ${f} khong phai so hop le (${r[f]})`);
+      }
+    }
   });
 
   // Ban cu chi dem len(rows) >= 90, ma rows gom ca dong loi. Day moi la nguong that.

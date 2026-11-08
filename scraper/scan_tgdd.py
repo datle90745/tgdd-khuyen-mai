@@ -17,6 +17,7 @@ Không đoán số: trang lỗi/không đọc được giá thì để trống (
 import argparse
 import csv
 import json
+import math
 import os
 import re
 import sys
@@ -322,16 +323,19 @@ def enforce_domain_invariants(row):
         if row.get("kind") not in ("banner", "brand_tab"):
             row["kind"] = "moi-banner"
         row["pmh"] = choice
+        row["banner"] = True
     elif diff >= choice:
         row["rule"] = "den_tru_do"
         if row.get("kind") not in ("banner", "brand_tab"):
             row["kind"] = "moi"
         row["pmh"] = diff
+        row["banner"] = False
     else:
         row["rule"] = "chon1"
         if row.get("kind") not in ("banner", "brand_tab"):
             row["kind"] = "moi"
         row["pmh"] = choice
+        row["banner"] = False
         
     row["online"] = diff
     row["total_online"] = diff + (0 if choice_in_red else choice)
@@ -663,7 +667,7 @@ def write_promos_js(rows):
 
 def write_scans_js(today=None):
     """Chỉ đưa các đợt quét của thứ Hai và thứ Sáu đã hoàn tất trước hôm nay lên web để so sánh."""
-    keys = ("model", "rrp", "pmh", "status", "online", "total_online", "choice", "kind", "rule")
+    keys = ("model", "rrp", "pmh", "status", "online", "total_online", "choice", "kind", "rule", "banner")
     scans = []
     for path in sorted(SCAN_DIR.glob("scan_*.json")):
         try:
@@ -687,7 +691,7 @@ def write_latest_js(scan):
     """Đợt quét mới nhất, quét ngày nào cũng ghi, để web có cột "hôm nay" và các cột tham khảo.
     Trùng ngày với một cột đã lưu (thứ Hai/thứ Sáu) thì web ghi đè chính cột đó, không thêm cột mới."""
     keys = ("model", "rrp", "red", "pmh", "status", "online", "total_online",
-            "choice", "kind", "rule")
+            "choice", "kind", "rule", "banner")
     latest = {"date": scan["date"], "rows": [
         {k: r[k] for k in keys if k in r} for r in scan["rows"]]}
     LATEST_JS.write_text(
@@ -857,9 +861,17 @@ def main():
             seen_models.add(r["model"])
     rows = unique_rows
     ok = sum(1 for r in rows if r["status"] == "active")
-    if ok < len(products) * 0.5:
-        # Đa số trang lỗi (thường do bị chặn IP): không ghi đè dữ liệu.
-        sys.exit(f"ERROR: chỉ đọc được {ok}/{len(products)} trang, không lưu đợt quét này.")
+    # Ngưỡng active đọc từ tests/gate-config.json (chuẩn 90%), tuyệt đối không dùng 50% làm lọt lỗi
+    min_active_pct = 90
+    gate_cfg_path = ROOT / "tests" / "gate-config.json"
+    if gate_cfg_path.exists():
+        try:
+            min_active_pct = json.loads(gate_cfg_path.read_text(encoding="utf-8")).get("minActivePct", 90)
+        except Exception:
+            pass
+    min_active_count = math.ceil(len(products) * (min_active_pct / 100.0))
+    if ok < min_active_count:
+        sys.exit(f"ERROR: chỉ đọc được {ok}/{len(products)} trang active (yêu cầu tối thiểu {min_active_count} = {min_active_pct}%), không lưu đợt quét này.")
 
     # Dò giá đen tăng so với đợt quét gần nhất trước hôm nay.
     today = now.date().isoformat()

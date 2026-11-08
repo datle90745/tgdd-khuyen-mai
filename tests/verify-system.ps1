@@ -144,10 +144,33 @@ if (Test-Path $scanScript) {
         $scanContent -match 'result\.get\("rule"\)\s*!=\s*"flash_chon1"'
     } "Fallback _CATALOG_ITEMS ghi de nham may Flash Sale"
 
-    Assert-Check "Du lieu dot quet hom nay phai chua model A6x 4GB/128GB voi rule flash_chon1 va PMH 0" {
-        $latestText = Get-Content "data/latest.js" -Raw -Encoding UTF8
-        $latestText -match '"model":\s*"A6x 4GB/128GB"[^\}]*"pmh":\s*0[^\}]*"rule":\s*"flash_chon1"'
-    } "A6x 4GB/128GB trong data/latest.js phai co rule flash_chon1 va PMH 0"
+    Assert-Check "Du lieu dot quet hom nay: moi may co Flash Sale (flash_chon1) phai co PMH bang choice va banner=true" {
+        $jsonText = (Get-Content "data/latest.js" -Raw -Encoding UTF8) -replace '^/\*.*?\*/\s*window\.LATEST\s*=\s*', '' -replace ';?\s*$', ''
+        $latest = $jsonText | ConvertFrom-Json
+        $flashRows = $latest.rows | Where-Object { $_.rule -eq "flash_chon1" }
+        if ($flashRows.Count -eq 0) { return $false }
+        foreach ($r in $flashRows) {
+            $exp = if ($r.choice -ne $null) { $r.choice } else { 0 }
+            if ($r.pmh -ne $exp) { return $false }
+            if ($r.choice -eq 0 -and $r.pmh -ne 0) { return $false }
+        }
+        return $true
+    } "Phat hien model flash_chon1 co PMH lech choice hoac toan bo Flash Sale bi nuot ve 0 may"
+
+    Assert-Check "Scraper scan_tgdd.py phai dung nguong minActivePct thay vi 50%" {
+        $scanContent -match 'min_active_pct' -and $scanContent -notmatch 'ok\s*<\s*len\(products\)\s*\*\s*0\.5'
+    } "Scraper scan_tgdd.py van con dung nguong 50% lam lot loi"
+
+    Assert-Check "write_scans_js va write_latest_js phai luu truong banner" {
+        $scanContent -match 'keys\s*=\s*\([^)]*"banner"[^)]*\)'
+    } "write_scans_js hoac write_latest_js thieu truong banner"
+
+    Assert-Check "Cac file dong goi offline (promotion tgdd) phai dong bo du lieu day du va tren 1MB" {
+        $f1 = "promotion tgdd.html"
+        $f2 = "promotion tgdd standalone.html"
+        $f3 = "promotion tgdd/promotion tgdd.html"
+        (Test-Path $f1) -and (Test-Path $f2) -and (Test-Path $f3) -and ((Get-Item $f1).Length -gt 1MB) -and ((Get-Item $f2).Length -gt 1MB) -and ((Get-Item $f3).Length -gt 1MB)
+    } "File offline dong goi bi thieu hoac dung luong qua nho"
 
     Assert-Check "Quy tac PMH khi co Banner Cam: PMH = choice (flash_chon1)" {
         $scanContent -match 'pmh,\s*rule\s*=\s*choice,\s*"flash_chon1"'

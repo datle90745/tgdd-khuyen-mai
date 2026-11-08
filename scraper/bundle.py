@@ -66,6 +66,15 @@ def bundle():
     if XLSX_JS.exists():
         (PROMO_DIR / "xlsx.full.min.js").write_bytes(XLSX_JS.read_bytes())
 
+    # 5. Đồng bộ toàn bộ data/*.js vào promotion tgdd/data/ để bản sao không bao giờ bị cũ
+    sub_data = PROMO_DIR / "data"
+    sub_data.mkdir(parents=True, exist_ok=True)
+    for df in DATA_FILES:
+        p = ROOT / "data" / df
+        if p.exists():
+            (sub_data / df).write_text(p.read_text(encoding="utf-8"), encoding="utf-8")
+    print(f"Đã đồng bộ dữ liệu vào: {sub_data.relative_to(ROOT)}")
+
     print("Đóng gói offline hoàn tất 100%!")
 
 
