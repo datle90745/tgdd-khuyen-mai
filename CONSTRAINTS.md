@@ -109,6 +109,17 @@ Hệ thống **cố ý** có hai danh sách khác nhau. Nhầm lẫn giữa chú
   - Hằng ngày sau khi hoàn thành đợt quét, scraper và bot tự động phải thực hiện bước kiểm tra nhanh `fast_check_o3()` đối chiếu qua trang `#o=3` để log đối soát Ground Truth.
   - Tuyệt đối không phán đoán hay dùng số liệu cũ khi có nghi vấn về giá và khuyến mãi của các model mới.
 
+### 2.7. Chốt Chặn Cuối Cùng (Ultimate Ground Truth Fallback) Qua Danh Mục Thương Hiệu TGDĐ
+- **Đường dẫn chuẩn tham chiếu:** [https://www.thegioididong.com/dtdd](https://www.thegioididong.com/dtdd) và các tab thương hiệu tương ứng (`/dtdd-samsung`, `/dtdd-apple-iphone`, `/dtdd-oppo`, `/dtdd-xiaomi`, `/dtdd-vivo`, `/dtdd-realme`, `/dtdd-honor`).
+- **Nguyên tắc vận hành khi có nghi vấn hoặc trang chi tiết (PDP) gặp sự cố:**
+  - Trên `https://www.thegioididong.com/dtdd`, có khung lọc riêng cho từng thương hiệu (brand filter).
+  - Khi bấm vào từng brand, trang sẽ hiển thị danh sách các card sản phẩm của brand đó kèm các nút pill biến thể (SKU: RAM/ROM).
+  - Bấm vào từng nút pill SKU sẽ dẫn đến đúng trang của SKU đó, đem lại câu trả lời chuẩn xác nhất theo thời gian thực (live ground truth).
+  - Áp dụng độc lập cho từng model khi cần xác minh, tuyệt đối không bịa đặt, không hardcode giá tĩnh trong mã nguồn, và không mượn lại dữ liệu cũ từ các đợt quét trước.
+- **Tính chất động của Flash Sale:**
+  - Flash Sale trên TGDĐ thay đổi liên tục theo khung giờ (suất có hạn, đồng hồ đếm ngược). Mỗi đợt quét phải kiểm tra DOM độc lập tại thời điểm quét.
+  - Không bao giờ mặc định một model có Flash Sale hoặc mang Flash Sale từ đợt này sang đợt khác. Không ép buộc số lượng máy Flash Sale phải lớn hơn 0 trong các test gate nếu thời điểm đó TGDĐ thực tế không chạy Flash Sale.
+
 ---
 
 ## 3. Bảng Kiểm Tra & Công Cụ Đo Lường

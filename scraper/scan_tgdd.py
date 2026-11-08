@@ -93,23 +93,73 @@ BRAND_HUBS = [
 ]
 
 _CATALOG = None
-_CATALOG_ITEMS = {
-    "vivo-v80-lite-5g-6gb-256gb": {"red": 13990000, "rrp": 14990000},
-    "vivo-v80-lite-5g-6gb-128gb": {"red": 12030000, "rrp": 12990000},
-    "oppo-a7-pro-5g-6gb-256gb": {"red": 13990000, "rrp": 14490000},
-    "oppo-a7-pro-5g-8gb-128gb": {"red": 11870000, "rrp": 13490000},
-    "oppo-a7-pro-5g-8gb-256gb": {"red": 14680000, "rrp": 15490000},
-    "samsung-galaxy-a18-8gb-128gb": {"red": 7890000, "rrp": 8490000},
-    "samsung-galaxy-a18-6gb-128gb": {"red": 6890000, "rrp": 7190000},
-    "samsung-galaxy-a18-4gb-128gb": {"red": 6140000, "rrp": 6590000},
-    "xiaomi-redmi-a7-pro": {"red": 3800000, "rrp": 4490000},
-    "xiaomi-redmi-a7-pro-4gb-128gb": {"red": 4090000, "rrp": 4990000},
-    "realme-16t-5g-8gb-128gb": {"red": 9750000, "rrp": 11990000},
-    "realme-16t-5g-8gb-256gb": {"red": 11390000, "rrp": 12990000},
-    "realme-c01-4gb-64gb": {"red": 5490000, "rrp": 5990000},
-    "samsung-galaxy-a08-4gb-128gb": {"red": 4690000, "rrp": 5590000},
-    "samsung-galaxy-a08-4gb-64gb": {"red": 4240000, "rrp": 4790000},
-}
+_CATALOG_ITEMS = {}
+
+
+def get_brand_from_slug(slug):
+    """Xác định thương hiệu từ slug sản phẩm để tra cứu đúng tab brand trên TGDĐ."""
+    s = slug.lower()
+    if any(k in s for k in ("iphone", "apple")):
+        return "apple-iphone"
+    if any(k in s for k in ("samsung", "galaxy")):
+        return "samsung"
+    if any(k in s for k in ("oppo", "reno", "find")):
+        return "oppo"
+    if any(k in s for k in ("xiaomi", "redmi", "poco")):
+        return "xiaomi"
+    if "vivo" in s:
+        return "vivo"
+    if "realme" in s:
+        return "realme"
+    if "honor" in s:
+        return "honor"
+    return ""
+
+
+def fetch_model_from_brand_hub(slug):
+    """Chốt chặn cuối cùng theo khuyến nghị: Tra cứu trực tiếp từ tab thương hiệu trên TGDĐ
+    (https://www.thegioididong.com/dtdd-<brand> hoặc /dtdd).
+    Bóc tách trực tiếp card sản phẩm và các nút pill SKU để lấy giá thực tế trực tiếp,
+    không dùng số hardcode và không mượn dữ liệu cũ.
+    """
+    global _CATALOG_ITEMS
+    b = get_brand_from_slug(slug)
+    hub_url = f"https://www.thegioididong.com/dtdd-{b}" if b else "https://www.thegioididong.com/dtdd"
+    try:
+        resp = http_get(hub_url)
+        if resp.status_code != 200:
+            return None
+        html = resp.text
+        parts = html.split('<div data-product-code="')
+        for p in parts[1:]:
+            link_m = re.search(r'href="(/dtdd/[^"?#]+)"', p)
+            if not link_m:
+                continue
+            main_slug = link_m.group(1).split("?")[0].strip("/").replace("dtdd/", "")
+            price_m = re.search(r'<a[^>]*class="[^"]*text-red-7[^"]*"[^>]*><span>([0-9.,]+)[^<]*</span>', p)
+            del_m = re.search(r'<del[^>]*>([0-9.,]+)[^<]*</del>', p)
+            red = round(money(price_m.group(1)) / 1000.0) * 1000 if price_m else 0
+            orig = round(money(del_m.group(1)) / 1000.0) * 1000 if del_m else red
+            if red > 0:
+                _CATALOG_ITEMS[main_slug] = {"red": red, "rrp": orig}
+            for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
+                vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
+                if vslug == slug and main_slug != slug:
+                    # Target slug là một pill SKU: thử cào thẳng URL SKU đó
+                    try:
+                        v_res = scan_one(f"https://www.thegioididong.com/dtdd/{vslug}", attempts=2, allow_retry_slug=False)
+                        if v_res.get("status") == "active":
+                            return v_res
+                    except Exception:
+                        pass
+        if slug in _CATALOG_ITEMS and _CATALOG_ITEMS[slug]["red"] > 0:
+            c = _CATALOG_ITEMS[slug]
+            cat_res = build_result(c["rrp"], c["red"], False, 0, "brand_tab")
+            cat_res["subs"] = ["Trả chậm 0% trả trước 0đ", "Quà 40.000₫"]
+            return cat_res
+    except Exception as e:
+        print(f"  [BRAND_HUB] Lỗi quét chốt chặn {hub_url}: {e}", flush=True)
+    return None
 
 
 def catalog():
@@ -315,7 +365,7 @@ def enforce_domain_invariants(row):
 
     diff = max(0, rrp - red)
     choice = row.get("choice") or 0
-    has_banner = bool(row.get("banner") or row.get("rule") == "flash_chon1" or row.get("kind") in ("moi-banner", "banner"))
+    has_banner = bool(row.get("banner") or row.get("rule") == "flash_chon1")
     choice_in_red = row.get("choice_in_red", True)
     
     if has_banner:
@@ -562,23 +612,12 @@ def scan_one(url, attempts=3, allow_retry_slug=True):
                 retry_res = retry_other_slug(url, result, allow_retry_slug)
                 if retry_res.get("status") == "active":
                     return retry_res
-                # Fallback: kiểm tra giá trong _CATALOG_ITEMS (lấy từ các trang brand hub / FilterProductBox)
+                # Chốt chặn cuối cùng: Tra cứu trực tiếp từ tab thương hiệu trên TGDĐ (dtdd-<brand>)
                 slug = url.rstrip("/").rsplit("/", 1)[-1].split("?")[0]
-                if slug in _CATALOG_ITEMS and _CATALOG_ITEMS[slug]["red"] > 0:
-                    c = _CATALOG_ITEMS[slug]
-                    cat_res = build_result(c["rrp"], c["red"], False, 0, "brand_tab")
-                    cat_res["subs"] = ["Trả chậm 0% trả trước 0đ", "Quà 40.000₫"]
-                    return cat_res
-                # Nếu trang tạm thời lỗi hoặc chặn, không ghi đè số active đã có bằng no_price
-                today_path = SCAN_DIR / f"scan_{datetime.now(ZoneInfo('Asia/Ho_Chi_Minh')).date().isoformat()}.json"
-                if today_path.exists():
-                    try:
-                        ex_scan = json.loads(today_path.read_text(encoding="utf-8-sig"))
-                        for er in ex_scan.get("rows", []):
-                            if er.get("url") == url and er.get("status") == "active":
-                                return er
-                    except Exception:
-                        pass
+                hub_res = fetch_model_from_brand_hub(slug)
+                if hub_res and hub_res.get("status") == "active":
+                    print(f"  [BRAND_HUB_FALLBACK] {slug}: Lấy thành công giá trực tiếp từ tab brand TGDĐ.", flush=True)
+                    return hub_res
                 return retry_res
             if result.get("status") == "active":
                 slug = url.rstrip("/").rsplit("/", 1)[-1].split("?")[0]

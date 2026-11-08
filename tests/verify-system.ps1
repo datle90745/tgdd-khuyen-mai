@@ -1,4 +1,4 @@
-﻿# ==============================================================================
+# ==============================================================================
 # HỆ THỐNG KIỂM TRA TOÀN VẸN VÀ RÀNG BUỘC (CONSTRAINTS VERIFICATION SUITE)
 # Tuân thủ phương pháp Test-Driven & Constraint-Driven Development (Addy Osmani)
 # ==============================================================================
@@ -148,14 +148,23 @@ if (Test-Path $scanScript) {
         $jsonText = (Get-Content "data/latest.js" -Raw -Encoding UTF8) -replace '^/\*.*?\*/\s*window\.LATEST\s*=\s*', '' -replace ';?\s*$', ''
         $latest = $jsonText | ConvertFrom-Json
         $flashRows = $latest.rows | Where-Object { $_.rule -eq "flash_chon1" }
-        if ($flashRows.Count -eq 0) { return $false }
+        if ($flashRows.Count -eq 0) { return $true }
         foreach ($r in $flashRows) {
             $exp = if ($r.choice -ne $null) { $r.choice } else { 0 }
             if ($r.pmh -ne $exp) { return $false }
             if ($r.choice -eq 0 -and $r.pmh -ne 0) { return $false }
+            if ($r.banner -ne $true) { return $false }
         }
         return $true
-    } "Phat hien model flash_chon1 co PMH lech choice hoac toan bo Flash Sale bi nuot ve 0 may"
+    } "Phat hien model flash_chon1 co PMH lech choice hoac thieu banner=true"
+
+    Assert-Check "Scraper scan_tgdd.py khong duoc chua gia hardcode trong _CATALOG_ITEMS" {
+        $scanContent -match '_CATALOG_ITEMS\s*=\s*\{\}'
+    } "Scraper scan_tgdd.py van con gia hardcode trong _CATALOG_ITEMS gay nguy co phuc hoi gia cu"
+
+    Assert-Check "Scraper scan_tgdd.py phai co ham fetch_model_from_brand_hub lam chot chan cuoi cung" {
+        $scanContent -match 'def fetch_model_from_brand_hub\('
+    } "Scraper scan_tgdd.py thieu ham fetch_model_from_brand_hub quet live tab brand TGDĐ"
 
     Assert-Check "Scraper scan_tgdd.py phai dung nguong minActivePct thay vi 50%" {
         $scanContent -match 'min_active_pct' -and $scanContent -notmatch 'ok\s*<\s*len\(products\)\s*\*\s*0\.5'
@@ -197,6 +206,11 @@ if (Test-Path $scanScript) {
         $cText = Get-Content "CONSTRAINTS.md" -Raw -Encoding UTF8
         ($cText -match 'dtdd#o=3') -and ($cText -match 'Ground Truth')
     } "CONSTRAINTS.md thieu muc 2.6 ve chuan tham chieu Ground Truth dtdd#o=3"
+
+    Assert-Check "CONSTRAINTS.md phai quy dinh chot chan cuoi cung tab brand TGDD o muc 2.7" {
+        $cText = Get-Content "CONSTRAINTS.md" -Raw -Encoding UTF8
+        ($cText -match '2.7.') -and ($cText -match '/dtdd') -and ($cText -match 'SKU')
+    } "CONSTRAINTS.md thieu muc 2.7 ve chot chan cuoi cung tab brand TGDD"
 
     # Bay cu: `red = row.get("red") or rrp`. Trang loi -> red=0 -> am tham gan red=rrp
     # -> diff=0 -> PMH boc hoi, ma moi truong con lai van nhat quan nen khong check nao bat duoc.
