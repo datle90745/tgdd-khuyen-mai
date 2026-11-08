@@ -132,6 +132,23 @@ if (Test-Path $scanScript) {
         $scanContent -match 'banner\s*=\s*bool\(has_banner_cam\s+and\s+has_flash_kw\)'
     } "Dieu kien banner flash sale phai ket hop ca Banner Cam va Tu khoa Flash Sale"
 
+    Assert-Check "build_result phai tra ve truong banner va choice_in_red" {
+        $scanContent -match '"banner":\s*bool\(banner\)' -and $scanContent -match '"choice_in_red":\s*choice_in_red'
+    } "build_result thieu truong banner hoac choice_in_red"
+
+    Assert-Check "enforce_domain_invariants phai giu nguyen Flash Sale khi co banner hoac rule flash_chon1" {
+        $scanContent -match 'has_banner\s*=\s*bool\(row\.get\("banner"\)\s+or\s+row\.get\("rule"\)\s*==\s*"flash_chon1"'
+    } "enforce_domain_invariants khong kiem tra rule flash_chon1 hoac banner"
+
+    Assert-Check "Fallback _CATALOG_ITEMS khong duoc ghi de may dang co Flash Sale" {
+        $scanContent -match 'result\.get\("rule"\)\s*!=\s*"flash_chon1"'
+    } "Fallback _CATALOG_ITEMS ghi de nham may Flash Sale"
+
+    Assert-Check "Du lieu dot quet hom nay phai chua model A6x 4GB/128GB voi rule flash_chon1 va PMH 0" {
+        $latestText = Get-Content "data/latest.js" -Raw -Encoding UTF8
+        $latestText -match '"model":\s*"A6x 4GB/128GB"[^\}]*"pmh":\s*0[^\}]*"rule":\s*"flash_chon1"'
+    } "A6x 4GB/128GB trong data/latest.js phai co rule flash_chon1 va PMH 0"
+
     Assert-Check "Quy tac PMH khi co Banner Cam: PMH = choice (flash_chon1)" {
         $scanContent -match 'pmh,\s*rule\s*=\s*choice,\s*"flash_chon1"'
     } "Thieu quy tac PMH = choice khi co banner cam"

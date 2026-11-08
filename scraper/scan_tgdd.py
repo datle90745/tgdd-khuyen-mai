@@ -60,7 +60,7 @@ DISCONTINUED_RE = re.compile(r"ngừng kinh doanh|ngưng kinh doanh", re.I)
 # Từ khóa nội dung của Flash sale: "Ưu đãi ONLINE", "Kết thúc sau", "Online Giá Rẻ Quá", "Còn x/y suất", "Flash sale"
 FLASH_KEYWORDS_RE = re.compile(
     r"Ưu đãi ONLINE|Kết thúc sau|Online Giá Rẻ Quá"
-    r""
+    r"|flash\s*sale|flashsale"
     r"|bg-fs-detail|bg-stock-quantity"
     r"|Còn\s*(?:<!--.*?-->|\s)*\d+\s*(?:<!--.*?-->|\s)*/\s*(?:<!--.*?-->|\s)*\d+\s*(?:<!--.*?-->|\s)*suất"
     r"|Còn\s*\d+\s*/\s*\d+\s*suất"
@@ -273,7 +273,8 @@ def build_result(rrp, red, banner, choice, kind, choice_in_red=True):
     # Tổng khuyến mãi online khách thấy trên trang (gồm cả flash sale), chỉ để tham khảo.
     total = diff + (0 if choice_in_red else choice)
     return {"status": "active", "rrp": rrp, "red": red, "pmh": pmh, "online": diff,
-            "total_online": total, "choice": choice, "kind": kind, "rule": rule}
+            "total_online": total, "choice": choice, "kind": kind, "rule": rule,
+            "banner": bool(banner), "choice_in_red": choice_in_red}
 
 
 def enforce_domain_invariants(row):
@@ -313,20 +314,23 @@ def enforce_domain_invariants(row):
 
     diff = max(0, rrp - red)
     choice = row.get("choice") or 0
-    has_banner = bool(row.get("banner"))
+    has_banner = bool(row.get("banner") or row.get("rule") == "flash_chon1" or row.get("kind") in ("moi-banner", "banner"))
     choice_in_red = row.get("choice_in_red", True)
     
     if has_banner:
         row["rule"] = "flash_chon1"
-        row["kind"] = "moi-banner"
+        if row.get("kind") not in ("banner", "brand_tab"):
+            row["kind"] = "moi-banner"
         row["pmh"] = choice
     elif diff >= choice:
         row["rule"] = "den_tru_do"
-        row["kind"] = "moi"
+        if row.get("kind") not in ("banner", "brand_tab"):
+            row["kind"] = "moi"
         row["pmh"] = diff
     else:
         row["rule"] = "chon1"
-        row["kind"] = "moi"
+        if row.get("kind") not in ("banner", "brand_tab"):
+            row["kind"] = "moi"
         row["pmh"] = choice
         
     row["online"] = diff
@@ -576,7 +580,11 @@ def scan_one(url, attempts=3, allow_retry_slug=True):
                 slug = url.rstrip("/").rsplit("/", 1)[-1].split("?")[0]
                 if slug in _CATALOG_ITEMS and _CATALOG_ITEMS[slug]["red"] > 0:
                     c = _CATALOG_ITEMS[slug]
-                    if c["rrp"] > c["red"] and result.get("pmh", 0) == 0:
+                    # Chi fallback danh muc khi PDP khong doc duoc PMH va khong phai Flash Sale
+                    if (c["rrp"] > c["red"] and result.get("pmh", 0) == 0
+                            and result.get("rule") != "flash_chon1"
+                            and not result.get("banner")
+                            and result.get("kind") not in ("moi-banner", "banner")):
                         cat_res = build_result(c["rrp"], c["red"], False, 0, "brand_tab")
                         cat_res["subs"] = extract_promos(resp.text) or ["Trả chậm 0% trả trước 0đ"]
                         return cat_res
