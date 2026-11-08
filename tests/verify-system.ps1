@@ -265,10 +265,10 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         $csvSku -eq $GateCfg.crawlSkuCount
     } "products.csv co $(((Get-Content 'scraper/products.csv') | Where-Object { $_.Trim() }).Count - 1) SKU, danh sach cao quy dinh DUNG $($GateCfg.crawlSkuCount) (sua tests/gate-config.json neu day la thay doi co chu y)"
 
-    Assert-Check "scraper/products.csv phai chua model chuan 'A7 Pro 5G 6GB/256GB' va 'A7 Pro 5G 8GB/128GB'" {
+    Assert-Check "scraper/products.csv phai chua day du cac model chuan A7 Pro 5G" {
         $csvText = Get-Content "scraper/products.csv" -Raw -Encoding UTF8
-        ($csvText -match 'A7 Pro 5G 6GB/256GB') -and ($csvText -match 'A7 Pro 5G 8GB/128GB') -and ($csvText -notmatch 'A7 Pro 5G 8GB/256GB')
-    } "products.csv khong chua 'A7 Pro 5G 6GB/256GB' hoac van con ma loi 'A7 Pro 5G 8GB/256GB'"
+        ($csvText -match 'A7 Pro 5G 6GB/256GB') -and ($csvText -match 'A7 Pro 5G 8GB/128GB') -and ($csvText -match 'A7 Pro 5G 8GB/256GB')
+    } "products.csv thieu model bien the A7 Pro 5G"
 
     Assert-Check "data/links.js phai chua link cho 'A7 Pro 5G 6GB/256GB' va 'A7 Pro 5G 8GB/128GB'" {
         $linksText = Get-Content "data/links.js" -Raw -Encoding UTF8

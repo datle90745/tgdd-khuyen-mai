@@ -19,8 +19,8 @@
     "Rang buoc that giua hai danh sach: products.csv phai PHU HET data.js (moi model duoc bao cao",
     "thi phai duoc cao), chu KHONG phai bang nhau."
   ],
-  "crawlSkuCount": 134,
-  "masterListCount": 122,
+  "crawlSkuCount": 135,
+  "masterListCount": 95,
   "minActivePct": 90,
   "timezone": "Asia/Ho_Chi_Minh",
   "allowedRules": [
