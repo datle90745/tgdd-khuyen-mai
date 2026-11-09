@@ -278,6 +278,22 @@ if (Test-Path $scanScript) {
         ($cb -cmatch 'known-frozen-status')
     } "tests/verify_scan.js mat chot trang thai dong bang - day la thu duy nhat bat duoc dong non-active bi ghim cung gia tri qua nhieu dot"
 
+    # Dev chay tren Windows khong co Python nen khong bien dich duoc scraper truoc khi day len.
+    # Workflow verify-python.yml la CHO DUY NHAT scan_tgdd.py thuc su duoc Python doc.
+    # Neu no bi xoa thi loi cu phap se chi lo ra luc dot quet 09:00 chay - mat tron mot ngay du lieu.
+    Assert-Check "Phai con workflow bien dich Python that (verify-python.yml)" {
+        $p = ".github/workflows/verify-python.yml"
+        if (-not (Test-Path $p)) { return $false }
+        $w = Get-Content $p -Raw -Encoding UTF8
+        ($w -cmatch 'compileall') -and ($w -cmatch 'ast\.parse') -and
+        ($w -cmatch 'setup-python') -and ($w -match "paths:") -and ($w -cmatch '\*\*\.py')
+    } "Mat .github/workflows/verify-python.yml - day la cho duy nhat scraper/*.py duoc Python that bien dich truoc khi dot quet chay"
+
+    Assert-Check "Workflow Python phai con chot AST cam ep cung theo ten model" {
+        $w = Get-Content ".github/workflows/verify-python.yml" -Raw -Encoding UTF8
+        ($w -cmatch 'ast\.Compare') -and ($w -cmatch 'ast\.In') -and ($w -cmatch 'CONSTRAINTS 2\.9')
+    } "verify-python.yml mat chot AST cam khoi `if product[""model""] in (...)` - chot regex trong PowerShell co the lach bang xuong dong, chot AST thi khong"
+
     Assert-Check "File xac nhan trang thai dong bang phai ton tai va moi muc phai co bang chung" {
         $p = "tests/known-frozen-status.json"
         if (-not (Test-Path $p)) { return $false }

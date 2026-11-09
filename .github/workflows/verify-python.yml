@@ -1,0 +1,89 @@
+name: Kiem cu phap Python
+
+# Ly do ton tai:
+# Dev chay tren Windows khong co Python, nen moi lan sua scraper/*.py deu KHONG
+# duoc bien dich truoc khi day len. Loi cu phap chi lo ra luc dot quet 09:00 chay,
+# tuc la mat tron mot ngay du lieu.
+# Workflow nay chay tren MOI push cham vao file .py - nhanh (~30s), khong cao trang
+# nao, khong commit gi.
+
+on:
+  push:
+    paths:
+      - '**.py'
+      - '.github/workflows/verify-python.yml'
+  pull_request:
+    paths:
+      - '**.py'
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Phien ban Python
+        run: python -VV
+
+      - name: Bien dich scraper/ va tests/ (CHAN neu sai cu phap)
+        run: |
+          python -m compileall -q scraper tests
+          echo "OK: scraper/ va tests/ bien dich sach"
+
+      - name: Kiem tung file bang ast.parse (bao ro dong bi loi)
+        run: |
+          python - <<'PY'
+          import ast, pathlib, sys
+          bad = []
+          files = sorted(p for d in ('scraper', 'tests') for p in pathlib.Path(d).rglob('*.py'))
+          for p in files:
+              src = p.read_text(encoding='utf-8')
+              try:
+                  ast.parse(src, filename=str(p))
+              except SyntaxError as e:
+                  bad.append(f"{p}:{e.lineno}:{e.offset} {e.msg}")
+              else:
+                  print(f"  OK  {p}")
+          if bad:
+              print("\nLOI CU PHAP:", file=sys.stderr)
+              for b in bad:
+                  print("  " + b, file=sys.stderr)
+              sys.exit(1)
+          print(f"\n{len(files)} file Python deu parse duoc.")
+          PY
+
+      # CONSTRAINTS 2.9: cam ep cung ket qua cao theo ten model.
+      # Kiem o muc AST thay vi regex - khong the lach bang cach xuong dong hay doi khoang trang.
+      - name: Cam khoi `if product["model"] in (...)` (CONSTRAINTS 2.9)
+        run: |
+          python - <<'PY'
+          import ast, sys
+          src = open('scraper/scan_tgdd.py', encoding='utf-8').read()
+          tree = ast.parse(src, filename='scraper/scan_tgdd.py')
+          hits = []
+          for node in ast.walk(tree):
+              if not isinstance(node, ast.Compare):
+                  continue
+              if not any(isinstance(o, ast.In) for o in node.ops):
+                  continue
+              left = ast.unparse(node.left)
+              if 'product' in left and 'model' in left:
+                  hits.append((node.lineno, ast.unparse(node)[:120]))
+          if hits:
+              print("CHAN - co khoi ep cung ket qua cao theo DANH SACH ten model:", file=sys.stderr)
+              for ln, txt in hits:
+                  print(f"  scraper/scan_tgdd.py:{ln}: {txt}", file=sys.stderr)
+              print("\nCONSTRAINTS 2.9: trang thai phai doc tu TIN HIEU TRANG, khong doc ten model.", file=sys.stderr)
+              sys.exit(1)
+          print("OK: khong co khoi `product[\"model\"] in (...)` nao.")
+          PY
+
+      - name: Cac thu muc phu (chi bao, khong chan)
+        continue-on-error: true
+        run: |
+          python -m compileall -q scratch || echo "  (scratch/ co file khong bien dich duoc - chi la ban nhap)"
+          python -m compileall -q "promotion tgdd" || echo "  (ban sao long nhau dong bang tu 19-Oct)"
