@@ -123,13 +123,33 @@ Assert-Check "File scraper/scan_tgdd.py phai ton tai" {
 if (Test-Path $scanScript) {
     $scanContent = Get-Content $scanScript -Raw -Encoding UTF8
 
+    # Cat than mot ham Python ra de khang dinh kiem DUNG TRONG ham do, thay vi kiem "co chuoi
+    # nay o dau do trong ca file". Nhieu khang dinh truoc day sai vi ly do nay: vi du kiem
+    # `-match 'sau'` de chung minh FLASH_KEYWORDS_RE co tu khoa "Ket thuc sau", trong khi chu
+    # "sau" xuat hien trong hang chuc tu tieng Viet khac khap file.
+    function Get-PyBlock($text, $header) {
+        $i = $text.IndexOf($header)
+        if ($i -lt 0) { return "" }
+        $rest = $text.Substring($i + $header.Length)
+        $m = [regex]::Match($rest, '(?m)^(?:def |class |[A-Z_]+\s*=)')
+        if ($m.Success) { return $rest.Substring(0, $m.Index) }
+        return $rest
+    }
+
     Assert-Check "Quy tac Flash Sale: 'Uu dai ONLINE' va 'Ket thuc sau' phai nam trong FLASH_KEYWORDS_RE" {
-        $scanContent -match 'FLASH_KEYWORDS_RE' -and $scanContent -match 'ONLINE' -and $scanContent -match 'sau'
-    } "FLASH_KEYWORDS_RE thieu tu khoa Flash Sale"
+        # Kiem trong CHINH than regex, khong phai o dau do trong file.
+        $re = Get-PyBlock $scanContent 'FLASH_KEYWORDS_RE = re.compile('
+        ($re.Length -gt 0) -and ($re -match 'ONLINE') -and ($re -match 'th[^|]*c sau') -and
+        ($re -match 'flash\\s\*sale') -and ($re -match 'su[^|]*t')
+    } "FLASH_KEYWORDS_RE thieu tu khoa Flash Sale (kiem trong chinh than re.compile, khong phai ca file)"
 
     Assert-Check "Quy tac Flash Sale: Phai co BANNER CAM (ORANGE_BANNER_RE / has_banner_cam)" {
-        $scanContent -match 'ORANGE_BANNER_RE' -and $scanContent -match 'has_banner_cam'
-    } "Khong tim thay bien phap xac minh BANNER CAM trong scan_tgdd.py"
+        # ORANGE_BANNER_RE phai thuc su chua lop/mau cam, VA phai la thu nuoi has_banner_cam.
+        $re = Get-PyBlock $scanContent 'ORANGE_BANNER_RE = re.compile('
+        ($re.Length -gt 0) -and ($re -match 'bg-fs') -and ($re -match 'box_saving') -and
+        ($re -match 'orange') -and
+        ($scanContent -cmatch '(?s)has_banner_cam\s*=\s*bool\((?:(?!\n\s*\n).)*?ORANGE_BANNER_RE')
+    } "ORANGE_BANNER_RE thieu lop/mau cam, hoac has_banner_cam khong duoc nuoi boi ORANGE_BANNER_RE"
 
     Assert-Check "Quy tac Flash Sale: banner = has_banner_cam and has_flash_kw" {
         $scanContent -match 'banner\s*=\s*bool\(has_banner_cam\s+and\s+has_flash_kw\)'
@@ -231,21 +251,36 @@ if (Test-Path $scanScript) {
     } "Thieu quy tac PMH = choice khi co banner cam"
 
     Assert-Check "Quy tac Scraper: Ham extract_choice phai tach rieng va xu ly chon 1 trong, lstGift" {
-        $scanContent -match 'def extract_choice\(' -and $scanContent -match 'lstGift'
-    } "Thieu ham extract_choice xu ly tong the cac dang choice"
+        # `lstGift` phai nam TRONG than extract_choice, khong phai o bat ky dau trong file.
+        $fn = Get-PyBlock $scanContent 'def extract_choice('
+        ($fn.Length -gt 0) -and ($fn -match 'lstGift') -and ($fn -match 'n 1 trong')
+    } "Thieu ham extract_choice xu ly tong the cac dang choice (ca 'Chon 1 trong' lan lstGift phai nam trong chinh ham do)"
 
     Assert-Check "Quy tac Scraper: write_scans_js phai luu giu dung cac dot quet Thu Hai va Thu Sau theo KEEP_WEEKDAYS" {
         $scanContent -match 'if\s+day\.weekday\(\)\s+not\s+in\s+alerts\.KEEP_WEEKDAYS'
     } "write_scans_js phai su dung alerts.KEEP_WEEKDAYS de giu dung dot quet Thu Hai va Thu Sau"
 
     Assert-Check "Quy tac Alerts: load_base_rrp_map phai nap ca baseline data.js va scans.js" {
+        # Ca HAI nguon phai duoc doc trong CHINH than ham, khong phai o dau do trong alerts.py.
         $alertsText = Get-Content "scraper/alerts.py" -Raw -Encoding UTF8
-        $alertsText -match 'def load_base_rrp_map\(\):' -and $alertsText -match 'scans_file\.exists\(\)'
-    } "load_base_rrp_map phai nap ca baseline data.js va scans.js de theo doi du 106+ SKU"
+        # Phai bat CAU LENH DOC THAT (`DATA_DIR / "scans.js"`), khong phai chuoi "scans.js"
+        # bat ky - vi docstring cua chinh ham nay cung co chu "data/scans.js", nen kiem long
+        # se khop vao loi van mo ta thay vi vao hanh vi. Dung lop loi cua chot HOI QUY khop
+        # nham dong console.log.
+        $fn = Get-PyBlock $alertsText 'def load_base_rrp_map():'
+        ($fn.Length -gt 0) -and ($fn -cmatch '_base_text\(\)') -and
+        ($fn -cmatch 'DATA_DIR\s*/\s*"scans\.js"') -and ($fn -cmatch 'window\\\.SCANS')
+    } "load_base_rrp_map phai nap ca baseline data.js va scans.js ngay trong than ham (phai la cau lenh doc that, khong phai chu trong docstring)"
 
-    Assert-Check "Quy tac Fast-Check: scan_tgdd.py phai dinh nghia ham fast_check_o3" {
-        $scanContent -match 'def fast_check_o3\('
-    } "scan_tgdd.py thieu ham fast_check_o3"
+    # CONSTRAINTS 2.6 khong noi "phai co ham", no noi "HANG NGAY SAU KHI hoan thanh dot quet,
+    # scraper phai thuc hien buoc fast_check_o3". Khang dinh cu chi kiem `def fast_check_o3(`
+    # co ton tai - ham ton tai ma khong ai goi thi van bao PASS, dung lop loi cua last-check.
+    Assert-Check "Quy tac Fast-Check: fast_check_o3 phai duoc GOI sau khi luu dot quet" {
+        ($scanContent -cmatch '(?m)^\s*def fast_check_o3\(') -and
+        ($scanContent -cmatch '(?m)^\s+fast_check_o3\(scan\)') -and
+        # Phai goi SAU khi da ghi scan ra dia, nguoc lai thi doi soat tren du lieu chua luu.
+        ($scanContent -cmatch '(?s)write_latest_js\(scan\).*?fast_check_o3\(scan\)')
+    } "fast_check_o3 khong duoc goi sau khi luu dot quet - CONSTRAINTS 2.6 bat buoc doi soat #o=3 hang ngay"
 
     Assert-Check "CONSTRAINTS.md phai quy dinh chuan tham chieu Ground Truth dtdd#o=3" {
         $cText = Get-Content "CONSTRAINTS.md" -Raw -Encoding UTF8
@@ -266,12 +301,21 @@ if (Test-Path $scanScript) {
     } "scan_tgdd.py da quay lai bay suy gia do tu rrp - thieu gia phai ha xuong no_price, khong duoc doan"
 
     Assert-Check "enforce_domain_invariants phai ha status xuong no_price khi thieu rrp/red" {
-        $scanContent -match 'row\["status"\]\s*=\s*"no_price"'
+        # Nhanh ha no_price phai nam TRONG enforce_domain_invariants, khong phai o ham khac.
+        $fn = Get-PyBlock $scanContent 'def enforce_domain_invariants(row):'
+        ($fn.Length -gt 0) -and ($fn -match 'row\["status"\]\s*=\s*"no_price"') -and
+        ($fn -match 'if not rrp or not red')
     } "enforce_domain_invariants khong con nhanh ha no_price khi khong doc duoc gia"
 
     Assert-Check "Moi lan hieu chinh gia do phai in log, khong sua ground truth trong im lang" {
-        $scanContent -match '\[INVARIANT\]'
-    } "scan_tgdd.py lam tron / doi gia ma khong in log [INVARIANT]"
+        # Phai in log NGAY TRONG ham sua gia, va phai co du ca hai cho sua: ha no_price va
+        # lam tron ve hang nghin. Truoc day chi kiem chuoi "[INVARIANT]" co o dau do trong file.
+        $fn = Get-PyBlock $scanContent 'def enforce_domain_invariants(row):'
+        $logs = ([regex]::Matches($fn, '\[INVARIANT\]')).Count
+        ($fn.Length -gt 0) -and ($logs -ge 2) -and
+        ($fn -cmatch '(?s)if not rrp or not red:.*?\[INVARIANT\]') -and
+        ($fn -cmatch '(?s)red % 1000 != 0:.*?\[INVARIANT\]')
+    } "scan_tgdd.py lam tron / doi gia ma khong in log [INVARIANT] ngay trong enforce_domain_invariants"
 
     Assert-Check "CONSTRAINTS.md phai mo ta HAI danh sach tach biet va tro ve tests/gate-config.json" {
         $cText = Get-Content "CONSTRAINTS.md" -Raw -Encoding UTF8
@@ -445,11 +489,19 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         ($alertsText -notmatch "Galaxy A18 4G") -and ($risesText -notmatch "Galaxy A18 4G")
     } "alerts.js hoac rises.js van con chua bao tang gia ao Galaxy A18"
 
-    Assert-Check "data/data.js phai dinh nghia window.RISE_RAW chua du cac thang lich su tu T1 den T10 (>= 100 dong)" {
+    # Ten khang dinh noi ">= 100 dong" va "du T1 den T10" nhung truoc day chi kiem 4 chuoi
+    # "T1"/"T4"/"T7"/"T10" co xuat hien o dau do - khong he dem dong, khong he kiem 6 thang
+    # con lai. Nay dem that va doi du ca 10 thang.
+    Assert-Check "data/data.js: window.RISE_RAW phai dung so dong va dung bo thang da khai trong gate-config" {
         $dtText = Get-Content "data/data.js" -Raw -Encoding UTF8
-        ($dtText -match 'window\.RISE_RAW\s*=\s*\[') -and
-        ($dtText -match '"T1"') -and ($dtText -match '"T4"') -and ($dtText -match '"T7"') -and ($dtText -match '"T10"')
-    } "data/data.js thieu window.RISE_RAW hoac thieu cac thang lich su T1-T10"
+        if ($dtText -notmatch 'window\.RISE_RAW\s*=\s*\[') { return $false }
+        $riseRows = [regex]::Matches($dtText, '\["(T\d+)","[^"]*","([^"]+)"')
+        $months = @($riseRows | ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
+        $khai = @($GateCfg.riseMonths | Sort-Object -Unique)
+        $thieu = @($khai | Where-Object { $months -notcontains $_ })
+        $thua = @($months | Where-Object { $khai -notcontains $_ })
+        ($riseRows.Count -ge [int]$GateCfg.riseMinRows) -and ($thieu.Count -eq 0) -and ($thua.Count -eq 0)
+    } "window.RISE_RAW duoi riseMinRows dong, hoac bo thang khong khop gate-config.riseMonths. Them/bot mot thang phai sua riseMonths trong cung commit - de thay duoc trong diff."
 
     Assert-Check "data/rises.js khong chua bat ky dong tang gia nao co Brand bi trong" {
         $risesText = Get-Content "data/rises.js" -Raw -Encoding UTF8
@@ -725,10 +777,22 @@ if (-not (Test-Path $e2eHtml)) {
                 ($renoRow.Groups[1].Value -match 'class="badge mass">Mass<')
             } "$dcf khong hien thi Reno16F 5G 8GB/256GB la kenh Mass"
 
+            # Truoc day khang dinh nay chi kiem HAI ten model ('A5i Pro', 'Honor X7d') - mat 8
+            # thang van bao PASS. Nay lay tu chinh RISE_RAW mot model dai dien cho TUNG thang
+            # T1..T10 va doi DOM phai render du ca 10.
             Assert-Check "DOM E2E: $dcf phai render day du cac thang lich su tang gia goc T1-T10" {
-                ($domContent -match 'A5i Pro') -and
-                ($domContent -match 'Honor X7d')
-            } "$dcf bi mat cac thang lich su tang gia goc T1-T10"
+                $dtText = Get-Content "data/data.js" -Raw -Encoding UTF8
+                $daiDien = @{}
+                foreach ($m in [regex]::Matches($dtText, '\["(T\d+)","[^"]*","([^"]+)"[^\]]*\]')) {
+                    if ($m.Value -match 'FPT Shop') { continue }   # index.html loc bo dong FPT Shop
+                    $mo = $m.Groups[1].Value
+                    if (-not $daiDien.ContainsKey($mo)) { $daiDien[$mo] = $m.Groups[2].Value }
+                }
+                $thieu = @($GateCfg.riseMonths | Where-Object {
+                    (-not $daiDien.ContainsKey($_)) -or ($domContent -notmatch [regex]::Escape($daiDien[$_]))
+                })
+                $thieu.Count -eq 0
+            } "$dcf bi mat thang lich su tang gia goc (kiem bang model dai dien cua TUNG thang trong gate-config.riseMonths, lay tu chinh RISE_RAW)"
 
             Assert-Check "DOM E2E: $dcf phai render du 5 model Realme C100/C100x trong tab Lich su tang gia T11" {
                 ($domContent -match 'C100x 6GB/128GB') -and

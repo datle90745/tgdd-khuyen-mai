@@ -72,6 +72,20 @@
   ],
   "minAssertions": 97,
 
+  "_riseMonthsNote": [
+    "riseMonths: danh sach thang CO THAT trong window.RISE_RAW cua data/data.js.",
+    "Ly do khai bao: khang dinh cu mang ten 'chua du cac thang lich su tu T1 den T10' nhung",
+    "chi kiem 4 chuoi T1/T4/T7/T10 co xuat hien hay khong - nen KHONG AI BIET la T2 trong rong.",
+    "Dem that ngay 09-11-2026: T1=5, T3=13, T4=24, T5=10, T6=12, T7=13, T8=8, T9=12, T10=24",
+    "  -> tong 121 dong, va T2 KHONG CO DONG NAO.",
+    "T2 trong la do thang 2 khong co dot tang gia nao, hay do thieu du lieu - CHUA XAC NHAN.",
+    "Khai bao o day de bien mot an so thanh mot su that nhin thay duoc: tu nay them hay bot",
+    "mot thang deu phai sua danh sach nay trong cung commit, nguoc lai la cong chan.",
+    "Khi nao doi soat xong T2 thi them \"T2\" vao day (neu co du lieu) hoac ghi ro vao ghi chu."
+  ],
+  "riseMonths": ["T1", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10"],
+  "riseMinRows": 100,
+
   "requireScanToday": true,
   "scansJsRetention": 30,
   "nestedCopyPath": "promotion tgdd",

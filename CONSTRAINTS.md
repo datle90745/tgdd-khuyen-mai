@@ -226,6 +226,29 @@ Lịch sử dự án: **24 khẳng định đã bị xoá âm thầm**, và **1 
   không phân biệt hoa thường, nên một chốt viết bằng `-match 'HOI QUY'` vẫn PASS sau khi chốt
   thật đã bị gỡ, chỉ cần còn dòng log `[6] Hoi quy giua cac dot...` là đủ lừa.
 
+**Khẳng định phải kiểm HÀNH VI, không kiểm sự tồn tại.** Đây là lớp lỗi đã lặp lại nhiều lần
+trong dự án: luật được ghi đúng, cơ chế có thật, khẳng định mang đúng tên luật — nhưng thân nó
+chỉ kiểm một cái tên hoặc một chuỗi có xuất hiện ở đâu đó. Mọi thứ báo `100% PASS` trong khi
+luật không chạy. Các ca đã gặp:
+
+| Khẳng định | Nó thực sự kiểm gì | Hệ quả |
+| :--- | :--- | :--- |
+| "không được chứa giá hardcode trong `_CATALOG_ITEMS`" | `_CATALOG_ITEMS = {}` có tồn tại | 6 con số giá ép cứng ngay 3 dòng dưới vẫn PASS |
+| "phải có hàm `fetch_model_from_brand_hub` làm chốt chặn cuối cùng" | `def fetch_model_from_brand_hub(` có tồn tại | Hàm không hề được gọi ở nhánh lỗi vẫn PASS |
+| "phải định nghĩa hàm `fast_check_o3`" | `def fast_check_o3(` có tồn tại | Không ai gọi thì vẫn PASS |
+| "`'Kết thúc sau'` phải nằm trong `FLASH_KEYWORDS_RE`" | chuỗi `sau` có ở đâu đó trong file | Chữ "sau" có trong hàng chục từ tiếng Việt khác |
+| "phải chứa đủ các tháng T1→T10" | 4 chuỗi `T1`/`T4`/`T7`/`T10` | **T2 rỗng suốt mà không ai biết** |
+| "phải render đầy đủ các tháng T1–T10" | 2 tên model | Mất 8 tháng vẫn PASS |
+| "`load_base_rrp_map` phải nạp cả `scans.js`" | chuỗi `scans.js` — **khớp vào docstring** | Xoá câu lệnh đọc thật vẫn PASS |
+
+Quy tắc bắt buộc từ nay:
+- Luật nói **"phải chạy / phải được gọi"** thì khẳng định phải bắt **lời gọi**, và bắt **đúng thứ
+  tự** so với bước liên quan — không chỉ bắt `def`.
+- Kiểm một chuỗi thì phải kiểm **trong đúng phạm vi** của nó (thân hàm, thân `re.compile`), không
+  kiểm trên cả file; và phải bắt **câu lệnh thật**, không bắt lời văn trong docstring/comment/log.
+- Luật nói **"đầy đủ"** thì phải **đếm** hoặc **duyệt hết tập**, không lấy vài mẫu đại diện.
+- Mỗi chốt mới phải có **phép thử ngược**: cố tình phá đúng thứ nó canh, và xác nhận nó CHẶN.
+
 ---
 
 ## 3. Bảng Kiểm Tra & Công Cụ Đo Lường
