@@ -43,6 +43,28 @@
 | Không Flash Sale, và (Giá đen − Giá đỏ) < "Chọn 1 trong" | `chon1` | = khoản "Chọn 1 trong" |
 
 - Với Flash Sale, **tuyệt đối không** lấy chênh lệch giá đen trừ giá đỏ làm PMH.
+
+**Mỗi kết luận Flash Sale phải mang theo BẰNG CHỨNG của chính đợt đó (`flash_src`):**
+Trước đây dòng dữ liệu chỉ lưu *kết luận* `banner: true`, không lưu bằng chứng — sau đó không ai
+truy ngược được nó đến từ đâu. Hai nguồn rất khác nhau:
+
+| `flash_src` | Nghĩa là gì | Mạnh yếu |
+| :--- | :--- | :--- |
+| `quota` | Trang chi tiết **có khối suất thật** (`.bg-stock-quantity` / "Còn x/y suất" / `.box_saving`) | Khung giờ flash **đang chạy** |
+| `fs-class` / `orange` / `keyword` | Lớp CSS / từ khoá của khối flash trên trang chi tiết | Trung bình |
+| `hub` | Model có tên ở `/flashsale` | Mức **chiến dịch**, không phải khung giờ — hub vẫn liệt kê cả khi suất đã hết |
+
+- Một dòng mà bằng chứng **duy nhất** là `["hub"]` là dòng **cần nhìn lại**: hệ thống báo Flash Sale
+  nhưng trang chi tiết không có gì chứng minh. Bấm vào có thể không thấy gì. Đã xảy ra với
+  `Find X9s 12GB/512GB` ngày 09-11-2026.
+- **Tuyệt đối không mặc định có Flash Sale, và không bê từ đợt trước sang.** Không có banner thì
+  `flash_src` phải **rỗng**. Mỗi đợt phải tự chứng minh lại từ đầu.
+- Ảnh chụp hub `/flashsale` lấy **một lần** đầu đợt sẽ cũ sau ~9–20 phút quét, nên trước khi lưu
+  phải **quét lại** riêng các model ứng viên Flash Sale với hub nạp lại (`verify_flash_rows`).
+  Một ảnh chụp cũ không được phép quyết định trạng thái flash của cả đợt.
+- Cả hai nhánh nhận diện trong `parse_page` / `parse_next_layout` đều phải đòi bằng chứng suất
+  thật (`has_quota or in_hub`). Trang chi tiết có chữ **"Đèn Flash camera sau"** trong phần thông
+  số, nên một nhánh chỉ dò chữ "flash" sẽ tự nhận định ra flash sale từ không có gì.
 - Dòng `status != "active"` thì `PMH = null`, không phải `0`.
 
 **Trường `kind` KHÔNG phải ràng buộc.** Nó là **nguồn dữ liệu**, không phải quy tắc PMH:

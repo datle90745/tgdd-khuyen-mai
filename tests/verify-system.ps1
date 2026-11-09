@@ -366,6 +366,41 @@ if (Test-Path $scanScript) {
         ($cb -cmatch "total_online") -and ($cb -cmatch 'nestedByModel')
     } "tests/verify_scan.js khong con so tung dong cua ban sao `promotion tgdd/data` - ban sao van bi git add moi dot nen no se phuc vu web voi so lieu khac"
 
+    # Flash sale chay theo khung gio: KHONG duoc mac dinh, khong duoc be tu dot truoc sang.
+    # Ca da gap: hub /flashsale duoc nap DUNG MOT LAN truoc vong lap roi dung cho ca 135 model
+    # suot ~9-20 phut quet, nen mot anh chup cu quyet dinh trang thai flash cua ca dot.
+    Assert-Check "Scraper phai QUET LAI cac ung vien flash sale truoc khi luu, voi hub nap lai" {
+        ($scanContent -cmatch '(?m)^def verify_flash_rows\(rows\):') -and
+        ($scanContent -cmatch '(?s)def verify_flash_rows\(rows\):.*?fetch_live_flashsale_slugs\(\)') -and
+        ($scanContent -cmatch '(?m)^\s+rows = verify_flash_rows\(rows\)') -and
+        # Phai goi TRUOC khi ghi file scan, nguoc lai thi quet lai cung vo nghia.
+        ($scanContent -cmatch '(?s)rows = verify_flash_rows\(rows\).*?SCAN_DIR / f"scan_\{now\.date\(\)\.isoformat\(\)\}\.json"')
+    } "scan_tgdd.py khong quet lai ung vien flash sale truoc khi luu - anh chup hub dau dot se quyet dinh trang thai flash cua ca dot"
+
+    Assert-Check "Moi ket luan flash sale phai kem bang chung flash_src cua chinh dot do" {
+        ($scanContent -cmatch '(?m)^def flash_evidence\(') -and
+        # Khong co banner thi flash_src phai RONG - cam mac dinh co flash sale.
+        # Phai dung cho MOI cho goi, khong phai "co it nhat mot cho dung": truoc day khang dinh
+        # nay chi doi mot cho khop, nen bo `if banner else []` o nhanh kia van PASS.
+        ((([regex]::Matches($scanContent, 'res\["flash_src"\]\s*=\s*flash_evidence\(')).Count) -ge 2) -and
+        ((([regex]::Matches($scanContent, 'res\["flash_src"\]\s*=\s*flash_evidence\(')).Count) -eq
+         (([regex]::Matches($scanContent, 'flash_evidence\([^)]*\) if banner else \[\]')).Count)) -and
+        ($scanContent -cmatch '"flash_src"') -and
+        # Bang chung phai di ra toi latest.js, nguoc lai thi web khong truy nguoc duoc.
+        ($scanContent -cmatch '(?s)def write_latest_js\(scan\):.*?"flash_src"') -and
+        ((Get-Content "tests/verify_scan.js" -Raw -Encoding UTF8) -cmatch 'FLASH KHONG BANG CHUNG:')
+    } "Ket luan flash sale khong kem bang chung flash_src, hoac bang chung khong ra toi latest.js, hoac circuit breaker khong con chot kiem"
+
+    Assert-Check "Nhan dien flash sale o CA HAI nhanh parse deu phai doi bang chung suat that" {
+        # Nhanh parse_next_layout truoc day khong doi suat nao: mot the class chua chu 'orange'
+        # hoac 'flash' bat ky trong <main> la du ket luan co flash sale. Trang chi tiet co chu
+        # "Den Flash camera sau" trong thong so.
+        ($scanContent -cmatch '(?m)^\s+is_true_flash = bool\(has_quota or in_hub\)') -and
+        (([regex]::Matches($scanContent, 'is_true_flash = bool\(has_quota or in_hub\)')).Count -ge 2) -and
+        (([regex]::Matches($scanContent, 'is_true_flash and \(')).Count -ge 4) -and
+        ($scanContent -notmatch 'page\.select_one\("\[class\*=''flash''\]"\)')
+    } "Con nhanh nhan dien flash sale khong doi bang chung suat that (has_quota / in_hub)"
+
     Assert-Check "Circuit breaker phai con chot TRANG THAI DONG BANG" {
         $cb = Get-Content "tests/verify_scan.js" -Raw -Encoding UTF8
         ($cb -cmatch 'TRANG THAI DONG BANG:') -and ($cb -cmatch 'CFG\.maxFrozenScans') -and

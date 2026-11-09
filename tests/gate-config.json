@@ -47,7 +47,6 @@
     "Dat 5: tren muc thuong gap nhung duoi han su co."
   ],
   "maxFlatZeroDrops": 5,
-
   "_frozenStatusNote": [
     "maxFrozenScans: so dot quet lien tiep toi da ma mot dong KHONG active duoc phep giu",
     "nguyen y het (status, rrp, red) truoc khi bi chan.",
@@ -61,7 +60,6 @@
     "tu khoang dot thu 10 thay vi de troi 24 dot."
   ],
   "maxFrozenScans": 10,
-
   "_minAssertionsNote": [
     "Nguong san cho so khang dinh trong verify-system.ps1.",
     "Ly do: qua lich su du an da co 24 khang dinh bi XOA am tham, va 1 khang dinh bi DAO",
@@ -70,8 +68,7 @@
     "Tu nay: xoa khang dinh thi BAT BUOC phai ha con so nay trong cung commit - de viec",
     "giam rao chat luong hien ra trong diff thay vi lang le."
   ],
-  "minAssertions": 97,
-
+  "minAssertions": 100,
   "_riseMonthsNote": [
     "riseMonths: danh sach thang CO THAT trong window.RISE_RAW cua data/data.js.",
     "Ly do khai bao: khang dinh cu mang ten 'chua du cac thang lich su tu T1 den T10' nhung",
@@ -83,9 +80,36 @@
     "mot thang deu phai sua danh sach nay trong cung commit, nguoc lai la cong chan.",
     "Khi nao doi soat xong T2 thi them \"T2\" vao day (neu co du lieu) hoac ghi ro vao ghi chu."
   ],
-  "riseMonths": ["T1", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10"],
+  "riseMonths": [
+    "T1",
+    "T3",
+    "T4",
+    "T5",
+    "T6",
+    "T7",
+    "T8",
+    "T9",
+    "T10"
+  ],
   "riseMinRows": 100,
-
+  "_flashEvidenceNote": [
+    "flashEvidenceFrom: tu dot quet ngay nay tro di, MOI dong duoc danh la flash sale",
+    "(banner = true / rule = flash_chon1) BAT BUOC phai co truong `flash_src` khong rong.",
+    "",
+    "Ly do: truoc day dong du lieu chi luu KET LUAN `banner: true`, khong luu BANG CHUNG. Sau",
+    "do khong ai truy nguoc duoc ket luan ay den tu dau - tu khoi suat that tren trang chi tiet,",
+    "hay chi tu viec model co ten trong hub /flashsale. Hai thu rat khac nhau: hub la bang chung",
+    "muc CHIEN DICH, no van liet ke ca khi suat cua khung gio hien tai da het, nen bam vao trang",
+    "chi tiet khong thay gi. Dung ca da gap: Find X9s 12GB/512GB ngay 09-11-2026.",
+    "",
+    "Cac dot quet TRUOC ngay nay duoc mien, vi luc do scraper chua ghi truong nay - mien mot",
+    "cach cong khai o day thay vi de chot im lang bo qua.",
+    "",
+    "maxFlashHubOnly: so dong toi da duoc phep chi co bang chung [\"hub\"] trong mot dot.",
+    "Vuot nguong = anh chup hub dang quyet dinh thay cho trang chi tiet tren dien rong."
+  ],
+  "flashEvidenceFrom": "2026-11-10",
+  "maxFlashHubOnly": 8,
   "requireScanToday": true,
   "scansJsRetention": 30,
   "nestedCopyPath": "promotion tgdd",

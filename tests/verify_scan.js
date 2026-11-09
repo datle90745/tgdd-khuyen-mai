@@ -635,6 +635,57 @@ if (scanData && scanFileName) {
 }
 
 // ---------------------------------------------------------------------------
+// 8. BANG CHUNG FLASH SALE
+//
+// Lop loi: dong du lieu luu KET LUAN "co flash sale" ma khong luu BANG CHUNG. Sau do khong
+// ai truy nguoc duoc ket luan ay den tu dau. Hai nguon rat khac nhau:
+//   - "quota"  : trang chi tiet co khoi suat that -> khung gio flash DANG CHAY
+//   - "hub"    : model co ten o /flashsale -> muc CHIEN DICH, suat co the da het
+// Mot dong chi co ["hub"] la dong he thong bao flash ma trang chi tiet khong chung minh gi.
+// Dung ca da gap: Find X9s 12GB/512GB ngay 09-11-2026 - bang bao "Flash Sale Online", bam
+// vao trang thi khong co gi.
+//
+// Flash sale chay theo khung gio nen KHONG BAO GIO duoc mac dinh hay bе tu dot truoc sang:
+// moi dot phai tu chung minh lai.
+// ---------------------------------------------------------------------------
+if (scanData && scanFileName) {
+  const todayIso3 = scanFileName.slice(5, 15);
+  if (todayIso3 < String(CFG.flashEvidenceFrom)) {
+    console.log(`[8] Bang chung flash sale: dot ${todayIso3} truoc moc ${CFG.flashEvidenceFrom}, duoc mien.`);
+  } else {
+    const flashRows = rows.filter((r) => r.status === 'active' && (r.banner === true || r.rule === 'flash_chon1'));
+    const noEvidence = flashRows.filter((r) => !Array.isArray(r.flash_src) || r.flash_src.length === 0);
+    const hubOnly = flashRows.filter((r) => Array.isArray(r.flash_src) &&
+      r.flash_src.length > 0 && r.flash_src.every((s) => s === 'hub'));
+
+    for (const r of noEvidence) {
+      fail(
+        `FLASH KHONG BANG CHUNG: ${r.model} duoc danh flash sale (banner=${r.banner}, rule=${r.rule}) ` +
+        `nhung khong co \`flash_src\`. Khong duoc ket luan co flash sale ma khong ghi lai bang chung ` +
+        `cua chinh dot nay - flash sale chay theo khung gio, khong duoc mac dinh hay be tu dot truoc sang.`
+      );
+    }
+    if (hubOnly.length > CFG.maxFlashHubOnly) {
+      fail(
+        `FLASH CHI DUA VAO HUB: ${hubOnly.length} dong chi co bang chung ["hub"] (nguong ${CFG.maxFlashHubOnly}). ` +
+        `Anh chup hub /flashsale dang quyet dinh thay cho trang chi tiet tren dien rong - ` +
+        `hub van liet ke ca khi suat khung gio hien tai da het.`
+      );
+    }
+    for (const r of hubOnly) {
+      warn(
+        `${r.model}: bao flash sale nhung bang chung duy nhat la ten trong hub /flashsale, ` +
+        `trang chi tiet khong co khoi suat nao. Bam vao trang co the khong thay flash sale.`
+      );
+    }
+    console.log(
+      `[8] Bang chung flash sale: ${flashRows.length} dong flash, ` +
+      `${noEvidence.length} thieu bang chung, ${hubOnly.length} chi dua vao hub`
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Tong ket
 // ---------------------------------------------------------------------------
 console.log('');

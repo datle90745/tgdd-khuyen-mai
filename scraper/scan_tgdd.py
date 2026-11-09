@@ -364,6 +364,95 @@ def money(text):
     return val if val <= 200_000_000 else 0
 
 
+def verify_flash_rows(rows):
+    """QUET LAI LAN HAI rieng cac model ung vien Flash Sale, ngay truoc khi luu.
+
+    Ly do: hub /flashsale duoc nap DUNG MOT LAN truoc vong lap, roi ket qua do duoc dung cho
+    ca 135 model trong suot ~9-20 phut quet. Flash sale chay theo khung gio, nen anh chup hub
+    luc 20:46 co the da cu khi quet den model thu 100 luc 20:55. Mot anh chup cu khong duoc
+    phep quyet dinh trang thai flash cua ca dot.
+
+    Khong bao gio mac dinh "co flash sale": moi ket luan flash phai co BANG CHUNG trong
+    `flash_src` cua chinh dot nay. Dot nay khong chung minh duoc thi ha xuong khong-flash va
+    tinh lai PMH theo luat thuong (CONSTRAINTS 2.1), chu khong giu lai tu dot truoc.
+    """
+    fresh = fetch_live_flashsale_slugs()
+    cands = []
+    for r in rows:
+        if r.get("status") != "active":
+            continue
+        slug = (r.get("url") or "").rstrip("/").rsplit("/", 1)[-1].split("?")[0]
+        if r.get("banner") or r.get("rule") == "flash_chon1" or (slug and slug in fresh):
+            cands.append((r, slug))
+    if not cands:
+        print("  [FLASH_VERIFY] Khong co model nao can quet lai.", flush=True)
+        return rows
+
+    print(f"  [FLASH_VERIFY] Quet lai {len(cands)} model ung vien flash sale "
+          f"(hub vua nap lai: {len(fresh)} SKU).", flush=True)
+    doi = 0
+    for r, slug in cands:
+        try:
+            again = scan_one(r["url"], attempts=2, allow_hub_fallback=False)
+        except Exception as e:
+            print(f"  [FLASH_VERIFY] {r['model']}: quet lai loi ({e}), giu nguyen dong cu.", flush=True)
+            continue
+        if again.get("status") != "active" or not again.get("rrp"):
+            print(f"  [FLASH_VERIFY] {r['model']}: quet lai ra status={again.get('status')}, "
+                  f"giu nguyen dong cu.", flush=True)
+            continue
+        ev = again.get("flash_src") or []
+        was = bool(r.get("banner"))
+        now = bool(again.get("banner"))
+        if was != now or (r.get("pmh") or 0) != (again.get("pmh") or 0):
+            doi += 1
+            print(f"  [FLASH_VERIFY] {r['model']}: banner {was} -> {now}, "
+                  f"pmh {r.get('pmh')} -> {again.get('pmh')}, bang chung={ev or 'khong co'}.", flush=True)
+        for k in ("rrp", "red", "pmh", "online", "total_online", "choice",
+                  "kind", "rule", "banner", "choice_in_red"):
+            if k in again:
+                r[k] = again[k]
+        r["flash_src"] = ev
+    print(f"  [FLASH_VERIFY] Xong: {doi}/{len(cands)} dong thay doi sau khi quet lai.", flush=True)
+    return rows
+
+
+def flash_evidence(page, box, box_text, box_html, in_hub):
+    """Ghi lai BANG CHUNG da dua den ket luan "co Flash Sale", khong chi ghi ket luan.
+
+    Truoc day dong du lieu chi luu `banner: true`. Sau do khong ai - ke ca nguoi viet code -
+    chung minh duoc ket luan ay den tu dau: tu khoi flash that tren trang chi tiet, hay chi
+    tu viec model co ten trong hub /flashsale. Hai thu do rat khac nhau:
+
+      - "quota"  : trang chi tiet CO khoi suat that (.bg-stock-quantity / "Con x/y suat" /
+                   .box_saving). Day la bang chung manh nhat - khung gio flash dang CHAY.
+      - "hub"    : model co ten o https://www.thegioididong.com/flashsale. Day la bang chung
+                   muc CHIEN DICH, khong phai muc khung gio: hub van liet ke ca khi suat cua
+                   khung gio hien tai da het, nen bam vao trang chi tiet co the khong thay gi.
+      - "fs-class" / "orange": lop CSS cua khoi flash tren trang chi tiet.
+      - "keyword": chu "Uu dai ONLINE" / "Ket thuc sau" / "flash sale" trong khoi gia.
+
+    Mot dong chi co ["hub"] la dong CAN NHIN LAI: he thong bao Flash Sale nhung trang chi
+    tiet khong co gi de chung minh.
+    """
+    ev = []
+    if page.select_one(".bg-stock-quantity") or box.select_one(".bg-stock-quantity"):
+        ev.append("quota")
+    elif re.search(r"còn\s*\d+\s*/\s*\d+\s*suất", box_text, re.I):
+        ev.append("quota")
+    elif page.select_one(".box_saving"):
+        ev.append("quota")
+    if page.select_one(".bg-fs-detail") or box.select_one("[class*='bg-fs']"):
+        ev.append("fs-class")
+    if ORANGE_BANNER_RE.search(box_html):
+        ev.append("orange")
+    if FLASH_KEYWORDS_RE.search(box_text) or FLASH_KEYWORDS_RE.search(box_html):
+        ev.append("keyword")
+    if in_hub:
+        ev.append("hub")
+    return ev
+
+
 def build_result(rrp, red, banner, choice, kind, choice_in_red=True):
     """rrp/red = giá đen/giá đỏ khách thật sự trả (đã trừ khoản "Chọn 1 trong").
     choice = khoản "Giảm giá X" trong mục "Chọn 1 trong".
@@ -486,6 +575,18 @@ def extract_choice(soup, text=""):
     return choice
 
 
+def slug_from_soup(soup):
+    """Slug san pham lay tu the canonical / og:url. Tach rieng de ca hai nhanh cua
+    parse_next_layout dung chung - truoc day chi nhanh duoi moi tinh slug, nen nhanh tren
+    khong the biet model co nam trong hub /flashsale hay khong."""
+    canon = soup.select_one("link[rel='canonical']")
+    s = canon.get("href", "").rstrip("/").split("/")[-1].split("?")[0] if canon else ""
+    if not s:
+        og = soup.select_one("meta[property='og:url']")
+        s = og.get("content", "").rstrip("/").split("/")[-1].split("?")[0] if og else ""
+    return s
+
+
 def parse_next_layout(soup):
     """Bố cục mới của TGDĐ (không có .box_main): giá đỏ ở span.text-24.text-red-5,
     giá đen ở thẻ <del> cạnh đó. Flash sale có banner cam chứa 'Ưu đãi ONLINE' hoặc 'Kết thúc sau'."""
@@ -501,18 +602,40 @@ def parse_next_layout(soup):
             rrp_val = money(gtm_orig.get("value")) if gtm_orig and gtm_orig.get("value") else gtm_val
             text = page.get_text(" ", strip=True)
             choice = extract_choice(soup, text)
-            has_banner_cam = bool(
-                page.select_one(".bg-fs-detail")
-                or page.select_one("[class*='bg-fs']")
-                or page.select_one("[class*='orange']")
-                or page.select_one("[class*='flash']")
+            # Nhanh nay truoc day KHONG doi bang chung suat nao: chi can co mot the mang class
+            # chua chu 'orange' hoac 'flash' o bat ky dau trong <main>, cong voi mot tu khoa
+            # flash o bat ky dau trong text, la ket luan CO Flash Sale. Trang chi tiet co day
+            # chu "Den Flash camera sau" trong phan thong so, va co vo so lop mau cam dung cho
+            # viec khac - nghia la no co the tu nhan dinh ra flash sale tu khong co gi.
+            # Nay bat buoc phai co BANG CHUNG SUAT THAT, giong nhanh kia (CONSTRAINTS 2.1).
+            page_html = str(page)
+            has_quota = bool(
+                page.select_one(".bg-stock-quantity")
                 or page.select_one(".box_saving")
-                or ORANGE_BANNER_RE.search(str(page))
+                or re.search(r"còn\s*\d+\s*/\s*\d+\s*suất", text, re.I)
             )
-            has_flash_kw = bool(FLASH_KEYWORDS_RE.search(text))
+            slug_now = slug_from_soup(soup)
+            in_hub = bool(slug_now and slug_now in _LIVE_FLASH_SLUGS)
+            is_true_flash = bool(has_quota or in_hub)
+            has_banner_cam = bool(
+                is_true_flash and (
+                    page.select_one(".bg-fs-detail")
+                    or page.select_one("[class*='bg-fs']")
+                    or page.select_one(".bg-stock-quantity")
+                    or page.select_one(".box_saving")
+                    or ORANGE_BANNER_RE.search(page_html)
+                    or in_hub
+                )
+            )
+            has_flash_kw = bool(
+                is_true_flash and (in_hub or FLASH_KEYWORDS_RE.search(text))
+            )
             banner = bool(has_banner_cam and has_flash_kw)
             actual_red = gtm_val - (choice if not banner else 0)
-            return build_result(rrp_val, actual_red, banner, choice, "moi-banner" if banner else "moi", choice_in_red=True)
+            res = build_result(rrp_val, actual_red, banner, choice,
+                               "moi-banner" if banner else "moi", choice_in_red=True)
+            res["flash_src"] = flash_evidence(page, page, text, page_html, in_hub) if banner else []
+            return res
     if not reds:
         reds = [s for s in page.select("span[class*='text-red']") if re.search(r'\d+[.,]\d{3}', s.get_text())]
     if not reds:
@@ -535,11 +658,7 @@ def parse_next_layout(soup):
         rrp = red
     text = page.get_text(" ", strip=True)
     choice = extract_choice(soup, text)
-    canon = soup.select_one("link[rel='canonical']")
-    slug = canon.get("href", "").rstrip("/").split("/")[-1].split("?")[0] if canon else ""
-    if not slug:
-        og = soup.select_one("meta[property='og:url']")
-        slug = og.get("content", "").rstrip("/").split("/")[-1].split("?")[0] if og else ""
+    slug = slug_from_soup(soup)
 
     # Xét khối giá của chính sản phẩm và dải banner flash sale cạnh giá.
     box = red_node
@@ -579,8 +698,10 @@ def parse_next_layout(soup):
     )
     banner = bool(has_banner_cam and has_flash_kw)
     # Bố cục mới hiển thị giá đỏ chưa trừ khoản "Chọn 1 trong" (bấm chọn mới trừ tiếp).
-    return build_result(rrp, red, banner, choice, "moi-banner" if banner else "moi",
-                        choice_in_red=False)
+    res = build_result(rrp, red, banner, choice, "moi-banner" if banner else "moi",
+                       choice_in_red=False)
+    res["flash_src"] = flash_evidence(page, box, box_text, box_html, in_hub) if banner else []
+    return res
 
 
 def parse_page(html):
@@ -847,8 +968,10 @@ def write_scans_js(today=None):
 def write_latest_js(scan):
     """Đợt quét mới nhất, quét ngày nào cũng ghi, để web có cột "hôm nay" và các cột tham khảo.
     Trùng ngày với một cột đã lưu (thứ Hai/thứ Sáu) thì web ghi đè chính cột đó, không thêm cột mới."""
+    # flash_src di kem de moi ket luan "co Flash Sale" deu mang theo BANG CHUNG cua chinh dot
+    # nay, thay vi chi mang ket luan `banner: true` ma khong ai truy nguoc duoc.
     keys = ("model", "rrp", "red", "pmh", "status", "online", "total_online",
-            "choice", "kind", "rule", "banner")
+            "choice", "kind", "rule", "banner", "flash_src")
     latest = {"date": scan["date"], "rows": [
         {k: r[k] for k in keys if k in r} for r in scan["rows"]]}
     LATEST_JS.write_text(
@@ -1114,6 +1237,10 @@ def main():
     print(f"Giá đen tăng (86 SKU): {len(ups)}"
           + ("; " + "; ".join(f"{u['n']} {u['old']:,}→{u['new']:,}" for u in ups[:10]) if ups else ""),
           flush=True)
+
+    # Quet lai lan hai rieng cac ung vien flash sale, ngay truoc khi luu: anh chup hub lay
+    # tu dau dot da cu sau ~9-20 phut quet, ma flash sale thi chay theo khung gio.
+    rows = verify_flash_rows(rows)
 
     SCAN_DIR.mkdir(parents=True, exist_ok=True)
     scan = {"date": now.strftime("%d-%b"), "scanned_at": now.isoformat(timespec="seconds"), "rows": rows}
