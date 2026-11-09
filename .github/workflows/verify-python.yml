@@ -38,16 +38,26 @@ jobs:
         run: |
           python - <<'PY'
           import ast, pathlib, sys
-          bad = []
+          # Doc bang utf-8-sig DUNG NHU chinh Python doc file nguon: BOM o dau file la
+          # HOP LE voi Python. Lan dau viet buoc nay dung 'utf-8' nen ast.parse bao
+          # "invalid non-printable character U+FEFF" cho scraper/scan_market.py, trong khi
+          # compileall ngay phia tren da bien dich sach - tuc la chot bao loi gia.
+          bad, bom = [], []
           files = sorted(p for d in ('scraper', 'tests') for p in pathlib.Path(d).rglob('*.py'))
           for p in files:
-              src = p.read_text(encoding='utf-8')
+              if p.read_bytes().startswith(b'\xef\xbb\xbf'):
+                  bom.append(str(p))
               try:
-                  ast.parse(src, filename=str(p))
+                  ast.parse(p.read_text(encoding='utf-8-sig'), filename=str(p))
               except SyntaxError as e:
                   bad.append(f"{p}:{e.lineno}:{e.offset} {e.msg}")
               else:
                   print(f"  OK  {p}")
+          if bom:
+              print()
+              for b in bom:
+                  print(f"::warning file={b}::File co BOM o dau. Python chap nhan, nhung "
+                        f"cong cu khac (JSON.parse, mot so parser) thi khong - nen bo khi tien tay.")
           if bad:
               print("\nLOI CU PHAP:", file=sys.stderr)
               for b in bad:
