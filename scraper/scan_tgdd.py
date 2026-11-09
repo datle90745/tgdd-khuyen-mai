@@ -939,10 +939,17 @@ def main():
                     result["kind"] = "moi"
                 result["online"] = diff
                 result["total_online"] = diff + (0 if result.get("choice_in_red", True) else choice_val)
-                # Bao ve trang thai chua_mo_ban cho model chua ra mat
-        if product["model"] in ("iPhone 18 Pro Max 256GB", "iPhone 18 Pro 256GB"):
-            result["status"] = "chua_mo_ban"
-            result["pmh"] = None
+        # DA GO (09-11-2026): truoc day o day co mot khoi ep cung
+        #     if product["model"] in ("iPhone 18 Pro Max 256GB", "iPhone 18 Pro 256GB"):
+        #         result["status"] = "chua_mo_ban"; result["pmh"] = None
+        # Khoi do ghi de len KET QUA CAO THAT, khong kem bat ky dieu kien nao, nen hai model
+        # bi ghim "chua mo ban" VINH VIEN. Khi TGDD da mo ban that (PDP co gia 41.990.000 /
+        # 38.990.000, co nut "Mua ngay", "Da ban 101,8k"), he thong van bao chua mo ban suot
+        # 24 dot quet lien tiep voi rrp/red/pmh y het nhau tung byte - dau hieu cua HANG SO,
+        # khong phai cua PHEP DO.
+        # Viec phat hien chua mo ban THAT nam o scan_one (khong co gia + trang ghi "dang ky
+        # nhan tin"/"sap ra mat"). Do la tin hieu doc tu trang, khong phai ten model.
+        # CONSTRAINTS 2.9 cam viet chot dich danh model. Khong duoc them lai khoi nay.
         # Bao ve ground truth cho dong OPPO A7 Pro 5G cac bien the (PDP la Marketing Landing Page khong co static price)
         if product["model"] == "A7 Pro 5G 8GB/256GB":
             result.update({

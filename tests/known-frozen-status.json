@@ -1,0 +1,26 @@
+{
+  "_doc": [
+    "XAC NHAN MOT DONG NON-ACTIVE DUNG LA DANG DONG BANG THAT.",
+    "",
+    "Circuit breaker chan commit khi mot model khong active giu nguyen (status, rrp, red)",
+    "y het nhau suot qua nhieu dot quet lien tiep. Gia tri khong doi qua nhieu dot la dau",
+    "hieu cua HANG SO chu khong phai PHEP DO - nguyen nhan thuong gap:",
+    "  - scraper ep cung status theo ten model (CONSTRAINTS 2.9 cam)",
+    "  - URL trong products.csv da chet / doi slug",
+    "  - trang bi chan nen luon tra ve cung mot loi",
+    "",
+    "Dung loi da xay ra: iPhone 18 Pro Max 256GB va iPhone 18 Pro 256GB bi khoi",
+    "`if product[\"model\"] in (...): result[\"status\"] = \"chua_mo_ban\"` ghim cung trong",
+    "scan_tgdd.py (commit ff9693a). TGDD da mo ban that - PDP co gia 41.990.000 /",
+    "38.990.000, co nut \"Mua ngay\", ghi \"Da ban 101,8k\" - nhung he thong van bao",
+    "\"Chua mo ban\" suot 24 dot quet lien tiep. Da go khoi ep cung ngay 09-11-2026.",
+    "",
+    "KHONG duoc them muc vao day de 'cho qua cho nhanh'. Chi them sau khi da mo PDP hoac",
+    "card danh muc #o=3 (CONSTRAINTS 2.6) va xac nhan trang thai do dung voi thuc te, va",
+    "phai ghi ro bang chung trong truong `reason`.",
+    "",
+    "Mot muc het hieu luc ngay khi `rrp` hoac `status` cua model doi khac."
+  ],
+
+  "entries": []
+}

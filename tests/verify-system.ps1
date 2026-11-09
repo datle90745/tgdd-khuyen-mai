@@ -246,9 +246,14 @@ if (Test-Path $scanScript) {
         $allNames -ge $GateCfg.minAssertions
     } "verify-system.ps1 chi con $((Select-String -Path 'tests/verify-system.ps1' -Pattern 'Assert-(?:Check|Hard-Fail)\s+"' -AllMatches).Matches.Count) khang dinh, duoi nguong $($GateCfg.minAssertions). Xoa khang dinh phai di kem ha minAssertions trong gate-config.json - de thay duoc trong diff."
 
+    # Dung -cmatch (PHAN BIET HOA THUONG) va bat buoc co dau ':' - tuc la bat dung CAU
+    # BAO LOI trong fail(), khong phai dong console.log mo ta.
+    # Truoc day dung -match: PowerShell khong phan biet hoa thuong nen chot van PASS khi
+    # chot that da bi go, chi can con dong log "[6] Hoi quy giua cac dot..." la du lua.
     Assert-Check "Circuit breaker phai con chot so sanh GIUA CAC DOT QUET" {
         $cb = Get-Content "tests/verify_scan.js" -Raw -Encoding UTF8
-        ($cb -match 'HOI QUY') -and ($cb -match 'maxFlatZeroDrops') -and ($cb -match 'known-zero-pmh')
+        ($cb -cmatch 'HOI QUY:') -and ($cb -cmatch 'HOI QUY DIEN RONG:') -and
+        ($cb -cmatch 'CFG\.maxFlatZeroDrops') -and ($cb -cmatch 'known-zero-pmh')
     } "tests/verify_scan.js mat chot hoi quy giua cac dot - day la thu duy nhat bat duoc loi PDP landing page ghi de du lieu dung"
 
     Assert-Check "File xac nhan PMH=0 phai ton tai va moi muc phai co bang chung" {
@@ -258,6 +263,28 @@ if (Test-Path $scanScript) {
         $bad = @($j.entries | Where-Object { -not $_.model -or -not $_.since -or -not $_.rrp -or -not $_.reason -or $_.reason.Length -lt 20 })
         $bad.Count -eq 0
     } "tests/known-zero-pmh.json co muc thieu model/since/rrp hoac `reason` qua so sai - moi xac nhan phai ghi ro bang chung doi soat"
+
+    # Loi 09-11-2026: khoi `if product["model"] in ("iPhone 18 Pro Max 256GB", "iPhone 18 Pro
+    # 256GB"): result["status"] = "chua_mo_ban"` ghim cung trang thai, khong kem dieu kien nao,
+    # nen hai model bao "chua mo ban" suot 24 dot lien tiep du TGDD da mo ban that.
+    Assert-Check "Scraper khong duoc ep cung trang thai theo DANH SACH ten model" {
+        $pyText = Get-Content "scraper/scan_tgdd.py" -Raw -Encoding UTF8
+        $pyText -notmatch '(?m)^\s*if\s+product\["model"\]\s+in\s+\('
+    } "scraper/scan_tgdd.py co khoi `if product[""model""] in (...)` ghi de ket qua cao that theo ten model - CONSTRAINTS 2.9 cam viet chot dich danh model"
+
+    Assert-Check "Circuit breaker phai con chot TRANG THAI DONG BANG" {
+        $cb = Get-Content "tests/verify_scan.js" -Raw -Encoding UTF8
+        ($cb -cmatch 'TRANG THAI DONG BANG:') -and ($cb -cmatch 'CFG\.maxFrozenScans') -and
+        ($cb -cmatch 'known-frozen-status')
+    } "tests/verify_scan.js mat chot trang thai dong bang - day la thu duy nhat bat duoc dong non-active bi ghim cung gia tri qua nhieu dot"
+
+    Assert-Check "File xac nhan trang thai dong bang phai ton tai va moi muc phai co bang chung" {
+        $p = "tests/known-frozen-status.json"
+        if (-not (Test-Path $p)) { return $false }
+        $j = Get-Content $p -Raw -Encoding UTF8 | ConvertFrom-Json
+        $bad = @($j.entries | Where-Object { -not $_.model -or -not $_.since -or -not $_.rrp -or -not $_.status -or -not $_.reason -or $_.reason.Length -lt 20 })
+        $bad.Count -eq 0
+    } "tests/known-frozen-status.json co muc thieu model/since/rrp/status hoac `reason` qua so sai - moi xac nhan phai ghi ro bang chung doi soat"
 
     Assert-Check "CONSTRAINTS.md tuyet doi khong con viet cung so SKU" {
         $cText = Get-Content "CONSTRAINTS.md" -Raw -Encoding UTF8

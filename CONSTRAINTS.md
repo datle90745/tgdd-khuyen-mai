@@ -120,7 +120,7 @@ Hệ thống **cố ý** có hai danh sách khác nhau. Nhầm lẫn giữa chú
   - Flash Sale trên TGDĐ thay đổi liên tục theo khung giờ (suất có hạn, đồng hồ đếm ngược). Mỗi đợt quét phải kiểm tra DOM độc lập tại thời điểm quét.
   - Không bao giờ mặc định một model có Flash Sale hoặc mang Flash Sale từ đợt này sang đợt khác. Không ép buộc số lượng máy Flash Sale phải lớn hơn 0 trong các test gate nếu thời điểm đó TGDĐ thực tế không chạy Flash Sale.
 
-### 2.7. Chống ghi đè âm thầm lên dữ liệu đã đúng (so sánh giữa các đợt quét)
+### 2.8. Chống ghi đè âm thầm lên dữ liệu đã đúng (so sánh giữa các đợt quét)
 
 **Lớp lỗi:** PDP của sản phẩm chiến dịch là Landing Page, không render giá đỏ tĩnh (mục 2.6).
 Scraper đọc không ra giá → trả về `red = rrp` → `diff = 0` → `PMH = 0`. Mọi trường còn lại
@@ -139,7 +139,28 @@ Scraper đọc không ra giá → trả về `red = rrp` → `diff = 0` → `PMH
 - **Cấm viết chốt đích danh một model.** Kiến thức phải mô tả **lớp lỗi**. 31% khẳng định hiện có
   đang nêu đích danh model/giá cụ thể — đó là lý do cùng một lỗi cứ tái diễn ở model khác.
 
-### 2.8. Rào chất lượng chỉ được hạ một cách công khai
+### 2.9. Cấm ép cứng kết quả cào theo tên model
+
+**Lớp lỗi:** một khối `if product["model"] in (...)` / `== "..."` trong `scraper/scan_tgdd.py`
+ghi đè lên **kết quả cào thật**, không kèm bất kỳ điều kiện nào. Dòng đó thôi đo, và bắt đầu
+trả về **hằng số** — nhưng vẫn đi qua mọi check vì từng đợt nhìn riêng lẻ đều hợp lệ.
+
+Đã xảy ra (commit `ff9693a`): `iPhone 18 Pro Max 256GB` và `iPhone 18 Pro 256GB` bị ghim
+`status = "chua_mo_ban"` vĩnh viễn. TGDĐ đã mở bán thật — PDP có giá 41.990.000 / 38.990.000,
+có nút "Mua ngay", ghi "Đã bán 101,8k" — nhưng hệ thống vẫn báo "Chưa mở bán" suốt **24 đợt
+quét liên tiếp** với `rrp`/`red`/`pmh` y hệt nhau từng byte.
+
+- **Cấm** khối `if product["model"] in (...)` ép trạng thái. `verify-system.ps1` chặn trực tiếp.
+- Việc phát hiện trạng thái phải đọc **tín hiệu từ trang**, không đọc tên model: `chua_mo_ban`
+  chỉ được đặt khi trang **không có giá** và có chữ "đăng ký nhận tin" / "sắp ra mắt".
+- `tests/verify_scan.js` chặn commit khi một dòng **không active** giữ nguyên y hệt
+  `(status, rrp, red)` quá `maxFrozenScans` đợt liên tiếp. Giá trị không đổi qua nhiều đợt là
+  dấu hiệu của **hằng số** chứ không phải **phép đo**.
+- Muốn cho qua: mở PDP hoặc card `#o=3` (mục 2.7), xác nhận, rồi thêm mục vào
+  `tests/known-frozen-status.json` **kèm bằng chứng**. Mục tự hết hiệu lực khi `rrp` hoặc
+  `status` đổi.
+
+### 2.10. Rào chất lượng chỉ được hạ một cách công khai
 
 Lịch sử dự án: **24 khẳng định đã bị xoá âm thầm**, và **1 khẳng định bị đảo ngược hoàn toàn**
 (`-notmatch` ↔ `-match` trên cùng regex `alerts.KEEP_WEEKDAYS`). Cả hai trạng thái đều báo
@@ -149,7 +170,12 @@ Lịch sử dự án: **24 khẳng định đã bị xoá âm thầm**, và **1 
   hạ con số này trong cùng commit — để việc hạ rào hiện ra trong diff.
 - Trước khi đảo chiều một khẳng định đã có (`-match` ⇄ `-notmatch`), **phải hỏi người dùng**.
   Không có commit nào được tự quyết điều này.
-- `tests/verify_scan.js` phải luôn còn chốt so sánh giữa các đợt quét và file xác nhận của nó.
+- `tests/verify_scan.js` phải luôn còn chốt so sánh giữa các đợt quét (2.8), chốt trạng thái
+  đóng băng (2.9) và hai file xác nhận của chúng.
+- Khẳng định kiểm tra sự tồn tại của một chốt phải dùng `-cmatch` (phân biệt hoa thường) và bắt
+  đúng **câu báo lỗi** trong `fail()`, không bắt dòng `console.log` mô tả. PowerShell `-match`
+  không phân biệt hoa thường, nên một chốt viết bằng `-match 'HOI QUY'` vẫn PASS sau khi chốt
+  thật đã bị gỡ, chỉ cần còn dòng log `[6] Hoi quy giua cac dot...` là đủ lừa.
 
 ---
 

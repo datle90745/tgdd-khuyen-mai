@@ -531,6 +531,80 @@ if (scanData && scanFileName) {
 }
 
 // ---------------------------------------------------------------------------
+// 7. TRANG THAI DONG BANG
+//
+// Lop loi: mot dong KHONG active bi ghim cung mot gia tri qua nhieu dot lien tiep.
+// Khi (status, rrp, red) y het nhau tung byte suot nhieu dot, do khong con la PHEP DO
+// nua ma la HANG SO - nguyen nhan co the la ep cung trong scraper, URL chet, cache,
+// hoac don gian la khong ai nhin lai.
+//
+// Dung loi da xay ra: iPhone 18 Pro Max 256GB / iPhone 18 Pro 256GB bi mot khoi
+// `if product["model"] in (...)` ghim "chua_mo_ban" trong scan_tgdd.py, nen bao
+// chua mo ban suot 24 dot lien tiep trong khi TGDD da mo ban that (PDP co gia, co
+// nut "Mua ngay", "Da ban 101,8k"). Moi check trong mot dot deu mu voi lop loi nay
+// vi tung dot nhin rieng le deu hop le.
+//
+// Chot nay mo ta LOP LOI, khong dich danh model nao.
+// ---------------------------------------------------------------------------
+if (scanData && scanFileName) {
+  const allScans = fs.readdirSync(SCANS_DIR)
+    .filter((f) => /^scan_\d{4}-\d{2}-\d{2}\.json$/.test(f))
+    .sort();
+  const pos = allScans.indexOf(scanFileName);
+
+  let frozenAcks = [];
+  const frozenAckPath = path.join(ROOT, 'tests', 'known-frozen-status.json');
+  if (fs.existsSync(frozenAckPath)) {
+    try {
+      frozenAcks = JSON.parse(fs.readFileSync(frozenAckPath, 'utf8').replace(/^﻿/, '')).entries || [];
+    } catch (e) {
+      fail(`tests/known-frozen-status.json khong parse duoc: ${e.message}`);
+    }
+  }
+  const todayIso2 = scanFileName.slice(5, 15);
+  // Xac nhan het hieu luc khi rrp hoac status doi - vi luc do tinh huong da khac.
+  const isFrozenAcked = (r) => frozenAcks.some((a) =>
+    a.model === r.model && String(a.since) <= todayIso2 &&
+    Number(a.rrp) === Number(r.rrp) && a.status === r.status);
+
+  // Doc nguoc cac dot truoc; dung ngay khi gap dot dau tien khac gia tri.
+  const prevCache = new Map();
+  const readScan = (f) => {
+    if (!prevCache.has(f)) {
+      try {
+        prevCache.set(f, JSON.parse(fs.readFileSync(path.join(SCANS_DIR, f), 'utf8').replace(/^﻿/, '')).rows || []);
+      } catch { prevCache.set(f, null); }
+    }
+    return prevCache.get(f);
+  };
+
+  let frozenCount = 0;
+  for (const r of rows) {
+    if (r.status === 'active') continue;
+    let streak = 1;
+    for (let i = pos - 1; i >= 0; i--) {
+      const prevRows = readScan(allScans[i]);
+      if (!prevRows) break;
+      const p = prevRows.find((x) => x.model === r.model);
+      if (p && p.status === r.status && p.rrp === r.rrp && p.red === r.red) streak++;
+      else break;
+    }
+    if (streak < CFG.maxFrozenScans) continue;
+    frozenCount++;
+    if (isFrozenAcked(r)) continue;
+    fail(
+      `TRANG THAI DONG BANG: ${r.model} giu nguyen status="${r.status}" voi ` +
+      `rrp=${Number(r.rrp || 0).toLocaleString('vi-VN')} red=${Number(r.red || 0).toLocaleString('vi-VN')} ` +
+      `suot ${streak} dot quet lien tiep (nguong ${CFG.maxFrozenScans}). Gia tri y het nhau qua nhieu dot ` +
+      `la dau hieu cua HANG SO chu khong phai PHEP DO: kiem xem scan_tgdd.py co ep cung model nay khong ` +
+      `(CONSTRAINTS 2.9 cam), URL con song khong, va doi soat PDP/card #o=3 (CONSTRAINTS 2.6/2.7). ` +
+      `Neu dung la trang thai that, them muc vao tests/known-frozen-status.json kem bang chung.`
+    );
+  }
+  console.log(`[7] Trang thai dong bang: ${frozenCount} dong non-active dat/vuot nguong ${CFG.maxFrozenScans} dot`);
+}
+
+// ---------------------------------------------------------------------------
 // Tong ket
 // ---------------------------------------------------------------------------
 console.log('');
