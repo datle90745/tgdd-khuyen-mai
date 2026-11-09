@@ -316,6 +316,12 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         ($alertsText -notmatch "Galaxy A18 4G") -and ($risesText -notmatch "Galaxy A18 4G")
     } "alerts.js hoac rises.js van con chua bao tang gia ao Galaxy A18"
 
+    Assert-Check "data/data.js phai dinh nghia window.RISE_RAW chua du cac thang lich su tu T1 den T10 (>= 100 dong)" {
+        $dtText = Get-Content "data/data.js" -Raw -Encoding UTF8
+        ($dtText -match 'window\.RISE_RAW\s*=\s*\[') -and
+        ($dtText -match '"T1"') -and ($dtText -match '"T4"') -and ($dtText -match '"T7"') -and ($dtText -match '"T10"')
+    } "data/data.js thieu window.RISE_RAW hoac thieu cac thang lich su T1-T10"
+
     Assert-Check "data/rises.js khong chua bat ky dong tang gia nao co Brand bi trong" {
         $risesText = Get-Content "data/rises.js" -Raw -Encoding UTF8
         $risesText -notmatch '\["T\d+",\s*"",'
@@ -589,6 +595,11 @@ if (-not (Test-Path $e2eHtml)) {
                 $renoRow.Success -and 
                 ($renoRow.Groups[1].Value -match 'class="badge mass">Mass<')
             } "$dcf khong hien thi Reno16F 5G 8GB/256GB la kenh Mass"
+
+            Assert-Check "DOM E2E: $dcf phai render day du cac thang lich su tang gia goc T1-T10" {
+                ($domContent -match 'A5i Pro') -and
+                ($domContent -match 'Honor X7d')
+            } "$dcf bi mat cac thang lich su tang gia goc T1-T10"
 
             Assert-Check "DOM E2E: $dcf phai render du 5 model Realme C100/C100x trong tab Lich su tang gia T11" {
                 ($domContent -match 'C100x 6GB/128GB') -and
