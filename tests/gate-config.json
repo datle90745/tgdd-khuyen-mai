@@ -70,7 +70,7 @@
     "Tu nay: xoa khang dinh thi BAT BUOC phai ha con so nay trong cung commit - de viec",
     "giam rao chat luong hien ra trong diff thay vi lang le."
   ],
-  "minAssertions": 92,
+  "minAssertions": 93,
 
   "requireScanToday": true,
   "scansJsRetention": 30,

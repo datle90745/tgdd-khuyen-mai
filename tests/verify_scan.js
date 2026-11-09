@@ -416,20 +416,50 @@ if (scansArr && scanData) {
 // ---------------------------------------------------------------------------
 // 5. Ban sao long nhau (nguon du lieu ma / divergent copy)
 // ---------------------------------------------------------------------------
+// Truoc day muc nay chi so truong `date` va chi CANH BAO. Ngay 09-11-2026 lo ra la
+// khong du: ban sao co CUNG `date` nhung khac NOI DUNG tung dong (ban chinh da sua
+// iPhone 18 Pro thanh active, ban sao van "chua_mo_ban"), nen canh bao khong he keu.
+// He thong co BON nguon chu khong phai ba: scan json, latest.js, scans.js, va ban sao
+// long nhau - ma ban sao thi bi `git add "promotion tgdd"` dua vao moi dot commit.
 if (CFG.nestedCopyPath) {
   const nested = path.join(ROOT, CFG.nestedCopyPath, 'data', 'latest.js');
-  if (fs.existsSync(nested)) {
+  if (!fs.existsSync(nested)) {
+    console.log(`[5] Ban sao long nhau: khong co "${CFG.nestedCopyPath}/data/latest.js", bo qua.`);
+  } else {
     const res = parseWindowVar(nested, 'LATEST');
-    const nestedDate = res.value ? res.value.date : '(khong doc duoc)';
-    // Canh bao chu khong chan commit: ban sao cu khong lam sai du lieu dang phuc vu web,
-    // nhung no van bi `git add "promotion tgdd"` dua vao moi dot commit.
-    if (!latestObj || nestedDate !== latestObj.date) {
-      warn(
-        `Ban sao long nhau "${CFG.nestedCopyPath}/data/latest.js" dang o dot "${nestedDate}" ` +
-        `trong khi ban chinh o "${latestObj ? latestObj.date : '?'}". ` +
-        `Workflow van \`git add "${CFG.nestedCopyPath}"\` nen ban cu nay duoc commit moi dot - ` +
-        `nen xoa thu muc do hoac bo khoi buoc git add.`
-      );
+    if (res.err || !res.value) {
+      fail(`Ban sao long nhau "${CFG.nestedCopyPath}/data/latest.js" khong doc duoc: ${res.err}`);
+    } else if (!latestObj) {
+      // latest.js ban chinh da bao loi o muc truoc roi.
+    } else {
+      const nestedObj = res.value;
+      const diffs = [];
+      if (nestedObj.date !== latestObj.date) {
+        diffs.push(`date: "${nestedObj.date}" vs "${latestObj.date}"`);
+      }
+      const nestedByModel = new Map((nestedObj.rows || []).map((r) => [r.model, r]));
+      for (const r of latestObj.rows || []) {
+        const c = nestedByModel.get(r.model);
+        if (!c) { diffs.push(`${r.model}: thieu han trong ban sao`); continue; }
+        for (const k of ['status', 'rrp', 'red', 'pmh', 'online', 'total_online', 'choice']) {
+          const a = r[k] ?? null, b = c[k] ?? null;
+          if (a !== b) diffs.push(`${r.model}.${k}: ban chinh ${a} vs ban sao ${b}`);
+        }
+        nestedByModel.delete(r.model);
+      }
+      for (const m of nestedByModel.keys()) diffs.push(`${m}: chi co trong ban sao`);
+
+      if (diffs.length) {
+        fail(
+          `BAN SAO LECH: "${CFG.nestedCopyPath}/data/latest.js" khong khop ban chinh ` +
+          `(${diffs.length} diem lech). Ban sao nay van duoc \`git add "${CFG.nestedCopyPath}"\` ` +
+          `moi dot nen no duoc commit va phuc vu web voi so lieu khac. Chay lai ` +
+          `scraper/bundle.py de dong bo, hoac bo thu muc do khoi buoc git add. ` +
+          `Vai diem lech dau: ${diffs.slice(0, 5).join(' | ')}`
+        );
+      } else {
+        console.log(`[5] Ban sao long nhau: khop ban chinh (${(latestObj.rows || []).length} dong)`);
+      }
     }
   }
 }

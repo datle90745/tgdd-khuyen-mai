@@ -85,12 +85,18 @@ Hệ thống **cố ý** có hai danh sách khác nhau. Nhầm lẫn giữa chú
   - **Sheet 3 (`Lich_Su_Theo_Dot_Quet`)**: Lịch sử đợt quét, khoá theo **Master List BÁO CÁO** (mục 2.2).
 - Nút **Xuất Excel tab này (`id="history-xlsx"`)** tại tab Lịch sử: Xuất riêng Sheet `Lich_Su_Theo_Dot_Quet`.
 
-### 2.4. Đồng bộ hóa dữ liệu (Three-Way Sync)
+### 2.4. Đồng bộ hóa dữ liệu (BỐN nguồn, không phải ba)
 - Khi có đợt quét mới:
   - `data/scans/scan_YYYY-MM-DD.json`: Lưu bản ghi chi tiết gốc.
   - `data/latest.js`: `window.LATEST` chứa kết quả đợt quét mới nhất.
   - `data/scans.js`: `window.SCANS` chứa toàn bộ các đợt quét lịch sử (bao gồm cả đợt quét hôm nay khi đã hoàn thành).
+  - **`promotion tgdd/data/*.js`**: bản sao do `scraper/bundle.py` sinh ra. Workflow
+    `git add "promotion tgdd"` mỗi đợt, nên bản sao này **được commit và phục vụ web**.
   - Tránh tuyệt đối việc `latest.js` có đợt mới mà `scans.js` bị bỏ sót.
+- **Bản sao phải khớp bản chính TỪNG DÒNG, không chỉ cùng `date`.** Ngày 09-11-2026 bản sao
+  có **cùng** `date` nhưng `status`/`pmh` của 2 dòng iPhone 18 Pro vẫn là giá trị cũ — cổng chỉ
+  so `date` nên không hề kêu. Bước đóng gói có `continue-on-error: true`, nên khi nó hỏng thì
+  bản sao cũ vẫn được commit. Nay cổng so từng dòng và **chặn**.
 
 ### 2.5. Tính Độc Lập Biến Thể Cấu Hình (RAM/ROM) - Tuyệt Đối Không Gộp (Merge)
 - **Mọi biến thể RAM/ROM trên TGDĐ là một sản phẩm/SKU hoàn toàn riêng biệt**:

@@ -272,6 +272,14 @@ if (Test-Path $scanScript) {
         $pyText -notmatch '(?m)^\s*if\s+product\["model"\]\s+in\s+\('
     } "scraper/scan_tgdd.py co khoi `if product[""model""] in (...)` ghi de ket qua cao that theo ten model - CONSTRAINTS 2.9 cam viet chot dich danh model"
 
+    # Loi 09-11-2026: muc [5] chi so truong `date` nen ban sao co cung ngay nhung khac noi
+    # dung tung dong van lot. Tu nay phai so TUNG DONG va phai CHAN, khong chi canh bao.
+    Assert-Check "Circuit breaker phai so TUNG DONG cua ban sao long nhau va phai CHAN" {
+        $cb = Get-Content "tests/verify_scan.js" -Raw -Encoding UTF8
+        ($cb -cmatch 'BAN SAO LECH:') -and ($cb -cmatch 'nestedCopyPath') -and
+        ($cb -cmatch "total_online") -and ($cb -cmatch 'nestedByModel')
+    } "tests/verify_scan.js khong con so tung dong cua ban sao `promotion tgdd/data` - ban sao van bi git add moi dot nen no se phuc vu web voi so lieu khac"
+
     Assert-Check "Circuit breaker phai con chot TRANG THAI DONG BANG" {
         $cb = Get-Content "tests/verify_scan.js" -Raw -Encoding UTF8
         ($cb -cmatch 'TRANG THAI DONG BANG:') -and ($cb -cmatch 'CFG\.maxFrozenScans') -and
