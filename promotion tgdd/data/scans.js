@@ -10772,6 +10772,7 @@ window.SCANS = [
       {
         "model": "iPhone 17 Pro Max 512GB",
         "rrp": 44490000,
+        "red": 41490000,
         "pmh": 3000000,
         "status": "active",
         "online": 3000000,
@@ -10784,6 +10785,7 @@ window.SCANS = [
       {
         "model": "iPhone 18 Pro Max 256GB",
         "rrp": 41990000,
+        "red": 41990000,
         "pmh": null,
         "status": "chua_mo_ban",
         "online": 0,
@@ -10796,6 +10798,7 @@ window.SCANS = [
       {
         "model": "iPhone 17 Pro Max 256GB",
         "rrp": 37990000,
+        "red": 34990000,
         "pmh": 3000000,
         "status": "active",
         "online": 3000000,
@@ -10808,6 +10811,7 @@ window.SCANS = [
       {
         "model": "iPhone 17 Pro 256GB",
         "rrp": 34990000,
+        "red": 31990000,
         "pmh": 3000000,
         "status": "active",
         "online": 3000000,
@@ -10820,6 +10824,7 @@ window.SCANS = [
       {
         "model": "iPhone Air 256GB",
         "rrp": 34990000,
+        "red": 22990000,
         "pmh": 12000000,
         "status": "active",
         "online": 12000000,
@@ -10832,6 +10837,7 @@ window.SCANS = [
       {
         "model": "iPhone 17 256GB",
         "rrp": 28990000,
+        "red": 28490000,
         "pmh": 500000,
         "status": "active",
         "online": 500000,
@@ -10844,6 +10850,7 @@ window.SCANS = [
       {
         "model": "iPhone 16 128GB",
         "rrp": 24990000,
+        "red": 24490000,
         "pmh": 500000,
         "status": "active",
         "online": 500000,
@@ -10856,6 +10863,7 @@ window.SCANS = [
       {
         "model": "iPhone 15 128GB",
         "rrp": 21990000,
+        "red": 21490000,
         "pmh": 500000,
         "status": "active",
         "online": 500000,
@@ -10868,30 +10876,33 @@ window.SCANS = [
       {
         "model": "Find X9 Ultra 12GB/512GB",
         "rrp": 49990000,
+        "red": 45990000,
         "pmh": 4000000,
         "status": "active",
         "online": 4000000,
         "total_online": 4000000,
-        "choice": 0,
-        "kind": "brand_tab",
-        "rule": "den_tru_do",
-        "banner": false
-      },
-      {
-        "model": "Find X9s 12GB/512GB",
-        "rrp": 26990000,
-        "pmh": 540000,
-        "status": "active",
-        "online": 540000,
-        "total_online": 540000,
         "choice": 0,
         "kind": "moi",
         "rule": "den_tru_do",
         "banner": false
       },
       {
+        "model": "Find X9s 12GB/512GB",
+        "rrp": 26990000,
+        "red": 26450000,
+        "pmh": 0,
+        "status": "active",
+        "online": 540000,
+        "total_online": 540000,
+        "choice": 0,
+        "kind": "moi-banner",
+        "rule": "flash_chon1",
+        "banner": true
+      },
+      {
         "model": "Reno16 Pro 5G 12GB/256GB",
         "rrp": 25990000,
+        "red": 22870000,
         "pmh": 3120000,
         "status": "active",
         "online": 3120000,
@@ -10904,6 +10915,7 @@ window.SCANS = [
       {
         "model": "Find X9s 12GB/256GB",
         "rrp": 24990000,
+        "red": 24990000,
         "pmh": 0,
         "status": "active",
         "online": 0,
@@ -10916,6 +10928,7 @@ window.SCANS = [
       {
         "model": "Reno16 5G 8GB/256GB",
         "rrp": 18990000,
+        "red": 16710000,
         "pmh": 2280000,
         "status": "active",
         "online": 2280000,
@@ -10928,6 +10941,7 @@ window.SCANS = [
       {
         "model": "Reno16F 5G 8GB/256GB",
         "rrp": 15990000,
+        "red": 15690000,
         "pmh": 300000,
         "status": "active",
         "online": 300000,
@@ -10940,6 +10954,7 @@ window.SCANS = [
       {
         "model": "Reno16F 5G 8GB/128GB",
         "rrp": 14990000,
+        "red": 14390000,
         "pmh": 600000,
         "status": "active",
         "online": 600000,
@@ -10952,42 +10967,46 @@ window.SCANS = [
       {
         "model": "A7 Pro 5G 8GB/256GB",
         "rrp": 15490000,
+        "red": 15180000,
         "pmh": 310000,
         "status": "active",
         "online": 310000,
         "total_online": 310000,
         "choice": 0,
-        "kind": "brand_tab",
+        "kind": "moi",
         "rule": "den_tru_do",
         "banner": false
       },
       {
         "model": "A7 Pro 5G 6GB/256GB",
         "rrp": 14490000,
+        "red": 13990000,
         "pmh": 500000,
         "status": "active",
         "online": 500000,
         "total_online": 500000,
         "choice": 0,
-        "kind": "brand_tab",
+        "kind": "moi",
         "rule": "den_tru_do",
         "banner": false
       },
       {
         "model": "A7 Pro 5G 8GB/128GB",
         "rrp": 13490000,
+        "red": 11870000,
         "pmh": 1620000,
         "status": "active",
         "online": 1620000,
         "total_online": 1620000,
         "choice": 0,
-        "kind": "brand_tab",
+        "kind": "moi",
         "rule": "den_tru_do",
         "banner": false
       },
       {
         "model": "A6 8GB/256GB",
         "rrp": 11990000,
+        "red": 11490000,
         "pmh": 500000,
         "status": "active",
         "online": 500000,
@@ -11000,6 +11019,7 @@ window.SCANS = [
       {
         "model": "A6 8GB/128GB",
         "rrp": 10990000,
+        "red": 10070000,
         "pmh": 920000,
         "status": "active",
         "online": 920000,
@@ -11012,6 +11032,7 @@ window.SCANS = [
       {
         "model": "A6 Pro 5G 8GB/256GB",
         "rrp": 10990000,
+        "red": 9770000,
         "pmh": 1220000,
         "status": "active",
         "online": 1220000,
@@ -11024,18 +11045,20 @@ window.SCANS = [
       {
         "model": "A6 6GB/128GB",
         "rrp": 9990000,
-        "pmh": 500000,
+        "red": 9490000,
+        "pmh": 300000,
         "status": "active",
         "online": 500000,
         "total_online": 800000,
         "choice": 300000,
-        "kind": "moi",
-        "rule": "den_tru_do",
-        "banner": false
+        "kind": "moi-banner",
+        "rule": "flash_chon1",
+        "banner": true
       },
       {
         "model": "A6 Pro 8GB/256GB",
         "rrp": 9990000,
+        "red": 8790000,
         "pmh": 1200000,
         "status": "active",
         "online": 1200000,
@@ -11048,6 +11071,7 @@ window.SCANS = [
       {
         "model": "A6x 6GB/256GB",
         "rrp": 8990000,
+        "red": 8210000,
         "pmh": 780000,
         "status": "active",
         "online": 780000,
@@ -11060,18 +11084,20 @@ window.SCANS = [
       {
         "model": "A6x 4GB/128GB",
         "rrp": 7090000,
-        "pmh": 150000,
+        "red": 6940000,
+        "pmh": 0,
         "status": "active",
         "online": 150000,
         "total_online": 150000,
         "choice": 0,
-        "kind": "moi",
-        "rule": "den_tru_do",
-        "banner": false
+        "kind": "moi-banner",
+        "rule": "flash_chon1",
+        "banner": true
       },
       {
         "model": "A6c 4GB/128GB",
         "rrp": 5690000,
+        "red": 5690000,
         "pmh": 0,
         "status": "active",
         "online": 0,
@@ -11084,6 +11110,7 @@ window.SCANS = [
       {
         "model": "A6x 4GB/64GB",
         "rrp": 4990000,
+        "red": 4890000,
         "pmh": 100000,
         "status": "active",
         "online": 100000,
@@ -11096,6 +11123,7 @@ window.SCANS = [
       {
         "model": "A6c 4GB/64GB",
         "rrp": 4690000,
+        "red": 4690000,
         "pmh": 0,
         "status": "active",
         "online": 0,
@@ -11108,42 +11136,46 @@ window.SCANS = [
       {
         "model": "S26 Ultra 5G 12GB/256GB",
         "rrp": 40990000,
-        "pmh": 0,
+        "red": 30490000,
+        "pmh": 10500000,
         "status": "active",
         "online": 10500000,
         "total_online": 10500000,
         "choice": 0,
-        "kind": "moi-banner",
-        "rule": "flash_chon1",
-        "banner": true
+        "kind": "moi",
+        "rule": "den_tru_do",
+        "banner": false
       },
       {
         "model": "S26+ 5G 12GB/256GB",
         "rrp": 33990000,
-        "pmh": 0,
+        "red": 23990000,
+        "pmh": 10000000,
         "status": "active",
         "online": 10000000,
         "total_online": 10000000,
         "choice": 0,
-        "kind": "moi-banner",
-        "rule": "flash_chon1",
-        "banner": true
+        "kind": "moi",
+        "rule": "den_tru_do",
+        "banner": false
       },
       {
         "model": "S25 Ultra 5G 12GB/256GB",
         "rrp": 33380000,
-        "pmh": 0,
+        "red": 25990000,
+        "pmh": 7390000,
         "status": "active",
         "online": 7390000,
         "total_online": 7390000,
         "choice": 0,
-        "kind": "moi-banner",
-        "rule": "flash_chon1",
-        "banner": true
+        "kind": "moi",
+        "rule": "den_tru_do",
+        "banner": false
       },
       {
         "model": "S26 FE 5G 8GB/256GB",
         "rrp": 21990000,
+        "red": 17990000,
         "pmh": 4000000,
         "status": "active",
         "online": 4000000,
@@ -11156,6 +11188,7 @@ window.SCANS = [
       {
         "model": "S25 FE 5G 8GB/256GB",
         "rrp": 19690000,
+        "red": 15790000,
         "pmh": 3900000,
         "status": "active",
         "online": 3900000,
@@ -11168,6 +11201,7 @@ window.SCANS = [
       {
         "model": "A57 5G 12GB/256GB",
         "rrp": 16490000,
+        "red": 12100000,
         "pmh": 4390000,
         "status": "active",
         "online": 4390000,
@@ -11180,6 +11214,7 @@ window.SCANS = [
       {
         "model": "A57 5G 8GB/256GB",
         "rrp": 15490000,
+        "red": 12000000,
         "pmh": 3490000,
         "status": "active",
         "online": 3490000,
@@ -11192,6 +11227,7 @@ window.SCANS = [
       {
         "model": "A37 8GB/256GB",
         "rrp": 13990000,
+        "red": 11300000,
         "pmh": 2690000,
         "status": "active",
         "online": 2690000,
@@ -11204,6 +11240,7 @@ window.SCANS = [
       {
         "model": "A37 5G 6GB/128GB",
         "rrp": 11190000,
+        "red": 9200000,
         "pmh": 1990000,
         "status": "active",
         "online": 1990000,
@@ -11216,6 +11253,7 @@ window.SCANS = [
       {
         "model": "A27 8GB/128GB",
         "rrp": 10190000,
+        "red": 8400000,
         "pmh": 1790000,
         "status": "active",
         "online": 1790000,
@@ -11228,6 +11266,7 @@ window.SCANS = [
       {
         "model": "A27 6GB/128GB",
         "rrp": 9090000,
+        "red": 7600000,
         "pmh": 1490000,
         "status": "active",
         "online": 1490000,
@@ -11240,6 +11279,7 @@ window.SCANS = [
       {
         "model": "A17 5G 8GB/128GB",
         "rrp": 8790000,
+        "red": 7300000,
         "pmh": 1490000,
         "status": "active",
         "online": 1490000,
@@ -11252,6 +11292,7 @@ window.SCANS = [
       {
         "model": "A17 5G 8GB/256GB",
         "rrp": 7990000,
+        "red": 6700000,
         "pmh": 1290000,
         "status": "active",
         "online": 1290000,
@@ -11264,6 +11305,7 @@ window.SCANS = [
       {
         "model": "A17 8GB/256GB",
         "rrp": 6890000,
+        "red": 6400000,
         "pmh": 490000,
         "status": "active",
         "online": 490000,
@@ -11276,18 +11318,20 @@ window.SCANS = [
       {
         "model": "A17 8GB/128GB",
         "rrp": 6190000,
-        "pmh": 200000,
+        "red": 5490000,
+        "pmh": 700000,
         "status": "active",
         "online": 700000,
         "total_online": 900000,
         "choice": 200000,
-        "kind": "moi-banner",
-        "rule": "flash_chon1",
-        "banner": true
+        "kind": "moi",
+        "rule": "den_tru_do",
+        "banner": false
       },
       {
         "model": "A07 5G 4GB/128GB",
         "rrp": 5890000,
+        "red": 4700000,
         "pmh": 1190000,
         "status": "active",
         "online": 1190000,
@@ -11300,6 +11344,7 @@ window.SCANS = [
       {
         "model": "A17 4GB/128GB",
         "rrp": 5690000,
+        "red": 4490000,
         "pmh": 1200000,
         "status": "active",
         "online": 1200000,
@@ -11312,6 +11357,7 @@ window.SCANS = [
       {
         "model": "A08 4GB/64GB",
         "rrp": 4790000,
+        "red": 4490000,
         "pmh": 300000,
         "status": "active",
         "online": 300000,
@@ -11324,6 +11370,7 @@ window.SCANS = [
       {
         "model": "A07 6GB/128GB",
         "rrp": 4490000,
+        "red": 3790000,
         "pmh": 700000,
         "status": "active",
         "online": 700000,
@@ -11336,6 +11383,7 @@ window.SCANS = [
       {
         "model": "A07 4GB/64GB",
         "rrp": 3890000,
+        "red": 3290000,
         "pmh": 600000,
         "status": "active",
         "online": 600000,
@@ -11348,6 +11396,7 @@ window.SCANS = [
       {
         "model": "Xiaomi 17 Ultra 5G 16GB/512GB",
         "rrp": 39990000,
+        "red": 29890000,
         "pmh": 10100000,
         "status": "active",
         "online": 10100000,
@@ -11360,6 +11409,7 @@ window.SCANS = [
       {
         "model": "Xiaomi 17 5G 12GB/256GB",
         "rrp": 26990000,
+        "red": 18950000,
         "pmh": 8040000,
         "status": "active",
         "online": 8040000,
@@ -11372,6 +11422,7 @@ window.SCANS = [
       {
         "model": "17T Pro 5G 12GB/256GB",
         "rrp": 23990000,
+        "red": 18510000,
         "pmh": 5480000,
         "status": "active",
         "online": 5480000,
@@ -11384,6 +11435,7 @@ window.SCANS = [
       {
         "model": "17T 5G 12GB/512GB",
         "rrp": 20990000,
+        "red": 15670000,
         "pmh": 5320000,
         "status": "active",
         "online": 5320000,
@@ -11396,6 +11448,7 @@ window.SCANS = [
       {
         "model": "17T 5G 12GB/256GB",
         "rrp": 20090000,
+        "red": 14780000,
         "pmh": 5310000,
         "status": "active",
         "online": 5310000,
@@ -11408,6 +11461,7 @@ window.SCANS = [
       {
         "model": "Redmi Note 17 Pro 5G 12GB/256GB",
         "rrp": 13490000,
+        "red": 11820000,
         "pmh": 1670000,
         "status": "active",
         "online": 1670000,
@@ -11420,6 +11474,7 @@ window.SCANS = [
       {
         "model": "Redmi Note 17 Pro 5G 8GB/256GB",
         "rrp": 12490000,
+        "red": 11540000,
         "pmh": 950000,
         "status": "active",
         "online": 950000,
@@ -11432,6 +11487,7 @@ window.SCANS = [
       {
         "model": "Redmi Note 17 5G 8GB/256GB",
         "rrp": 10090000,
+        "red": 8370000,
         "pmh": 1720000,
         "status": "active",
         "online": 1720000,
@@ -11444,6 +11500,7 @@ window.SCANS = [
       {
         "model": "Redmi Note 17 5G 6GB/256GB",
         "rrp": 9490000,
+        "red": 8200000,
         "pmh": 1290000,
         "status": "active",
         "online": 1290000,
@@ -11456,6 +11513,7 @@ window.SCANS = [
       {
         "model": "Redmi Note 17 6GB/256GB",
         "rrp": 8290000,
+        "red": 6720000,
         "pmh": 1570000,
         "status": "active",
         "online": 1570000,
@@ -11468,6 +11526,7 @@ window.SCANS = [
       {
         "model": "Redmi Note 17 6GB/128GB",
         "rrp": 7690000,
+        "red": 7230000,
         "pmh": 460000,
         "status": "active",
         "online": 460000,
@@ -11480,6 +11539,7 @@ window.SCANS = [
       {
         "model": "Redmi 17 4G 6GB/256GB",
         "rrp": 7490000,
+        "red": 5840000,
         "pmh": 1650000,
         "status": "active",
         "online": 1650000,
@@ -11492,6 +11552,7 @@ window.SCANS = [
       {
         "model": "Redmi Note 15 8GB/256GB",
         "rrp": 7090000,
+        "red": 5240000,
         "pmh": 1850000,
         "status": "active",
         "online": 1850000,
@@ -11504,6 +11565,7 @@ window.SCANS = [
       {
         "model": "Redmi 17 4G 4GB/256GB",
         "rrp": 6690000,
+        "red": 5550000,
         "pmh": 1140000,
         "status": "active",
         "online": 1140000,
@@ -11516,6 +11578,7 @@ window.SCANS = [
       {
         "model": "Redmi 17 5G 4GB/128GB",
         "rrp": 6490000,
+        "red": 4960000,
         "pmh": 1530000,
         "status": "active",
         "online": 1530000,
@@ -11528,6 +11591,7 @@ window.SCANS = [
       {
         "model": "Redmi 17 4G 4GB/128GB",
         "rrp": 5990000,
+        "red": 4970000,
         "pmh": 1020000,
         "status": "active",
         "online": 1020000,
@@ -11540,6 +11604,7 @@ window.SCANS = [
       {
         "model": "Redmi 15 5G 4GB/128GB",
         "rrp": 5690000,
+        "red": 4570000,
         "pmh": 1120000,
         "status": "active",
         "online": 1120000,
@@ -11552,18 +11617,20 @@ window.SCANS = [
       {
         "model": "Redmi A7 Pro 4/128G",
         "rrp": 4990000,
-        "pmh": 900000,
+        "red": 4090000,
+        "pmh": 500000,
         "status": "active",
         "online": 900000,
         "total_online": 1400000,
         "choice": 500000,
-        "kind": "moi",
-        "rule": "den_tru_do",
-        "banner": false
+        "kind": "moi-banner",
+        "rule": "flash_chon1",
+        "banner": true
       },
       {
         "model": "Redmi 15 6GB/128GB",
         "rrp": 4790000,
+        "red": 4690000,
         "pmh": 100000,
         "status": "active",
         "online": 100000,
@@ -11576,6 +11643,7 @@ window.SCANS = [
       {
         "model": "Redmi A7 Pro 4/64G",
         "rrp": 4490000,
+        "red": 3800000,
         "pmh": 690000,
         "status": "active",
         "online": 690000,
@@ -11588,6 +11656,7 @@ window.SCANS = [
       {
         "model": "X300 Ultra 16GB/512GB",
         "rrp": 49990000,
+        "red": 36990000,
         "pmh": 13000000,
         "status": "active",
         "online": 13000000,
@@ -11600,18 +11669,20 @@ window.SCANS = [
       {
         "model": "V70 5G 8GB/256GB",
         "rrp": 17990000,
-        "pmh": 3000000,
+        "red": 14990000,
+        "pmh": 700000,
         "status": "active",
         "online": 3000000,
         "total_online": 3700000,
         "choice": 700000,
-        "kind": "moi",
-        "rule": "den_tru_do",
-        "banner": false
+        "kind": "moi-banner",
+        "rule": "flash_chon1",
+        "banner": true
       },
       {
         "model": "V80 Lite 5G 6GB/256GB",
         "rrp": 14990000,
+        "red": 13990000,
         "pmh": 1000000,
         "status": "active",
         "online": 1000000,
@@ -11624,6 +11695,7 @@ window.SCANS = [
       {
         "model": "V70 FE 5G 8GB/256GB",
         "rrp": 13990000,
+        "red": 12290000,
         "pmh": 1700000,
         "status": "active",
         "online": 1700000,
@@ -11636,6 +11708,7 @@ window.SCANS = [
       {
         "model": "V80 Lite 5G 6GB/128GB",
         "rrp": 12990000,
+        "red": 12030000,
         "pmh": 960000,
         "status": "active",
         "online": 960000,
@@ -11648,18 +11721,20 @@ window.SCANS = [
       {
         "model": "V60 Lite 5G 8GB/256GB",
         "rrp": 10490000,
-        "pmh": 1210000,
+        "red": 9280000,
+        "pmh": 500000,
         "status": "active",
         "online": 1210000,
         "total_online": 1710000,
         "choice": 500000,
-        "kind": "moi",
-        "rule": "den_tru_do",
-        "banner": false
+        "kind": "moi-banner",
+        "rule": "flash_chon1",
+        "banner": true
       },
       {
         "model": "Y31d 8GB/128GB",
         "rrp": 10090000,
+        "red": 8280000,
         "pmh": 1810000,
         "status": "active",
         "online": 1810000,
@@ -11672,6 +11747,7 @@ window.SCANS = [
       {
         "model": "Y31d 6GB/128GB",
         "rrp": 8990000,
+        "red": 7910000,
         "pmh": 1080000,
         "status": "active",
         "online": 1080000,
@@ -11684,30 +11760,33 @@ window.SCANS = [
       {
         "model": "Y39 5G 8GB/128GB",
         "rrp": 7360000,
-        "pmh": 2040000,
+        "red": 5320000,
+        "pmh": 500000,
         "status": "active",
         "online": 2040000,
         "total_online": 2540000,
         "choice": 500000,
-        "kind": "moi",
-        "rule": "den_tru_do",
-        "banner": false
+        "kind": "moi-banner",
+        "rule": "flash_chon1",
+        "banner": true
       },
       {
         "model": "Y11d 6GB/128GB",
         "rrp": 7290000,
-        "pmh": 850000,
+        "red": 6440000,
+        "pmh": 0,
         "status": "active",
         "online": 850000,
         "total_online": 850000,
         "choice": 0,
-        "kind": "moi",
-        "rule": "den_tru_do",
-        "banner": false
+        "kind": "moi-banner",
+        "rule": "flash_chon1",
+        "banner": true
       },
       {
         "model": "Y11d 4GB/128GB",
         "rrp": 6790000,
+        "red": 6350000,
         "pmh": 440000,
         "status": "active",
         "online": 440000,
@@ -11720,6 +11799,7 @@ window.SCANS = [
       {
         "model": "Y05 4GB/128GB",
         "rrp": 5990000,
+        "red": 5670000,
         "pmh": 320000,
         "status": "active",
         "online": 320000,
@@ -11732,6 +11812,7 @@ window.SCANS = [
       {
         "model": "Y05 4GB/64GB",
         "rrp": 4990000,
+        "red": 4390000,
         "pmh": 600000,
         "status": "active",
         "online": 600000,
@@ -11744,6 +11825,7 @@ window.SCANS = [
       {
         "model": "16 Pro 5G 12GB/256GB",
         "rrp": 14490000,
+        "red": 13360000,
         "pmh": 1130000,
         "status": "active",
         "online": 1130000,
@@ -11756,6 +11838,7 @@ window.SCANS = [
       {
         "model": "16 5G 12GB/256GB",
         "rrp": 14490000,
+        "red": 13350000,
         "pmh": 1140000,
         "status": "active",
         "online": 1140000,
@@ -11768,30 +11851,33 @@ window.SCANS = [
       {
         "model": "16 5G 8GB/256GB",
         "rrp": 11490000,
-        "pmh": 1900000,
+        "red": 9590000,
+        "pmh": 400000,
         "status": "active",
         "online": 1900000,
         "total_online": 2300000,
         "choice": 400000,
-        "kind": "moi",
-        "rule": "den_tru_do",
-        "banner": false
+        "kind": "moi-banner",
+        "rule": "flash_chon1",
+        "banner": true
       },
       {
         "model": "16T 5G 8GB/256GB",
         "rrp": 12990000,
-        "pmh": 1750000,
+        "red": 11240000,
+        "pmh": 300000,
         "status": "active",
         "online": 1750000,
         "total_online": 2050000,
         "choice": 300000,
-        "kind": "moi",
-        "rule": "den_tru_do",
-        "banner": false
+        "kind": "moi-banner",
+        "rule": "flash_chon1",
+        "banner": true
       },
       {
         "model": "16T 5G 8GB/128GB",
         "rrp": 10290000,
+        "red": 8050000,
         "pmh": 2240000,
         "status": "active",
         "online": 2240000,
@@ -11804,6 +11890,7 @@ window.SCANS = [
       {
         "model": "C100 8GB/256GB",
         "rrp": 9490000,
+        "red": 7890000,
         "pmh": 1600000,
         "status": "active",
         "online": 1600000,
@@ -11816,6 +11903,7 @@ window.SCANS = [
       {
         "model": "C100 4G 8GB/128GB",
         "rrp": 9290000,
+        "red": 7730000,
         "pmh": 1560000,
         "status": "active",
         "online": 1560000,
@@ -11828,18 +11916,20 @@ window.SCANS = [
       {
         "model": "C85 5G 8GB/256GB",
         "rrp": 8490000,
-        "pmh": 200000,
+        "red": 7860000,
+        "pmh": 630000,
         "status": "active",
         "online": 630000,
         "total_online": 830000,
         "choice": 200000,
-        "kind": "moi-banner",
-        "rule": "flash_chon1",
-        "banner": true
+        "kind": "moi",
+        "rule": "den_tru_do",
+        "banner": false
       },
       {
         "model": "C100 4G 6GB/128GB",
         "rrp": 8290000,
+        "red": 6710000,
         "pmh": 1580000,
         "status": "active",
         "online": 1580000,
@@ -11852,18 +11942,20 @@ window.SCANS = [
       {
         "model": "C85 Pro 8GB/256GB",
         "rrp": 7690000,
-        "pmh": 200000,
+        "red": 6600000,
+        "pmh": 1090000,
         "status": "active",
         "online": 1090000,
         "total_online": 1290000,
         "choice": 200000,
-        "kind": "moi-banner",
-        "rule": "flash_chon1",
-        "banner": true
+        "kind": "moi",
+        "rule": "den_tru_do",
+        "banner": false
       },
       {
         "model": "C100x 6GB/128GB",
         "rrp": 7790000,
+        "red": 6270000,
         "pmh": 1520000,
         "status": "active",
         "online": 1520000,
@@ -11876,6 +11968,7 @@ window.SCANS = [
       {
         "model": "C100x 4GB/128GB",
         "rrp": 6990000,
+        "red": 6090000,
         "pmh": 900000,
         "status": "active",
         "online": 900000,
@@ -11888,6 +11981,7 @@ window.SCANS = [
       {
         "model": "C100i 4G 4GB/128GB",
         "rrp": 6290000,
+        "red": 5560000,
         "pmh": 730000,
         "status": "active",
         "online": 730000,
@@ -11900,6 +11994,7 @@ window.SCANS = [
       {
         "model": "C85 8GB/128GB",
         "rrp": 6290000,
+        "red": 5870000,
         "pmh": 100000,
         "status": "active",
         "online": 420000,
@@ -11912,6 +12007,7 @@ window.SCANS = [
       {
         "model": "C100i 4GB/64GB",
         "rrp": 5290000,
+        "red": 5030000,
         "pmh": 260000,
         "status": "active",
         "online": 260000,
@@ -11924,6 +12020,7 @@ window.SCANS = [
       {
         "model": "Redmi Note 17 Pro 5G 6GB/256GB",
         "rrp": 11490000,
+        "red": 9560000,
         "pmh": 1930000,
         "status": "active",
         "online": 1930000,
@@ -11936,18 +12033,20 @@ window.SCANS = [
       {
         "model": "Galaxy A18 8GB/128GB",
         "rrp": 8490000,
-        "pmh": 400000,
+        "red": 8090000,
+        "pmh": 0,
         "status": "active",
         "online": 400000,
         "total_online": 400000,
         "choice": 0,
-        "kind": "moi",
-        "rule": "den_tru_do",
-        "banner": false
+        "kind": "moi-banner",
+        "rule": "flash_chon1",
+        "banner": true
       },
       {
         "model": "Galaxy A18 6GB/128GB",
         "rrp": 7190000,
+        "red": 6890000,
         "pmh": 300000,
         "status": "active",
         "online": 300000,
@@ -11960,6 +12059,7 @@ window.SCANS = [
       {
         "model": "Galaxy A18 4GB/128GB",
         "rrp": 6590000,
+        "red": 6140000,
         "pmh": 450000,
         "status": "active",
         "online": 450000,
@@ -11972,6 +12072,7 @@ window.SCANS = [
       {
         "model": "Galaxy A07s 4GB/64GB",
         "rrp": 4190000,
+        "red": 3470000,
         "pmh": 720000,
         "status": "active",
         "online": 720000,
@@ -11984,6 +12085,7 @@ window.SCANS = [
       {
         "model": "iPhone 18 Pro 256GB",
         "rrp": 38990000,
+        "red": 38990000,
         "pmh": null,
         "status": "chua_mo_ban",
         "online": 0,
@@ -11996,18 +12098,20 @@ window.SCANS = [
       {
         "model": "iPhone Duo 256GB",
         "rrp": 64990000,
+        "red": 64990000,
         "pmh": 0,
         "status": "active",
         "online": 0,
         "total_online": 0,
         "choice": 0,
-        "kind": "brand_tab",
+        "kind": "moi",
         "rule": "den_tru_do",
         "banner": false
       },
       {
         "model": "Galaxy A26 5G 8+256GB",
         "rrp": 8390000,
+        "red": 7240000,
         "pmh": 1150000,
         "status": "active",
         "online": 1150000,
@@ -12020,6 +12124,7 @@ window.SCANS = [
       {
         "model": "Redmi Note 17 Pro Max 8GB/256GB",
         "rrp": 15990000,
+        "red": 14670000,
         "pmh": 1320000,
         "status": "active",
         "online": 1320000,
@@ -12032,6 +12137,7 @@ window.SCANS = [
       {
         "model": "Note 80 4GB/64GB",
         "rrp": 4690000,
+        "red": 4140000,
         "pmh": 550000,
         "status": "active",
         "online": 550000,
@@ -12044,6 +12150,7 @@ window.SCANS = [
       {
         "model": "Galaxy A08 4+128GB",
         "rrp": 5590000,
+        "red": 4690000,
         "pmh": 900000,
         "status": "active",
         "online": 900000,
@@ -12056,42 +12163,46 @@ window.SCANS = [
       {
         "model": "X500 Pro Max 12GB/512GB",
         "rrp": 49990000,
+        "red": 43990000,
         "pmh": 6000000,
         "status": "active",
         "online": 6000000,
         "total_online": 6000000,
         "choice": 0,
-        "kind": "brand_tab",
+        "kind": "moi",
         "rule": "den_tru_do",
         "banner": false
       },
       {
         "model": "X500 12GB/256GB",
         "rrp": 34990000,
+        "red": 30990000,
         "pmh": 4000000,
         "status": "active",
         "online": 4000000,
         "total_online": 4000000,
         "choice": 0,
-        "kind": "brand_tab",
+        "kind": "moi",
         "rule": "den_tru_do",
         "banner": false
       },
       {
         "model": "V60 5G 12GB/256GB",
         "rrp": 15990000,
-        "pmh": 3000000,
+        "red": 12990000,
+        "pmh": 900000,
         "status": "active",
         "online": 3000000,
         "total_online": 3900000,
         "choice": 900000,
-        "kind": "moi",
-        "rule": "den_tru_do",
-        "banner": false
+        "kind": "moi-banner",
+        "rule": "flash_chon1",
+        "banner": true
       },
       {
         "model": "Y05e 4GB/64GB",
         "rrp": 4490000,
+        "red": 4400000,
         "pmh": 90000,
         "status": "active",
         "online": 90000,
@@ -12104,66 +12215,72 @@ window.SCANS = [
       {
         "model": "Galaxy Z Fold8 Ultra 12GB/256GB",
         "rrp": 52990000,
-        "pmh": 2000000,
+        "red": 45490000,
+        "pmh": 7500000,
         "status": "active",
         "online": 7500000,
         "total_online": 9500000,
         "choice": 2000000,
-        "kind": "moi-banner",
-        "rule": "flash_chon1",
-        "banner": true
+        "kind": "moi",
+        "rule": "den_tru_do",
+        "banner": false
       },
       {
         "model": "Galaxy Z Fold8 12GB/256GB",
         "rrp": 46990000,
+        "red": 39990000,
         "pmh": 7000000,
         "status": "active",
         "online": 7000000,
         "total_online": 7000000,
         "choice": 0,
-        "kind": "brand_tab",
+        "kind": "moi",
         "rule": "den_tru_do",
         "banner": false
       },
       {
         "model": "Galaxy Z Flip8 5G 12GB/256GB",
         "rrp": 31990000,
-        "pmh": 2000000,
+        "red": 26600000,
+        "pmh": 5390000,
         "status": "active",
         "online": 5390000,
         "total_online": 7390000,
         "choice": 2000000,
-        "kind": "moi-banner",
-        "rule": "flash_chon1",
-        "banner": true
+        "kind": "moi",
+        "rule": "den_tru_do",
+        "banner": false
       },
       {
         "model": "S26 5G 12GB/256GB",
         "rrp": 29990000,
-        "pmh": 0,
+        "red": 20490000,
+        "pmh": 9500000,
         "status": "active",
         "online": 9500000,
         "total_online": 9500000,
         "choice": 0,
-        "kind": "moi-banner",
-        "rule": "flash_chon1",
-        "banner": true
+        "kind": "moi",
+        "rule": "den_tru_do",
+        "banner": false
       },
       {
         "model": "S26 FE 5G 8GB/128GB",
         "rrp": 18990000,
-        "pmh": 0,
+        "red": 15490000,
+        "pmh": 3500000,
         "status": "active",
         "online": 3500000,
         "total_online": 3500000,
         "choice": 0,
-        "kind": "moi-banner",
-        "rule": "flash_chon1",
-        "banner": true
+        "kind": "moi",
+        "rule": "den_tru_do",
+        "banner": false
       },
       {
         "model": "Galaxy A57 5G 8GB/128GB",
         "rrp": 13490000,
+        "red": 11000000,
         "pmh": 2490000,
         "status": "active",
         "online": 2490000,
@@ -12176,6 +12293,7 @@ window.SCANS = [
       {
         "model": "Find N6 5G 16GB/512GB",
         "rrp": 64990000,
+        "red": 64990000,
         "pmh": 0,
         "status": "active",
         "online": 0,
@@ -12188,6 +12306,7 @@ window.SCANS = [
       {
         "model": "Find X10 Pro Max 5G 16GB/512GB",
         "rrp": 34990000,
+        "red": 34990000,
         "pmh": 0,
         "status": "active",
         "online": 0,
@@ -12200,6 +12319,7 @@ window.SCANS = [
       {
         "model": "Find X10 5G 12GB/512GB",
         "rrp": 34990000,
+        "red": 34990000,
         "pmh": 0,
         "status": "active",
         "online": 0,
@@ -12212,6 +12332,7 @@ window.SCANS = [
       {
         "model": "Find X10 5G 12GB/256GB",
         "rrp": 34990000,
+        "red": 34990000,
         "pmh": 0,
         "status": "active",
         "online": 0,
@@ -12224,6 +12345,7 @@ window.SCANS = [
       {
         "model": "A6t Pro 8GB/128GB",
         "rrp": 10990000,
+        "red": 10990000,
         "pmh": 0,
         "status": "active",
         "online": 0,
@@ -12236,6 +12358,7 @@ window.SCANS = [
       {
         "model": "A6t 4GB/64GB",
         "rrp": 4990000,
+        "red": 4990000,
         "pmh": 0,
         "status": "active",
         "online": 0,
@@ -12248,6 +12371,7 @@ window.SCANS = [
       {
         "model": "POCO X8s 5G 12GB/512GB",
         "rrp": 11990000,
+        "red": 11990000,
         "pmh": 0,
         "status": "active",
         "online": 0,
@@ -12260,6 +12384,7 @@ window.SCANS = [
       {
         "model": "POCO X8s 5G 8GB/256GB",
         "rrp": 11990000,
+        "red": 11990000,
         "pmh": 0,
         "status": "active",
         "online": 0,
@@ -12272,6 +12397,7 @@ window.SCANS = [
       {
         "model": "POCO C95 Pro 8GB/256GB",
         "rrp": 7690000,
+        "red": 7136000,
         "pmh": 554000,
         "status": "active",
         "online": 554000,
@@ -12284,6 +12410,7 @@ window.SCANS = [
       {
         "model": "POCO C95 Pro 6GB/128GB",
         "rrp": 6490000,
+        "red": 5960000,
         "pmh": 530000,
         "status": "active",
         "online": 530000,
@@ -12296,6 +12423,7 @@ window.SCANS = [
       {
         "model": "Redmi Note 17 Pro Max 5G 12GB/256GB",
         "rrp": 16990000,
+        "red": 13950000,
         "pmh": 3040000,
         "status": "active",
         "online": 3040000,
@@ -12308,6 +12436,7 @@ window.SCANS = [
       {
         "model": "Redmi Note 17 Pro 5G 6GB/128GB",
         "rrp": 10990000,
+        "red": 10070000,
         "pmh": 920000,
         "status": "active",
         "online": 920000,
@@ -12320,6 +12449,7 @@ window.SCANS = [
       {
         "model": "Redmi Note 17 5G 6GB/128GB",
         "rrp": 8990000,
+        "red": 7510000,
         "pmh": 1480000,
         "status": "active",
         "online": 1480000,
@@ -12332,6 +12462,7 @@ window.SCANS = [
       {
         "model": "Redmi Note 17 4G 4GB/128GB",
         "rrp": 6990000,
+        "red": 6050000,
         "pmh": 940000,
         "status": "active",
         "online": 940000,
@@ -12344,30 +12475,33 @@ window.SCANS = [
       {
         "model": "Redmi A7 3GB/64GB",
         "rrp": 3890000,
-        "pmh": 580000,
+        "red": 3310000,
+        "pmh": 200000,
         "status": "active",
         "online": 580000,
         "total_online": 780000,
         "choice": 200000,
-        "kind": "moi",
-        "rule": "den_tru_do",
-        "banner": false
+        "kind": "moi-banner",
+        "rule": "flash_chon1",
+        "banner": true
       },
       {
         "model": "C01 4GB/64GB",
         "rrp": 5990000,
+        "red": 5490000,
         "pmh": 500000,
         "status": "active",
         "online": 500000,
         "total_online": 500000,
         "choice": 0,
-        "kind": "brand_tab",
+        "kind": "moi",
         "rule": "den_tru_do",
         "banner": false
       },
       {
         "model": "P4 Power 5G 12GB/256GB",
         "rrp": 15990000,
+        "red": 12510000,
         "pmh": 3480000,
         "status": "active",
         "online": 3480000,
@@ -12380,6 +12514,7 @@ window.SCANS = [
       {
         "model": "iPhone 17e 256GB",
         "rrp": 21990000,
+        "red": 21990000,
         "pmh": 0,
         "status": "active",
         "online": 0,

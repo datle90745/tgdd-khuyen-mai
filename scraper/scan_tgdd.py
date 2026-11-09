@@ -94,6 +94,23 @@ BRAND_HUBS = [
 
 _CATALOG = None
 _CATALOG_ITEMS = {}
+_LIVE_FLASH_SLUGS = set()
+
+
+def fetch_live_flashsale_slugs():
+    """Lấy danh sách các model đang thật sự chạy Flash Sale trên TGDĐ từ hub https://www.thegioididong.com/flashsale"""
+    global _LIVE_FLASH_SLUGS
+    try:
+        resp = http_get("https://www.thegioididong.com/flashsale")
+        if resp.status_code == 200:
+            html = resp.text
+            slugs = set(re.findall(r'href="\/dtdd\/([^"?#]+)', html))
+            _LIVE_FLASH_SLUGS = slugs
+            print(f"  [FLASHSALE] Đã nạp {len(_LIVE_FLASH_SLUGS)} SKU đang chạy Flash Sale từ hub TGDĐ.", flush=True)
+            return _LIVE_FLASH_SLUGS
+    except Exception as e:
+        print(f"  [FLASHSALE] Không thể tải trang flashsale: {e}", flush=True)
+    return _LIVE_FLASH_SLUGS
 
 
 def get_brand_from_slug(slug):
@@ -480,6 +497,12 @@ def parse_next_layout(soup):
         rrp = red
     text = page.get_text(" ", strip=True)
     choice = extract_choice(soup, text)
+    canon = soup.select_one("link[rel='canonical']")
+    slug = canon.get("href", "").rstrip("/").split("/")[-1].split("?")[0] if canon else ""
+    if not slug:
+        og = soup.select_one("meta[property='og:url']")
+        slug = og.get("content", "").rstrip("/").split("/")[-1].split("?")[0] if og else ""
+
     # Xét khối giá của chính sản phẩm và dải banner flash sale cạnh giá.
     box = red_node
     for _ in range(6):
@@ -487,14 +510,35 @@ def parse_next_layout(soup):
     box_text = box.get_text(" ", strip=True)
     box_html = str(box)
     raw_html = str(soup)
-    has_banner_cam = bool(
-        page.select_one(".bg-fs-detail")
-        or (page.select_one(".bg-stock-quantity") and ("suất" in raw_html or "su\\u1EA5t" in raw_html))
-        or box.select_one("[class*='bg-fs']")
-        or box.select_one(".box_saving")
-        or (ORANGE_BANNER_RE.search(box_html) and "bg-fs" in box_html)
+
+    # Flash Sale thật: Phải có suất (bg-stock-quantity), hoặc đếm ngược, hoặc nằm trong hub /flashsale
+    has_quota = bool(
+        page.select_one(".bg-stock-quantity")
+        or box.select_one(".bg-stock-quantity")
+        or re.search(r"còn\s*\d+\s*/\s*\d+\s*suất", box_text, re.I)
+        or re.search(r"còn\s*(?:<!--.*?-->|\s)*\d+\s*(?:<!--.*?-->|\s)*/\s*(?:<!--.*?-->|\s)*\d+\s*(?:<!--.*?-->|\s)*suất", box_html, re.I)
+        or page.select_one(".box_saving")
     )
-    has_flash_kw = bool(FLASH_KEYWORDS_RE.search(box_text) or FLASH_KEYWORDS_RE.search(box_html))
+    in_hub = bool(slug and slug in _LIVE_FLASH_SLUGS)
+    is_true_flash = bool(has_quota or in_hub)
+
+    has_banner_cam = bool(
+        is_true_flash and (
+            page.select_one(".bg-fs-detail")
+            or page.select_one(".bg-stock-quantity")
+            or box.select_one("[class*='bg-fs']")
+            or box.select_one(".box_saving")
+            or (ORANGE_BANNER_RE.search(box_html) and "bg-fs" in box_html)
+            or in_hub
+        )
+    )
+    has_flash_kw = bool(
+        is_true_flash and (
+            in_hub
+            or FLASH_KEYWORDS_RE.search(box_text)
+            or FLASH_KEYWORDS_RE.search(box_html)
+        )
+    )
     banner = bool(has_banner_cam and has_flash_kw)
     # Bố cục mới hiển thị giá đỏ chưa trừ khoản "Chọn 1 trong" (bấm chọn mới trừ tiếp).
     return build_result(rrp, red, banner, choice, "moi-banner" if banner else "moi",
@@ -834,6 +878,8 @@ def main():
         print(f"Quét một phần: {len(products)}/{len(all_products)} model — "
               + ", ".join(p["model"] for p in products), flush=True)
 
+    fetch_live_flashsale_slugs()
+
     rows, errors = [], 0
     base_text = alerts._base_text()
     base_rrp_map = {m.group(1): int(m.group(2)) for m in re.finditer(r'"model":\s*"([^"]+)",\s*"rrp":\s*(\d+)', base_text)}
@@ -888,7 +934,7 @@ def main():
         if product["model"] in ("iPhone 18 Pro Max 256GB", "iPhone 18 Pro 256GB"):
             result["status"] = "chua_mo_ban"
             result["pmh"] = None
-row = {"model": product["model"], "url": product["url"],
+        row = {"model": product["model"], "url": product["url"],
                "at": datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%m %H:%M"), **result}
         row = enforce_domain_invariants(row)
         if row["status"] != "active":
