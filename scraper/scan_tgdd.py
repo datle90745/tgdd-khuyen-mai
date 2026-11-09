@@ -95,6 +95,7 @@ BRAND_HUBS = [
 _CATALOG = None
 _CATALOG_ITEMS = {}
 _LIVE_FLASH_SLUGS = set()
+_HUB_VISITED = set()
 
 
 def fetch_live_flashsale_slugs():
@@ -139,7 +140,10 @@ def fetch_model_from_brand_hub(slug):
     Bóc tách trực tiếp card sản phẩm và các nút pill SKU để lấy giá thực tế trực tiếp,
     không dùng số hardcode và không mượn dữ liệu cũ.
     """
-    global _CATALOG_ITEMS
+    global _CATALOG_ITEMS, _HUB_VISITED
+    if not slug or slug in _HUB_VISITED:
+        return None
+    _HUB_VISITED.add(slug)
     b = get_brand_from_slug(slug)
     hub_url = f"https://www.thegioididong.com/dtdd-{b}" if b else "https://www.thegioididong.com/dtdd"
     try:
@@ -159,16 +163,12 @@ def fetch_model_from_brand_hub(slug):
             orig = round(money(del_m.group(1)) / 1000.0) * 1000 if del_m else red
             if red > 0:
                 _CATALOG_ITEMS[main_slug] = {"red": red, "rrp": orig}
-            if "a7-pro" in main_slug or "a7-pro" in p:
-                _CATALOG_ITEMS["oppo-a7-pro-5g-8gb-128gb"] = {"red": 11870000, "rrp": 13490000}
-                _CATALOG_ITEMS["oppo-a7-pro-5g-6gb-256gb"] = {"red": 13990000, "rrp": 14490000}
-                _CATALOG_ITEMS["oppo-a7-pro-5g-8gb-256gb"] = {"red": 15180000, "rrp": 15490000}
             for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
                 vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
                 if vslug == slug and main_slug != slug:
-                    # Target slug là một pill SKU: thử cào thẳng URL SKU đó
+                    # Target slug là một pill SKU: thử cào thẳng URL SKU đó, cấm gọi đệ quy ngược lại hub
                     try:
-                        v_res = scan_one(f"https://www.thegioididong.com/dtdd/{vslug}", attempts=2, allow_retry_slug=False)
+                        v_res = scan_one(f"https://www.thegioididong.com/dtdd/{vslug}", attempts=2, allow_retry_slug=False, allow_hub_fallback=False)
                         if v_res.get("status") == "active" and (v_res.get("pmh", 0) > 0 or v_res.get("banner")):
                             return v_res
                     except Exception:
@@ -637,7 +637,7 @@ def retry_other_slug(url, bad_result, allowed):
     return bad_result
 
 
-def scan_one(url, attempts=3, allow_retry_slug=True):
+def scan_one(url, attempts=3, allow_retry_slug=True, allow_hub_fallback=True):
     last_error, result = None, None
     for attempt in range(attempts):
         try:
@@ -662,11 +662,12 @@ def scan_one(url, attempts=3, allow_retry_slug=True):
                 if retry_res.get("status") == "active":
                     return retry_res
                 # Chốt chặn cuối cùng: Tra cứu trực tiếp từ tab thương hiệu trên TGDĐ (dtdd-<brand>)
-                slug = url.rstrip("/").rsplit("/", 1)[-1].split("?")[0]
-                hub_res = fetch_model_from_brand_hub(slug)
-                if hub_res and hub_res.get("status") == "active":
-                    print(f"  [BRAND_HUB_FALLBACK] {slug}: Lấy thành công giá trực tiếp từ tab brand TGDĐ.", flush=True)
-                    return hub_res
+                if allow_hub_fallback:
+                    slug = url.rstrip("/").rsplit("/", 1)[-1].split("?")[0]
+                    hub_res = fetch_model_from_brand_hub(slug)
+                    if hub_res and hub_res.get("status") == "active":
+                        print(f"  [BRAND_HUB_FALLBACK] {slug}: Lấy thành công giá trực tiếp từ tab brand TGDĐ.", flush=True)
+                        return hub_res
                 return retry_res
             if result.get("status") == "active":
                 slug = url.rstrip("/").rsplit("/", 1)[-1].split("?")[0]
@@ -680,7 +681,7 @@ def scan_one(url, attempts=3, allow_retry_slug=True):
                         cat_res = build_result(c["rrp"], c["red"], False, 0, "brand_tab")
                         cat_res["subs"] = extract_promos(resp.text) or ["Trả chậm 0% trả trước 0đ"]
                         return cat_res
-                elif result.get("pmh", 0) == 0 and not result.get("banner") and result.get("kind") not in ("moi-banner", "banner"):
+                elif allow_hub_fallback and result.get("pmh", 0) == 0 and not result.get("banner") and result.get("kind") not in ("moi-banner", "banner"):
                     hub_res = fetch_model_from_brand_hub(slug)
                     if hub_res and hub_res.get("status") == "active" and hub_res.get("pmh", 0) > 0:
                         return hub_res
