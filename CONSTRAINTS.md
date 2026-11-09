@@ -120,6 +120,37 @@ Hệ thống **cố ý** có hai danh sách khác nhau. Nhầm lẫn giữa chú
   - Flash Sale trên TGDĐ thay đổi liên tục theo khung giờ (suất có hạn, đồng hồ đếm ngược). Mỗi đợt quét phải kiểm tra DOM độc lập tại thời điểm quét.
   - Không bao giờ mặc định một model có Flash Sale hoặc mang Flash Sale từ đợt này sang đợt khác. Không ép buộc số lượng máy Flash Sale phải lớn hơn 0 trong các test gate nếu thời điểm đó TGDĐ thực tế không chạy Flash Sale.
 
+### 2.7. Chống ghi đè âm thầm lên dữ liệu đã đúng (so sánh giữa các đợt quét)
+
+**Lớp lỗi:** PDP của sản phẩm chiến dịch là Landing Page, không render giá đỏ tĩnh (mục 2.6).
+Scraper đọc không ra giá → trả về `red = rrp` → `diff = 0` → `PMH = 0`. Mọi trường còn lại
+(`rule`, `kind`, `online`) vẫn nhất quán với nhau, nên **không một check nào trong phạm vi một
+đợt quét phát hiện được**. Đã xảy ra với OPPO A7 Pro ngày 09-11-2026.
+
+- `tests/verify_scan.js` bắt buộc so đợt quét mới với đợt liền trước:
+  - **CHẶN COMMIT** khi một model đang có `PMH > 0` bỗng về `PMH = 0` **và** `red == rrp`.
+  - **CHẶN và không thể bỏ qua** khi số model như vậy vượt `maxFlatZeroDrops` — nhiều model
+    cùng tụt phẳng một lúc là lỗi code, không phải thị trường.
+  - **Cảnh báo** (không chặn) khi `PMH` về 0 nhưng `red < rrp` — đúng luật 2.1.2 với flash sale
+    không có mục "Chọn 1 trong".
+- Muốn cho qua một trường hợp: đối soát card `#o=3` hoặc bảng tracking của người dùng, rồi thêm
+  mục vào `tests/known-zero-pmh.json` **kèm bằng chứng** trong `reason`. Mục đó tự hết hiệu lực
+  khi `rrp` của model đổi.
+- **Cấm viết chốt đích danh một model.** Kiến thức phải mô tả **lớp lỗi**. 31% khẳng định hiện có
+  đang nêu đích danh model/giá cụ thể — đó là lý do cùng một lỗi cứ tái diễn ở model khác.
+
+### 2.8. Rào chất lượng chỉ được hạ một cách công khai
+
+Lịch sử dự án: **24 khẳng định đã bị xoá âm thầm**, và **1 khẳng định bị đảo ngược hoàn toàn**
+(`-notmatch` ↔ `-match` trên cùng regex `alerts.KEEP_WEEKDAYS`). Cả hai trạng thái đều báo
+`100% PASS`, nên không ai biết quy tắc người dùng train đã bị thay bằng phủ định của nó.
+
+- `gate-config.json → minAssertions` là sàn số lượng khẳng định. Xoá khẳng định thì **bắt buộc**
+  hạ con số này trong cùng commit — để việc hạ rào hiện ra trong diff.
+- Trước khi đảo chiều một khẳng định đã có (`-match` ⇄ `-notmatch`), **phải hỏi người dùng**.
+  Không có commit nào được tự quyết điều này.
+- `tests/verify_scan.js` phải luôn còn chốt so sánh giữa các đợt quét và file xác nhận của nó.
+
 ---
 
 ## 3. Bảng Kiểm Tra & Công Cụ Đo Lường

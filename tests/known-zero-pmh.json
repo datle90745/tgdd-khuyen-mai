@@ -1,0 +1,26 @@
+{
+  "_doc": [
+    "XAC NHAN PMH = 0 LA THAT (khong phai loi cao).",
+    "",
+    "Circuit breaker chan commit khi mot model dang co PMH bong tut ve 0 VA red == rrp",
+    "(khong con chenh lech gia nao). Do la chu ky cua loi 'PDP la landing page, scraper",
+    "doc khong ra gia do nen tra ve red = rrp' - dung loi da xay ra voi OPPO A7 Pro",
+    "ngay 09-11-2026 va truoc do.",
+    "",
+    "KHONG duoc them muc vao day de 'cho qua cho nhanh'. Chi them sau khi da doi soat",
+    "card danh muc live #o=3 (CONSTRAINTS 2.6) hoac bang tracking cua nguoi dung, va phai",
+    "ghi ro bang chung trong truong `reason`.",
+    "",
+    "Mot muc het hieu luc ngay khi `rrp` cua model doi khac - vi gia doi nghia la tinh",
+    "huong da khac, phai doi soat lai tu dau."
+  ],
+
+  "entries": [
+    {
+      "model": "Find X9 Ultra 12GB/512GB",
+      "since": "2026-11-09",
+      "rrp": 49990000,
+      "reason": "Bang tracking T11 cua nguoi dung ghi PMH = 0 o ca cot 02-Nov va 07-Nov. Gia tri 4.000.000 cua dot 08-Nov moi la ngoai le. Da doi soat voi bang cua nguoi dung ngay 09-11-2026."
+    }
+  ]
+}

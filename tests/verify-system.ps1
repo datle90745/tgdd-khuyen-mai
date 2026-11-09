@@ -236,6 +236,29 @@ if (Test-Path $scanScript) {
         ($cText -match 'tests/gate-config\.json') -and ($cText -match 'crawlSkuCount') -and ($cText -match 'masterListCount')
     } "CONSTRAINTS.md chua mo ta quan he danh sach CAO vs Master List BAO CAO theo gate-config.json"
 
+    # --- Chot chan cho chinh NGUYEN NHAN GOC ---
+    # Lich su du an: 24 khang dinh da bi XOA am tham, va 1 khang dinh bi DAO NGUOC
+    # (-notmatch <-> -match tren cung regex KEEP_WEEKDAYS). Ca hai trang thai deu bao
+    # 100% PASS, nen khong ai biet quy tac nao moi la thu nguoi dung yeu cau.
+    Assert-Check "So khang dinh khong duoc tut xuong duoi nguong da chot" {
+        $script:TotalChecks -ge 1 -and $GateCfg.minAssertions -ge 1
+        $allNames = (Select-String -Path "tests/verify-system.ps1" -Pattern 'Assert-(?:Check|Hard-Fail)\s+"' -AllMatches).Matches.Count
+        $allNames -ge $GateCfg.minAssertions
+    } "verify-system.ps1 chi con $((Select-String -Path 'tests/verify-system.ps1' -Pattern 'Assert-(?:Check|Hard-Fail)\s+"' -AllMatches).Matches.Count) khang dinh, duoi nguong $($GateCfg.minAssertions). Xoa khang dinh phai di kem ha minAssertions trong gate-config.json - de thay duoc trong diff."
+
+    Assert-Check "Circuit breaker phai con chot so sanh GIUA CAC DOT QUET" {
+        $cb = Get-Content "tests/verify_scan.js" -Raw -Encoding UTF8
+        ($cb -match 'HOI QUY') -and ($cb -match 'maxFlatZeroDrops') -and ($cb -match 'known-zero-pmh')
+    } "tests/verify_scan.js mat chot hoi quy giua cac dot - day la thu duy nhat bat duoc loi PDP landing page ghi de du lieu dung"
+
+    Assert-Check "File xac nhan PMH=0 phai ton tai va moi muc phai co bang chung" {
+        $p = "tests/known-zero-pmh.json"
+        if (-not (Test-Path $p)) { return $false }
+        $j = Get-Content $p -Raw -Encoding UTF8 | ConvertFrom-Json
+        $bad = @($j.entries | Where-Object { -not $_.model -or -not $_.since -or -not $_.rrp -or -not $_.reason -or $_.reason.Length -lt 20 })
+        $bad.Count -eq 0
+    } "tests/known-zero-pmh.json co muc thieu model/since/rrp hoac `reason` qua so sai - moi xac nhan phai ghi ro bang chung doi soat"
+
     Assert-Check "CONSTRAINTS.md tuyet doi khong con viet cung so SKU" {
         $cText = Get-Content "CONSTRAINTS.md" -Raw -Encoding UTF8
         $cText -notmatch '\d+\s*SKU\s*Master\s*List' -and $cText -notmatch 'duy tr.{0,3} d.{0,3}\s*\d+\s*SKU'

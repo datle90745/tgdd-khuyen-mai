@@ -36,6 +36,28 @@
     "CONSTRAINTS.md khong he rang buoc `kind`. Rang buoc duy nhat o muc 2.1 la quan he",
     "giua banner cam, choice va PMH - do la thu phai gate, va no nam o `rule` + `pmh`."
   ],
+  "_zeroDropNote": [
+    "maxFlatZeroDrops: so model toi da duoc phep cung tut PMH ve 0 VOI red == rrp trong mot dot.",
+    "Vuot nguong = loi code/cao dien rong, chan commit va KHONG the bo qua bang file xac nhan.",
+    "Nguong lay tu phan bo lich su that (34 dot quet), khong bia:",
+    "  - tut ve 0 nhieu nhat trong mot dot        : 18  (dot 02-Nov, nhieu kha nang la su co)",
+    "  - rieng loai red == rrp, nhieu nhat        : 12  (cung dot do)",
+    "  - muc thuong gap cac dot gan day           : 0 - 2",
+    "  - dot 09-Nov hien tai                      : 1",
+    "Dat 5: tren muc thuong gap nhung duoi han su co."
+  ],
+  "maxFlatZeroDrops": 5,
+
+  "_minAssertionsNote": [
+    "Nguong san cho so khang dinh trong verify-system.ps1.",
+    "Ly do: qua lich su du an da co 24 khang dinh bi XOA am tham, va 1 khang dinh bi DAO",
+    "NGUOC (-notmatch <-> -match tren cung regex alerts.KEEP_WEEKDAYS). Ca hai trang thai",
+    "deu bao 100% PASS nen khong ai phat hien quy tac nguoi dung train da bi thay.",
+    "Tu nay: xoa khang dinh thi BAT BUOC phai ha con so nay trong cung commit - de viec",
+    "giam rao chat luong hien ra trong diff thay vi lang le."
+  ],
+  "minAssertions": 86,
+
   "requireScanToday": true,
   "scansJsRetention": 30,
   "nestedCopyPath": "promotion tgdd",

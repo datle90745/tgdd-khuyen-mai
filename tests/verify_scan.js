@@ -435,6 +435,102 @@ if (CFG.nestedCopyPath) {
 }
 
 // ---------------------------------------------------------------------------
+// 6. So sanh GIUA CAC DOT QUET - chan loi am tham ghi de du lieu da dung
+//
+// Day la lop loi ma moi check trong mot dot quet deu mu: khi PDP la landing page,
+// scraper doc khong ra gia do va tra ve red = rrp -> diff = 0 -> PMH = 0. Moi truong
+// con lai (rule, kind, online) van nhat quan voi nhau nen khong co gi bao dong.
+// Dung loi da xay ra voi OPPO A7 Pro ngay 09-11-2026.
+//
+// Chot nay mo ta LOP LOI, khong dich danh model nao - vi lan truoc kien thuc bi ghi
+// lai thanh ban va cho rieng A08 / A18 / A7 Pro, nen khi lop do roi vao model khac
+// thi khong con gi chan.
+// ---------------------------------------------------------------------------
+if (scanData && scanFileName) {
+  const allScans = fs.readdirSync(SCANS_DIR)
+    .filter((f) => /^scan_\d{4}-\d{2}-\d{2}\.json$/.test(f))
+    .sort();
+  const pos = allScans.indexOf(scanFileName);
+  const prevFile = pos > 0 ? allScans[pos - 1] : null;
+
+  if (!prevFile) {
+    console.log('[6] Hoi quy giua cac dot: khong co dot truoc de so sanh, bo qua.');
+  } else {
+    let prevScan = null;
+    try {
+      prevScan = JSON.parse(fs.readFileSync(path.join(SCANS_DIR, prevFile), 'utf8').replace(/^﻿/, ''));
+    } catch (e) {
+      fail(`Khong doc duoc dot quet truoc (${prevFile}) de so sanh hoi quy: ${e.message}`);
+    }
+
+    // Danh sach xac nhan "PMH = 0 la that". Het hieu luc khi rrp doi.
+    let acks = [];
+    const ackPath = path.join(ROOT, 'tests', 'known-zero-pmh.json');
+    if (fs.existsSync(ackPath)) {
+      try {
+        acks = JSON.parse(fs.readFileSync(ackPath, 'utf8')).entries || [];
+      } catch (e) {
+        fail(`tests/known-zero-pmh.json khong parse duoc: ${e.message}`);
+      }
+    }
+    const todayIso = scanFileName.slice(5, 15);
+    const isAcked = (r) => acks.some((a) =>
+      a.model === r.model && String(a.since) <= todayIso && Number(a.rrp) === Number(r.rrp));
+
+    if (prevScan) {
+      const prevByModel = new Map((prevScan.rows || []).map((r) => [r.model, r]));
+      const flatRegressions = [];   // red == rrp  -> chu ky loi landing page
+      const softZeros = [];         // red < rrp   -> co the la flash sale khong co qua (2.1.2)
+
+      for (const r of rows) {
+        if (r.status !== 'active') continue;
+        const p = prevByModel.get(r.model);
+        if (!p || p.status !== 'active') continue;          // model moi / truoc do khong doc duoc
+        if (!((p.pmh || 0) > 0 && (r.pmh || 0) === 0)) continue;
+        (r.red === r.rrp ? flatRegressions : softZeros).push({ r, p });
+      }
+
+      // (a) Systemic: nhieu model cung tut phang mot luc = loi code, khong phai thi truong.
+      //     Khong the dung file xac nhan de cho qua.
+      if (flatRegressions.length > CFG.maxFlatZeroDrops) {
+        fail(
+          `HOI QUY DIEN RONG: ${flatRegressions.length} model cung tut PMH ve 0 voi red == rrp trong ` +
+          `mot dot (nguong ${CFG.maxFlatZeroDrops}). Day la dau hieu loi code/cao, khong phai thi truong. ` +
+          `Khong duoc dung tests/known-zero-pmh.json de bo qua truong hop nay.`
+        );
+      }
+
+      // (b) Tung model: chan tru khi da doi soat va ghi vao file xac nhan.
+      for (const { r, p } of flatRegressions) {
+        if (isAcked(r)) continue;
+        fail(
+          `HOI QUY: ${r.model} co PMH ${p.pmh.toLocaleString('vi-VN')} o dot ${prevScan.date}, ` +
+          `nay PMH = 0 va red == rrp == ${r.rrp.toLocaleString('vi-VN')} (khong con chenh lech gia). ` +
+          `Day la chu ky cua loi "PDP landing page khong render gia do". Doi soat card #o=3 ` +
+          `(CONSTRAINTS 2.6); neu dung la het khuyen mai, them muc vao tests/known-zero-pmh.json ` +
+          `kem bang chung.`
+        );
+      }
+
+      // (c) PMH ve 0 nhung van con chenh lech gia: dung luat 2.1.2 voi flash sale khong co
+      //     muc "Chon 1 trong". Bao de nhin, khong chan.
+      for (const { r, p } of softZeros) {
+        warn(
+          `${r.model}: PMH ${p.pmh.toLocaleString('vi-VN')} -> 0 (${r.kind}/${r.rule}), ` +
+          `nhung van con chenh lech ${(r.rrp - r.red).toLocaleString('vi-VN')} (red < rrp). ` +
+          `Dung luat 2.1.2 neu la flash sale khong co muc "Chon 1 trong" - kiem lai neu thay la.`
+        );
+      }
+
+      console.log(
+        `[6] Hoi quy giua cac dot (${prevFile} -> ${scanFileName}): ` +
+        `${flatRegressions.length} tut phang (red == rrp), ${softZeros.length} tut nhung con chenh lech`
+      );
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Tong ket
 // ---------------------------------------------------------------------------
 console.log('');
