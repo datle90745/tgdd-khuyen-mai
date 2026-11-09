@@ -160,7 +160,24 @@ quét liên tiếp** với `rrp`/`red`/`pmh` y hệt nhau từng byte.
   `tests/known-frozen-status.json` **kèm bằng chứng**. Mục tự hết hiệu lực khi `rrp` hoặc
   `status` đổi.
 
-### 2.10. Rào chất lượng chỉ được hạ một cách công khai
+### 2.10. Cổng kiểm tra phải đứng SAU bước cuối cùng còn sửa được dữ liệu
+
+**Lớp lỗi:** cổng chạy đúng, báo PASS đúng, rồi một bước **phía sau nó** sửa lại dữ liệu.
+Kết quả cuối cùng không bao giờ được kiểm.
+
+Đã xảy ra hai lần:
+1. Bước báo lỗi nằm **sau** bước commit → đợt quét hỏng vẫn commit dữ liệu cũ rồi mới báo đỏ.
+2. (09-11-2026) Circuit breaker chạy **trước** `git rebase -X theirs origin/main`. File
+   `scan_*.json` in mỗi trường một dòng, nên rebase trộn **theo dòng** giữa hai phiên bản của
+   cùng một dòng dữ liệu — lấy `status` của bản này và `pmh` của bản kia. Dòng tự mâu thuẫn
+   (`status = "chua_mo_ban"` nhưng `pmh = 0`) được đẩy thẳng lên `main`.
+
+- `node tests/verify_scan.js` phải chạy **lại** sau mỗi lần rebase, trước `git push`. Hỏng thì
+  `exit 1` — không đẩy lên.
+- Quy tắc chung: **mọi bước còn ghi được vào `data/` đều phải nằm TRƯỚC cổng kiểm tra cuối cùng.**
+  Thêm một bước sau cổng thì phải thêm một lần chạy cổng sau bước đó.
+
+### 2.11. Rào chất lượng chỉ được hạ một cách công khai
 
 Lịch sử dự án: **24 khẳng định đã bị xoá âm thầm**, và **1 khẳng định bị đảo ngược hoàn toàn**
 (`-notmatch` ↔ `-match` trên cùng regex `alerts.KEEP_WEEKDAYS`). Cả hai trạng thái đều báo
@@ -171,7 +188,9 @@ Lịch sử dự án: **24 khẳng định đã bị xoá âm thầm**, và **1 
 - Trước khi đảo chiều một khẳng định đã có (`-match` ⇄ `-notmatch`), **phải hỏi người dùng**.
   Không có commit nào được tự quyết điều này.
 - `tests/verify_scan.js` phải luôn còn chốt so sánh giữa các đợt quét (2.8), chốt trạng thái
-  đóng băng (2.9) và hai file xác nhận của chúng.
+  đóng băng (2.9) và hai file xác nhận của chúng; `scan-tgdd.yml` phải luôn còn lần chạy cổng
+  sau rebase (2.10); `.github/workflows/verify-python.yml` phải luôn còn — máy dev không có
+  Python nên đó là chỗ duy nhất `scraper/*.py` thực sự được biên dịch.
 - Khẳng định kiểm tra sự tồn tại của một chốt phải dùng `-cmatch` (phân biệt hoa thường) và bắt
   đúng **câu báo lỗi** trong `fail()`, không bắt dòng `console.log` mô tả. PowerShell `-match`
   không phân biệt hoa thường, nên một chốt viết bằng `-match 'HOI QUY'` vẫn PASS sau khi chốt

@@ -96,6 +96,16 @@ jobs:
               git add -A
               GIT_EDITOR=true git rebase --continue || git rebase --abort
             fi
+            # Circuit breaker o tren chay TRUOC rebase, nen truoc day ket qua cua rebase
+            # khong bao gio duoc kiem. Lop loi that su da xay ra ngay 09-11-2026:
+            # scan_*.json in moi truong mot dong, nen `rebase -X theirs` tron theo DONG
+            # giua hai phien ban cua cung mot dong du lieu - lay "status" cua ban nay va
+            # "pmh" cua ban kia. Ket qua la dong tu mau thuan (status=chua_mo_ban nhung
+            # pmh=0) duoc day thang len main ma khong qua bat ky check nao.
+            if ! node tests/verify_scan.js; then
+              echo "::error::Rebase voi origin/main tao ra du lieu khong hop le (xem log circuit breaker o tren). KHONG day len."
+              exit 1
+            fi
             sleep 10
           done
           echo "::error::Không đẩy được kết quả sau 5 lần thử."

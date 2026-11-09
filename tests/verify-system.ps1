@@ -289,6 +289,16 @@ if (Test-Path $scanScript) {
         ($w -cmatch 'setup-python') -and ($w -match "paths:") -and ($w -cmatch '\*\*\.py')
     } "Mat .github/workflows/verify-python.yml - day la cho duy nhat scraper/*.py duoc Python that bien dich truoc khi dot quet chay"
 
+    # Loi 09-11-2026: circuit breaker chay TRUOC buoc `git rebase -X theirs origin/main`, nen
+    # ket qua cua rebase khong bao gio duoc kiem. Rebase tron theo DONG giua hai phien ban cua
+    # cung mot dong JSON -> lay "status" cua ban nay va "pmh" cua ban kia -> dong tu mau thuan
+    # (status=chua_mo_ban nhung pmh=0) duoc day thang len main.
+    Assert-Check "Workflow quet phai chay lai circuit breaker SAU khi rebase, truoc khi push" {
+        $w = Get-Content ".github/workflows/scan-tgdd.yml" -Raw -Encoding UTF8
+        $afterRebase = $w.Substring($w.IndexOf('git rebase -X theirs'))
+        ($afterRebase -cmatch 'node tests/verify_scan\.js') -and ($afterRebase -cmatch 'exit 1')
+    } "scan-tgdd.yml khong kiem lai du lieu sau `git rebase -X theirs` - ket qua tron dong cua rebase se duoc push len main ma khong qua check nao"
+
     Assert-Check "Workflow Python phai con chot AST cam ep cung theo ten model" {
         $w = Get-Content ".github/workflows/verify-python.yml" -Raw -Encoding UTF8
         ($w -cmatch 'ast\.Compare') -and ($w -cmatch 'ast\.In') -and ($w -cmatch 'CONSTRAINTS 2\.9')
