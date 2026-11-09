@@ -166,6 +166,20 @@ quét liên tiếp** với `rrp`/`red`/`pmh` y hệt nhau từng byte.
   `tests/known-frozen-status.json` **kèm bằng chứng**. Mục tự hết hiệu lực khi `rrp` hoặc
   `status` đổi.
 
+**Giá dự phòng (pinned) — cách duy nhất được phép ghim số:**
+Một số PDP là Marketing Landing Page, không render bất kỳ khối giá tĩnh nào (không
+`box-price`, không `data-priceorg`, không cả thẻ `<main>`), và card brand hub chỉ mang giá của
+**đúng một** biến thể (biến thể chính của card) — các nút pill SKU còn lại không kèm giá. Khi
+thật sự không còn nguồn sống nào:
+
+- Số liệu để trong **`scraper/pinned_prices.json`**, tuyệt đối không viết thẳng trong `.py`.
+- Nó là **dự phòng, không phải ghi đè**: chỉ áp dụng khi cào ra `status != active` hoặc không
+  có `rrp`. Cào được giá thật thì giá thật **luôn thắng**, và scraper in cảnh báo nhắc gỡ mục đó.
+- Dòng được áp giá dự phòng mang `kind = "pin"` để nhìn là biết.
+- Mỗi mục phải có `source` + `reason` (≥ 40 ký tự) và thỏa `rrp − red = pmh`.
+- Quá `maxAgeDays` mà chưa đối soát lại thì **cổng chặn**. Đối soát lại = mở trang, xác nhận,
+  rồi cập nhật `since`. Một hằng số không ai nhìn lại thì không được phép đi qua lặng lẽ.
+
 ### 2.10. Cổng kiểm tra phải đứng SAU bước cuối cùng còn sửa được dữ liệu
 
 **Lớp lỗi:** cổng chạy đúng, báo PASS đúng, rồi một bước **phía sau nó** sửa lại dữ liệu.

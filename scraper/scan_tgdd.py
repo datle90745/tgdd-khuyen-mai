@@ -97,6 +97,21 @@ _CATALOG_ITEMS = {}
 _LIVE_FLASH_SLUGS = set()
 _HUB_VISITED = set()
 
+# Gia DU PHONG cho nhung PDP khong render bat ky khoi gia tinh nao (Marketing Landing Page).
+# Chi duoc dung khi cao that su khong ra gia - xem scraper/pinned_prices.json va CONSTRAINTS 2.9.
+# So lieu KHONG duoc viet thang trong file .py nay.
+PINNED_PRICES = {}
+_PINNED_MAX_AGE_DAYS = 30
+_pin_path = Path(__file__).resolve().parent / "pinned_prices.json"
+if _pin_path.exists():
+    try:
+        _pin_raw = json.loads(_pin_path.read_text(encoding="utf-8-sig"))
+        _PINNED_MAX_AGE_DAYS = int(_pin_raw.get("maxAgeDays", 30))
+        for _e in _pin_raw.get("entries", []):
+            PINNED_PRICES[_e["model"]] = _e
+    except Exception as _pin_err:
+        print(f"  [PIN] Khong doc duoc scraper/pinned_prices.json: {_pin_err}", flush=True)
+
 
 def fetch_live_flashsale_slugs():
     """Lấy danh sách các model đang thật sự chạy Flash Sale trên TGDĐ từ hub https://www.thegioididong.com/flashsale"""
@@ -163,10 +178,12 @@ def fetch_model_from_brand_hub(slug):
             orig = round(money(del_m.group(1)) / 1000.0) * 1000 if del_m else red
             if red > 0:
                 _CATALOG_ITEMS[main_slug] = {"red": red, "rrp": orig}
-            if "a7-pro" in main_slug or "a7-pro" in p:
-                _CATALOG_ITEMS["oppo-a7-pro-5g-8gb-128gb"] = {"red": 11870000, "rrp": 13490000}
-                _CATALOG_ITEMS["oppo-a7-pro-5g-6gb-256gb"] = {"red": 13990000, "rrp": 14490000}
-                _CATALOG_ITEMS["oppo-a7-pro-5g-8gb-256gb"] = {"red": 15180000, "rrp": 15490000}
+            # DA GO (09-11-2026): ba dong ep cung gia a7-pro vao _CATALOG_ITEMS. Chung mau thuan
+            # voi chinh docstring cua ham nay ("khong dung so hardcode"). Doi soat live cho thay
+            # card /dtdd-oppo da tra ve dung red=11.870.000 / del=13.490.000 cho bien the chinh
+            # 8GB/128GB qua duong boc tong quat o tren, nen ep cung la thua. Hai bien the 256GB
+            # khong co nguon song - chung nay nam o scraper/pinned_prices.json duoi dang gia DU
+            # PHONG co han doi soat, khong phai ghi de.
             for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
                 vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
                 if vslug == slug and main_slug != slug:
@@ -215,10 +232,8 @@ def catalog():
                     orig = round(money(del_m.group(1)) / 1000.0) * 1000 if del_m else red
                     if red > 0:
                         _CATALOG_ITEMS[main_slug] = {"red": red, "rrp": orig}
-                    if "a7-pro" in main_slug or "a7-pro" in p:
-                        _CATALOG_ITEMS["oppo-a7-pro-5g-8gb-128gb"] = {"red": 11870000, "rrp": 13490000}
-                        _CATALOG_ITEMS["oppo-a7-pro-5g-6gb-256gb"] = {"red": 13990000, "rrp": 14490000}
-                        _CATALOG_ITEMS["oppo-a7-pro-5g-8gb-256gb"] = {"red": 15180000, "rrp": 15490000}
+                    # DA GO (09-11-2026): ban sao thu hai cua ba dong ep cung gia a7-pro.
+                    # Xem ghi chu o fetch_model_from_brand_hub va scraper/pinned_prices.json.
                     for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
                         vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
                         slugs.add(vslug)
@@ -950,25 +965,27 @@ def main():
         # Viec phat hien chua mo ban THAT nam o scan_one (khong co gia + trang ghi "dang ky
         # nhan tin"/"sap ra mat"). Do la tin hieu doc tu trang, khong phai ten model.
         # CONSTRAINTS 2.9 cam viet chot dich danh model. Khong duoc them lai khoi nay.
-        # Bao ve ground truth cho dong OPPO A7 Pro 5G cac bien the (PDP la Marketing Landing Page khong co static price)
-        if product["model"] == "A7 Pro 5G 8GB/256GB":
-            result.update({
-                "status": "active", "rrp": 15490000, "red": 15180000, "pmh": 310000,
-                "online": 310000, "total_online": 310000, "choice": 0,
-                "kind": "brand_tab", "rule": "den_tru_do", "banner": False, "choice_in_red": False
-            })
-        elif product["model"] == "A7 Pro 5G 6GB/256GB":
-            result.update({
-                "status": "active", "rrp": 14490000, "red": 13990000, "pmh": 500000,
-                "online": 500000, "total_online": 500000, "choice": 0,
-                "kind": "brand_tab", "rule": "den_tru_do", "banner": False, "choice_in_red": False
-            })
-        elif product["model"] == "A7 Pro 5G 8GB/128GB":
-            result.update({
-                "status": "active", "rrp": 13490000, "red": 11870000, "pmh": 1620000,
-                "online": 1620000, "total_online": 1620000, "choice": 0,
-                "kind": "brand_tab", "rule": "den_tru_do", "banner": False, "choice_in_red": False
-            })
+        # DA GO (09-11-2026): truoc day o day co ba khoi `result.update({...})` ghi de VO DIEU
+        # KIEN gia cua A7 Pro 5G 8GB/256GB, 6GB/256GB, 8GB/128GB - ghi de ca khi cao duoc gia
+        # that. Do la dung lop loi da ghim iPhone 18 Pro vao "chua mo ban" suot 24 dot.
+        # Nay so lieu do nam trong scraper/pinned_prices.json, va la GIA DU PHONG chu khong
+        # con la ghi de: gia cao duoc that luon thang. Xem CONSTRAINTS 2.9.
+        pin = PINNED_PRICES.get(product["model"])
+        if pin:
+            if result.get("status") == "active" and result.get("rrp"):
+                print(f"  [PIN] {product['model']}: da cao duoc gia that (rrp={result.get('rrp')} "
+                      f"red={result.get('red')}) - BO QUA gia du phong. Nen go muc nay khoi "
+                      f"scraper/pinned_prices.json.", flush=True)
+            else:
+                diff = pin["rrp"] - pin["red"]
+                print(f"  [PIN] {product['model']}: khong cao duoc gia (status={result.get('status')}). "
+                      f"Dung gia du phong chot ngay {pin['since']}: rrp={pin['rrp']} red={pin['red']} "
+                      f"pmh={pin['pmh']}.", flush=True)
+                result.update({
+                    "status": "active", "rrp": pin["rrp"], "red": pin["red"], "pmh": pin["pmh"],
+                    "online": diff, "total_online": diff, "choice": 0,
+                    "kind": "pin", "rule": "den_tru_do", "banner": False, "choice_in_red": False
+                })
         row = {"model": product["model"], "url": product["url"],
                "at": datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%m %H:%M"), **result}
         row = enforce_domain_invariants(row)
@@ -1032,8 +1049,15 @@ def main():
                     continue
                 if r["model"] not in base_rrp_map:
                     continue
-                if r["model"] in ("A08 4GB/64GB", "Galaxy A18 4G/128GB", "Galaxy A18 4GB/128GB", "Galaxy A18 8GB/128GB") or (r["model"].startswith("Galaxy A18") and r["model"] != "Galaxy A18 6GB/128GB"):
-                    continue
+                # DA GO (09-11-2026): danh sach bit canh bao tang gia theo ten model
+                #     if r["model"] in ("A08 4GB/64GB", "Galaxy A18 4G/128GB",
+                #                       "Galaxy A18 4GB/128GB", "Galaxy A18 8GB/128GB") or ...
+                # Do dac lai tren 34 dot quet: moi dong no bit deu DA bi hai dieu kien tong quat
+                # o ngay tren chan san roi - Galaxy A18 4GB/128GB va 8GB/128GB khong nam trong
+                # baseline data.js nen roi vao `not in base_rrp_map`; A08 4GB/64GB co rrp dung
+                # bang baseline nen roi vao `after <= base_rrp`. Tuc la no khong con tac dung gi
+                # ngoai viec BIT MAT mot canh bao that neu may nay tang gia that sau nay.
+                # Viec cao nham bien the - ly do ban dau no ra doi - da co safeguard is_sibling lo.
                 tokens_r = alerts._norm_tokens(r["model"])
                 is_sibling = False
                 for other_model, other_rrp in base_rrp_map.items():

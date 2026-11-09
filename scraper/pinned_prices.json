@@ -1,0 +1,47 @@
+{
+  "_doc": [
+    "GIA CHOT TAM (pinned) - CHI dung khi cao that su KHONG ra duoc gia.",
+    "",
+    "Day KHONG phai cho de ep gia. Quy tac:",
+    "  - Chi ap dung khi scan_one tra ve status != active hoac khong co rrp.",
+    "  - Neu dot quet cao duoc gia that, muc nay bi BO QUA va scraper in canh bao",
+    "    de nhac go muc di. Gia that LUON thang gia chot tam.",
+    "  - Dong duoc ap gia chot tam mang kind = \"pin\" de nhin la biet ngay.",
+    "",
+    "LY DO TON TAI: mot so PDP cua TGDD la Marketing Landing Page, khong render khoi gia",
+    "tinh nao (khong co box-price, khong data-priceorg, khong ca the <main>). Card danh muc",
+    "brand hub chi mang gia cua DUNG MOT bien the (bien the chinh cua card), cac nut pill SKU",
+    "con lai khong kem gia. Tab #o=3 khong liet ke dong nay. Tuc la khong co nguon song nao.",
+    "",
+    "Truoc day cac con so nay nam THANG trong scan_tgdd.py duoi dang `result.update({...})`",
+    "GHI DE len ket qua cao - ghi de VO DIEU KIEN, ke ca khi cao duoc gia that. Do la dung",
+    "lop loi da ghim iPhone 18 Pro vao \"chua mo ban\" suot 24 dot (CONSTRAINTS 2.9).",
+    "",
+    "maxAgeDays: qua so ngay nay ma muc chua duoc doi soat lai thi CONG CHAN. Doi soat lai",
+    "= mo PDP hoac card brand hub, xac nhan so lieu, roi cap nhat `since`. Day la co y:",
+    "mot hang so khong ai nhin lai thi khong duoc phep di qua lang le."
+  ],
+
+  "maxAgeDays": 30,
+
+  "entries": [
+    {
+      "model": "A7 Pro 5G 6GB/256GB",
+      "since": "2026-11-09",
+      "rrp": 14490000,
+      "red": 13990000,
+      "pmh": 500000,
+      "source": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-6gb-256gb",
+      "reason": "Doi soat 09-11-2026: PDP khong co box-price / data-priceorg / the <main>. Card brand hub /dtdd-oppo chi mang gia cua bien the 8GB/128GB (nut pill 6GB/256GB khong kem gia). Tab #o=3 khong liet ke A7 Pro. Khong co nguon song nao."
+    },
+    {
+      "model": "A7 Pro 5G 8GB/256GB",
+      "since": "2026-11-09",
+      "rrp": 15490000,
+      "red": 15180000,
+      "pmh": 310000,
+      "source": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-8gb-256gb",
+      "reason": "Doi soat 09-11-2026: PDP khong co box-price / data-priceorg / the <main>. Card brand hub /dtdd-oppo chi mang gia cua bien the 8GB/128GB (nut pill 8GB/256GB khong kem gia). Tab #o=3 khong liet ke A7 Pro. Khong co nguon song nao."
+    }
+  ]
+}

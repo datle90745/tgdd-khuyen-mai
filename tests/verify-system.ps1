@@ -161,9 +161,37 @@ if (Test-Path $scanScript) {
         return $true
     } "Phat hien model flash_chon1 co PMH lech choice hoac thieu banner=true"
 
+    # Khang dinh nay truoc day chi kiem `_CATALOG_ITEMS = {}` co ton tai hay khong - tuc la no
+    # KHONG he kiem thu ma chinh ten no noi. No bao PASS suot trong khi ba dong ngay ben duoi
+    # ep cung 6 con so gia cho a7-pro. Nay kiem dung thu can kiem: gan gia bang SO VIET THANG
+    # vao _CATALOG_ITEMS["<khoa chuoi>"].
     Assert-Check "Scraper scan_tgdd.py khong duoc chua gia hardcode trong _CATALOG_ITEMS" {
-        $scanContent -match '_CATALOG_ITEMS\s*=\s*\{\}'
+        ($scanContent -cmatch '_CATALOG_ITEMS\s*=\s*\{\}') -and
+        ($scanContent -notmatch '(?m)^\s*_CATALOG_ITEMS\[\s*"[^"]+"\s*\]\s*=\s*\{\s*"red"\s*:\s*\d')
     } "Scraper scan_tgdd.py van con gia hardcode trong _CATALOG_ITEMS gay nguy co phuc hoi gia cu"
+
+    # Gia du phong phai la DU PHONG, khong duoc ghi de ket qua cao that.
+    Assert-Check "Gia du phong phai nam o pinned_prices.json va chi dung khi cao khong ra gia" {
+        $p = "scraper/pinned_prices.json"
+        if (-not (Test-Path $p)) { return $false }
+        $j = Get-Content $p -Raw -Encoding UTF8 | ConvertFrom-Json
+        $bad = @($j.entries | Where-Object {
+            -not $_.model -or -not $_.since -or -not $_.rrp -or -not $_.red -or
+            $null -eq $_.pmh -or -not $_.source -or -not $_.reason -or $_.reason.Length -lt 40
+        })
+        $soLech = @($j.entries | Where-Object { ($_.rrp - $_.red) -ne $_.pmh })
+        $quaHan = @($j.entries | Where-Object {
+            ([datetime]$TodayVN - [datetime]$_.since).TotalDays -gt [int]$j.maxAgeDays
+        })
+        ($bad.Count -eq 0) -and ($soLech.Count -eq 0) -and ($quaHan.Count -eq 0) -and
+        ($scanContent -cmatch 'PINNED_PRICES') -and
+        ($scanContent -cmatch 'BO QUA gia du phong')
+    } "scraper/pinned_prices.json co muc thieu truong/sai phep tru (rrp-red phai = pmh)/qua han maxAgeDays, hoac scan_tgdd.py khong con dung PINNED_PRICES lam du phong"
+
+    Assert-Check "Scraper khong duoc ghi de ket qua cao bang gia viet thang trong file .py" {
+        $scanContent -notmatch '(?m)^\s*result\.update\(\{\s*$' -or
+        $scanContent -notmatch '"rrp"\s*:\s*\d{7,}'
+    } "scan_tgdd.py con khoi result.update({...}) mang so gia viet thang - gia phai den tu trang hoac tu pinned_prices.json"
 
     Assert-Check "Scraper scan_tgdd.py phai co ham fetch_model_from_brand_hub lam chot chan cuoi cung" {
         $scanContent -match 'def fetch_model_from_brand_hub\('
