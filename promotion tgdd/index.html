@@ -1210,11 +1210,18 @@ $("reset").onclick=()=>{ imports=[]; try{localStorage.removeItem("tp_imports");}
 const MK = window.MARKET || {scans:[]};
 const MK_RET = ["TGDĐ","CellphoneS","FPT Shop","Viettel Store"];
 const MF = {r:"Tất cả", b:"Tất cả", k:"Tất cả", q:"", focus:false, sort:"v", dir:-1};
-// Khoá so khớp tên máy giữa các sàn và danh sách 94 SKU: bỏ dấu, tên hãng, 4G (giữ 5G để tránh đụng độ model), ký tự đặc biệt.
-const mkKey = s => String(s||"").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d").replace(/(\d+)\+(\d+)/g, "$1gb$2").replace(/(\d+)\/(\d+)g\b/g, "$1gb$2gb").replace(/\+/g,"plus")
-  .replace(/\b(dien thoai|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|4g|lte|nfc)\b/g," ")
-    .replace(/\b(titan|xam|den|trang|xanh|vang|bac|hong|tim|gold|silver|black|white|blue|green|purple|pink|grey|gray)\b/g," ")
-  .replace(/[^a-z0-9]/g,"");
+// Khoá so khớp tên máy giữa các sàn và danh sách SKU: bỏ dấu, tên hãng, 4G, chuẩn hoá cấu hình RAM/ROM.
+const mkKey = s => {
+  let str = String(s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
+  str = str.replace(/(\d+)\s*(?:gb|g)?\s*[\+\/]\s*(\d+)\s*(?:gb|g|tb)?/gi, "$1gb$2gb");
+  str = str.replace(/(\d+)\s*(?:gb|tb)\b/gi, "$1gb");
+  str = str.replace(/\+/g, "plus");
+  str = str.replace(/\b(dien thoai|dtdd|samsung|galaxy|xiaomi|oppo|vivo|realme|apple|chinh hang|vn\/a|vna|4g|lte|nfc)\b/g, " ");
+  str = str.replace(/\b(titan|xam|den|trang|xanh|vang|bac|hong|tim|gold|silver|black|white|blue|green|purple|pink|grey|gray)\b/g, " ");
+  str = str.replace(/\breno\s*(\d+)\s*([a-z]?)\b/g, "reno$1$2");
+  str = str.replace(/\b([asvyxc])\s*(\d+)\b/g, "$1$2");
+  return str.replace(/[^a-z0-9]/g, "");
+};
 const MK_FOCUS_MASS = new Set(BASE.rows.filter(r=>r.channel!=="TGDD").map(r=>((r.brand||"").toLowerCase() + "|" + mkKey(r.model))));
 const MK_FOCUS_ALL = new Set(BASE.rows.map(r=>((r.brand||"").toLowerCase() + "|" + mkKey(r.model))));
 // FPT chặn máy chủ nên bộ quét tự động chỉ lấy được một phần. Khi có bản quét FPT chạy từ
@@ -1254,25 +1261,45 @@ function buildH2HData(){
   if (!S || !S.rows || S.rows.length === 0) build();
   const D = mkData();
   const curRows = (D.cur && D.cur.rows) || [];
-  const mkMap = new Map();
+    const mkMap = new Map();
+  const mkMapNo5g = new Map();
   curRows.forEach(x => {
-    const k = x.r + "|" + (x.b||"").toLowerCase() + "|" + mkKey(x.n);
-    if (!mkMap.has(k) || (x.p && (!mkMap.get(k).p || x.p < mkMap.get(k).p))) {
-      mkMap.set(k, x);
+    const b = (x.b || "").toLowerCase();
+    const k = mkKey(x.n);
+    const kNo5g = k.replace(/5g/g, "");
+    const fullK = x.r + "|" + b + "|" + k;
+    const fullKNo5g = x.r + "|" + b + "|" + kNo5g;
+    if (!mkMap.has(fullK) || (x.p && (!mkMap.get(fullK).p || x.p < mkMap.get(fullK).p))) {
+      mkMap.set(fullK, x);
+    }
+    if (!mkMapNo5g.has(fullKNo5g) || (x.p && (!mkMapNo5g.get(fullKNo5g).p || x.p < mkMapNo5g.get(fullKNo5g).p))) {
+      mkMapNo5g.set(fullKNo5g, x);
     }
   });
 
+  const getMatch = (ret, brand, model) => {
+    const b = (brand || "").toLowerCase();
+    const k = mkKey(model);
+    let m = mkMap.get(ret + "|" + b + "|" + k);
+    if (m) return m;
+    const isFlagship = /s26|s25|find|reno16|iphone|17t|x300|v70|v80|16pro/i.test(model);
+    if (isFlagship || /\b5g\b/i.test(model)) {
+      return mkMapNo5g.get(ret + "|" + b + "|" + k.replace(/5g/g, ""));
+    }
+    return null;
+  };
+
   return S.rows.map(r => {
     const k = (r.brand||"").toLowerCase() + "|" + mkKey(r.model);
-    const tgddItem = mkMap.get("TGDĐ|" + k);
+    const tgddItem = getMatch("TGDĐ", r.brand, r.model);
     const p_tgdd = (tgddItem && tgddItem.p) ? tgddItem.p
                  : (typeof r.red === "number" ? r.red
                  : ((onPrice(r) != null) ? onPrice(r) : offPrice(r)));
     const u_tgdd = LINKS[r.model] || (tgddItem ? tgddItem.u : null);
 
-    const cpsMatch = mkMap.get("CellphoneS|" + k);
-    const fptMatch = mkMap.get("FPT Shop|" + k);
-    const vtMatch = mkMap.get("Viettel Store|" + k);
+    const cpsMatch = getMatch("CellphoneS", r.brand, r.model);
+    const fptMatch = getMatch("FPT Shop", r.brand, r.model);
+    const vtMatch = getMatch("Viettel Store", r.brand, r.model);
 
     // Nếu có ít nhất 1 sàn đối thủ có hàng thì sản phẩm này thực tế là Mass
     const hasCompetitor = Boolean((cpsMatch && cpsMatch.p > 0) || (fptMatch && fptMatch.p > 0) || (vtMatch && vtMatch.p > 0));
