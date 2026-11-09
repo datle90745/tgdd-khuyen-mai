@@ -131,9 +131,10 @@ foreach ($k in $keys) {
         continue
     }
 
-    # 4. Kiểm tra Flash Sale Banner Cam thực tế
+    # 4. Kiểm tra Flash Sale Banner Cam thực tế (phải có số suất hoặc đồng hồ đếm ngược)
     $isFlashSale = $false
-    if ($html -match 'bg-fs-detail' -or ($html -match 'bg-stock-quantity' -and $html -match 'suất|su\u1EA5t')) {
+    $hasQuota = ($html -match 'bg-stock-quantity' -and ($html -match 'suất|su\\u1EA5t|su\u1EA5t')) -or ($html -match 'còn\s*(\d+|\<!--.*?--\>)\s*/\s*(\d+|\<!--.*?--\>)\s*suất')
+    if ($hasQuota -or ($html -match 'box_saving')) {
         $isFlashSale = $true
         $flashCount++
     }
@@ -200,6 +201,7 @@ foreach ($k in $keys) {
         choice = $choice
         kind = $kind
         rule = $rule
+        banner = $isFlashSale
     }
     $results += $rowObj
 
