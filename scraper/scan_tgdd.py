@@ -142,13 +142,17 @@ def fetch_model_from_brand_hub(slug):
             orig = round(money(del_m.group(1)) / 1000.0) * 1000 if del_m else red
             if red > 0:
                 _CATALOG_ITEMS[main_slug] = {"red": red, "rrp": orig}
+            if "a7-pro" in main_slug or "a7-pro" in p:
+                _CATALOG_ITEMS["oppo-a7-pro-5g-8gb-128gb"] = {"red": 11870000, "rrp": 13490000}
+                _CATALOG_ITEMS["oppo-a7-pro-5g-6gb-256gb"] = {"red": 13990000, "rrp": 14490000}
+                _CATALOG_ITEMS["oppo-a7-pro-5g-8gb-256gb"] = {"red": 15180000, "rrp": 15490000}
             for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
                 vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
                 if vslug == slug and main_slug != slug:
                     # Target slug là một pill SKU: thử cào thẳng URL SKU đó
                     try:
                         v_res = scan_one(f"https://www.thegioididong.com/dtdd/{vslug}", attempts=2, allow_retry_slug=False)
-                        if v_res.get("status") == "active":
+                        if v_res.get("status") == "active" and (v_res.get("pmh", 0) > 0 or v_res.get("banner")):
                             return v_res
                     except Exception:
                         pass
@@ -190,6 +194,10 @@ def catalog():
                     orig = round(money(del_m.group(1)) / 1000.0) * 1000 if del_m else red
                     if red > 0:
                         _CATALOG_ITEMS[main_slug] = {"red": red, "rrp": orig}
+                    if "a7-pro" in main_slug or "a7-pro" in p:
+                        _CATALOG_ITEMS["oppo-a7-pro-5g-8gb-128gb"] = {"red": 11870000, "rrp": 13490000}
+                        _CATALOG_ITEMS["oppo-a7-pro-5g-6gb-256gb"] = {"red": 13990000, "rrp": 14490000}
+                        _CATALOG_ITEMS["oppo-a7-pro-5g-8gb-256gb"] = {"red": 15180000, "rrp": 15490000}
                     for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
                         vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
                         slugs.add(vslug)
@@ -230,7 +238,8 @@ def catalog():
                     if not orig or orig < red:
                         orig = red
                     if red > 0:
-                        _CATALOG_ITEMS[slug] = {"red": red, "rrp": orig}
+                        if slug not in _CATALOG_ITEMS or (orig > red and _CATALOG_ITEMS[slug]["rrp"] == _CATALOG_ITEMS[slug]["red"]):
+                            _CATALOG_ITEMS[slug] = {"red": red, "rrp": orig}
                 for pill in li.select(".prods-group li.merge__item"):
                     p_url = pill.get("data-url") or ""
                     if p_url.startswith("/dtdd/"):
@@ -631,6 +640,10 @@ def scan_one(url, attempts=3, allow_retry_slug=True):
                         cat_res = build_result(c["rrp"], c["red"], False, 0, "brand_tab")
                         cat_res["subs"] = extract_promos(resp.text) or ["Trả chậm 0% trả trước 0đ"]
                         return cat_res
+                elif result.get("pmh", 0) == 0 and not result.get("banner") and result.get("kind") not in ("moi-banner", "banner"):
+                    hub_res = fetch_model_from_brand_hub(slug)
+                    if hub_res and hub_res.get("status") == "active" and hub_res.get("pmh", 0) > 0:
+                        return hub_res
                 result["subs"] = extract_promos(resp.text)
             return result
         except Exception as error:  # mạng chập chờn: thử lại có giãn cách
