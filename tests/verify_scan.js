@@ -382,9 +382,16 @@ if (scansArr && scanData) {
   // write_scans_js() co chu y giu lai `scansJsRetention` dot gan nhat (scans[-30:]),
   // nen dot cu hon bi rot ra KHONG phai loi dong bo. Thu phai kiem la: trong cua so
   // duoc giu lai, khong duoc thung mot dot nao.
+  // write_scans_js() chi giu cac dot quet Thu Hai va Thu Sau theo user training (alerts.KEEP_WEEKDAYS = {0, 4}).
+  // Trong JS: 1 = Thu Hai, 5 = Thu Sau.
   const onDisk = fs.readdirSync(SCANS_DIR)
     .filter((f) => /^scan_\d{4}-\d{2}-\d{2}\.json$/.test(f))
     .sort()
+    .filter((f) => {
+      const [y, m, d] = f.slice(5, 15).split('-').map(Number);
+      const day = new Date(y, m - 1, d).getDay();
+      return day === 1 || day === 5;
+    })
     .map((f) => ({ file: f, date: isoToDdMmm(f.slice(5, 15)) }));
   const retained = onDisk.slice(-CFG.scansJsRetention);
   const gaps = retained.filter((o) => !byDate.has(o.date));

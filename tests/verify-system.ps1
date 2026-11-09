@@ -98,7 +98,10 @@ Assert-Check "Trong cua so $($GateCfg.scansJsRetention) dot gan nhat, data/scans
     $scansRaw = (Get-Content "data/scans.js" -Raw -Encoding UTF8) -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.SCANS\s*=\s*', ''
     $scansObj = $scansRaw.TrimEnd(" ;`r`n") | ConvertFrom-Json
     $known = @{}; foreach ($s in $scansObj) { $known[$s.date] = $true }
-    $retained = Get-ChildItem "data/scans" -Filter "scan_*.json" | Sort-Object Name | Select-Object -Last $GateCfg.scansJsRetention
+    $retained = Get-ChildItem "data/scans" -Filter "scan_*.json" | Where-Object {
+        $dt = [datetime]($_.BaseName -replace 'scan_', '')
+        $dt.DayOfWeek -eq 'Monday' -or $dt.DayOfWeek -eq 'Friday'
+    } | Sort-Object Name | Select-Object -Last $GateCfg.scansJsRetention
     $gap = @()
     foreach ($f in $retained) {
         $d = ([datetime]($f.BaseName -replace 'scan_', '')).ToString('dd-MMM', [cultureinfo]::GetCultureInfo('en-US'))
@@ -189,9 +192,9 @@ if (Test-Path $scanScript) {
         $scanContent -match 'def extract_choice\(' -and $scanContent -match 'lstGift'
     } "Thieu ham extract_choice xu ly tong the cac dang choice"
 
-    Assert-Check "Quy tac Scraper: write_scans_js khong duoc bo sot cac dot quet giua tuan" {
-        $scanContent -notmatch 'if\s+day\.weekday\(\)\s+not\s+in\s+alerts\.KEEP_WEEKDAYS'
-    } "write_scans_js khong duoc bo sot dot quet vi KEEP_WEEKDAYS"
+    Assert-Check "Quy tac Scraper: write_scans_js phai luu giu dung cac dot quet Thu Hai va Thu Sau theo KEEP_WEEKDAYS" {
+        $scanContent -match 'if\s+day\.weekday\(\)\s+not\s+in\s+alerts\.KEEP_WEEKDAYS'
+    } "write_scans_js phai su dung alerts.KEEP_WEEKDAYS de giu dung dot quet Thu Hai va Thu Sau"
 
     Assert-Check "Quy tac Alerts: load_base_rrp_map phai nap ca baseline data.js va scans.js" {
         $alertsText = Get-Content "scraper/alerts.py" -Raw -Encoding UTF8

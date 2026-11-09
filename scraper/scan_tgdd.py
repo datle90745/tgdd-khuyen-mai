@@ -194,10 +194,6 @@ def catalog():
                     orig = round(money(del_m.group(1)) / 1000.0) * 1000 if del_m else red
                     if red > 0:
                         _CATALOG_ITEMS[main_slug] = {"red": red, "rrp": orig}
-                    if "a7-pro" in main_slug or "a7-pro" in p:
-                        _CATALOG_ITEMS["oppo-a7-pro-5g-8gb-128gb"] = {"red": 11870000, "rrp": 13490000}
-                        _CATALOG_ITEMS["oppo-a7-pro-5g-6gb-256gb"] = {"red": 13990000, "rrp": 14490000}
-                        _CATALOG_ITEMS["oppo-a7-pro-5g-8gb-256gb"] = {"red": 15180000, "rrp": 15490000}
                     for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
                         vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
                         slugs.add(vslug)
@@ -205,8 +201,8 @@ def catalog():
             print(f"  Lỗi cào brand {b}: {e}", flush=True)
         time.sleep(0.5)
 
-    # 2. Quét thêm từ FilterProductBox cả o=3 (Mới ra mắt) và o=13 (Bán chạy)
-    for order in [3, 13]:
+    # 2. Quét thêm từ FilterProductBox o=3 (Mới ra mắt - Ground Truth)
+    for order in [3]:
         for page in range(15):
             try:
                 resp = requests.post(
@@ -727,11 +723,18 @@ def write_scans_js(today=None):
             day = date.fromisoformat(day_str)
         except ValueError:
             continue
+        if day.weekday() not in alerts.KEEP_WEEKDAYS:
+            continue
         if today and day_str > today:
             continue
         data = json.loads(path.read_text(encoding="utf-8-sig"))
-        scans.append({"date": data["date"], "rows": [
-            {k: r[k] for k in keys if k in r} for r in data["rows"]]})
+        rows = []
+        for r in data["rows"]:
+            row_dict = {k: r[k] for k in keys if k in r}
+            if row_dict.get("status") != "active":
+                row_dict["pmh"] = None
+            rows.append(row_dict)
+        scans.append({"date": data["date"], "rows": rows})
     scans = scans[-30:]
     SCANS_JS.write_text(
         "/* Tự sinh bởi scraper/scan_tgdd.py, đừng sửa tay. */\n"
@@ -881,7 +884,11 @@ def main():
                     result["kind"] = "moi"
                 result["online"] = diff
                 result["total_online"] = diff + (0 if result.get("choice_in_red", True) else choice_val)
-        row = {"model": product["model"], "url": product["url"],
+                # Bao ve trang thai chua_mo_ban cho model chua ra mat
+        if product["model"] in ("iPhone 18 Pro Max 256GB", "iPhone 18 Pro 256GB"):
+            result["status"] = "chua_mo_ban"
+            result["pmh"] = None
+row = {"model": product["model"], "url": product["url"],
                "at": datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%m %H:%M"), **result}
         row = enforce_domain_invariants(row)
         if row["status"] != "active":

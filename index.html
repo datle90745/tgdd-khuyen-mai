@@ -550,6 +550,8 @@ function getLatestRiseDate(r) {
   if (window.RISE_AUTO && Array.isArray(window.RISE_AUTO)) {
     window.RISE_AUTO.forEach(item => {
       const model = item[2];
+      const ret = item[7] || "TGDĐ";
+      if (ret !== "TGDĐ" && ret !== "Thế Giới Di Động") return;
       if (model === r.model || (typeof canonKey === "function" && canonKey(model, r.brand) === canonKey(r.model, r.brand))) {
         if (item[5]) updateLatest(new Date(item[5]));
       }
@@ -569,6 +571,8 @@ function getLatestRiseDate(r) {
   if (window.RISE_RAW && Array.isArray(window.RISE_RAW)) {
     window.RISE_RAW.forEach(item => {
       const model = item[2];
+      const ret = item[7] || "TGDĐ";
+      if (ret !== "TGDĐ" && ret !== "Thế Giới Di Động") return;
       if (model === r.model || (typeof canonKey === "function" && canonKey(model, r.brand) === canonKey(r.model, r.brand))) {
         if (item[5]) updateLatest(new Date(item[5]));
       }

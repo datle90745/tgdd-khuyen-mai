@@ -21,15 +21,16 @@
       "model": "iPhone 18 Pro Max 256GB",
       "url": "https://www.thegioididong.com/dtdd/iphone-18-pro-max",
       "at": "23-10 21:45",
-      "status": "active",
-      "pmh": 0,
+      "status": "chua_mo_ban",
+      "pmh": null,
       "rrp": 41990000,
       "red": 41990000,
       "online": 0,
       "total_online": 0,
       "choice": 0,
       "rule": "den_tru_do",
-      "kind": "moi"
+      "kind": "moi",
+      "banner": false
     },
     {
       "model": "iPhone 17 Pro Max 256GB",
@@ -1514,16 +1515,17 @@
       "model": "iPhone 18 Pro 256GB",
       "url": "https://www.thegioididong.com/dtdd/iphone-18-pro",
       "at": "23-10 21:57",
-      "status": "active",
+      "status": "chua_mo_ban",
       "rrp": 38990000,
       "red": 38990000,
-      "pmh": 0,
+      "pmh": null,
       "online": 0,
       "total_online": 0,
       "choice": 0,
       "kind": "moi",
       "rule": "den_tru_do",
-      "subs": []
+      "subs": [],
+      "banner": false
     },
     {
       "model": "iPhone Duo 256GB",
