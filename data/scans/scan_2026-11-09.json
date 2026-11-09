@@ -1,6 +1,6 @@
 {
  "date": "09-Nov",
- "scanned_at": "2026-11-09T13:11:37+07:00",
+ "scanned_at": "2026-11-09T14:24:36+07:00",
  "rows": [
   {
    "model": "iPhone 17 Pro Max 512GB",
@@ -260,41 +260,45 @@
   {
    "model": "A7 Pro 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-8gb-256gb",
-   "at": "09-11 13:12",
+   "at": "09-11 14:24",
    "status": "active",
-   "rrp": 14490000,
-   "red": 14490000,
-   "pmh": 0,
-   "online": 0,
-   "total_online": 0,
+   "rrp": 15490000,
+   "red": 15180000,
+   "pmh": 310000,
+   "online": 310000,
+   "total_online": 310000,
    "choice": 0,
-   "kind": "moi",
+   "kind": "brand_tab",
    "rule": "den_tru_do",
    "banner": false,
    "choice_in_red": false,
-   "subs": []
+   "subs": [
+    "Trả chậm 0% trả trước 0đ"
+   ]
   },
   {
    "model": "A7 Pro 5G 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-6gb-256gb",
-   "at": "09-11 13:12",
+   "at": "09-11 14:24",
    "status": "active",
    "rrp": 14490000,
-   "red": 14490000,
-   "pmh": 0,
-   "online": 0,
-   "total_online": 0,
+   "red": 13990000,
+   "pmh": 500000,
+   "online": 500000,
+   "total_online": 500000,
    "choice": 0,
-   "kind": "moi",
+   "kind": "brand_tab",
    "rule": "den_tru_do",
    "banner": false,
    "choice_in_red": false,
-   "subs": []
+   "subs": [
+    "Trả chậm 0% trả trước 0đ"
+   ]
   },
   {
    "model": "A7 Pro 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-8gb-128gb",
-   "at": "09-11 13:13",
+   "at": "09-11 14:24",
    "status": "active",
    "rrp": 13490000,
    "red": 11870000,
@@ -305,7 +309,7 @@
    "kind": "brand_tab",
    "rule": "den_tru_do",
    "banner": false,
-   "choice_in_red": true,
+   "choice_in_red": false,
    "subs": [
     "Trả chậm 0% trả trước 0đ"
    ]
