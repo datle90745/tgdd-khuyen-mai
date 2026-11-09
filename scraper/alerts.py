@@ -154,9 +154,10 @@ def filter_unregistered_rises(items):
         it["b"] = brand
         it["n"] = cat_model
         tokens = _norm_tokens(cat_model)
-        # Bỏ qua nếu đã có sẵn trong bảng nhập tay data.js (cùng hãng, cùng mức giá tăng, model khớp)
+        # Bỏ qua nếu đã có sẵn trong bảng nhập tay data.js hoặc bảng rises.js (cùng hãng, cùng mức giá tăng, model khớp)
+        rises_entries = [(r[1].upper(), _norm_tokens(r[2]), int(r[3]), int(r[4])) for r in load_rises()]
         if any(b == brand and o == old and n == new and (tokens == bt or tokens.issubset(bt) or bt.issubset(tokens))
-               for b, bt, o, n in base_entries):
+               for b, bt, o, n in base_entries + rises_entries):
             continue
         clean.append(it)
     return clean
