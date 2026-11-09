@@ -156,51 +156,66 @@ def fetch_model_from_brand_hub(slug):
     không dùng số hardcode và không mượn dữ liệu cũ.
     """
     global _CATALOG_ITEMS, _HUB_VISITED
-    if not slug or slug in _HUB_VISITED:
+    if not slug:
         return None
-    _HUB_VISITED.add(slug)
     b = get_brand_from_slug(slug)
-    hub_url = f"https://www.thegioididong.com/dtdd-{b}" if b else "https://www.thegioididong.com/dtdd"
-    try:
-        resp = http_get(hub_url)
-        if resp.status_code != 200:
-            return None
-        html = resp.text
-        parts = html.split('<div data-product-code="')
-        for p in parts[1:]:
-            link_m = re.search(r'href="(/dtdd/[^"?#]+)"', p)
-            if not link_m:
+    # CONSTRAINTS 2.7 chi dinh CA HAI duong: tab thuong hieu VA danh muc tong
+    # https://www.thegioididong.com/dtdd. Truoc day code chi di /dtdd khi KHONG doan duoc
+    # brand, nen voi moi hang da biet thi link /dtdd khong bao gio duoc dung - sai voi luat
+    # da ghi. Nay thu tab thuong hieu truoc (hep hon, nhanh hon), het mới tra sang /dtdd.
+    hub_urls = []
+    if b:
+        hub_urls.append(f"https://www.thegioididong.com/dtdd-{b}")
+    hub_urls.append("https://www.thegioididong.com/dtdd")
+
+    for hub_url in hub_urls:
+        visit_key = f"{slug}|{hub_url}"
+        if visit_key in _HUB_VISITED:
+            continue
+        try:
+            resp = http_get(hub_url)
+            if resp.status_code != 200:
                 continue
-            main_slug = link_m.group(1).split("?")[0].strip("/").replace("dtdd/", "")
-            price_m = re.search(r'<a[^>]*class="[^"]*text-red-7[^"]*"[^>]*><span>([0-9.,]+)[^<]*</span>', p)
-            del_m = re.search(r'<del[^>]*>([0-9.,]+)[^<]*</del>', p)
-            red = round(money(price_m.group(1)) / 1000.0) * 1000 if price_m else 0
-            orig = round(money(del_m.group(1)) / 1000.0) * 1000 if del_m else red
-            if red > 0:
-                _CATALOG_ITEMS[main_slug] = {"red": red, "rrp": orig}
-            # DA GO (09-11-2026): ba dong ep cung gia a7-pro vao _CATALOG_ITEMS. Chung mau thuan
-            # voi chinh docstring cua ham nay ("khong dung so hardcode"). Doi soat live cho thay
-            # card /dtdd-oppo da tra ve dung red=11.870.000 / del=13.490.000 cho bien the chinh
-            # 8GB/128GB qua duong boc tong quat o tren, nen ep cung la thua. Hai bien the 256GB
-            # khong co nguon song - chung nay nam o scraper/pinned_prices.json duoi dang gia DU
-            # PHONG co han doi soat, khong phai ghi de.
-            for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
-                vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
-                if vslug == slug and main_slug != slug:
-                    # Target slug là một pill SKU: thử cào thẳng URL SKU đó, cấm gọi đệ quy ngược lại hub
-                    try:
-                        v_res = scan_one(f"https://www.thegioididong.com/dtdd/{vslug}", attempts=2, allow_retry_slug=False, allow_hub_fallback=False)
-                        if v_res.get("status") == "active" and (v_res.get("pmh", 0) > 0 or v_res.get("banner")):
-                            return v_res
-                    except Exception:
-                        pass
-        if slug in _CATALOG_ITEMS and _CATALOG_ITEMS[slug]["red"] > 0:
-            c = _CATALOG_ITEMS[slug]
-            cat_res = build_result(c["rrp"], c["red"], False, 0, "brand_tab")
-            cat_res["subs"] = ["Trả chậm 0% trả trước 0đ", "Quà 40.000₫"]
-            return cat_res
-    except Exception as e:
-        print(f"  [BRAND_HUB] Lỗi quét chốt chặn {hub_url}: {e}", flush=True)
+            # Chi danh dau "da tra cuu" khi THAT SU doc duoc trang. Truoc day danh dau ngay
+            # truoc khi goi HTTP, nen mot loi mang thoang qua la khoa luon slug do suot ca
+            # dot quet - lan goi sau tra None ngay ma khong he thu lai.
+            _HUB_VISITED.add(visit_key)
+            html = resp.text
+            parts = html.split('<div data-product-code="')
+            for p in parts[1:]:
+                link_m = re.search(r'href="(/dtdd/[^"?#]+)"', p)
+                if not link_m:
+                    continue
+                main_slug = link_m.group(1).split("?")[0].strip("/").replace("dtdd/", "")
+                price_m = re.search(r'<a[^>]*class="[^"]*text-red-7[^"]*"[^>]*><span>([0-9.,]+)[^<]*</span>', p)
+                del_m = re.search(r'<del[^>]*>([0-9.,]+)[^<]*</del>', p)
+                red = round(money(price_m.group(1)) / 1000.0) * 1000 if price_m else 0
+                orig = round(money(del_m.group(1)) / 1000.0) * 1000 if del_m else red
+                if red > 0:
+                    _CATALOG_ITEMS[main_slug] = {"red": red, "rrp": orig}
+                # DA GO (09-11-2026): ba dong ep cung gia a7-pro vao _CATALOG_ITEMS. Chung mau thuan
+                # voi chinh docstring cua ham nay ("khong dung so hardcode"). Doi soat live cho thay
+                # card /dtdd-oppo da tra ve dung red=11.870.000 / del=13.490.000 cho bien the chinh
+                # 8GB/128GB qua duong boc tong quat o tren, nen ep cung la thua. Hai bien the 256GB
+                # khong co nguon song - chung nay nam o scraper/pinned_prices.json duoi dang gia DU
+                # PHONG co han doi soat, khong phai ghi de.
+                for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
+                    vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
+                    if vslug == slug and main_slug != slug:
+                        # Target slug là một pill SKU: thử cào thẳng URL SKU đó, cấm gọi đệ quy ngược lại hub
+                        try:
+                            v_res = scan_one(f"https://www.thegioididong.com/dtdd/{vslug}", attempts=2, allow_retry_slug=False, allow_hub_fallback=False)
+                            if v_res.get("status") == "active" and (v_res.get("pmh", 0) > 0 or v_res.get("banner")):
+                                return v_res
+                        except Exception:
+                            pass
+            if slug in _CATALOG_ITEMS and _CATALOG_ITEMS[slug]["red"] > 0:
+                c = _CATALOG_ITEMS[slug]
+                cat_res = build_result(c["rrp"], c["red"], False, 0, "brand_tab")
+                cat_res["subs"] = ["Trả chậm 0% trả trước 0đ", "Quà 40.000₫"]
+                return cat_res
+        except Exception as e:
+            print(f"  [BRAND_HUB] Lỗi quét chốt chặn {hub_url}: {e}", flush=True)
     return None
 
 
@@ -715,6 +730,25 @@ def scan_one(url, attempts=3, allow_retry_slug=True, allow_hub_fallback=True):
             time.sleep(3 * (attempt + 1))
     if last_error is None and result is not None:
         return result
+    # CONSTRAINTS 2.7: KHONG tu do duoc ket qua VI LOI thi BAT BUOC tra cuu lan cuoi qua
+    # danh muc TGDD (https://www.thegioididong.com/dtdd va tab thuong hieu) truoc khi bo cuoc.
+    # Truoc day nhanh nay tra thang ve {"status": "error"}, nghia la chot chan cuoi cung KHONG
+    # HE duoc dung dung luc no can nhat - cao hong la bo luon, trong khi danh muc van con gia.
+    # Cac dong status=error trong lich su (vi du iPhone 17 Pro Max 256GB ngay 29-10) deu chua
+    # bao gio duoc tra cuu lai.
+    if allow_hub_fallback:
+        slug = url.rstrip("/").rsplit("/", 1)[-1].split("?")[0]
+        print(f"  [BRAND_HUB_LAST_CHECK] {slug}: cao that bai ({last_error}). "
+              f"Tra cuu lan cuoi qua danh muc TGDD.", flush=True)
+        try:
+            hub_res = fetch_model_from_brand_hub(slug)
+        except Exception as hub_err:
+            hub_res = None
+            print(f"  [BRAND_HUB_LAST_CHECK] {slug}: tra cuu lan cuoi cung that bai: {hub_err}", flush=True)
+        if hub_res and hub_res.get("status") == "active":
+            print(f"  [BRAND_HUB_LAST_CHECK] {slug}: lay duoc gia tu danh muc TGDD "
+                  f"(rrp={hub_res.get('rrp')} red={hub_res.get('red')}) sau khi cao loi.", flush=True)
+            return hub_res
     return {"status": "error", "error": str(last_error)}
 
 

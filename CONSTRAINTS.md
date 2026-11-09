@@ -117,6 +117,16 @@ Hệ thống **cố ý** có hai danh sách khác nhau. Nhầm lẫn giữa chú
 
 ### 2.7. Chốt Chặn Cuối Cùng (Ultimate Ground Truth Fallback) Qua Danh Mục Thương Hiệu TGDĐ
 - **Đường dẫn chuẩn tham chiếu:** [https://www.thegioididong.com/dtdd](https://www.thegioididong.com/dtdd) và các tab thương hiệu tương ứng (`/dtdd-samsung`, `/dtdd-apple-iphone`, `/dtdd-oppo`, `/dtdd-xiaomi`, `/dtdd-vivo`, `/dtdd-realme`, `/dtdd-honor`).
+- **BẮT BUỘC tra cứu lần cuối (last check) khi không tự dò được kết quả:** mọi nhánh kết thúc
+  mà không có giá — kể cả nhánh **lỗi mạng / lỗi kết nối** (`status = "error"`) — đều phải tra
+  cứu lần cuối qua danh mục TGDĐ **trước khi bỏ cuộc**. Phải thử **cả hai** đường: tab thương
+  hiệu `/dtdd-<brand>` rồi đến danh mục tổng `/dtdd`.
+  - Ngày 09-11-2026 phát hiện: nhánh lỗi trả thẳng về `{"status": "error"}` mà **không hề gọi**
+    chốt chặn — đúng lúc nó cần nhất thì nó không chạy. Mọi dòng `status = error` trong lịch sử
+    đều chưa bao giờ được tra cứu lại. Và vì `hub_url` chỉ dùng `/dtdd` khi **không** đoán được
+    brand, nên với mọi hãng đã biết thì link `/dtdd` gần như không bao giờ được dùng.
+  - Việc đánh dấu "đã tra cứu" chỉ được làm khi **thật sự đọc được trang**. Đánh dấu trước khi
+    gọi HTTP thì một lỗi mạng thoáng qua sẽ khoá luôn model đó suốt cả đợt quét.
 - **Nguyên tắc vận hành khi có nghi vấn hoặc trang chi tiết (PDP) gặp sự cố:**
   - Trên `https://www.thegioididong.com/dtdd`, có khung lọc riêng cho từng thương hiệu (brand filter).
   - Khi bấm vào từng brand, trang sẽ hiển thị danh sách các card sản phẩm của brand đó kèm các nút pill biến thể (SKU: RAM/ROM).

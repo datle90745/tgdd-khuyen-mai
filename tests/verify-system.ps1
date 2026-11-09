@@ -193,6 +193,20 @@ if (Test-Path $scanScript) {
         $scanContent -notmatch '"rrp"\s*:\s*\d{7,}'
     } "scan_tgdd.py con khoi result.update({...}) mang so gia viet thang - gia phai den tu trang hoac tu pinned_prices.json"
 
+    # CONSTRAINTS 2.7 bat buoc tra cuu lan cuoi qua danh muc TGDD khi khong tu do duoc ket qua.
+    # Truoc day nhanh LOI (`return {"status": "error"}`) tra thang ve ma khong he goi chot chan -
+    # dung luc no can nhat thi no khong chay. Cac dong status=error trong lich su deu chua bao
+    # gio duoc tra cuu lai. Khang dinh nay kiem DUNG THU TU: last-check phai dung TRUOC cau
+    # return error.
+    Assert-Check "Cao LOI thi bat buoc tra cuu lan cuoi qua danh muc TGDD truoc khi bo cuoc" {
+        $scanContent -cmatch '(?s)BRAND_HUB_LAST_CHECK.*?fetch_model_from_brand_hub\(slug\).*?return \{"status": "error"'
+    } "scan_tgdd.py tra ve status=error ma khong tra cuu lan cuoi qua danh muc TGDD (CONSTRAINTS 2.7)"
+
+    Assert-Check "Chot chan cuoi cung phai thu CA tab thuong hieu VA danh muc tong /dtdd" {
+        ($scanContent -cmatch 'hub_urls\.append\(f"https://www\.thegioididong\.com/dtdd-\{b\}"\)') -and
+        ($scanContent -cmatch 'hub_urls\.append\("https://www\.thegioididong\.com/dtdd"\)')
+    } "fetch_model_from_brand_hub khong thu ca hai duong - CONSTRAINTS 2.7 chi dinh ca /dtdd lan tab thuong hieu"
+
     Assert-Check "Scraper scan_tgdd.py phai co ham fetch_model_from_brand_hub lam chot chan cuoi cung" {
         $scanContent -match 'def fetch_model_from_brand_hub\('
     } "Scraper scan_tgdd.py thieu ham fetch_model_from_brand_hub quet live tab brand TGDĐ"
