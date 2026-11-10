@@ -578,13 +578,21 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         ($linksText -match '"A7 Pro 5G 6GB/256GB"') -and ($linksText -match '"A7 Pro 5G 8GB/128GB"')
     } "data/links.js thieu key 'A7 Pro 5G 6GB/256GB' hoac 'A7 Pro 5G 8GB/128GB'"
 
-    Assert-Check "A7 Pro 5G co du bien the va khong lay gia ghim cho du lieu hien tai" {
+    # Ban goc cua khang dinh nay cam MOI dong mang kind = "pin". Ket qua: hai ban A7 Pro
+    # 256GB - von co PDP la Marketing Landing Page khong bao gio render gia - bi de trong
+    # hoan toan tren bang. Nguoi dung bao loi ngay 10-11-2026.
+    # Giu nguyen y dung cua no (khong duoc ghim bua), nhung doi lai cho chinh xac:
+    # mot dong kind = "pin" chi hop le khi model do CO TRONG scraper/pinned_prices.json -
+    # tuc la da duoc khai bao, co bang chung, co han doi soat.
+    Assert-Check "A7 Pro 5G du bien the; moi dong kind=pin phai duoc khai bao truoc" {
         $raw = (Get-Content "data/latest.js" -Raw -Encoding UTF8) -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.LATEST\s*=\s*', ''
         $latestObj = $raw.TrimEnd(" ;`r`n") | ConvertFrom-Json
         $models = @("A7 Pro 5G 6GB/256GB", "A7 Pro 5G 8GB/128GB", "A7 Pro 5G 8GB/256GB")
+        $daKhai = @((Get-Content "scraper/pinned_prices.json" -Raw -Encoding UTF8 | ConvertFrom-Json).entries | ForEach-Object { $_.model })
+        $ghimLau = @($latestObj.rows | Where-Object { $_.kind -eq "pin" -and $_.model -notin $daKhai })
         @($latestObj.rows | Where-Object { $_.model -in $models }).Count -eq 3 -and
-        @($latestObj.rows | Where-Object { $_.model -in $models -and $_.kind -eq "pin" }).Count -eq 0
-    } "data/latest.js thieu bien the A7 Pro hoac van dung gia ghim"
+        $ghimLau.Count -eq 0
+    } "data/latest.js thieu bien the A7 Pro, hoac co dong kind=pin cho model KHONG duoc khai bao trong scraper/pinned_prices.json"
 
     Assert-Check "data/latest.js phai co 'V80 Lite 5G 6GB/256GB' (RRP 14.990.000) va 'V80 Lite 5G 6GB/128GB' (RRP 12.990.000) active" {
         $latestText = Get-Content "data/latest.js" -Raw -Encoding UTF8
