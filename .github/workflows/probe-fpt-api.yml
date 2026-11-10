@@ -97,3 +97,33 @@ jobs:
                   print("browser API error:", type(error).__name__, str(error)[:250])
               browser.close()
           PY
+  network_probe:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Probe production API on runner network
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, urllib.error, urllib.request
+          url = "https://papi.fptshop.com.vn/gw/v1/public/fulltext-search-service/category"
+          body = json.dumps({"slug": "dien-thoai/samsung", "skipCount": 0,
+                             "maxResultCount": 50, "sortMethod": "noi-bat",
+                             "categoryType": "category"}).encode()
+          req = urllib.request.Request(url, data=body, headers={
+              "User-Agent": "Mozilla/5.0", "Content-Type": "application/json",
+              "Origin": "https://fptshop.com.vn",
+              "Referer": "https://fptshop.com.vn/dien-thoai/samsung"
+          }, method="POST")
+          try:
+              with urllib.request.urlopen(req, timeout=20) as response:
+                  obj = json.load(response)
+                  print(f"HTTP {response.status}, items={len(obj.get('items') or [])}")
+          except urllib.error.HTTPError as error:
+              print(f"HTTP {error.code}")
+          except Exception as error:
+              print(f"{type(error).__name__}: {error}")
+          PY
