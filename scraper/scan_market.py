@@ -464,13 +464,6 @@ def fpt_rows_via_erp_api():
     """Tải dữ liệu FPT Shop từ API nội bộ promotion.erp-portal.vn nếu có ERP_PORTAL_COOKIE."""
     cookie = ERP_PORTAL_COOKIE
     if not cookie:
-        local_file = ROOT / "data" / "fpt_portal_deals.json"
-        if local_file.exists():
-            try:
-                deals = json.loads(local_file.read_text(encoding="utf-8-sig"))
-                return _parse_erp_portal_deals(deals)
-            except Exception:
-                pass
         return []
 
     url = "https://promotion.erp-portal.vn/api/deals?retailer=FPT%20Shop"
@@ -488,14 +481,11 @@ def fpt_rows_via_erp_api():
 
 def scan_fpt():
     """Chỉ lấy dữ liệu LIVE trong đợt quét này:
-    0. Ưu tiên data/fpt.js nếu máy nhà đã quét đầy đủ (>=80 máy, đủ 4 hãng) cùng ngày.
     1. Thử Retail Deal Crawler API nội bộ (promotion.erp-portal.vn) nếu có cookie/token.
     2. Thử HTTP NextJS request (nhanh, qua proxy nếu có cấu hình).
     3. Thử Playwright trình duyệt thật có stealth script.
-    Nếu cả 3 cách live đều không đủ máy (bị Cloudflare chặn), dùng data/fpt.js cùng ngày.
-    Tuyệt đối KHÔNG lấy số cũ từ các ngày trước để tránh gây hiểu lầm về giá thực tế."""
-    today_label = alerts.day_label(datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")))
-    fpt_file = ROOT / "data" / "fpt.js"
+    Nếu cả 3 cách live đều không đủ máy, đánh dấu nguồn FPT chưa xác minh.
+    Không lấy file của lượt khác để lấp dữ liệu hiện tại."""
 
     # 1. Thử Retail Deal Crawler API nội bộ
     try:
@@ -524,21 +514,7 @@ def scan_fpt():
     except Exception as e:
         print(f"  FPT Browser không thành công: {e}", flush=True)
 
-    # 4. Thử nạp từ data/fpt.js nếu và chỉ nếu cùng ngày hôm nay (tối thiểu 15 máy)
-    if fpt_file.exists():
-        try:
-            m = re.search(r"window\.FPT_LOCAL\s*=\s*(\{.*\});", fpt_file.read_text(encoding="utf-8-sig"), re.S)
-            if m:
-                obj = json.loads(m.group(1))
-                if obj.get("date") == today_label and obj.get("rows") and len(obj["rows"]) >= 15:
-                    print(f"  FPT lấy từ data/fpt.js (cùng ngày {today_label}): {len(obj['rows'])} máy", flush=True)
-                    return obj["rows"]
-                elif obj.get("date") != today_label:
-                    print(f"  FPT: data/fpt.js là ngày {obj.get('date')} (khác hôm nay {today_label}), bỏ qua để tránh sai lệch giá!", flush=True)
-        except Exception as e:
-            print(f"  FPT đọc fpt.js không thành công: {e}", flush=True)
-
-    # Không đoán số, không dùng số cũ: để trống và báo lỗi đợt quét
+    # Không đoán số, không dùng số của lượt khác: để trống và báo lỗi nguồn.
     raise RuntimeError("FPT Shop chặn chống bot trong đợt này (không dùng dữ liệu cũ để tránh gây hiểu lầm)")
 
 
@@ -576,6 +552,8 @@ def main():
                      ("FPT Shop", scan_fpt), ("Viettel Store", scan_viettel)):
         try:
             got = fn()
+            if not got:
+                raise RuntimeError("nguồn trả về 0 sản phẩm")
             rows += got
             report[name] = len(got)
             print(f"{name}: {len(got)} máy", flush=True)
@@ -616,7 +594,9 @@ def main():
         match = re.search(r"window\.MARKET\s*=\s*(\{.*\});", text, re.S)
         if match:
             market = json.loads(match.group(1))
-    scan = {"date": label, "at": at, "report": report, "rows": rows}
+    scan = {"date": label, "at": at,
+            "scanned_at": datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).isoformat(timespec="seconds"),
+            "report": report, "rows": rows}
     market["scans"] = [s for s in market.get("scans", []) if s.get("date") != label] + [scan]
     market["scans"] = market["scans"][-KEEP_SCANS:]
     MARKET_JS.write_text("/* Tự sinh bởi scraper/scan_market.py, đừng sửa tay. */\n"

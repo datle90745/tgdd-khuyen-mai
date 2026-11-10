@@ -216,19 +216,18 @@ quét liên tiếp** với `rrp`/`red`/`pmh` y hệt nhau từng byte.
   `tests/known-frozen-status.json` **kèm bằng chứng**. Mục tự hết hiệu lực khi `rrp` hoặc
   `status` đổi.
 
-**Giá dự phòng (pinned) — cách duy nhất được phép ghim số:**
-Một số PDP là Marketing Landing Page, không render bất kỳ khối giá tĩnh nào (không
-`box-price`, không `data-priceorg`, không cả thẻ `<main>`), và card brand hub chỉ mang giá của
-**đúng một** biến thể (biến thể chính của card) — các nút pill SKU còn lại không kèm giá. Khi
-thật sự không còn nguồn sống nào:
+**QUYẾT ĐỊNH MỚI CỦA NGƯỜI DÙNG — 10-11-2026: CẤM DÙNG GIÁ CỦA ĐỢT CŨ
+CHO DỮ LIỆU HIỆN TẠI.** Quyết định này thay thế quy tắc giá dự phòng (pinned) trước đây.
+`scraper/pinned_prices.json` chỉ còn là tư liệu lịch sử, scraper không được nạp giá từ đó.
 
-- Số liệu để trong **`scraper/pinned_prices.json`**, tuyệt đối không viết thẳng trong `.py`.
-- Nó là **dự phòng, không phải ghi đè**: chỉ áp dụng khi cào ra `status != active` hoặc không
-  có `rrp`. Cào được giá thật thì giá thật **luôn thắng**, và scraper in cảnh báo nhắc gỡ mục đó.
-- Dòng được áp giá dự phòng mang `kind = "pin"` để nhìn là biết.
-- Mỗi mục phải có `source` + `reason` (≥ 40 ký tự) và thỏa `rrp − red = pmh`.
-- Quá `maxAgeDays` mà chưa đối soát lại thì **cổng chặn**. Đối soát lại = mở trang, xác nhận,
-  rồi cập nhật `since`. Một hằng số không ai nhìn lại thì không được phép đi qua lặng lẽ.
+- Khi PDP, card danh mục và lần kiểm tra Flash Sale cuối không xác minh được giá live,
+  model phải mang `status = "error"` hoặc `no_price`, `PMH = null`, không có kết luận
+  Flash Sale. Giá ghim, giá của lần quét trước trong cùng ngày và giá của đầu lượt quét
+  không được lấp vào dòng hiện tại sau khi lần kiểm tra cuối thất bại.
+- Một sàn lỗi trong lượt quét thị trường phải để trống nguồn đó và báo "chưa xác minh";
+  không bù dữ liệu từ `data/fpt.js` hoặc `data/fpt_portal_deals.json` của lượt khác.
+- Trên trang công khai, tab "mới nhất", "toàn thị trường" và so sánh không được hiển thị
+  dữ liệu quá 3 giờ như dữ liệu hiện tại. Số cũ chỉ còn xem được trong tab Lịch sử.
 
 ### 2.10. Cổng kiểm tra phải đứng SAU bước cuối cùng còn sửa được dữ liệu
 

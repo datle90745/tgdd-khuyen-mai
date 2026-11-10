@@ -1,4 +1,4 @@
-# ==============================================================================
+﻿# ==============================================================================
 # HỆ THỐNG KIỂM TRA TOÀN VẸN VÀ RÀNG BUỘC (CONSTRAINTS VERIFICATION SUITE)
 # Tuân thủ phương pháp Test-Driven & Constraint-Driven Development (Addy Osmani)
 # ==============================================================================
@@ -190,40 +190,10 @@ if (Test-Path $scanScript) {
         ($scanContent -notmatch '(?m)^\s*_CATALOG_ITEMS\[\s*"[^"]+"\s*\]\s*=\s*\{\s*"red"\s*:\s*\d')
     } "Scraper scan_tgdd.py van con gia hardcode trong _CATALOG_ITEMS gay nguy co phuc hoi gia cu"
 
-    # CANH BAO SOM truoc khi gia du phong het han. Mot cong chi keu dung vao ngay het han thi
-    # no la mot cai bay hen gio - dung lop loi cua chot KEEP_WEEKDAYS hom 10-11: no im lang cho
-    # den dung ngay no chan sach. Nay bao truoc `warnBeforeDays` ngay.
-    if (Test-Path "scraper/pinned_prices.json") {
-        $pj = Get-Content "scraper/pinned_prices.json" -Raw -Encoding UTF8 | ConvertFrom-Json
-        $warnBefore = if ($pj.warnBeforeDays) { [int]$pj.warnBeforeDays } else { 7 }
-        foreach ($e in $pj.entries) {
-            $conLai = [int]$pj.maxAgeDays - [int](([datetime]$TodayVN - [datetime]$e.since).TotalDays)
-            if ($conLai -le $warnBefore -and $conLai -gt 0) {
-                Write-Host ("  [CANH BAO] Gia du phong '{0}' con {1} ngay la het han ({2} ngay ke tu {3}). " +
-                            "Mo trang doi soat lai roi cap nhat `since`, keo den ngay do cong se do." `
-                            -f $e.model, $conLai, $pj.maxAgeDays, $e.since) -ForegroundColor Yellow
-            }
-        }
-    }
-
-    # Gia du phong phai la DU PHONG, khong duoc ghi de ket qua cao that.
-    Assert-Check "Gia du phong phai nam o pinned_prices.json va chi dung khi cao khong ra gia" {
-        $p = "scraper/pinned_prices.json"
-        if (-not (Test-Path $p)) { return $false }
-        $j = Get-Content $p -Raw -Encoding UTF8 | ConvertFrom-Json
-        $bad = @($j.entries | Where-Object {
-            -not $_.model -or -not $_.since -or -not $_.rrp -or -not $_.red -or
-            $null -eq $_.pmh -or -not $_.source -or -not $_.reason -or $_.reason.Length -lt 40
-        })
-        $soLech = @($j.entries | Where-Object { ($_.rrp - $_.red) -ne $_.pmh })
-        $quaHan = @($j.entries | Where-Object {
-            ([datetime]$TodayVN - [datetime]$_.since).TotalDays -gt [int]$j.maxAgeDays
-        })
-        ($bad.Count -eq 0) -and ($soLech.Count -eq 0) -and ($quaHan.Count -eq 0) -and
-        ($scanContent -cmatch 'PINNED_PRICES') -and
-        ($scanContent -cmatch 'BO QUA gia du phong')
-    } "scraper/pinned_prices.json co muc thieu truong/sai phep tru (rrp-red phai = pmh)/qua han maxAgeDays, hoac scan_tgdd.py khong con dung PINNED_PRICES lam du phong"
-
+    Assert-Check "Khong nap gia ghim cua dot cu vao luot quet hien tai" {
+        ($scanContent -notmatch 'PINNED_PRICES') -and
+        ($scanContent -notmatch 'pinned_prices\.json')
+    } "Scraper van co the dung gia ghim tu dot cu thay cho gia live"
     # Chot chong cao nham bien the phai duoc KHAI BAO, khong viet thang ten model + con so.
     Assert-Check "Chot chong cao nham bien the phai nam o variant_guards.json, khong viet thang" {
         $p = "scraper/variant_guards.json"
@@ -277,17 +247,15 @@ if (Test-Path $scanScript) {
         $tong -le [int]$GateCfg.maxMojibakeLines
     } "Co them dong loi phong trong file nguon - kiem lai encoding cua cong cu vua sua file (gate-config.maxMojibakeLines)"
 
-    Assert-Check "Canh bao som truoc khi gia du phong het han" {
-        $pj = Get-Content "scraper/pinned_prices.json" -Raw -Encoding UTF8 | ConvertFrom-Json
-        $sj = Get-Content "tests/verify-system.ps1" -Raw -Encoding UTF8
-        ($null -ne $pj.warnBeforeDays) -and ([int]$pj.warnBeforeDays -ge 3) -and
-        ($sj -cmatch 'warnBeforeDays')
-    } "Khong con canh bao som truoc han gia du phong - cong se im lang cho den dung ngay no do"
-
+    Assert-Check "Model cao loi trong cung ngay phai de trong PMH hien tai" {
+        $idxText = Get-Content "index.html" -Raw -Encoding UTF8
+        ($idxText -match 'x\.status==="error"') -and
+        ($idxText -match 'r\.pmh\[col\]=null')
+    } "Trang van mang PMH tu dot truoc trong cung ngay khi model cao loi"
     Assert-Check "Scraper khong duoc ghi de ket qua cao bang gia viet thang trong file .py" {
         $scanContent -notmatch '(?m)^\s*result\.update\(\{\s*$' -or
         $scanContent -notmatch '"rrp"\s*:\s*\d{7,}'
-    } "scan_tgdd.py con khoi result.update({...}) mang so gia viet thang - gia phai den tu trang hoac tu pinned_prices.json"
+    } "scan_tgdd.py con khoi result.update({...}) mang so gia viet thang - gia phai den tu trang live"
 
     # CONSTRAINTS 2.7 bat buoc tra cuu lan cuoi qua danh muc TGDD khi khong tu do duoc ket qua.
     # Truoc day nhanh LOI (`return {"status": "error"}`) tra thang ve ma khong he goi chot chan -
@@ -504,16 +472,10 @@ if (Test-Path $scanScript) {
         ($cb -cmatch '!todayEntry && isKeepDay')
     } "tests/verify_scan.js doi scans.js phai co dot hom nay ke ca ngay khong phai Thu Hai/Thu Sau - mau thuan voi write_scans_js va se chan moi luot quet cac ngay con lai"
 
-    # Loi 10-11-2026: gia du phong chi ap khi "khong cao ra gia" (status != active). Nhung lop
-    # loi that cua Marketing Landing Page la CO gia den, KHONG co gia do (red == rrp). Hai dong
-    # A7 Pro 256GB roi dung vao do nen gia du phong bi bo qua, PMH tut ve 0, chot hoi quy chan
-    # commit.
-    Assert-Check "Gia du phong phai ap ca khi cao ra gia nhung KHONG co chenh lech (red >= rrp)" {
-        ($scanContent -cmatch 'scraped_red_pin\s*<\s*scraped_rrp_pin') -and
-        ($scanContent -cmatch '(?s)doc_duoc_gia_do = bool\(.*?status.*?==.*?"active".*?\)') -and
-        ($scanContent -cmatch '(?m)^\s+if doc_duoc_gia_do:')
-    } "Dieu kien ap gia du phong khong xet truong hop red >= rrp - dong landing page se mat khuyen mai va lam chan ca luot quet"
-
+    Assert-Check "PDP mat gia do o lan kiem tra cuoi phai de trong gia" {
+        ($scanContent -cmatch 'final PDP has no red price') -and
+        ($scanContent -cmatch 'mark_unverified\(r,')
+    } "PDP mat gia do van co the giu gia cua luot cao truoc"
     Assert-Check "Circuit breaker phai con chot TRANG THAI DONG BANG" {
         $cb = Get-Content "tests/verify_scan.js" -Raw -Encoding UTF8
         ($cb -cmatch 'TRANG THAI DONG BANG:') -and ($cb -cmatch 'CFG\.maxFrozenScans') -and
@@ -701,10 +663,22 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         ($fptText -match '"p"\s*:\s*(?:6790000|7190000)')
     } "data/fpt.js chua co hoac sai gia A18"
 
-    Assert-Check "mkMergeFpt() trong index.html phai kiem tra L.date !== scan.date tranh de du lieu cu ghi de" {
+    Assert-Check "Tab thi truong khong bu FPT tu file cua luot quet khac" {
         $idxText = Get-Content "index.html" -Raw -Encoding UTF8
-        $idxText -match 'L\.date\s*!==\s*scan\.date'
-    } "index.html thieu kiem tra L.date !== scan.date trong mkMergeFpt"
+        $marketText = Get-Content "scraper/scan_market.py" -Raw -Encoding UTF8
+        ($idxText -notmatch 'mkMergeFpt') -and
+        ($marketText -notmatch 'FPT lấy từ data/fpt\.js') -and
+        ($marketText -notmatch 'fpt_portal_deals\.json')
+    } "Tab thi truong van co the dung lai du lieu FPT cua luot quet khac"
+
+    Assert-Check "Tab hien tai an gia khi qua 3 gio hoac thieu timestamp xac minh" {
+        $idxText = Get-Content "index.html" -Raw -Encoding UTF8
+        ($idxText -match 'MAX_CURRENT_AGE_MS\s*=\s*3\s*\*\s*60') -and
+        ($idxText -match 'function isCurrentScan\(') -and
+        ($idxText -match 'function applyCurrentAvailability\(') -and
+        ($idxText -match 'data-current-unavailable') -and
+        ($idxText -match 'Chưa có dữ liệu hiện tại được xác minh')
+    } "Tab moi nhat/thi truong co the hien gia qua han nhu du lieu hien tai"
 
     Assert-Check "canonKey() trong index.html tuyet doi khong co quy tac hack dong bo bien the a7pro5g" {
         $idxText = Get-Content "index.html" -Raw -Encoding UTF8

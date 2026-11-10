@@ -97,20 +97,7 @@ _CATALOG_ITEMS = {}
 _LIVE_FLASH_SLUGS = set()
 _HUB_VISITED = set()
 
-# Gia DU PHONG cho nhung PDP khong render bat ky khoi gia tinh nao (Marketing Landing Page).
-# Chi duoc dung khi cao that su khong ra gia - xem scraper/pinned_prices.json va CONSTRAINTS 2.9.
-# So lieu KHONG duoc viet thang trong file .py nay.
-PINNED_PRICES = {}
-_PINNED_MAX_AGE_DAYS = 30
-_pin_path = Path(__file__).resolve().parent / "pinned_prices.json"
-if _pin_path.exists():
-    try:
-        _pin_raw = json.loads(_pin_path.read_text(encoding="utf-8-sig"))
-        _PINNED_MAX_AGE_DAYS = int(_pin_raw.get("maxAgeDays", 30))
-        for _e in _pin_raw.get("entries", []):
-            PINNED_PRICES[_e["model"]] = _e
-    except Exception as _pin_err:
-        print(f"  [PIN] Khong doc duoc scraper/pinned_prices.json: {_pin_err}", flush=True)
+# Gia du phong lich su khong duoc nap vao luot quet hien tai.
 
 # Chot chong cao nham bien the cho cac cap ma luat is_sibling CO Y khong bat.
 # So lieu KHONG duoc viet thang trong file .py nay - xem scraper/variant_guards.json.
@@ -127,17 +114,21 @@ if _vg_path.exists():
 def fetch_live_flashsale_slugs():
     """Lấy danh sách các model đang thật sự chạy Flash Sale trên TGDĐ từ hub https://www.thegioididong.com/flashsale"""
     global _LIVE_FLASH_SLUGS
-    try:
-        resp = http_get("https://www.thegioididong.com/flashsale")
-        if resp.status_code == 200:
-            html = resp.text
-            slugs = set(re.findall(r'href="\/dtdd\/([^"?#]+)', html))
+    last_error = None
+    for attempt in range(3):
+        try:
+            resp = http_get("https://www.thegioididong.com/flashsale")
+            resp.raise_for_status()
+            slugs = set(re.findall(r'href="\/dtdd\/([^"?#]+)', resp.text))
             _LIVE_FLASH_SLUGS = slugs
-            print(f"  [FLASHSALE] Đã nạp {len(_LIVE_FLASH_SLUGS)} SKU đang chạy Flash Sale từ hub TGDĐ.", flush=True)
-            return _LIVE_FLASH_SLUGS
-    except Exception as e:
-        print(f"  [FLASHSALE] Không thể tải trang flashsale: {e}", flush=True)
-    return _LIVE_FLASH_SLUGS
+            print(f"  [FLASHSALE] Đã nạp {len(slugs)} SKU từ hub TGDĐ.", flush=True)
+            return slugs
+        except Exception as error:
+            last_error = error
+            print(f"  [FLASHSALE] Không tải được hub (lần {attempt + 1}/3): {error}", flush=True)
+            if attempt < 2:
+                time.sleep(2 * (attempt + 1))
+    raise RuntimeError(f"Không xác minh được hub Flash Sale mới: {last_error}")
 
 
 def get_brand_from_slug(slug):
@@ -207,9 +198,8 @@ def fetch_model_from_brand_hub(slug):
                 # DA GO (09-11-2026): ba dong ep cung gia a7-pro vao _CATALOG_ITEMS. Chung mau thuan
                 # voi chinh docstring cua ham nay ("khong dung so hardcode"). Doi soat live cho thay
                 # card /dtdd-oppo da tra ve dung red=11.870.000 / del=13.490.000 cho bien the chinh
-                # 8GB/128GB qua duong boc tong quat o tren, nen ep cung la thua. Hai bien the 256GB
-                # khong co nguon song - chung nay nam o scraper/pinned_prices.json duoi dang gia DU
-                # PHONG co han doi soat, khong phai ghi de.
+                # 8GB/128GB qua duong boc tong quat o tren, nen ep cung la thua. Bien the
+                # khong co gia live se de trong thay vi dung gia chot tu dot cu.
                 for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
                     vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
                     if vslug == slug and main_slug != slug:
@@ -259,7 +249,6 @@ def catalog():
                     if red > 0:
                         _CATALOG_ITEMS[main_slug] = {"red": red, "rrp": orig}
                     # DA GO (09-11-2026): ban sao thu hai cua ba dong ep cung gia a7-pro.
-                    # Xem ghi chu o fetch_model_from_brand_hub va scraper/pinned_prices.json.
                     for vm in re.finditer(r'href="(/dtdd/[^"?#]+)"', p):
                         vslug = vm.group(1).split("?")[0].strip("/").replace("dtdd/", "")
                         slugs.add(vslug)
@@ -443,25 +432,39 @@ def verify_flash_rows(rows):
     print(f"  [FLASH_VERIFY] Quet lai {len(cands)}/{len(rows)} model truoc khi luu "
           f"(hub vua nap lai: {len(fresh)} SKU).", flush=True)
     doi = 0
+    unverified = 0
+
+    def mark_unverified(row, reason):
+        # A failed final check has no current Flash Sale evidence. Keep only
+        # identity fields so prices from the earlier pass cannot look current.
+        row.update({"status": "error", "rrp": None, "red": None, "pmh": None,
+                    "online": None, "total_online": None, "choice": None,
+                    "kind": "unverified", "rule": "unverified", "banner": False,
+                    "flash_src": [], "debug": reason})
+
     for r, slug in cands:
         try:
             again = scan_one(r["url"], attempts=2, allow_hub_fallback=False)
         except Exception as e:
-            print(f"  [FLASH_VERIFY] {r['model']}: quet lai loi ({e}), giu nguyen dong cu.", flush=True)
+            unverified += 1
+            print(f"  [FLASH_VERIFY] {r['model']}: quet lai loi ({e}); de trong du lieu hien tai.", flush=True)
+            mark_unverified(r, str(e))
             continue
         if again.get("status") != "active" or not again.get("rrp"):
+            unverified += 1
             print(f"  [FLASH_VERIFY] {r['model']}: quet lai ra status={again.get('status')}, "
-                  f"giu nguyen dong cu.", flush=True)
+                  f"de trong du lieu hien tai.", flush=True)
+            mark_unverified(r, f"final flash check: {again.get('status')}")
             continue
         again = apply_variant_guard(r["model"], again, base_rrp_map)
-        # A landing page may omit its red price on the second request even when
-        # the first request found a real discount. This recheck is for flash
-        # evidence; a flat non-flash PDP cannot invalidate the first price.
-        # Applies to every model, not only pinned prices or brand-card fallbacks.
-        if (not r.get("banner") and not again.get("banner") and
+        # A landing page can omit the red price in this request. The first-pass
+        # price must not be carried into a final result that lacks confirmation.
+        if (not again.get("banner") and
                 (again.get("red") or 0) >= (again.get("rrp") or 0) and
                 (r.get("red") or 0) < (r.get("rrp") or 0)):
-            print(f"  [FLASH_VERIFY] {r['model']}: PDP khong co gia do; giu gia da doi soat.", flush=True)
+            unverified += 1
+            print(f"  [FLASH_VERIFY] {r['model']}: PDP khong co gia do; de trong du lieu hien tai.", flush=True)
+            mark_unverified(r, "final PDP has no red price")
             continue
         ev = again.get("flash_src") or []
         was = bool(r.get("banner"))
@@ -475,7 +478,8 @@ def verify_flash_rows(rows):
             if k in again:
                 r[k] = again[k]
         r["flash_src"] = ev
-    print(f"  [FLASH_VERIFY] Xong: {doi}/{len(cands)} dong thay doi sau khi quet lai.", flush=True)
+    print(f"  [FLASH_VERIFY] Xong: {doi}/{len(cands)} dong thay doi, "
+          f"{unverified} dong chua xac minh (PMH de trong).", flush=True)
     return rows
 
 
@@ -1035,7 +1039,7 @@ def write_latest_js(scan):
     # nay, thay vi chi mang ket luan `banner: true` ma khong ai truy nguoc duoc.
     keys = ("model", "rrp", "red", "pmh", "status", "online", "total_online",
             "choice", "kind", "rule", "banner", "flash_src")
-    latest = {"date": scan["date"], "rows": [
+    latest = {"date": scan["date"], "scanned_at": scan["scanned_at"], "rows": [
         {k: r[k] for k in keys if k in r} for r in scan["rows"]]}
     LATEST_JS.write_text(
         "/* Tự sinh bởi scraper/scan_tgdd.py, đừng sửa tay. */\n"
@@ -1058,20 +1062,6 @@ def pick_products(products, only):
         return [p for p in products if p["model"] not in done]
     keys = [k.strip().lower() for k in only.split(",") if k.strip()]
     return [p for p in products if any(k in p["model"].lower() for k in keys)]
-
-
-def merge_into_today(rows, now):
-    """Quét một phần thì ghép vào ĐÚNG đợt quét của hôm nay, không bao giờ lấy đợt ngày khác.
-    Hôm nay chưa quét lần nào thì chỉ ghi các model vừa quét; model chưa quét để trống,
-    tuyệt đối không bê số của ngày cũ sang."""
-    path = SCAN_DIR / f"scan_{now.date().isoformat()}.json"
-    if not path.exists():
-        return None
-    scan = json.loads(path.read_text(encoding="utf-8-sig"))
-    fresh = {r["model"]: r for r in rows}
-    scan["rows"] = [fresh.pop(r["model"], r) for r in scan["rows"]] + list(fresh.values())
-    scan["scanned_at"] = now.isoformat(timespec="seconds")
-    return scan
 
 
 def write_links_js(all_products):
@@ -1115,12 +1105,12 @@ def main():
     write_links_js(all_products)
     products = pick_products(all_products, args.only)
     partial = len(products) != len(all_products)
+    if partial:
+        sys.exit("ERROR: quét một phần không được ghi vào nguồn dữ liệu hiện tại. "
+                 "Hãy chạy quét toàn bộ model để mỗi giá cùng một đợt xác minh.")
     if not products:
         print("Không có model nào cần quét.")
         return
-    if partial:
-        print(f"Quét một phần: {len(products)}/{len(all_products)} model — "
-              + ", ".join(p["model"] for p in products), flush=True)
 
     fetch_live_flashsale_slugs()
 
@@ -1148,43 +1138,7 @@ def main():
         # Viec phat hien chua mo ban THAT nam o scan_one (khong co gia + trang ghi "dang ky
         # nhan tin"/"sap ra mat"). Do la tin hieu doc tu trang, khong phai ten model.
         # CONSTRAINTS 2.9 cam viet chot dich danh model. Khong duoc them lai khoi nay.
-        # DA GO (09-11-2026): truoc day o day co ba khoi `result.update({...})` ghi de VO DIEU
-        # KIEN gia cua A7 Pro 5G 8GB/256GB, 6GB/256GB, 8GB/128GB - ghi de ca khi cao duoc gia
-        # that. Do la dung lop loi da ghim iPhone 18 Pro vao "chua mo ban" suot 24 dot.
-        # Nay so lieu do nam trong scraper/pinned_prices.json, va la GIA DU PHONG chu khong
-        # con la ghi de: gia cao duoc that luon thang. Xem CONSTRAINTS 2.9.
-        pin = PINNED_PRICES.get(product["model"])
-        if pin and result.get("status") in ("ngung_kd", "chua_mo_ban"):
-            print(f"  [PIN] {product['model']}: trang bao {result['status']}; khong dung gia du phong.", flush=True)
-        elif pin:
-            # Dieu kien ap gia du phong, sua ngay 10-11-2026 sau khi chot nay CHAN 3 luot quet
-            # tu dong lien tiep:
-            # Ban dau chi ap khi "khong cao ra gia" (status != active). Nhung lop loi that cua
-            # Marketing Landing Page KHONG phai la khong co gia - ma la CO gia den, KHONG co gia
-            # do: red == rrp, diff = 0, PMH = 0. Hai dong A7 Pro 256GB roi dung vao do nen gia
-            # du phong bi bo qua, PMH tut tu 310.000/500.000 ve 0, va chot hoi quy chan commit.
-            # Nay ap ca khi KHONG DOC DUOC CHENH LECH GIA NAO (red >= rrp).
-            scraped_rrp_pin = result.get("rrp") or 0
-            scraped_red_pin = result.get("red") or 0
-            doc_duoc_gia_do = bool(
-                result.get("status") == "active" and scraped_rrp_pin and scraped_red_pin
-                and scraped_red_pin < scraped_rrp_pin
-            )
-            if doc_duoc_gia_do:
-                print(f"  [PIN] {product['model']}: da cao duoc gia that (rrp={result.get('rrp')} "
-                      f"red={result.get('red')}) - BO QUA gia du phong. Nen go muc nay khoi "
-                      f"scraper/pinned_prices.json.", flush=True)
-            else:
-                diff = pin["rrp"] - pin["red"]
-                print(f"  [PIN] {product['model']}: khong doc duoc gia do "
-                      f"(status={result.get('status')} rrp={scraped_rrp_pin} red={scraped_red_pin}). "
-                      f"Dung gia du phong chot ngay {pin['since']}: rrp={pin['rrp']} red={pin['red']} "
-                      f"pmh={pin['pmh']}.", flush=True)
-                result.update({
-                    "status": "active", "rrp": pin["rrp"], "red": pin["red"], "pmh": pin["pmh"],
-                    "online": diff, "total_online": diff, "choice": 0,
-                    "kind": "pin", "rule": "den_tru_do", "banner": False, "choice_in_red": False
-                })
+        # Khong dung gia ghim tu dot cu: ket qua khong doc duoc se giu status loi.
         row = {"model": product["model"], "url": product["url"],
                "at": datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%m %H:%M"), **result}
         row = enforce_domain_invariants(row)
@@ -1280,19 +1234,18 @@ def main():
           + ("; " + "; ".join(f"{u['n']} {u['old']:,}→{u['new']:,}" for u in ups[:10]) if ups else ""),
           flush=True)
 
-    # Quet lai lan hai rieng cac ung vien flash sale, ngay truoc khi luu: anh chup hub lay
-    # tu dau dot da cu sau ~9-20 phut quet, ma flash sale thi chay theo khung gio.
+    # Quet lai ca danh sach ngay truoc khi luu: hub dau dot da cu sau ~9-20 phut,
+    # trong khi Flash Sale co the doi trang thai theo khung gio.
     rows = verify_flash_rows(rows)
+    ok = sum(1 for r in rows if r["status"] == "active")
+    if ok < min_active_count:
+        sys.exit(f"ERROR: sau kiem tra Flash Sale chi con {ok}/{len(products)} model "
+                 f"active (yeu cau {min_active_count}); khong luu du lieu chua xac minh.")
 
     SCAN_DIR.mkdir(parents=True, exist_ok=True)
-    scan = {"date": alerts.day_label(now), "scanned_at": now.isoformat(timespec="seconds"), "rows": rows}
-    if partial:
-        merged = merge_into_today(rows, now)
-        if merged is not None:
-            scan = merged
-        else:
-            print("Hôm nay chưa có đợt quét nào, chỉ ghi các model vừa quét; "
-                  "các model còn lại để trống chứ không lấy số của ngày cũ.", flush=True)
+    scan = {"date": alerts.day_label(now),
+            "scanned_at": datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).isoformat(timespec="seconds"),
+            "rows": rows}
     (SCAN_DIR / f"scan_{now.date().isoformat()}.json").write_text(
         json.dumps(scan, ensure_ascii=False, indent=1), encoding="utf-8")
     write_scans_js(today=today)

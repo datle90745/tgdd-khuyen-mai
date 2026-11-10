@@ -299,6 +299,9 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 .rise-auth-bar span { font-size: 12.5px; color: var(--muted, #64748b); margin-right: auto; }
 .rise-auth-bar button { padding: 4px 10px; font-size: 12px; border-radius: 6px; border: 1px solid var(--line, #cbd5e1); background: var(--panel, #fff); cursor: pointer; font-weight: 500; }
 .rise-auth-bar button:hover { background: var(--soft, #f1f5f9); }
+.pane[data-current-unavailable="true"] > :not(.current-unavailable) { display: none !important; }
+.current-unavailable { padding: 22px; color: var(--muted); line-height: 1.6; }
+.current-unavailable[hidden] { display: none; }
 </style>
 </head>
 <body>
@@ -324,6 +327,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 </nav>
 
 <section class="pane" id="p-latest">
+  <div class="panel current-unavailable" hidden role="status"></div>
   <div class="panel move">
     <div class="move-head"><span>So với đợt quét trước (<b id="prevd"></b>)</span><span id="movehint">Bấm vào từng đoạn để lọc</span></div>
     <div class="bar" id="bar"></div>
@@ -390,6 +394,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 </section>
 
 <section class="pane" id="p-market" hidden>
+  <div class="panel current-unavailable" hidden role="status"></div>
   <div class="move-head" style="margin:0 2px 8px"><span id="mk-sub" style="color:var(--muted)"></span><button class="btn" id="mk-xlsx" style="padding:4px 12px">Xuất Excel tab này</button></div>
   <div class="panel rise-kpi" id="mk-kpi"></div>
   <div id="mk-fake-alerts"></div>
@@ -424,6 +429,7 @@ pre{background:var(--soft);padding:12px;border-radius:8px;overflow:auto;margin:0
 </section>
 
 <section class="pane" id="p-compare" hidden>
+  <div class="panel current-unavailable" hidden role="status"></div>
   <div class="panel" style="padding:16px 20px;margin-bottom:14px">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:14px">
       <div>
@@ -695,17 +701,28 @@ function build(){
     rows.forEach(r=>{
       const ck = canonKey(r.model, r.brand);
       const x = m.get(r.model) || (ck ? canonM.get(ck) : null) || m.get(r.brand + " " + r.model);
-      if(!x){ if(r.pmh.length<=col) r.pmh.push(null); return; }
+      if(!x){
+        if(im===LATEST){
+          r.status="error"; r.rrp=null; r.red=null; r.pmh[col]=null;
+          r.online=null; r.choice=null; r.tot=null; r.totAll=null;
+          r.rule=null; r.kind=null;
+        } else if(r.pmh.length<=col) r.pmh.push(null);
+        return;
+      }
+      if(x.status==="error" || x.status==="no_price"){
+        r.status="error"; r.rrp=null; r.red=null; r.pmh[col]=null;
+        r.online=null; r.choice=null; r.tot=null; r.totAll=null;
+        r.rule=null; r.kind=null;
+        return;
+      }
       if(typeof x.rrp==="number" && x.rrp!==r.rrp){
         r.flags.push(`Giá đen đổi ${fmt(r.rrp)} → ${fmt(x.rrp)} (${im.date})`); r.rrp = x.rrp;
         // Giá đen đổi thì phân khúc tự đổi theo giá mới.
         const seg = rseg(x.rrp); if(seg!==r.segment){ r.flags.push(`Phân khúc đổi ${r.segment} → ${seg} (${im.date})`); r.segment = seg; }
       }
       if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||x.status==="active") r.status = x.status;
-      // Trang lỗi thì giữ số đã quét được CỦA CHÍNH NGÀY ĐÓ (lần quét trước trong cùng ngày),
-      // cột mới thì để trống. Không bao giờ lấy số của ngày cũ lấp vào ngày mới.
       if(typeof x.pmh==="number") r.pmh[col] = x.pmh;
-      else if(x.status==="ngung_kd"||x.status==="chua_mo_ban"||r.pmh[col]===undefined) r.pmh[col] = null;
+      else r.pmh[col] = null;
       // KM online / Tổng KM (tham khảo) và quy tắc đã áp dụng ở đợt quét mới nhất.
       if(typeof x.red==="number") r.red = x.red;
       if("rule" in x){
@@ -807,6 +824,7 @@ function pmhOnline(r){
 }
 function onPrice(r){ const t = pmhOnline(r); return t==null ? null : r.rrp - t; }
 function deltaCell(r){
+  if(r.status==="error" || r.status==="no_price") return `<span class="badge warn">Chưa xác minh</span>`;
   if(r.status==="ngung_kd") return `<span class="badge warn">Ngừng KD</span>`;
   if(r.status==="chua_mo_ban") return `<span class="badge warn">Chưa mở bán</span>`;
   const d=delta(r);
@@ -1228,23 +1246,11 @@ const mkKey = s => {
 };
 const MK_FOCUS_MASS = new Set(BASE.rows.filter(r=>r.channel!=="TGDD").map(r=>((r.brand||"").toLowerCase() + "|" + mkKey(r.model))));
 const MK_FOCUS_ALL = new Set(BASE.rows.map(r=>((r.brand||"").toLowerCase() + "|" + mkKey(r.model))));
-// FPT chặn máy chủ nên bộ quét tự động chỉ lấy được một phần. Khi có bản quét FPT chạy từ
-// máy nhà (data/fpt.js) thì thay toàn bộ phần FPT bằng bản đó.
-function mkMergeFpt(scan){
-  const L = window.FPT_LOCAL;
-  if(!scan || !L || !Array.isArray(L.rows) || L.date !== scan.date) return scan;
-  // Tuyệt đối không để file cũ đè dữ liệu mới: Nếu scan đã có FPT Shop rồi thì giữ nguyên
-  const scanFptCount = scan.rows.filter(x => x.r === "FPT Shop").length;
-  if (scanFptCount > 0) return scan;
-  // Chỉ bù đắp nếu bản quét hiện tại hoàn toàn thiếu FPT Shop (0 máy) VÀ L cùng ngày hôm nay
-  const rows = scan.rows.filter(x=>x.r!=="FPT Shop").concat(L.rows);
-  const report = {...(scan.report||{}), "FPT Shop": L.rows.length};
-  return {...scan, rows, report, fptLocal:`${L.date} ${L.at}`};
-}
+// Mỗi đợt chỉ hiển thị dữ liệu của chính lượt quét đó; nguồn lỗi để trống.
 function mkData(){
   const scans = Array.isArray(MK.scans) ? MK.scans : (MK.scans && Array.isArray(MK.scans.value) ? MK.scans.value : []);
   const validScans = scans.filter(s => s && s.rows && Array.isArray(s.rows) && s.rows.length > 0);
-  const n = validScans.length, cur = n ? mkMergeFpt(validScans[n-1]) : null, prev = n > 1 ? mkMergeFpt(validScans[n-2]) : null;
+  const n = validScans.length, cur = n ? validScans[n-1] : null, prev = n > 1 ? validScans[n-2] : null;
   if(!cur) return {cur:null, rows:[]};
   const pm=new Map((prev?prev.rows:[]).map(x=>[x.r+"|"+(x.b||"").toLowerCase()+"|"+mkKey(x.n), x]));
   return {cur, prev, rows:cur.rows.map(x=>{
@@ -1614,7 +1620,10 @@ function renderMarket(){
   if(!D.cur){ $("mk-sub").textContent="Chưa có đợt quét toàn thị trường. Đợt đầu tiên sẽ có sau lần chạy bộ quét kế tiếp."; $("mk-kpi").innerHTML=""; $("mk-body").innerHTML=""; $("mk-head").innerHTML=""; $("mk-count").textContent=""; return; }
   const errs=Object.entries(D.cur.report||{}).filter(([,v])=>typeof v!=="number").map(([k])=>k);
   $("mk-sub").textContent=`Đợt quét ${D.cur.date} lúc ${D.cur.at}${D.prev?`, so với đợt ${D.prev.date}`:""}. Giá lấy từ trang danh sách của từng sàn, chỉ 6 hãng đang theo dõi, chỉ để tham khảo.${D.cur.src==="erp"?" Nguồn: file Excel của hệ thống ERP, không phải bộ quét này — cách họ tính khuyến mãi khác quy tắc KM base nên đừng dùng để so sánh.":""}${D.cur.fptLocal?` Riêng FPT Shop lấy từ máy nhà lúc ${D.cur.fptLocal} vì FPT chặn máy chủ.`:""}${errs.length?` Lỗi đợt này: ${errs.join(", ")}.`:""}`;
-  $("mk-kpi").innerHTML=MK_RET.map(r=>{ const L=D.rows.filter(x=>x.r===r), withKM=L.filter(x=>x.v>0), avg=withKM.length?withKM.reduce((t,x)=>t+x.pct,0)/withKM.length*100:0;
+  $("mk-kpi").innerHTML=MK_RET.map(r=>{
+    if(typeof D.cur.report?.[r] !== "number")
+      return '<div class="rk"><small>'+esc(r)+'</small><b>Chưa xác minh</b><span>Không có dữ liệu từ lượt quét này.</span></div>';
+    const L=D.rows.filter(x=>x.r===r), withKM=L.filter(x=>x.v>0), avg=withKM.length?withKM.reduce((t,x)=>t+x.pct,0)/withKM.length*100:0;
     return `<div class="rk"><small><span class="rtl" data-r="${r}">${r}</span></small><b>${L.length} máy</b><span>${withKM.length} máy đang giảm giá, trung bình ${avg.toFixed(1)}%</span><span>${L.filter(x=>x.focus).length} máy thuộc 122 SKU</span></div>`; }).join("");
 
   renderFakePromoAlerts();
@@ -2626,6 +2635,53 @@ function initRiseAuthEvents(){
 
 initRiseAuthEvents();
 renderAll(); initExports(); compareInit(); calc();
+
+// A static page must not present an old scan as current when scheduled jobs
+// are delayed or fail. Historical tabs remain available as historical data.
+const MAX_CURRENT_AGE_MS = 3 * 60 * 60 * 1000;
+function isCurrentScan(scannedAt){
+  const time = Date.parse(scannedAt || "");
+  return Number.isFinite(time) && time <= Date.now() + 60 * 1000 &&
+         Date.now() - time <= MAX_CURRENT_AGE_MS;
+}
+function setCurrentAvailability(id, current, scannedAt){
+  const pane = document.getElementById(id);
+  if(!pane) return;
+  const notice = pane.querySelector(".current-unavailable");
+  if(!notice) return;
+  pane.dataset.currentUnavailable = String(!current);
+  notice.hidden = current;
+  if(!current){
+    const time = Date.parse(scannedAt || "");
+    const when = Number.isFinite(time)
+      ? new Intl.DateTimeFormat("vi-VN", {timeZone:"Asia/Ho_Chi_Minh",
+          hour:"2-digit", minute:"2-digit", day:"2-digit", month:"2-digit"}).format(time)
+      : "không rõ";
+    notice.textContent = "Chưa có dữ liệu hiện tại được xác minh. Mốc quét gần nhất: " +
+      when + ". Dữ liệu mới nhất đã quá 3 giờ hoặc lượt quét chưa hoàn tất. " +
+      "Có thể xem số cũ trong tab Lịch sử theo đợt quét.";
+  }
+}
+function applyCurrentAvailability(){
+  if(!/^https?:$/.test(location.protocol)) return;
+  const focusAt = LATEST && LATEST.scanned_at;
+  const scans = Array.isArray(MK.scans) ? MK.scans : [];
+  const marketAt = scans.length ? scans[scans.length - 1].scanned_at : null;
+  const focusCurrent = isCurrentScan(focusAt);
+  setCurrentAvailability("p-latest", focusCurrent, focusAt);
+  setCurrentAvailability("p-compare",
+    focusCurrent && isCurrentScan(marketAt),
+    focusCurrent ? marketAt : focusAt);
+  setCurrentAvailability("p-market", isCurrentScan(marketAt), marketAt);
+  $("xlsx").disabled = !focusCurrent;
+  if(!focusCurrent) $("subline").textContent =
+    "Dữ liệu hiện tại đã quá hạn hoặc chưa được xác minh. Các đợt cũ chỉ có trong tab Lịch sử.";
+}
+applyCurrentAvailability();
+setInterval(applyCurrentAvailability, 60 * 1000);
+document.addEventListener("visibilitychange", () => {
+  if(!document.hidden) applyCurrentAvailability();
+});
 
 // GitHub Pages is static: an already-open tab otherwise keeps an old scan forever.
 // Check only while visible; reload on a changed feed with a fresh URL so the
