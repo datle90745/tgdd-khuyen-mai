@@ -1,7 +1,7 @@
 // Run on the user's Windows machine, where FPT's production API is reachable.
 import { randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { writeFileSync, unlinkSync } from 'node:fs';
+import { writeFileSync, unlinkSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -12,6 +12,8 @@ const BRANDS = new Map([
 const ENDPOINT = 'https://papi.fptshop.com.vn/gw/v1/public/fulltext-search-service/category';
 const REPO = 'datle90745/tgdd-khuyen-mai';
 const SIZE = 50;
+const GH = process.platform === 'win32' && existsSync('C:\\Program Files\\GitHub CLI\\gh.exe')
+  ? 'C:\\Program Files\\GitHub CLI\\gh.exe' : 'gh';
 
 function command(program, args, input) {
   const result = spawnSync(program, args, { encoding: 'utf8', input, maxBuffer: 16 * 1024 * 1024 });
@@ -93,7 +95,7 @@ async function collect() {
 function publish(snapshot) {
   const path = `repos/${REPO}/contents/data/fpt_live.json`;
   let sha;
-  try { sha = command('gh', ['api', path, '-q', '.sha']).trim(); }
+  try { sha = command(GH, ['api', path, '-q', '.sha']).trim(); }
   catch (error) {
     // The first run has no snapshot; other API errors must stop publication.
     if (!String(error).includes('404')) throw error;
@@ -104,9 +106,9 @@ function publish(snapshot) {
   const temp = join(tmpdir(), `fpt-live-${snapshot.batch_id}.json`);
   try {
     writeFileSync(temp, JSON.stringify(payload), { mode: 0o600 });
-    command('gh', ['api', path, '-X', 'PUT', '--input', temp]);
+    command(GH, ['api', path, '-X', 'PUT', '--input', temp]);
   } finally { try { unlinkSync(temp); } catch {} }
-  command('gh', ['workflow', 'run', 'scan-tgdd.yml', '--repo', REPO,
+  command(GH, ['workflow', 'run', 'scan-tgdd.yml', '--repo', REPO,
     '--ref', 'main', '-f', `fpt_batch_id=${snapshot.batch_id}`]);
   console.log(`Published batch ${snapshot.batch_id} and dispatched GitHub scan`);
 }
