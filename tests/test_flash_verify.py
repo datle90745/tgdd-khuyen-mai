@@ -107,6 +107,16 @@ class FlashVerifyTests(unittest.TestCase):
         self.assertEqual(row["status"], "active")
         self.assertEqual(row["pmh"], 0)
 
+    def test_sibling_variant_price_is_unknown_not_derived_from_baseline(self):
+        result = {"status": "active", "rrp": 5590000, "red": 4990000,
+                  "pmh": 600000, "banner": False, "choice": 0}
+        row = scan_tgdd.apply_variant_guard(
+            "A08 4GB/64GB", result, {"A08 4GB/64GB": 4790000})
+        self.assertEqual(row["status"], "error")
+        self.assertIsNone(row["rrp"])
+        self.assertIsNone(row["red"])
+        self.assertIsNone(row["pmh"])
+
 
 if __name__ == "__main__":
     unittest.main()

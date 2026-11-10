@@ -227,6 +227,9 @@ CHO DỮ LIỆU HIỆN TẠI.** Quyết định này thay thế quy tắc giá d
 - Nếu giá đỏ bằng giá đen và PMH tụt từ số dương ở đợt trước về 0 mà chưa có chứng cứ
   xác nhận hết ưu đãi, dòng hiện tại phải là "chưa xác minh". Số cũ chỉ được dùng để
   phát hiện bất thường, không được điền lại vào dòng hiện tại.
+- Nếu nguồn trả giá của biến thể khác, giá tham chiếu chỉ được dùng để phát hiện
+  nhầm biến thể. Không được suy ra giá đỏ hay PMH hiện tại bằng cách thay RRP cũ;
+  dòng đó phải là "chưa xác minh" cho đến khi đọc đúng giá live của biến thể.
 - Một sàn lỗi trong lượt quét thị trường phải để trống nguồn đó và báo "chưa xác minh";
   không bù dữ liệu từ `data/fpt.js` hoặc `data/fpt_portal_deals.json` của lượt khác.
 - Dòng từ Retail Deal API FPT phải có `scraped_at` riêng trong vòng 3 giờ; HTTP 200

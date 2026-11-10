@@ -588,11 +588,14 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         ($v256.pmh -eq 700000) -and ($v256.rrp -eq 14990000) -and ($v128.pmh -eq 700000) -and ($v128.rrp -eq 12990000)
     } "data/scans.js dot quet 26-Oct sai PMH hoac RRP cua V80 Lite"
 
-    Assert-Check "data/latest.js phai co A08 4GB/64GB RRP 4.790.000 (khong bi nham 5.590.000)" {
-        $latestText = Get-Content "data/latest.js" -Raw -Encoding UTF8
-        ($latestText -match '"model"\s*:\s*"A08 4GB/64GB"[^}]*"rrp"\s*:\s*4790000') -and
-        ($latestText -notmatch '"model"\s*:\s*"A08 4GB/64GB"[^}]*"rrp"\s*:\s*5590000')
-    } "data/latest.js bi nham RRP A08 4GB/64GB thanh 5.590.000"
+    Assert-Check "A08 4GB/64GB khong duoc dung gia nham cua bien the khac" {
+        $raw = (Get-Content "data/latest.js" -Raw -Encoding UTF8) -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.LATEST\s*=\s*', ''
+        $obj = $raw.TrimEnd(" ;`r`n") | ConvertFrom-Json
+        $a08 = $obj.rows | Where-Object { $_.model -eq "A08 4GB/64GB" }
+        $a08 -and ($a08.rrp -ne 5590000) -and
+        (($a08.status -eq "error" -and $null -eq $a08.pmh) -or
+         ($a08.status -eq "active" -and $a08.rrp -eq 4790000))
+    } "A08 4GB/64GB bi nham gia bien the hoac chua xac minh ma van hien PMH"
 
     Assert-Check "data/alerts.js va data/rises.js tuyet doi khong bao tang gia ao cho A08 4GB/64GB" {
         $alertsText = Get-Content "data/alerts.js" -Raw -Encoding UTF8

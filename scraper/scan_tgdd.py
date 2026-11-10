@@ -365,7 +365,7 @@ def money(text):
 
 
 def apply_variant_guard(model, result, base_rrp_map):
-    """Correct a verified sibling RRP on every scrape, including flash rechecks."""
+    """Reject a sibling variant price; never derive a current price from a baseline."""
     expected_rrp = base_rrp_map.get(model)
     scraped_rrp = result.get("rrp")
     if expected_rrp and scraped_rrp and scraped_rrp != expected_rrp and result.get("status") == "active":
@@ -388,25 +388,12 @@ def apply_variant_guard(model, result, base_rrp_map):
         # va con so 5590000 ngay tai day.
         vguard = VARIANT_GUARDS.get(model)
         if is_sibling or (vguard and scraped_rrp == vguard["wrong_rrp"]):
-            print(f"  [Safeguard] Phat hien cao nham bien the {scraped_rrp} cho {model}. Khoi phuc RRP chuan {expected_rrp}.", flush=True)
-            diff = max(scraped_rrp - result.get("red", scraped_rrp), 0)
-            result["rrp"] = expected_rrp
-            result["red"] = max(expected_rrp - diff, 0)
-            choice_val = result.get("choice", 0)
-            if result.get("banner"):
-                result["pmh"] = choice_val
-                result["rule"] = "flash_chon1"
-                result["kind"] = "moi-banner"
-            elif diff >= choice_val:
-                result["pmh"] = diff
-                result["rule"] = "den_tru_do"
-                result["kind"] = "moi"
-            else:
-                result["pmh"] = choice_val
-                result["rule"] = "chon1"
-                result["kind"] = "moi"
-            result["online"] = diff
-            result["total_online"] = diff + (0 if result.get("choice_in_red", True) else choice_val)
+            print(f"  [Safeguard] Cao nham bien the {scraped_rrp} cho {model}; "
+                  "de trong gia hien tai thay vi suy tu RRP tham chieu.", flush=True)
+            result.update({"status": "error", "rrp": None, "red": None, "pmh": None,
+                           "online": None, "total_online": None, "choice": None,
+                           "kind": "unverified", "rule": "unverified", "banner": False,
+                           "flash_src": [], "debug": "sibling variant price"})
     return result
 
 
