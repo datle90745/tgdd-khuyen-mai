@@ -59,7 +59,7 @@ def brand_of(*texts):
 
 
 def money(text):
-    """GiÃ¡ dáº¡ng chá»¯ hiá»ƒn thá»‹ trÃªn trang, vÃ­ dá»¥ '45.490.000 â‚«' -> 45490000."""
+    """Giá dạng chữ hiển thị trên trang, ví dụ '45.490.000 ₫' -> 45490000."""
     if not text:
         return 0
     m = re.search(r"(\d{1,3}(?:[.,]\d{3})+|\d+)", str(text))
@@ -131,8 +131,8 @@ TGDD_SOURCES = [
 def scan_tgdd():
     rows, seen = [], set()
 
-    # 1. CÃ o toÃ n bá»™ danh má»¥c TGDÄ (trang chá»§ dtdd, brand hubs, vÃ  cÃ¡c bá»™ lá»c phÃ¢n khÃºc giÃ¡)
-    print("  TGDÄ: Äang quÃ©t danh má»¥c toÃ n thá»‹ trÆ°á»ng (trang dtdd + brand tabs + phÃ¢n khÃºc giÃ¡)...", flush=True)
+    # 1. Cào toàn bộ danh mục TGDĐ (trang chủ dtdd, brand hubs, và các bộ lọc phân khúc giá)
+    print("  TGDĐ: Đang quét danh mục toàn thị trường (trang dtdd + brand tabs + phân khúc giá)...", flush=True)
     unseen_variants = []
     for url, b_hint in TGDD_SOURCES:
         try:
@@ -148,7 +148,7 @@ def scan_tgdd():
                 base_name = re.sub(r"^Äiá»‡n thoáº¡i\s+", "", name_m.group(1) if name_m else "").strip()
                 brand = brand_of(b_hint, base_name)
                 
-                # Báº¯t cÃ¡c biáº¿n thá»ƒ RAM/ROM trong cÃ¹ng tháº» card
+                # Bắt các biến thể RAM/ROM trong cùng thẻ card
                 variant_links = re.findall(r'<a[^>]*href="(/dtdd/[^"?#]+)"[^>]*>([0-9]+\s*(?:GB|TB))</a>', p)
                 for v_href, v_cap in variant_links:
                     v_clean = v_href.split("?")[0]
@@ -168,7 +168,7 @@ def scan_tgdd():
                                 price, orig, KM_NAME))
             time.sleep(0.3)
         except Exception as e:
-            print(f"    Lá»—i cÃ o URL {url}: {e}", flush=True)
+            print(f"    Lỗi cào URL {url}: {e}", flush=True)
 
     # 2. Bo sung toan bo SKU Master List tu latest.js cho TGDD
     latest_file = ROOT / "data" / "latest.js"
@@ -208,7 +208,7 @@ def scan_tgdd():
         except Exception as e:
             print(f"  Loi bo sung Master List vao TGDD: {e}", flush=True)
 
-    print(f"  TGDÄ: ÄÃ£ thu tháº­p {len(rows)} sáº£n pháº©m.", flush=True)
+    print(f"  TGDĐ: Đã thu thập {len(rows)} sản phẩm.", flush=True)
     return rows
 
 CPS_QUERY = """query { products(filter:{static:{categories:["3"],province_id:30,stock:{from:0},
@@ -494,7 +494,7 @@ def scan_fpt():
     3. Thử Playwright trình duyệt thật có stealth script.
     Nếu cả 3 cách live đều không đủ máy (bị Cloudflare chặn), dùng data/fpt.js cùng ngày.
     Tuyệt đối KHÔNG lấy số cũ từ các ngày trước để tránh gây hiểu lầm về giá thực tế."""
-    today_label = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%b")
+    today_label = alerts.day_label(datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")))
     fpt_file = ROOT / "data" / "fpt.js"
 
     # 1. Thử Retail Deal Crawler API nội bộ
@@ -586,7 +586,7 @@ def main():
         sys.exit("ERROR: không sàn nào đọc được, không lưu.")
 
     # Dò giá gốc tăng so với lần quét trước (bất kể ngày nào).
-    today, label, at = now.date().isoformat(), now.strftime("%d-%b"), now.strftime("%H:%M")
+    today, label, at = now.date().isoformat(), alerts.day_label(now), now.strftime("%H:%M")
     old = {}
     if LAST_JSON.exists():
         old = json.loads(LAST_JSON.read_text(encoding="utf-8-sig")).get("prices", {})

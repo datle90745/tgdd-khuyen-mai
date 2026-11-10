@@ -14,6 +14,19 @@ BASE_JS = DATA_DIR / "data.js"
 KEEP_ENTRIES = 120  # giữ khoảng 2 tháng gần nhất của cả hai nguồn
 KEEP_WEEKDAYS = {0, 4}  # thứ Hai, thứ Sáu — ngày được lưu thành cột trên web
 
+# Tên tháng viết cứng bằng tiếng Anh, KHÔNG dùng strftime("%b").
+# Lý do: "%b" lấy tên tháng theo locale của máy đang chạy. Nhãn cột ("09-Nov") là KHOÁ
+# dùng xuyên suốt data.js, scans.js, latest.js, sheet Excel và cổng kiểm tra — một runner
+# có locale khác sẽ sinh ra nhãn khác và làm lệch toàn bộ, mà không có gì báo.
+# tests/verify_scan.js cũng dùng đúng bảng này (hằng MON) để đối chiếu.
+MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+              "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
+def day_label(dt):
+    """Nhãn ngày dạng "09-Nov" — luôn tiếng Anh, không phụ thuộc locale của máy chạy."""
+    return f"{dt.day:02d}-{MONTH_ABBR[dt.month - 1]}"
+
 
 def load():
     if not ALERTS_JS.exists():

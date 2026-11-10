@@ -68,7 +68,7 @@
     "Tu nay: xoa khang dinh thi BAT BUOC phai ha con so nay trong cung commit - de viec",
     "giam rao chat luong hien ra trong diff thay vi lang le."
   ],
-  "minAssertions": 105,
+  "minAssertions": 107,
   "_riseMonthsNote": [
     "riseMonths: danh sach thang CO THAT trong window.RISE_RAW cua data/data.js.",
     "Ly do khai bao: khang dinh cu mang ten 'chua du cac thang lich su tu T1 den T10' nhung",
@@ -110,6 +110,14 @@
   ],
   "flashEvidenceFrom": "2026-11-10",
   "maxFlashHubOnly": 8,
+  "_mojibakeNote": [
+    "maxMojibakeLines: so dong loi phong (UTF-8 bi doc nham thanh Latin-1) toi da duoc phep",
+    "trong cac file nguon. Day la BANH COC: chi duoc giam, khong duoc tang.",
+    "Ngay 10-11-2026 da don sach 8 dong cuoi cung (2 trong index.html, 6 trong scan_market.py)",
+    "nen con so dung la 0. Neu cong keu, nghia la mot cong cu vua ghi file bang sai encoding -",
+    "sua cong cu do, dung ha con so nay."
+  ],
+  "maxMojibakeLines": 0,
   "requireScanToday": true,
   "scansJsRetention": 30,
   "nestedCopyPath": "promotion tgdd",

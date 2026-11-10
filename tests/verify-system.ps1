@@ -240,6 +240,43 @@ if (Test-Path $scanScript) {
         ($scanContent -notmatch 'product\["model"\]\s*==\s*"[^"]+"\s*and\s*scraped_rrp\s*==\s*\d')
     } "Chot chong cao nham bien the con viet thang ten model + con so trong .py, hoac muc trong variant_guards.json thieu truong/bang chung"
 
+    # Nhan cot ngay ("09-Nov") la KHOA dung xuyen suot data.js, scans.js, latest.js, sheet
+    # Excel va ca cong kiem tra. strftime("%b") lay ten thang theo LOCALE cua may dang chay -
+    # mot runner co locale khac se sinh nhan khac va lam lech toan bo ma khong co gi bao.
+    Assert-Check "Nhan ngay phai khong phu thuoc locale (cam strftime %b)" {
+        $mkt = Get-Content "scraper/scan_market.py" -Raw -Encoding UTF8
+        $alr = Get-Content "scraper/alerts.py" -Raw -Encoding UTF8
+        ($alr -cmatch 'MONTH_ABBR') -and ($alr -cmatch '(?m)^def day_label\(dt\):') -and
+        ($scanContent -notmatch '%d-%b') -and ($mkt -notmatch '%d-%b') -and
+        ($scanContent -cmatch 'alerts\.day_label\(') -and ($mkt -cmatch 'alerts\.day_label\(')
+    } "Con cho sinh nhan ngay bang strftime(`"%d-%b`") - ten thang se doi theo locale cua may chay"
+
+    # Loi phong (mojibake): van ban UTF-8 bi doc nham thanh Latin-1 roi ghi lai. Da don sach
+    # 8 dong ngay 10-11-2026. Chot nay la BANH COC: chi duoc giam, khong duoc tang.
+    Assert-Check "Khong duoc them dong loi phong (mojibake) vao file nguon" {
+        # So sanh bang MA KY TU, khong viet ky tu la hay escape \uXXXX vao day: cong cu sua
+        # file co the tu chuyen escape thanh ky tu that va lam hong chinh chot nay (da xay ra).
+        $tong = 0
+        foreach ($f in @('index.html', 'scraper/scan_market.py', 'scraper/scan_tgdd.py',
+                         'scraper/alerts.py', 'scraper/bundle.py', 'data/data.js', 'CONSTRAINTS.md')) {
+            if (-not (Test-Path $f)) { continue }
+            foreach ($line in (Get-Content $f -Encoding UTF8)) {
+                $ch = $line.ToCharArray()
+                for ($k = 0; $k -lt $ch.Length - 1; $k++) {
+                    $a = [int]$ch[$k]; $b = [int]$ch[$k + 1]
+                    # 0xC3 / 0xC2 la dau hieu UTF-8 bi doc nham thanh Latin-1, theo sau la
+                    # ky tu trong dai 0x80-0xFF hoac dai dau cau 0x2000-0x206F.
+                    if (($a -eq 0xC3 -or $a -eq 0xC2) -and
+                        (($b -ge 0x80 -and $b -le 0xFF) -or ($b -ge 0x2000 -and $b -le 0x206F))) {
+                        $tong++
+                        break
+                    }
+                }
+            }
+        }
+        $tong -le [int]$GateCfg.maxMojibakeLines
+    } "Co them dong loi phong trong file nguon - kiem lai encoding cua cong cu vua sua file (gate-config.maxMojibakeLines)"
+
     Assert-Check "Canh bao som truoc khi gia du phong het han" {
         $pj = Get-Content "scraper/pinned_prices.json" -Raw -Encoding UTF8 | ConvertFrom-Json
         $sj = Get-Content "tests/verify-system.ps1" -Raw -Encoding UTF8

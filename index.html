@@ -1233,10 +1233,10 @@ const MK_FOCUS_ALL = new Set(BASE.rows.map(r=>((r.brand||"").toLowerCase() + "|"
 function mkMergeFpt(scan){
   const L = window.FPT_LOCAL;
   if(!scan || !L || !Array.isArray(L.rows) || L.date !== scan.date) return scan;
-  // Tuyá»‡t Ä‘á»‘i khÃ´ng Ä‘á»ƒ file cÅ© Ä‘Ã¨ dá»¯ liá»‡u má»›i: Náº¿u scan Ä‘Ã£ cÃ³ FPT Shop rá»“i thÃ¬ giá»¯ nguyÃªn
+  // Tuyệt đối không để file cũ đè dữ liệu mới: Nếu scan đã có FPT Shop rồi thì giữ nguyên
   const scanFptCount = scan.rows.filter(x => x.r === "FPT Shop").length;
   if (scanFptCount > 0) return scan;
-  // Chá»‰ bÃ¹ Ä‘áº¯p náº¿u báº£n quÃ©t hiá»‡n táº¡i hoÃ n toÃ n thiáº¿u FPT Shop (0 mÃ¡y) VÃ€ L cÃ¹ng ngÃ y hÃ´m nay
+  // Chỉ bù đắp nếu bản quét hiện tại hoàn toàn thiếu FPT Shop (0 máy) VÀ L cùng ngày hôm nay
   const rows = scan.rows.filter(x=>x.r!=="FPT Shop").concat(L.rows);
   const report = {...(scan.report||{}), "FPT Shop": L.rows.length};
   return {...scan, rows, report, fptLocal:`${L.date} ${L.at}`};

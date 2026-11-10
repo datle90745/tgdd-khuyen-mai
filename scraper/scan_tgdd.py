@@ -940,7 +940,8 @@ def write_promos_js(rows):
                     p["subs"] = list(other_p["subs"])
                     break
 
-    now_str = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).strftime("%d-%b %H:%M")
+    _now_pr = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh"))
+    now_str = f"{alerts.day_label(_now_pr)} {_now_pr.strftime('%H:%M')}"
     text = (f"/* Tự động cào ưu đãi & quà tặng kèm từ Thế Giới Di Động */\n"
             f"/* Cập nhật: {now_str} */\n"
             f"window.PROMOS = {json.dumps(promos, ensure_ascii=False)};\n")
@@ -1272,7 +1273,7 @@ def main():
     rows = verify_flash_rows(rows)
 
     SCAN_DIR.mkdir(parents=True, exist_ok=True)
-    scan = {"date": now.strftime("%d-%b"), "scanned_at": now.isoformat(timespec="seconds"), "rows": rows}
+    scan = {"date": alerts.day_label(now), "scanned_at": now.isoformat(timespec="seconds"), "rows": rows}
     if partial:
         merged = merge_into_today(rows, now)
         if merged is not None:
