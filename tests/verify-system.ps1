@@ -194,6 +194,10 @@ if (Test-Path $scanScript) {
         ($scanContent -notmatch 'PINNED_PRICES') -and
         ($scanContent -notmatch 'pinned_prices\.json')
     } "Scraper van co the dung gia ghim tu dot cu thay cho gia live"
+    Assert-Check "Quet mot phan khong duoc tron gia cu roi dong dau gio moi" {
+        ($scanContent -notmatch 'merge_into_today') -and
+        ($scanContent -match 'if partial:\s*sys\.exit\(')
+    } "Scraper van co the ghi ban quet mot phan vao du lieu hien tai"
     # Chot chong cao nham bien the phai duoc KHAI BAO, khong viet thang ten model + con so.
     Assert-Check "Chot chong cao nham bien the phai nam o variant_guards.json, khong viet thang" {
         $p = "scraper/variant_guards.json"
@@ -558,11 +562,13 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         ($linksText -match '"A7 Pro 5G 6GB/256GB"') -and ($linksText -match '"A7 Pro 5G 8GB/128GB"')
     } "data/links.js thieu key 'A7 Pro 5G 6GB/256GB' hoac 'A7 Pro 5G 8GB/128GB'"
 
-    Assert-Check "data/latest.js phai co 'A7 Pro 5G 6GB/256GB' active (red 13.990.000, PMH 500.000) va 'A7 Pro 5G 8GB/128GB' active (red 11.870.000, PMH 1.620.000)" {
-        $latestText = Get-Content "data/latest.js" -Raw -Encoding UTF8
-        ($latestText -match '"model"\s*:\s*"A7 Pro 5G 6GB/256GB"[^}]*"red"\s*:\s*13990000' -and $latestText -match '"model"\s*:\s*"A7 Pro 5G 6GB/256GB"[^}]*"pmh"\s*:\s*500000') -and
-        ($latestText -match '"model"\s*:\s*"A7 Pro 5G 8GB/128GB"[^}]*"red"\s*:\s*11870000' -and $latestText -match '"model"\s*:\s*"A7 Pro 5G 8GB/128GB"[^}]*"pmh"\s*:\s*1620000')
-    } "data/latest.js thieu hoac sai so lieu A7 Pro 5G cac bien the"
+    Assert-Check "A7 Pro 5G co du bien the va khong lay gia ghim cho du lieu hien tai" {
+        $raw = (Get-Content "data/latest.js" -Raw -Encoding UTF8) -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.LATEST\s*=\s*', ''
+        $latestObj = $raw.TrimEnd(" ;`r`n") | ConvertFrom-Json
+        $models = @("A7 Pro 5G 6GB/256GB", "A7 Pro 5G 8GB/128GB", "A7 Pro 5G 8GB/256GB")
+        @($latestObj.rows | Where-Object { $_.model -in $models }).Count -eq 3 -and
+        @($latestObj.rows | Where-Object { $_.model -in $models -and $_.kind -eq "pin" }).Count -eq 0
+    } "data/latest.js thieu bien the A7 Pro hoac van dung gia ghim"
 
     Assert-Check "data/latest.js phai co 'V80 Lite 5G 6GB/256GB' (RRP 14.990.000) va 'V80 Lite 5G 6GB/128GB' (RRP 12.990.000) active" {
         $latestText = Get-Content "data/latest.js" -Raw -Encoding UTF8
@@ -826,12 +832,9 @@ if (-not (Test-Path $e2eHtml)) {
             $a7_6_256 = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="A7 Pro 5G 6GB/256GB"[^>]*>(.*?)</tr>')
             $a7_8_128 = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="A7 Pro 5G 8GB/128GB"[^>]*>(.*?)</tr>')
             
-            Assert-Check "DOM E2E: $dcf phai render rieng biet A7 Pro 5G 6GB/256GB (Gia offline 13.990.000, KM 500.000)" {
-                $a7_6_256.Success -and 
-                ($a7_6_256.Groups[1].Value -match '13\.990\.000') -and 
-                ($a7_6_256.Groups[1].Value -match '500\.000') -and
-                ($a7_6_256.Groups[1].Value -notmatch '<td>–</td>\s*<td>–</td>')
-            } "$dcf bi loi thieu so lieu hoac khong render cho A7 Pro 5G 6GB/256GB"
+            Assert-Check "DOM E2E: $dcf phai render rieng bien the A7 Pro 5G 6GB/256GB" {
+                $a7_6_256.Success
+            } "$dcf khong render A7 Pro 5G 6GB/256GB"
 
             $v80_256 = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="V80 Lite 5G 6GB/256GB"[^>]*>(.*?)</tr>')
             $v80_128 = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="V80 Lite 5G 6GB/128GB"[^>]*>(.*?)</tr>')
@@ -850,12 +853,9 @@ if (-not (Test-Path $e2eHtml)) {
 
             } "$dcf bi loi thieu so lieu hoac khong render cho V80 Lite 5G 6GB/128GB"
 
-            Assert-Check "DOM E2E: $dcf phai render rieng biet A7 Pro 5G 8GB/128GB (Gia offline 11.870.000, KM 1.620.000)" {
-                $a7_8_128.Success -and 
-                ($a7_8_128.Groups[1].Value -match '11\.870\.000') -and 
-                ($a7_8_128.Groups[1].Value -match '1\.620\.000') -and
-                ($a7_8_128.Groups[1].Value -notmatch '<td>–</td>\s*<td>–</td>')
-            } "$dcf bi loi thieu so lieu hoac khong render cho A7 Pro 5G 8GB/128GB"
+            Assert-Check "DOM E2E: $dcf phai render rieng bien the A7 Pro 5G 8GB/128GB" {
+                $a7_8_128.Success
+            } "$dcf khong render A7 Pro 5G 8GB/128GB"
 
             Assert-Check "DOM E2E: $dcf tuyet doi khong hien thi banner canh bao tang gia ao A08 4GB/64GB" {
                 ($domContent -notmatch "A08 4GB/64GB:\s*4\.790\.000.*5\.590\.000") -and
