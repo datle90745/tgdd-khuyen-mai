@@ -1,7 +1,9 @@
 """Regression checks for the final flash-sale recheck."""
 import sys
+import json
+import tempfile
 import unittest
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 from zoneinfo import ZoneInfo
@@ -12,6 +14,22 @@ import scan_market
 
 
 class FlashVerifyTests(unittest.TestCase):
+    def test_fpt_batch_requires_matching_id_freshness_and_valid_prices(self):
+        now = datetime.now(timezone.utc)
+        rows = [{"r": "FPT Shop", "b": ["Apple", "Samsung", "OPPO", "Xiaomi"][i % 4],
+                 "n": f"Model {i}", "u": f"https://fptshop.com.vn/dien-thoai/model-{i}?sku={i}",
+                 "p": 5000000, "o": 6000000, "k": "Khuyến mãi"} for i in range(80)]
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "fpt_live.json"
+            snapshot = {"batch_id": "this-run", "scanned_at": now.isoformat(), "rows": rows}
+            path.write_text(json.dumps(snapshot), encoding="utf-8")
+            self.assertEqual(len(scan_market.fpt_rows_via_local_batch(path, "this-run", now)), 80)
+            self.assertEqual(scan_market.fpt_rows_via_local_batch(path, "other-run", now), [])
+            self.assertEqual(scan_market.fpt_rows_via_local_batch(path, "this-run", now + timedelta(hours=2)), [])
+            rows[0]["p"] = 7000000
+            path.write_text(json.dumps(snapshot), encoding="utf-8")
+            self.assertEqual(scan_market.fpt_rows_via_local_batch(path, "this-run", now), [])
+
     def verify(self, first, second):
         with (patch.object(scan_tgdd, "fetch_live_flashsale_slugs", return_value=set()),
               patch.object(scan_tgdd, "scan_one", return_value=second),

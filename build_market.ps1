@@ -245,15 +245,17 @@ Write-Host "  CellphoneS hoan tat: $($cpsRows.Count) may"
 # --- 3. FPT Shop ---
 Write-Host "3/4. Dang quet truc tiep FPT Shop (LIVE)..."
 $fptScript = Join-Path $ROOT "scraper\quet_fpt.ps1"
+$fptScanSucceeded = $false
 if (Test-Path $fptScript) {
     try {
         & $fptScript -Out $FPT_JS
+        $fptScanSucceeded = $true
     } catch {
         Write-Host "  Quet truc tiep FPT loi: $_"
     }
 }
 $fptRows = New-Object System.Collections.ArrayList
-if (Test-Path $FPT_JS) {
+if ($fptScanSucceeded -and (Test-Path $FPT_JS)) {
     try {
         $fptTxt = [System.IO.File]::ReadAllText($FPT_JS, [System.Text.Encoding]::UTF8)
         $idx = $fptTxt.IndexOf('{')

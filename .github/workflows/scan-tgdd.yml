@@ -20,7 +20,12 @@ on:
     - cron: '5 11 * * *'
     # 21:05 VN (14:05 UTC) - Chot dem
     - cron: '5 14 * * *'
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      fpt_batch_id:
+        description: 'Windows FPT production API batch ID (empty for manual scans)'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -30,7 +35,23 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Bỏ lượt lịch nếu Windows đã hoàn tất lượt FPT mới
+        id: decide
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            node scraper/should_scan_scheduled.mjs
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
   scan:
+    needs: guard
+    if: needs.guard.outputs.run == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 50
     steps:
@@ -60,6 +81,7 @@ jobs:
           CF_PROXY_URL: ${{ secrets.CF_PROXY_URL }}
           CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
           ERP_PORTAL_COOKIE: ${{ secrets.ERP_PORTAL_COOKIE }}
+          FPT_BATCH_ID: ${{ inputs.fpt_batch_id }}
         run: xvfb-run -a python scraper/scan_market.py
       # Trước đây bước báo lỗi nằm SAU bước commit, nên một bước quét hỏng thì hoàn toàn
       # im lặng, còn cả hai hỏng thì vẫn commit dữ liệu cũ rồi mới báo đỏ. Giờ chặn trước.

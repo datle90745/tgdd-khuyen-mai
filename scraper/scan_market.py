@@ -15,7 +15,7 @@ import os
 import re
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import quote
 from zoneinfo import ZoneInfo
@@ -35,6 +35,7 @@ KM_NAME = "Khuy\u1ebfn m\u00e3i"
 CF_PROXY_URL = os.environ.get("CF_PROXY_URL", "").rstrip("/")
 CF_PROXY_TOKEN = os.environ.get("CF_PROXY_TOKEN", "")
 ERP_PORTAL_COOKIE = os.environ.get("ERP_PORTAL_COOKIE", "").strip()
+FPT_BATCH_ID = os.environ.get("FPT_BATCH_ID", "").strip()
 # Trình duyệt cho FPT: có màn hình ảo (xvfb-run) thì để hiện, chạy máy thường thì ẩn.
 HEADLESS = os.environ.get("DISPLAY", "") == ""
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -503,6 +504,43 @@ def fpt_rows_via_erp_api():
     return []
 
 
+def fpt_rows_via_local_batch(path=None, batch_id=None, now=None):
+    """Accept a Windows scan only for the explicit GitHub dispatch that created it."""
+    batch_id = FPT_BATCH_ID if batch_id is None else batch_id
+    if not batch_id:
+        return []
+    path = path or ROOT / "data" / "fpt_live.json"
+    try:
+        snapshot = json.loads(Path(path).read_text(encoding="utf-8"))
+        if snapshot.get("batch_id") != batch_id:
+            return []
+        scanned_at = datetime.fromisoformat(snapshot["scanned_at"].replace("Z", "+00:00"))
+        if scanned_at.tzinfo is None:
+            return []
+        age = ((now or datetime.now(timezone.utc)) - scanned_at).total_seconds()
+        if not -60 <= age <= 60 * 60:
+            return []
+        rows = snapshot["rows"]
+        if not isinstance(rows, list) or len(rows) < 80:
+            return []
+        seen, brands = set(), set()
+        for item in rows:
+            if (item.get("r") != "FPT Shop" or item.get("b") not in {"Apple", "Samsung", "OPPO", "Xiaomi", "Vivo", "Realme"}
+                    or not isinstance(item.get("n"), str) or not item["n"].strip()
+                    or not re.fullmatch(r"https://fptshop\.com\.vn/dien-thoai/[a-z0-9-]+(?:\?sku=[a-zA-Z0-9]+)?", item.get("u", ""))
+                    or type(item.get("p")) is not int or type(item.get("o")) is not int
+                    or not 0 < item["p"] <= item["o"] <= 200_000_000
+                    or item["n"].casefold() in seen):
+                return []
+            seen.add(item["n"].casefold())
+            brands.add(item["b"])
+        if not {"Apple", "Samsung", "OPPO", "Xiaomi"}.issubset(brands):
+            return []
+        return rows
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return []
+
+
 def scan_fpt():
     """Chỉ lấy dữ liệu LIVE trong đợt quét này:
     1. Thử Retail Deal Crawler API nội bộ (promotion.erp-portal.vn) nếu có cookie/token.
@@ -510,6 +548,13 @@ def scan_fpt():
     3. Thử Playwright trình duyệt thật có stealth script.
     Nếu cả 3 cách live đều không đủ máy, đánh dấu nguồn FPT chưa xác minh.
     Không lấy file của lượt khác để lấp dữ liệu hiện tại."""
+
+    # Windows machine reads FPT production API. The batch ID ties it to this run;
+    # scheduled GitHub runs cannot silently reuse its old JSON.
+    rows = fpt_rows_via_local_batch()
+    if rows:
+        print(f"  FPT production API qua Windows: {len(rows)} máy", flush=True)
+        return rows
 
     # 1. Thử Retail Deal Crawler API nội bộ
     try:
