@@ -270,6 +270,13 @@ Quy tắc bắt buộc từ nay:
   kiểm trên cả file; và phải bắt **câu lệnh thật**, không bắt lời văn trong docstring/comment/log.
 - Luật nói **"đầy đủ"** thì phải **đếm** hoặc **duyệt hết tập**, không lấy vài mẫu đại diện.
 - Mỗi chốt mới phải có **phép thử ngược**: cố tình phá đúng thứ nó canh, và xác nhận nó CHẶN.
+- Một chốt có hành vi **phụ thuộc ngày trong tuần / thời điểm** mà chỉ được thử đúng một ngày
+  thì **chưa được coi là đã thử**. Ngày 09-11-2026 (thứ Hai) chốt "scans.js phải có đợt hôm nay"
+  PASS vì thứ Hai tình cờ là ngày được giữ theo `KEEP_WEEKDAYS`; sang thứ Ba nó chặn **cả 3 lượt
+  quét tự động liên tiếp** và hệ thống dừng hẳn một ngày.
+- Một chốt **không bao giờ được mâu thuẫn với một quy tắc người dùng đã train**. Trước khi thêm
+  chốt, đối chiếu với `KEEP_WEEKDAYS`, Master List, và các quy tắc ở mục 2 — chốt sai thì nó
+  không bảo vệ gì, nó chỉ khoá hệ thống.
 
 ---
 

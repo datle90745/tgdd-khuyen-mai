@@ -369,9 +369,28 @@ if (!fs.existsSync(SCANS_JS)) {
 if (scansArr && scanData) {
   const byDate = new Map(scansArr.map((s) => [s.date, s]));
 
+  // scans.js CO Y chi giu dot quet thu Hai va thu Sau (alerts.KEEP_WEEKDAYS = {0, 4}) - day la
+  // quy tac nguoi dung da train, write_scans_js() bo qua moi ngay khac. Nen KHONG duoc doi
+  // scans.js phai co dot cua hom nay vao mot ngay khong phai T2/T6.
+  //
+  // Chot nay viet sai ngay 09-11-2026 (thu Hai, tinh co la ngay duoc giu, nen no PASS va toi
+  // khong thay). Sang 10-11 (thu Ba) no chan ca 3 luot quet tu dong lien tiep - he thong dung
+  // hoan toan. Dung lop loi "chot mau thuan voi chinh quy tac da train".
+  const d0 = new Date(`${scanFileName.slice(5, 15)}T00:00:00Z`);
+  const KEEP_WEEKDAYS = [1, 5];   // getUTCDay(): 1 = thu Hai, 5 = thu Sau
+  const isKeepDay = KEEP_WEEKDAYS.includes(d0.getUTCDay());
+
   const todayEntry = byDate.get(scanData.date);
-  if (!todayEntry) {
-    fail(`data/scans.js thieu dot quet "${scanData.date}" (latest.js co dot moi ma scans.js bo sot)`);
+  if (!todayEntry && isKeepDay) {
+    fail(
+      `data/scans.js thieu dot quet "${scanData.date}" (latest.js co dot moi ma scans.js bo sot). ` +
+      `Hom nay la ngay duoc giu theo KEEP_WEEKDAYS nen scans.js BAT BUOC phai co dot nay.`
+    );
+  } else if (!todayEntry) {
+    console.log(
+      `[4] scans.js khong co dot "${scanData.date}" - dung quy tac: chi giu thu Hai va thu Sau ` +
+      `(alerts.KEEP_WEEKDAYS).`
+    );
   } else if ((todayEntry.rows || []).length !== rows.length) {
     fail(
       `data/scans.js dot "${scanData.date}" co ${(todayEntry.rows || []).length} dong, ` +

@@ -401,6 +401,26 @@ if (Test-Path $scanScript) {
         ($scanContent -notmatch 'page\.select_one\("\[class\*=''flash''\]"\)')
     } "Con nhanh nhan dien flash sale khong doi bang chung suat that (has_quota / in_hub)"
 
+    # Loi 10-11-2026: chot "scans.js phai co dot hom nay" khong tru ngay khong phai T2/T6,
+    # trong khi write_scans_js CO Y chi giu T2/T6 (quy tac nguoi dung train). Viet chot do vao
+    # thu Hai - tinh co la ngay duoc giu nen no PASS. Sang thu Ba no chan lien 3 luot quet tu
+    # dong, he thong dung han mot ngay.
+    Assert-Check "Chot scans.js phai ton trong KEEP_WEEKDAYS, khong doi dot hom nay vao ngay khac" {
+        $cb = Get-Content "tests/verify_scan.js" -Raw -Encoding UTF8
+        ($cb -cmatch 'KEEP_WEEKDAYS') -and ($cb -cmatch 'isKeepDay') -and
+        ($cb -cmatch '!todayEntry && isKeepDay')
+    } "tests/verify_scan.js doi scans.js phai co dot hom nay ke ca ngay khong phai Thu Hai/Thu Sau - mau thuan voi write_scans_js va se chan moi luot quet cac ngay con lai"
+
+    # Loi 10-11-2026: gia du phong chi ap khi "khong cao ra gia" (status != active). Nhung lop
+    # loi that cua Marketing Landing Page la CO gia den, KHONG co gia do (red == rrp). Hai dong
+    # A7 Pro 256GB roi dung vao do nen gia du phong bi bo qua, PMH tut ve 0, chot hoi quy chan
+    # commit.
+    Assert-Check "Gia du phong phai ap ca khi cao ra gia nhung KHONG co chenh lech (red >= rrp)" {
+        ($scanContent -cmatch 'scraped_red_pin\s*<\s*scraped_rrp_pin') -and
+        ($scanContent -cmatch '(?s)doc_duoc_gia_do = bool\(.*?status.*?==.*?"active".*?\)') -and
+        ($scanContent -cmatch '(?m)^\s+if doc_duoc_gia_do:')
+    } "Dieu kien ap gia du phong khong xet truong hop red >= rrp - dong landing page se mat khuyen mai va lam chan ca luot quet"
+
     Assert-Check "Circuit breaker phai con chot TRANG THAI DONG BANG" {
         $cb = Get-Content "tests/verify_scan.js" -Raw -Encoding UTF8
         ($cb -cmatch 'TRANG THAI DONG BANG:') -and ($cb -cmatch 'CFG\.maxFrozenScans') -and

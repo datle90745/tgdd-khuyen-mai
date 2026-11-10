@@ -1129,13 +1129,27 @@ def main():
         # con la ghi de: gia cao duoc that luon thang. Xem CONSTRAINTS 2.9.
         pin = PINNED_PRICES.get(product["model"])
         if pin:
-            if result.get("status") == "active" and result.get("rrp"):
+            # Dieu kien ap gia du phong, sua ngay 10-11-2026 sau khi chot nay CHAN 3 luot quet
+            # tu dong lien tiep:
+            # Ban dau chi ap khi "khong cao ra gia" (status != active). Nhung lop loi that cua
+            # Marketing Landing Page KHONG phai la khong co gia - ma la CO gia den, KHONG co gia
+            # do: red == rrp, diff = 0, PMH = 0. Hai dong A7 Pro 256GB roi dung vao do nen gia
+            # du phong bi bo qua, PMH tut tu 310.000/500.000 ve 0, va chot hoi quy chan commit.
+            # Nay ap ca khi KHONG DOC DUOC CHENH LECH GIA NAO (red >= rrp).
+            scraped_rrp_pin = result.get("rrp") or 0
+            scraped_red_pin = result.get("red") or 0
+            doc_duoc_gia_do = bool(
+                result.get("status") == "active" and scraped_rrp_pin and scraped_red_pin
+                and scraped_red_pin < scraped_rrp_pin
+            )
+            if doc_duoc_gia_do:
                 print(f"  [PIN] {product['model']}: da cao duoc gia that (rrp={result.get('rrp')} "
                       f"red={result.get('red')}) - BO QUA gia du phong. Nen go muc nay khoi "
                       f"scraper/pinned_prices.json.", flush=True)
             else:
                 diff = pin["rrp"] - pin["red"]
-                print(f"  [PIN] {product['model']}: khong cao duoc gia (status={result.get('status')}). "
+                print(f"  [PIN] {product['model']}: khong doc duoc gia do "
+                      f"(status={result.get('status')} rrp={scraped_rrp_pin} red={scraped_red_pin}). "
                       f"Dung gia du phong chot ngay {pin['since']}: rrp={pin['rrp']} red={pin['red']} "
                       f"pmh={pin['pmh']}.", flush=True)
                 result.update({
