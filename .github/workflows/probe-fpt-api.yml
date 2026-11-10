@@ -15,7 +15,10 @@ jobs:
           python - <<'PY'
           import json, os, urllib.error, urllib.parse, urllib.request
 
-          target = "https://papi.fptshop.com.vn/gw/v1/public/fulltext-search-service/category"
+          targets = [
+              ("production", "https://papi.fptshop.com.vn/gw/v1/public/fulltext-search-service/category"),
+              ("alternate", "https://ci-papi.fptshop.com.vn/gw/v1/public/fulltext-search-service/category"),
+          ]
           body = json.dumps({
               "slug": "dien-thoai/samsung", "skipCount": 0, "maxResultCount": 50,
               "sortMethod": "noi-bat", "categoryType": "category"
@@ -26,11 +29,13 @@ jobs:
               "Origin": "https://fptshop.com.vn",
               "Referer": "https://fptshop.com.vn/dien-thoai/samsung",
           }
-          attempts = [("direct", target, headers)]
-          if os.getenv("CF_PROXY_URL") and os.getenv("CF_PROXY_TOKEN"):
-              proxy_url = os.environ["CF_PROXY_URL"].rstrip("/") + "/fetch?url=" + urllib.parse.quote(target, safe="")
-              attempts.append(("proxy", proxy_url,
-                               {**headers, "X-Proxy-Token": os.environ["CF_PROXY_TOKEN"]}))
+          attempts = []
+          for source, target in targets:
+              attempts.append((source + " direct", target, headers))
+              if os.getenv("CF_PROXY_URL") and os.getenv("CF_PROXY_TOKEN"):
+                  proxy_url = os.environ["CF_PROXY_URL"].rstrip("/") + "/fetch?url=" + urllib.parse.quote(target, safe="")
+                  attempts.append((source + " proxy", proxy_url,
+                                   {**headers, "X-Proxy-Token": os.environ["CF_PROXY_TOKEN"]}))
           for label, url, request_headers in attempts:
               try:
                   req = urllib.request.Request(url, data=body, headers=request_headers, method="POST")
