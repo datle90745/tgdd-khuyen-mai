@@ -445,8 +445,9 @@ if (Test-Path $scanScript) {
     # Flash sale chay theo khung gio: KHONG duoc mac dinh, khong duoc be tu dot truoc sang.
     # Ca da gap: hub /flashsale duoc nap DUNG MOT LAN truoc vong lap roi dung cho ca 135 model
     # suot ~9-20 phut quet, nen mot anh chup cu quyet dinh trang thai flash cua ca dot.
-    Assert-Check "Scraper phai QUET LAI cac ung vien flash sale truoc khi luu, voi hub nap lai" {
+    Assert-Check "Scraper phai QUET LAI tat ca model truoc khi luu, voi hub nap lai" {
         ($scanContent -cmatch '(?m)^def verify_flash_rows\(rows\):') -and
+        ($scanContent -cmatch 'for r in rows if r.get\("url"\)') -and
         ($scanContent -cmatch '(?s)def verify_flash_rows\(rows\):.*?fetch_live_flashsale_slugs\(\)') -and
         ($scanContent -cmatch '(?m)^\s+rows = verify_flash_rows\(rows\)') -and
         # Phai goi TRUOC khi ghi file scan, nguoc lai thi quet lai cung vo nghia.
@@ -801,8 +802,8 @@ if (-not (Test-Path $e2eHtml)) {
     if (Test-Path $tempOut) { Remove-Item $tempOut -Force }
     $e2eFull = (Get-Item $e2eHtml).FullName
     cmd /c "`"$chromePath`" --headless=old --dump-dom `"file:///$($e2eFull -replace '\\','/')`" 2>nul > `"$tempOut`""
-    if (-not (Test-Path $tempOut)) {
-        Assert-Hard-Fail "Nhom 4 (E2E): Chrome phai xuat duoc DOM" "Chrome khong tao ra $tempOut"
+    if (-not (Test-Path $tempOut) -or (Get-Item $tempOut).Length -eq 0) {
+        Assert-Hard-Fail "Nhom 4 (E2E): Chrome phai xuat duoc DOM" "Chrome khong tao ra DOM trong $tempOut"
     } else {
         $outContent = Get-Content $tempOut -Raw -Encoding UTF8
         $match = [regex]::Match($outContent, '(?s)<div id="test-output">(.*?)</div>')
@@ -846,7 +847,7 @@ if (-not (Test-Path $e2eHtml)) {
         $fullDcf = (Get-Item $dcf).FullName
         $tempDcf = "$env:TEMP\dom_check_$($dcf -replace '[^\w]','_').html"
         cmd /c "`"$chromePath`" --headless=old --dump-dom `"file:///$fullDcf`" 2>nul > `"$tempDcf`""
-        if (Test-Path $tempDcf) {
+        if ((Test-Path $tempDcf) -and (Get-Item $tempDcf).Length -gt 0) {
             $domContent = Get-Content $tempDcf -Raw -Encoding UTF8
             $a7_6_256 = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="A7 Pro 5G 6GB/256GB"[^>]*>(.*?)</tr>')
             $a7_8_128 = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="A7 Pro 5G 8GB/128GB"[^>]*>(.*?)</tr>')
@@ -948,6 +949,8 @@ if (-not (Test-Path $e2eHtml)) {
                 ($domContent -match 'C100 8GB/256GB') -and
                 ($domContent -match 'C100x 4GB/128GB')
             } "$dcf khong render du 5 model Realme C100/C100x tang gia T11"
+        } else {
+            Assert-Hard-Fail "DOM E2E: $dcf phai xuat duoc DOM" "Chrome khong tao ra DOM cho $dcf"
         }
     }
 }

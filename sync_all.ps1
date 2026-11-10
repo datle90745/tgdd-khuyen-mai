@@ -1,45 +1,51 @@
-[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-$OutputEncoding = [System.Text.Encoding]::UTF8
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = 'Stop'
+$env:PYTHONIOENCODING = 'utf-8'
+$root = $PSScriptRoot
+Set-Location $root
 
-$ROOT = Split-Path -Parent $MyInvocation.MyCommand.Path
+$python = Get-Command py -ErrorAction SilentlyContinue
+if ($python) {
+    $pythonExe = $python.Source
+    $pythonArgs = @('-3')
+} else {
+    $python = Get-Command python -ErrorAction SilentlyContinue
+    if (-not $python) {
+        $bundledPython = 'C:\Program Files\WindowsApps\OpenAI.CodexPrimaryRuntime.v26-1104-2876-0_26.1104.2876.0_x64__3k8sg7r9htsxt\dependencies\python\python.exe'
+        if (-not (Test-Path $bundledPython)) { throw 'Can cai Python 3 va scraper/requirements.txt truoc khi quet tren may.' }
+        $pythonExe = $bundledPython
+    } else {
+        $pythonExe = $python.Source
+    }
+    $pythonArgs = @()
+}
 
-Write-Host "=========================================================="
-Write-Host "   BAT DAU DONG BO TOAN BO HE THONG (ALL TABS) CHO HOM NAY"
-Write-Host "=========================================================="
+$localDeps = Join-Path $root '.deps'
+if (Test-Path $localDeps) {
+    $env:PYTHONPATH = $localDeps + [IO.Path]::PathSeparator + $env:PYTHONPATH
+}
+& $pythonExe @pythonArgs -c 'import requests, bs4, playwright'
+if ($LASTEXITCODE -ne 0) { throw 'Thieu thu vien Python. Chay: python -m pip install -r scraper/requirements.txt' }
 
-# 0. Quet gia ban & Flash Sale TGDD (latest.js, scans.js, scan_YYYY-MM-DD.json)
-Write-Host ""
-Write-Host "[0/4] Quet gia ban & Flash Sale TGDD..."
-& (Join-Path $ROOT "build_latest.ps1")
+function Invoke-PythonStep([string]$script) {
+    & $pythonExe @pythonArgs $script
+    if ($LASTEXITCODE -ne 0) { throw "$script that bai (exit $LASTEXITCODE); khong dong goi/khong day du lieu." }
+}
 
-# 1. Quet qua tang & khuyen mai chi tiet TGDD (promos.js)
-Write-Host ""
-Write-Host "[1/3] Quet khuyen mai qua tang TGDD..."
-& (Join-Path $ROOT "build_promos.ps1")
-
-# 2. Quet toan thi truong 4 san (market.js, alerts.js, rises.js, fpt.js)
-Write-Host ""
-Write-Host "[2/3] Quet toan thi truong 4 san ban le lon..."
-& (Join-Path $ROOT "build_market.ps1")
-
-# 3. Cap nhat Cache Buster trong index.html
-Write-Host ""
-Write-Host "[3/4] Cap nhat Cache Buster..."
-$now = Get-Date
-$tag = "sync_" + $now.ToString("yyyyMMdd_HHmm")
-$htmlPath = Join-Path $ROOT "index.html"
+Write-Host '[1/5] Quet TGDĐ theo scraper Python hien hanh...'
+Invoke-PythonStep 'scraper/scan_tgdd.py'
+Write-Host '[2/5] Quet toan thi truong...'
+Invoke-PythonStep 'scraper/scan_market.py'
+Write-Host '[3/5] Kiem dinh du lieu moi...'
+& node tests/verify_scan.js
+if ($LASTEXITCODE -ne 0) { throw 'Circuit breaker that bai; khong dong goi/khong day du lieu.' }
+Write-Host '[4/5] Cap nhat cache va dong goi offline...'
+$tag = 'sync_' + (Get-Date).ToString('yyyyMMdd_HHmm')
+$htmlPath = Join-Path $root 'index.html'
 $html = [System.IO.File]::ReadAllText($htmlPath, [System.Text.Encoding]::UTF8)
-$html = [regex]::Replace($html, '\?v=[^"]+', "?v=$tag")
+$html = [regex]::Replace($html, '\?v=[^" ]+', "?v=$tag")
 [System.IO.File]::WriteAllText($htmlPath, $html, (New-Object System.Text.UTF8Encoding $false))
-
-# 4. Dong goi file offline standalone
-Write-Host ""
-Write-Host "[4/4] Dong goi file offline..."
-& (Join-Path $ROOT "bundle_offline.ps1")
-
-Write-Host ""
-Write-Host "=========================================================="
-& (Join-Path $ROOT "verify_all.ps1")
-Write-Host "=========================================================="
-Write-Host "HOAN TAT! MOI TAB TRANH LECH DU LIEU VA DA DONG BO 100%!"
+Invoke-PythonStep 'scraper/bundle.py'
+Write-Host '[5/5] Kiem dinh toan he thong...'
+& powershell -ExecutionPolicy Bypass -File tests/verify-system.ps1
+if ($LASTEXITCODE -ne 0) { throw 'verify-system.ps1 that bai; khong duoc day du lieu.' }
+Write-Host 'Hoan tat dong bo va kiem dinh.'

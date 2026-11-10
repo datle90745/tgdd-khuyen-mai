@@ -375,8 +375,54 @@ def money(text):
     return val if val <= 200_000_000 else 0
 
 
+def apply_variant_guard(model, result, base_rrp_map):
+    """Correct a verified sibling RRP on every scrape, including flash rechecks."""
+    expected_rrp = base_rrp_map.get(model)
+    scraped_rrp = result.get("rrp")
+    if expected_rrp and scraped_rrp and scraped_rrp != expected_rrp and result.get("status") == "active":
+        tokens_m = alerts._norm_tokens(model)
+        is_sibling = False
+        for other_model, other_rrp in base_rrp_map.items():
+            if other_model != model and other_rrp == scraped_rrp:
+                tokens_o = alerts._norm_tokens(other_model)
+                common = tokens_m & tokens_o
+                diff_m = tokens_m - tokens_o
+                diff_o = tokens_o - tokens_m
+                ram_rom_tokens = {"64", "128", "256", "512", "1tb", "4", "6", "8", "12", "16"}
+                has_distinct_specs = bool((diff_m & ram_rom_tokens) and (diff_o & ram_rom_tokens))
+                if common and any(tok for tok in common if not tok.isdigit() and len(tok) >= 2):
+                    if not has_distinct_specs:
+                        is_sibling = True
+                        break
+        # Chot khai bao cho cac cap ma luat is_sibling CO Y khong bat (xem
+        # scraper/variant_guards.json). Truoc day la mot dieu kien viet thang ten model
+        # va con so 5590000 ngay tai day.
+        vguard = VARIANT_GUARDS.get(model)
+        if is_sibling or (vguard and scraped_rrp == vguard["wrong_rrp"]):
+            print(f"  [Safeguard] Phat hien cao nham bien the {scraped_rrp} cho {model}. Khoi phuc RRP chuan {expected_rrp}.", flush=True)
+            diff = max(scraped_rrp - result.get("red", scraped_rrp), 0)
+            result["rrp"] = expected_rrp
+            result["red"] = max(expected_rrp - diff, 0)
+            choice_val = result.get("choice", 0)
+            if result.get("banner"):
+                result["pmh"] = choice_val
+                result["rule"] = "flash_chon1"
+                result["kind"] = "moi-banner"
+            elif diff >= choice_val:
+                result["pmh"] = diff
+                result["rule"] = "den_tru_do"
+                result["kind"] = "moi"
+            else:
+                result["pmh"] = choice_val
+                result["rule"] = "chon1"
+                result["kind"] = "moi"
+            result["online"] = diff
+            result["total_online"] = diff + (0 if result.get("choice_in_red", True) else choice_val)
+    return result
+
+
 def verify_flash_rows(rows):
-    """QUET LAI LAN HAI rieng cac model ung vien Flash Sale, ngay truoc khi luu.
+    """QUET LAI LAN HAI tat ca model, ngay truoc khi luu.
 
     Ly do: hub /flashsale duoc nap DUNG MOT LAN truoc vong lap, roi ket qua do duoc dung cho
     ca 135 model trong suot ~9-20 phut quet. Flash sale chay theo khung gio, nen anh chup hub
@@ -388,18 +434,13 @@ def verify_flash_rows(rows):
     tinh lai PMH theo luat thuong (CONSTRAINTS 2.1), chu khong giu lai tu dot truoc.
     """
     fresh = fetch_live_flashsale_slugs()
-    cands = []
-    for r in rows:
-        if r.get("status") != "active":
-            continue
-        slug = (r.get("url") or "").rstrip("/").rsplit("/", 1)[-1].split("?")[0]
-        if r.get("banner") or r.get("rule") == "flash_chon1" or (slug and slug in fresh):
-            cands.append((r, slug))
-    if not cands:
-        print("  [FLASH_VERIFY] Khong co model nao can quet lai.", flush=True)
-        return rows
-
-    print(f"  [FLASH_VERIFY] Quet lai {len(cands)} model ung vien flash sale "
+    # The hub is incomplete: a PDP can have an active quota while absent there.
+    # Recheck every tracked row near save time, including first-pass failures.
+    base_text = alerts._base_text()
+    base_rrp_map = {m.group(1): int(m.group(2)) for m in re.finditer(r'"model":\s*"([^"]+)",\s*"rrp":\s*(\d+)', base_text)}
+    cands = [(r, (r.get("url") or "").rstrip("/").rsplit("/", 1)[-1].split("?")[0])
+             for r in rows if r.get("url")]
+    print(f"  [FLASH_VERIFY] Quet lai {len(cands)}/{len(rows)} model truoc khi luu "
           f"(hub vua nap lai: {len(fresh)} SKU).", flush=True)
     doi = 0
     for r, slug in cands:
@@ -412,6 +453,16 @@ def verify_flash_rows(rows):
             print(f"  [FLASH_VERIFY] {r['model']}: quet lai ra status={again.get('status')}, "
                   f"giu nguyen dong cu.", flush=True)
             continue
+        again = apply_variant_guard(r["model"], again, base_rrp_map)
+        # PDPs used with a pinned or brand-card price can return only the list
+        # price. Keep the verified fallback unless the fresh PDP shows an actual
+        # discount or a flash quota; otherwise the second pass erases a good PMH.
+        fallback = r.get("model") in PINNED_PRICES or r.get("kind") == "brand_tab"
+        if (fallback and not again.get("banner") and
+                (again.get("red") or 0) >= (again.get("rrp") or 0) and
+                (r.get("red") or 0) < (r.get("rrp") or 0)):
+            print(f"  [FLASH_VERIFY] {r['model']}: PDP khong co gia do; giu gia da doi soat.", flush=True)
+            continue
         ev = again.get("flash_src") or []
         was = bool(r.get("banner"))
         now = bool(again.get("banner"))
@@ -419,7 +470,7 @@ def verify_flash_rows(rows):
             doi += 1
             print(f"  [FLASH_VERIFY] {r['model']}: banner {was} -> {now}, "
                   f"pmh {r.get('pmh')} -> {again.get('pmh')}, bang chung={ev or 'khong co'}.", flush=True)
-        for k in ("rrp", "red", "pmh", "online", "total_online", "choice",
+        for k in ("status", "rrp", "red", "pmh", "online", "total_online", "choice",
                   "kind", "rule", "banner", "choice_in_red"):
             if k in again:
                 r[k] = again[k]
@@ -1085,48 +1136,7 @@ def main():
                 sys.exit("ERROR: 3 trang đầu đều không kết nối được tới thegioididong.com "
                          "(thường do TGDĐ chặn IP của GitHub). Cần cấu hình CF_PROXY_URL/CF_PROXY_TOKEN.")
         # Mốc giờ của riêng từng dòng: quét một phần thì nhìn vào đây biết dòng nào mới, dòng nào cũ.
-        # Safeguard chong nham bien the RAM/ROM:
-        expected_rrp = base_rrp_map.get(product["model"])
-        scraped_rrp = result.get("rrp")
-        if expected_rrp and scraped_rrp and scraped_rrp != expected_rrp and result.get("status") == "active":
-            tokens_m = alerts._norm_tokens(product["model"])
-            is_sibling = False
-            for other_model, other_rrp in base_rrp_map.items():
-                if other_model != product["model"] and other_rrp == scraped_rrp:
-                    tokens_o = alerts._norm_tokens(other_model)
-                    common = tokens_m & tokens_o
-                    diff_m = tokens_m - tokens_o
-                    diff_o = tokens_o - tokens_m
-                    ram_rom_tokens = {"64", "128", "256", "512", "1tb", "4", "6", "8", "12", "16"}
-                    has_distinct_specs = bool((diff_m & ram_rom_tokens) and (diff_o & ram_rom_tokens))
-                    if common and any(tok for tok in common if not tok.isdigit() and len(tok) >= 2):
-                        if not has_distinct_specs:
-                            is_sibling = True
-                            break
-            # Chot khai bao cho cac cap ma luat is_sibling CO Y khong bat (xem
-            # scraper/variant_guards.json). Truoc day la mot dieu kien viet thang ten model
-            # va con so 5590000 ngay tai day.
-            vguard = VARIANT_GUARDS.get(product["model"])
-            if is_sibling or (vguard and scraped_rrp == vguard["wrong_rrp"]):
-                print(f"  [Safeguard] Phat hien cao nham bien the {scraped_rrp} cho {product['model']}. Khoi phuc RRP chuan {expected_rrp}.", flush=True)
-                diff = max(scraped_rrp - result.get("red", scraped_rrp), 0)
-                result["rrp"] = expected_rrp
-                result["red"] = max(expected_rrp - diff, 0)
-                choice_val = result.get("choice", 0)
-                if result.get("banner"):
-                    result["pmh"] = choice_val
-                    result["rule"] = "flash_chon1"
-                    result["kind"] = "moi-banner"
-                elif diff >= choice_val:
-                    result["pmh"] = diff
-                    result["rule"] = "den_tru_do"
-                    result["kind"] = "moi"
-                else:
-                    result["pmh"] = choice_val
-                    result["rule"] = "chon1"
-                    result["kind"] = "moi"
-                result["online"] = diff
-                result["total_online"] = diff + (0 if result.get("choice_in_red", True) else choice_val)
+        result = apply_variant_guard(product["model"], result, base_rrp_map)
         # DA GO (09-11-2026): truoc day o day co mot khoi ep cung
         #     if product["model"] in ("iPhone 18 Pro Max 256GB", "iPhone 18 Pro 256GB"):
         #         result["status"] = "chua_mo_ban"; result["pmh"] = None
@@ -1144,7 +1154,9 @@ def main():
         # Nay so lieu do nam trong scraper/pinned_prices.json, va la GIA DU PHONG chu khong
         # con la ghi de: gia cao duoc that luon thang. Xem CONSTRAINTS 2.9.
         pin = PINNED_PRICES.get(product["model"])
-        if pin:
+        if pin and result.get("status") in ("ngung_kd", "chua_mo_ban"):
+            print(f"  [PIN] {product['model']}: trang bao {result['status']}; khong dung gia du phong.", flush=True)
+        elif pin:
             # Dieu kien ap gia du phong, sua ngay 10-11-2026 sau khi chot nay CHAN 3 luot quet
             # tu dong lien tiep:
             # Ban dau chi ap khi "khong cao ra gia" (status != active). Nhung lop loi that cua

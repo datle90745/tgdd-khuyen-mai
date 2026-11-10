@@ -78,7 +78,7 @@ truy ngược được nó đến từ đâu. Hai nguồn rất khác nhau:
 - **Tuyệt đối không mặc định có Flash Sale, và không bê từ đợt trước sang.** Không có banner thì
   `flash_src` phải **rỗng**. Mỗi đợt phải tự chứng minh lại từ đầu.
 - Ảnh chụp hub `/flashsale` lấy **một lần** đầu đợt sẽ cũ sau ~9–20 phút quét, nên trước khi lưu
-  phải **quét lại** riêng các model ứng viên Flash Sale với hub nạp lại (`verify_flash_rows`).
+  phải **quét lại toàn bộ model** với hub nạp lại (`verify_flash_rows`). Hub có thể bỏ sót model đang có suất Flash Sale trên trang chi tiết.
   Một ảnh chụp cũ không được phép quyết định trạng thái flash của cả đợt.
 - Cả hai nhánh nhận diện trong `parse_page` / `parse_next_layout` đều phải đòi bằng chứng suất
   thật (`has_quota or in_hub`). Trang chi tiết có chữ **"Đèn Flash camera sau"** trong phần thông
