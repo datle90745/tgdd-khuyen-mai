@@ -390,6 +390,49 @@ def money(text):
     return val if val <= 200_000_000 else 0
 
 
+def last_check_tu_danh_muc(row):
+    """LAST CHECK theo quy tac nguoi dung: doc khong ra gia thi lay o
+    https://www.thegioididong.com/dtdd (va tab thuong hieu) truoc khi bo cuoc.
+
+    Card tren danh muc chi hien gia cua bien the chinh; bam nut pill cua bien the khac thi
+    the card doi gia tai cho bang mot loi goi API, voi modelCode nam o thuoc tinh
+    data-model-code cua chinh the card do. Ham nay lam dung viec do bang HTTP:
+    tim the card chua slug can tim -> lay data-model-code -> goi API -> lay cap gia.
+
+    Tra None (va IN RO LY DO) neu khong lam duoc, de buoc sau con biet ma xu ly. Tuyet doi
+    khong doan so.
+    """
+    url = row.get("url") or ""
+    slug = url.rstrip("/").rsplit("/", 1)[-1].split("?")[0]
+    if not slug:
+        return None
+    b = get_brand_from_slug(slug)
+    hubs = ([f"https://www.thegioididong.com/dtdd-{b}"] if b else []) + \
+           ["https://www.thegioididong.com/dtdd"]
+    for hub in hubs:
+        try:
+            resp = http_get(hub)
+            if resp.status_code != 200:
+                continue
+            for p in resp.text.split('<div data-product-code="')[1:]:
+                if slug not in p:
+                    continue
+                mc = re.search(r'data-model-code="(\d+)"', p)
+                if not mc:
+                    print(f"  [LAST_CHECK] {row.get('model')}: tim thay the card o {hub} nhung "
+                          f"HTML tinh khong kem data-model-code - khong goi duoc API danh muc.",
+                          flush=True)
+                    continue
+                res = fetch_variant_from_catalog_api(mc.group(1), slug)
+                if res:
+                    print(f"  [LAST_CHECK] {row.get('model')}: lay duoc gia tu {hub}.", flush=True)
+                    return res
+        except Exception as e:
+            print(f"  [LAST_CHECK] {row.get('model')}: loi khi tra cuu {hub}: {e}", flush=True)
+    print(f"  [LAST_CHECK] {row.get('model')}: khong lay duoc gia tu danh muc /dtdd.", flush=True)
+    return None
+
+
 def apply_pinned_prices(rows):
     """Buoc CUOI CUNG: voi nhung model ma trang chi tiet KHONG BAO GIO render gia, dung gia
     du phong da khai trong scraper/pinned_prices.json.
@@ -419,8 +462,16 @@ def apply_pinned_prices(rows):
                   f"(rrp={r.get('rrp')} red={r.get('red')}) - BO QUA gia du phong. "
                   f"Nen go muc nay khoi scraper/pinned_prices.json.", flush=True)
             continue
+        # QUY TAC NGUOI DUNG TRAIN: khong doc duoc gia thi LAST CHECK lay o
+        # https://www.thegioididong.com/dtdd. Chay o day - buoc cuoi, khi dong da that bai
+        # het moi duong - truoc khi nghi toi gia du phong.
+        cat = last_check_tu_danh_muc(r)
+        if cat:
+            r.update(cat)
+            continue
+
         diff = pin["rrp"] - pin["red"]
-        print(f"  [PIN] {r['model']}: dot nay khong doc duoc gia do "
+        print(f"  [PIN] {r['model']}: khong lay duoc tu /dtdd va khong doc duoc gia do "
               f"(status={r.get('status')} rrp={r.get('rrp')} red={r.get('red')}). "
               f"Dung gia du phong chot ngay {pin['since']}: rrp={pin['rrp']} "
               f"red={pin['red']} pmh={pin['pmh']}.", flush=True)
