@@ -11,15 +11,15 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
 <script src="xlsx.full.min.js"></script>
 <script>if(!window.XLSX) document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"><\/script>');</script>
-<script src="data/data.js?v=sync_20261110_0734"></script>
-<script src="data/scans.js?v=sync_20261110_0734"></script>
-<script src="data/latest.js?v=sync_20261110_0734"></script>
-<script src="data/links.js?v=sync_20261110_0734"></script>
-<script src="data/rises.js?v=sync_20261110_0734"></script>
-<script src="data/fpt.js?v=sync_20261110_0734"></script>
-<script src="data/alerts.js?v=sync_20261110_0734"></script>
-<script src="data/market.js?v=sync_20261110_0734"></script>
-<script src="data/promos.js?v=sync_20261110_0734"></script>
+<script src="data/data.js?v=sync_20261110_0753"></script>
+<script src="data/scans.js?v=sync_20261110_0753"></script>
+<script src="data/latest.js?v=sync_20261110_0753"></script>
+<script src="data/links.js?v=sync_20261110_0753"></script>
+<script src="data/rises.js?v=sync_20261110_0753"></script>
+<script src="data/fpt.js?v=sync_20261110_0753"></script>
+<script src="data/alerts.js?v=sync_20261110_0753"></script>
+<script src="data/market.js?v=sync_20261110_0753"></script>
+<script src="data/promos.js?v=sync_20261110_0753"></script>
 <style>
 :root{
   --bg:#ffffff; --panel:#ffffff; --ink:#172033; --muted:#5d6b82; --line:#d9dfe8; --soft:#f3f5f9;
@@ -1233,10 +1233,10 @@ const MK_FOCUS_ALL = new Set(BASE.rows.map(r=>((r.brand||"").toLowerCase() + "|"
 function mkMergeFpt(scan){
   const L = window.FPT_LOCAL;
   if(!scan || !L || !Array.isArray(L.rows) || L.date !== scan.date) return scan;
-  // Tuyá»‡t Ä‘á»‘i khÃ´ng Ä‘á»ƒ file cÅ© Ä‘Ã¨ dá»¯ liá»‡u má»›i: Náº¿u scan Ä‘Ã£ cÃ³ FPT Shop rá»“i thÃ¬ giá»¯ nguyÃªn
+  // Tuyệt đối không để file cũ đè dữ liệu mới: Nếu scan đã có FPT Shop rồi thì giữ nguyên
   const scanFptCount = scan.rows.filter(x => x.r === "FPT Shop").length;
   if (scanFptCount > 0) return scan;
-  // Chá»‰ bÃ¹ Ä‘áº¯p náº¿u báº£n quÃ©t hiá»‡n táº¡i hoÃ n toÃ n thiáº¿u FPT Shop (0 mÃ¡y) VÃ€ L cÃ¹ng ngÃ y hÃ´m nay
+  // Chỉ bù đắp nếu bản quét hiện tại hoàn toàn thiếu FPT Shop (0 máy) VÀ L cùng ngày hôm nay
   const rows = scan.rows.filter(x=>x.r!=="FPT Shop").concat(L.rows);
   const report = {...(scan.report||{}), "FPT Shop": L.rows.length};
   return {...scan, rows, report, fptLocal:`${L.date} ${L.at}`};
