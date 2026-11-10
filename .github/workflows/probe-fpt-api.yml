@@ -127,3 +127,36 @@ jobs:
           except Exception as error:
               print(f"{type(error).__name__}: {error}")
           PY
+  erp_probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Read crawler status and FPT data age
+        env:
+          ERP_PORTAL_COOKIE: ${{ secrets.ERP_PORTAL_COOKIE }}
+        run: |
+          python - <<'PY'
+          import datetime, json, os, urllib.error, urllib.request
+          cookie = os.getenv("ERP_PORTAL_COOKIE", "")
+          print("cookie configured:", bool(cookie))
+          headers = {"Accept": "application/json",
+                     "Cookie": cookie if "auth" in cookie else "auth-token=" + cookie}
+          for path in ("/api/status", "/api/deals?retailer=FPT%20Shop"):
+              req = urllib.request.Request("https://promotion.erp-portal.vn" + path,
+                                           headers=headers)
+              try:
+                  with urllib.request.urlopen(req, timeout=20) as response:
+                      data = json.load(response)
+                      if isinstance(data, dict):
+                          print(path, "HTTP", response.status,
+                                "keys", list(data.keys())[:15],
+                                "status", str(data.get("status"))[:160])
+                      elif isinstance(data, list):
+                          stamps = [d.get("scraped_at") for d in data
+                                    if isinstance(d, dict) and d.get("scraped_at")]
+                          print(path, "HTTP", response.status, "rows", len(data),
+                                "newest", max(stamps) if stamps else "none")
+              except urllib.error.HTTPError as error:
+                  print(path, "HTTP", error.code)
+              except Exception as error:
+                  print(path, type(error).__name__)
+          PY
