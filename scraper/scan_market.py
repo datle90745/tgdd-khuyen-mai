@@ -573,7 +573,7 @@ def main():
     now = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh"))
     rows, report = [], {}
     for name, fn in ((TGDD_NAME, scan_tgdd), ("CellphoneS", scan_cellphones),
-                     ("FPT Shop", scan_fpt), ("Viettel Store", scan_viettel)):
+                     ("Viettel Store", scan_viettel), ("FPT Shop", scan_fpt)):
         try:
             got = fn()
             if not got:
