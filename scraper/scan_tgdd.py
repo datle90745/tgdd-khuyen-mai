@@ -413,10 +413,24 @@ def last_check_tu_danh_muc(row):
         try:
             resp = http_get(hub)
             if resp.status_code != 200:
+                print(f"  [LAST_CHECK] {row.get('model')}: {hub} tra ve HTTP "
+                      f"{resp.status_code} - khong doc duoc danh muc.", flush=True)
                 continue
-            for p in resp.text.split('<div data-product-code="')[1:]:
-                if slug not in p:
-                    continue
+            cards = resp.text.split('<div data-product-code="')[1:]
+            co_slug = [p for p in cards if slug in p]
+            # Phan biet ro BA tinh huong, de lan sau khong phai doan:
+            #   tai duoc trang nhung 0 card   -> trang bi chan / doi cau truc
+            #   co card nhung khong card nao chua slug -> slug khong nam trong HTML tinh
+            #   co card chua slug nhung thieu data-model-code -> khong goi duoc API
+            if not cards:
+                print(f"  [LAST_CHECK] {row.get('model')}: {hub} tai duoc "
+                      f"({len(resp.text)} ky tu) nhung khong tach duoc the card nao.", flush=True)
+                continue
+            if not co_slug:
+                print(f"  [LAST_CHECK] {row.get('model')}: {hub} co {len(cards)} card nhung "
+                      f"khong card nao chua slug '{slug}'.", flush=True)
+                continue
+            for p in co_slug:
                 mc = re.search(r'data-model-code="(\d+)"', p)
                 if not mc:
                     print(f"  [LAST_CHECK] {row.get('model')}: tim thay the card o {hub} nhung "
