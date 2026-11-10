@@ -160,3 +160,48 @@ jobs:
               except Exception as error:
                   print(path, type(error).__name__)
           PY
+      - name: Trigger one fresh FPT crawl and inspect timestamps
+        env:
+          ERP_PORTAL_COOKIE: ${{ secrets.ERP_PORTAL_COOKIE }}
+        run: |
+          python - <<'PY'
+          import datetime, json, os, time, urllib.error, urllib.request
+
+          base = "https://promotion.erp-portal.vn"
+          cookie = os.environ["ERP_PORTAL_COOKIE"]
+          headers = {"Accept": "application/json",
+                     "Cookie": cookie if "auth" in cookie else "auth-token=" + cookie}
+          req = urllib.request.Request(base + "/api/crawl?retailer=FPT%20Shop",
+                                       data=b"", headers=headers, method="POST")
+          try:
+              with urllib.request.urlopen(req, timeout=45) as response:
+                  data = json.load(response)
+                  print("trigger HTTP", response.status, "result", str(data)[:300])
+          except urllib.error.HTTPError as error:
+              print("trigger HTTP", error.code)
+              raise
+          started = datetime.datetime.now(datetime.timezone.utc)
+          for attempt in range(30):
+              time.sleep(10)
+              with urllib.request.urlopen(urllib.request.Request(
+                      base + "/api/status", headers=headers), timeout=20) as response:
+                  status = json.load(response)
+              state = status.get("status")
+              print("poll", attempt + 1, "state", state,
+                    "progress", status.get("progress"),
+                    "step", str(status.get("current_step"))[:100])
+              if state in ("completed", "failed", "error"):
+                  break
+              if state == "idle" and attempt >= 1:
+                  break
+          with urllib.request.urlopen(urllib.request.Request(
+                  base + "/api/deals?retailer=FPT%20Shop", headers=headers),
+                  timeout=20) as response:
+              deals = json.load(response)
+          stamps = [d.get("scraped_at") for d in deals
+                    if isinstance(d, dict) and d.get("scraped_at")]
+          phones = [d for d in deals if d.get("category") == "Điện thoại"]
+          print("FPT rows", len(deals), "phones", len(phones),
+                "newest", max(stamps) if stamps else "none",
+                "triggered_utc", started.isoformat())
+          PY
