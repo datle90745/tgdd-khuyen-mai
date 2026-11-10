@@ -68,7 +68,7 @@
     "Tu nay: xoa khang dinh thi BAT BUOC phai ha con so nay trong cung commit - de viec",
     "giam rao chat luong hien ra trong diff thay vi lang le."
   ],
-  "minAssertions": 104,
+  "minAssertions": 105,
   "_riseMonthsNote": [
     "riseMonths: danh sach thang CO THAT trong window.RISE_RAW cua data/data.js.",
     "Ly do khai bao: khang dinh cu mang ten 'chua du cac thang lich su tu T1 den T10' nhung",

@@ -57,6 +57,24 @@ truy ngược được nó đến từ đâu. Hai nguồn rất khác nhau:
 - Một dòng mà bằng chứng **duy nhất** là `["hub"]` là dòng **cần nhìn lại**: hệ thống báo Flash Sale
   nhưng trang chi tiết không có gì chứng minh. Bấm vào có thể không thấy gì. Đã xảy ra với
   `Find X9s 12GB/512GB` ngày 09-11-2026.
+
+> ### QUYẾT ĐỊNH CỦA NGƯỜI DÙNG — 10-11-2026: GIỮ NGUYÊN LUẬT
+>
+> Câu hỏi đã đặt ra: **tên trong hub `/flashsale` có đủ để tính là Flash Sale không?**
+> Người dùng đã quyết: **CÓ — giữ nguyên luật.** `in_hub` vẫn đủ để `banner = true`, và
+> PMH vẫn `= khoản "Chọn 1 trong"` theo mục 2.1.
+>
+> **Hệ quả đã được nêu rõ trước khi quyết, và người dùng chấp nhận:** đợt 10-11-2026 có 13 dòng
+> flash thì 10 dòng không có khối suất trên trang chi tiết. Ví dụ `A6 Pro 5G 8GB/256GB`:
+> `choice = 0` → `PMH = 0`, trong khi giá đen − giá đỏ = **1.220.000**. Nếu dòng đó bị tính là
+> *không* flash sale thì PMH sẽ là 1.220.000. Chênh lệch này là **có chủ ý**, không phải lỗi.
+>
+> **Tuyệt đối không được tự ý đảo lại quyết định này.** Đây là định nghĩa nghiệp vụ, không phải
+> lỗi kỹ thuật — không một commit nào được tự quyết. Muốn đổi thì **phải hỏi người dùng** (mục
+> 2.11). Cụ thể, `is_true_flash = bool(has_quota or in_hub)` phải giữ nguyên phép **`or`**;
+> đổi thành `and`, hoặc bỏ `in_hub`, là đảo ngược quyết định này.
+>
+> Cảnh báo "bằng chứng duy nhất là hub" vẫn giữ — nó để **nhìn**, không để tự động sửa số.
 - **Tuyệt đối không mặc định có Flash Sale, và không bê từ đợt trước sang.** Không có banner thì
   `flash_src` phải **rỗng**. Mỗi đợt phải tự chứng minh lại từ đầu.
 - Ảnh chụp hub `/flashsale` lấy **một lần** đầu đợt sẽ cũ sau ~9–20 phút quét, nên trước khi lưu

@@ -430,6 +430,22 @@ if (Test-Path $scanScript) {
         ((Get-Content "tests/verify_scan.js" -Raw -Encoding UTF8) -cmatch 'FLASH KHONG BANG CHUNG:')
     } "Ket luan flash sale khong kem bang chung flash_src, hoac bang chung khong ra toi latest.js, hoac circuit breaker khong con chot kiem"
 
+    # QUYET DINH CUA NGUOI DUNG 10-11-2026: ten trong hub /flashsale VAN du de tinh la flash
+    # sale, va PMH van = khoan "Chon 1 trong". He qua da duoc neu ro truoc khi quyet (A6 Pro
+    # 5G 8GB/256GB: PMH = 0 trong khi chenh lech gia la 1.220.000) va nguoi dung chap nhan.
+    # Chot nay canh dung quyet dinh do: doi `or` thanh `and`, hoac bo in_hub, la dao nguoc no.
+    Assert-Check "Quyet dinh 10-11-2026: hub van tinh la flash sale (khong duoc tu y dao)" {
+        # CONSTRAINTS.md viet tieng Viet CO DAU - regex phai bam theo dung ky tu that,
+        # dung viet khong dau roi tuong la khop (chinh toi vua mac loi do o day).
+        $cText = Get-Content "CONSTRAINTS.md" -Raw -Encoding UTF8
+        ($cText -cmatch '10-11-2026') -and
+        ($cText -cmatch 'is_true_flash') -and
+        ($cText -cmatch 'has_quota or in_hub') -and
+        # Code phai con dung phep `or`, o ca hai nhanh parse.
+        (([regex]::Matches($scanContent, 'is_true_flash = bool\(has_quota or in_hub\)')).Count -ge 2) -and
+        ($scanContent -notmatch 'is_true_flash\s*=\s*bool\(has_quota and in_hub\)')
+    } "Da dao nguoc quyet dinh 10-11-2026 cua nguoi dung ve flash sale, hoac xoa phan ghi quyet dinh trong CONSTRAINTS.md - day la dinh nghia nghiep vu, phai hoi nguoi dung truoc"
+
     Assert-Check "Nhan dien flash sale o CA HAI nhanh parse deu phai doi bang chung suat that" {
         # Nhanh parse_next_layout truoc day khong doi suat nao: mot the class chua chu 'orange'
         # hoac 'flash' bat ky trong <main> la du ket luan co flash sale. Trang chi tiet co chu
