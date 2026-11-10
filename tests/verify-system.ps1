@@ -190,6 +190,22 @@ if (Test-Path $scanScript) {
         ($scanContent -notmatch '(?m)^\s*_CATALOG_ITEMS\[\s*"[^"]+"\s*\]\s*=\s*\{\s*"red"\s*:\s*\d')
     } "Scraper scan_tgdd.py van con gia hardcode trong _CATALOG_ITEMS gay nguy co phuc hoi gia cu"
 
+    # CANH BAO SOM truoc khi gia du phong het han. Mot cong chi keu dung vao ngay het han thi
+    # no la mot cai bay hen gio - dung lop loi cua chot KEEP_WEEKDAYS hom 10-11: no im lang cho
+    # den dung ngay no chan sach. Nay bao truoc `warnBeforeDays` ngay.
+    if (Test-Path "scraper/pinned_prices.json") {
+        $pj = Get-Content "scraper/pinned_prices.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+        $warnBefore = if ($pj.warnBeforeDays) { [int]$pj.warnBeforeDays } else { 7 }
+        foreach ($e in $pj.entries) {
+            $conLai = [int]$pj.maxAgeDays - [int](([datetime]$TodayVN - [datetime]$e.since).TotalDays)
+            if ($conLai -le $warnBefore -and $conLai -gt 0) {
+                Write-Host ("  [CANH BAO] Gia du phong '{0}' con {1} ngay la het han ({2} ngay ke tu {3}). " +
+                            "Mo trang doi soat lai roi cap nhat `since`, keo den ngay do cong se do." `
+                            -f $e.model, $conLai, $pj.maxAgeDays, $e.since) -ForegroundColor Yellow
+            }
+        }
+    }
+
     # Gia du phong phai la DU PHONG, khong duoc ghi de ket qua cao that.
     Assert-Check "Gia du phong phai nam o pinned_prices.json va chi dung khi cao khong ra gia" {
         $p = "scraper/pinned_prices.json"
@@ -207,6 +223,29 @@ if (Test-Path $scanScript) {
         ($scanContent -cmatch 'PINNED_PRICES') -and
         ($scanContent -cmatch 'BO QUA gia du phong')
     } "scraper/pinned_prices.json co muc thieu truong/sai phep tru (rrp-red phai = pmh)/qua han maxAgeDays, hoac scan_tgdd.py khong con dung PINNED_PRICES lam du phong"
+
+    # Chot chong cao nham bien the phai duoc KHAI BAO, khong viet thang ten model + con so.
+    Assert-Check "Chot chong cao nham bien the phai nam o variant_guards.json, khong viet thang" {
+        $p = "scraper/variant_guards.json"
+        if (-not (Test-Path $p)) { return $false }
+        $j = Get-Content $p -Raw -Encoding UTF8 | ConvertFrom-Json
+        $bad = @($j.entries | Where-Object {
+            -not $_.model -or -not $_.wrong_rrp -or -not $_.correct_rrp -or
+            -not $_.reason -or $_.reason.Length -lt 40
+        })
+        ($bad.Count -eq 0) -and
+        ($scanContent -cmatch 'VARIANT_GUARDS') -and
+        ($scanContent -cmatch 'vguard\["wrong_rrp"\]') -and
+        # Khong con dieu kien so sanh ten model voi mot con so gia viet thang.
+        ($scanContent -notmatch 'product\["model"\]\s*==\s*"[^"]+"\s*and\s*scraped_rrp\s*==\s*\d')
+    } "Chot chong cao nham bien the con viet thang ten model + con so trong .py, hoac muc trong variant_guards.json thieu truong/bang chung"
+
+    Assert-Check "Canh bao som truoc khi gia du phong het han" {
+        $pj = Get-Content "scraper/pinned_prices.json" -Raw -Encoding UTF8 | ConvertFrom-Json
+        $sj = Get-Content "tests/verify-system.ps1" -Raw -Encoding UTF8
+        ($null -ne $pj.warnBeforeDays) -and ([int]$pj.warnBeforeDays -ge 3) -and
+        ($sj -cmatch 'warnBeforeDays')
+    } "Khong con canh bao som truoc han gia du phong - cong se im lang cho den dung ngay no do"
 
     Assert-Check "Scraper khong duoc ghi de ket qua cao bang gia viet thang trong file .py" {
         $scanContent -notmatch '(?m)^\s*result\.update\(\{\s*$' -or

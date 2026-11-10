@@ -1,0 +1,32 @@
+{
+  "_doc": [
+    "CHOT CHONG CAO NHAM BIEN THE - cac truong hop luat tong quat CO Y khong bat.",
+    "",
+    "Luat tong quat `is_sibling` trong scan_tgdd.py chi ket luan 'cao nham bien the' khi hai",
+    "model KHONG co thong so RAM/ROM khac nhau (`not has_distinct_specs`). Do la co y: hai SKU",
+    "that su khac nhau VAN co the trung gia mot cach hop le, nen khong duoc tu dong coi la nham.",
+    "",
+    "Nhung co cap ma dung la nham that, va luat tong quat khong the biet. Vi du A08:",
+    "  A08 4GB/64GB       RRP chuan 4.790.000",
+    "  Galaxy A08 4+128GB RRP chuan 5.590.000",
+    "Hai dong nay khac nhau o 64 va 128 (deu la token RAM/ROM) nen `has_distinct_specs` = True,",
+    "nen `is_sibling` khong bat. Khi trang cua ban 64GB tra ve dung 5.590.000 thi do la gia cua",
+    "ban 128GB bi cao nham, khong phai ban 64GB tang gia.",
+    "",
+    "TRUOC DAY con so nay nam THANG trong scan_tgdd.py:",
+    "  if is_sibling or (product[\"model\"] == \"A08 4GB/64GB\" and scraped_rrp == 5590000):",
+    "Khai ra day de no la mot muc CO THE DOC VA RA SOAT, khong phai mot hang so lan trong code.",
+    "",
+    "Them muc moi chi khi da doi soat that va ghi ro bang chung trong `reason`."
+  ],
+
+  "entries": [
+    {
+      "model": "A08 4GB/64GB",
+      "wrong_rrp": 5590000,
+      "correct_rrp": 4790000,
+      "sibling": "Galaxy A08 4+128GB",
+      "reason": "Trang cua ban 4GB/64GB doi luc tra ve dung RRP 5.590.000 cua ban Galaxy A08 4+128GB. Hai model khac nhau o token 64 va 128 nen luat is_sibling (von bo qua cap co RAM/ROM khac nhau) khong bat duoc. RRP chuan cua ban 64GB la 4.790.000 theo Master List data.js."
+    }
+  ]
+}

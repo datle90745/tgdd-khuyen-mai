@@ -23,6 +23,7 @@
   ],
 
   "maxAgeDays": 30,
+  "warnBeforeDays": 7,
 
   "entries": [
     {

@@ -112,6 +112,17 @@ if _pin_path.exists():
     except Exception as _pin_err:
         print(f"  [PIN] Khong doc duoc scraper/pinned_prices.json: {_pin_err}", flush=True)
 
+# Chot chong cao nham bien the cho cac cap ma luat is_sibling CO Y khong bat.
+# So lieu KHONG duoc viet thang trong file .py nay - xem scraper/variant_guards.json.
+VARIANT_GUARDS = {}
+_vg_path = Path(__file__).resolve().parent / "variant_guards.json"
+if _vg_path.exists():
+    try:
+        for _e in json.loads(_vg_path.read_text(encoding="utf-8-sig")).get("entries", []):
+            VARIANT_GUARDS[_e["model"]] = _e
+    except Exception as _vg_err:
+        print(f"  [VARIANT_GUARD] Khong doc duoc scraper/variant_guards.json: {_vg_err}", flush=True)
+
 
 def fetch_live_flashsale_slugs():
     """Lấy danh sách các model đang thật sự chạy Flash Sale trên TGDĐ từ hub https://www.thegioididong.com/flashsale"""
@@ -1091,7 +1102,11 @@ def main():
                         if not has_distinct_specs:
                             is_sibling = True
                             break
-            if is_sibling or (product["model"] == "A08 4GB/64GB" and scraped_rrp == 5590000):
+            # Chot khai bao cho cac cap ma luat is_sibling CO Y khong bat (xem
+            # scraper/variant_guards.json). Truoc day la mot dieu kien viet thang ten model
+            # va con so 5590000 ngay tai day.
+            vguard = VARIANT_GUARDS.get(product["model"])
+            if is_sibling or (vguard and scraped_rrp == vguard["wrong_rrp"]):
                 print(f"  [Safeguard] Phat hien cao nham bien the {scraped_rrp} cho {product['model']}. Khoi phuc RRP chuan {expected_rrp}.", flush=True)
                 diff = max(scraped_rrp - result.get("red", scraped_rrp), 0)
                 result["rrp"] = expected_rrp
