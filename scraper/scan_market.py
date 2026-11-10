@@ -365,7 +365,7 @@ def fpt_rows_via_http():
         items = []
         for attempt in range(2):
             try:
-                resp = request("GET", url, headers=fpt_headers, timeout=30)
+                resp = request("GET", url, headers=fpt_headers, timeout=20)
                 if resp.status_code == 200 and "currentPrice" in resp.text:
                     items = parse_fpt_nextjs(resp.text)
                     if items:
@@ -408,28 +408,28 @@ def fpt_rows_via_browser():
         """)
 
         passed = False
-        for attempt in range(6):  # vượt trang kiểm tra, mỗi lần chờ tối đa 40 giây
+        for attempt in range(2):
             try:
                 page.goto("https://fptshop.com.vn/dien-thoai/samsung",
-                          wait_until="domcontentloaded", timeout=90000)
-                page.wait_for_selector('a[href^="/dien-thoai/"] h3', timeout=40000)
+                          wait_until="domcontentloaded", timeout=30000)
+                page.wait_for_selector('a[href^="/dien-thoai/"] h3', timeout=15000)
                 passed = True
                 break
             except Exception as error:
                 print(f"  FPT vượt trang kiểm tra lần {attempt + 1}: "
                       f"{page.title()[:40]} | {str(error)[:80]}", flush=True)
-                page.wait_for_timeout(10000)
+                page.wait_for_timeout(3000)
         if not passed:
             browser.close()
             raise RuntimeError("không vượt được trang kiểm tra chống bot của FPT")
 
         for slug in FPT_BRAND_PAGES:
             items = []
-            for attempt in range(5):
+            for attempt in range(2):
                 try:
                     page.goto(f"https://fptshop.com.vn/dien-thoai/{slug}",
-                              wait_until="domcontentloaded", timeout=90000)
-                    page.wait_for_selector('a[href^="/dien-thoai/"] h3', timeout=45000)
+                              wait_until="domcontentloaded", timeout=30000)
+                    page.wait_for_selector('a[href^="/dien-thoai/"] h3', timeout=15000)
                     page.evaluate(FPT_SHOW_ALL_JS)
                     items = page.evaluate(FPT_EXTRACT_JS)
                 except Exception as error:
@@ -437,7 +437,7 @@ def fpt_rows_via_browser():
                           f"{str(error)[:80]}", flush=True)
                 if items:
                     break
-                page.wait_for_timeout(8000)
+                page.wait_for_timeout(3000)
             print(f"  FPT Browser {slug}: {len(items)} máy", flush=True)
             if not items:
                 failed.append(slug)
