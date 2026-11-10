@@ -50,3 +50,50 @@ jobs:
               except Exception as error:
                   print(f"{label}: {type(error).__name__}: {error}")
           PY
+      - name: Install browser for same-origin API probe
+        run: |
+          pip install --quiet playwright
+          python -m playwright install --with-deps chromium
+          sudo apt-get install -y --no-install-recommends xvfb
+      - name: Call production API from FPT browser session
+        run: |
+          xvfb-run -a python - <<'PY'
+          import json
+          from playwright.sync_api import sync_playwright
+
+          url = "https://papi.fptshop.com.vn/gw/v1/public/fulltext-search-service/category"
+          body = {
+              "slug": "dien-thoai/samsung", "skipCount": 0, "maxResultCount": 50,
+              "sortMethod": "noi-bat", "categoryType": "category"
+          }
+          with sync_playwright() as pw:
+              browser = pw.chromium.launch(headless=False, args=[
+                  "--disable-blink-features=AutomationControlled", "--no-sandbox"])
+              context = browser.new_context(user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/138.0.0.0 Safari/537.36",
+                                            locale="vi-VN", timezone_id="Asia/Ho_Chi_Minh")
+              page = context.new_page()
+              page.add_init_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+              for attempt in range(2):
+                  page.goto("https://fptshop.com.vn/dien-thoai/samsung",
+                            wait_until="domcontentloaded", timeout=30000)
+                  try:
+                      page.wait_for_selector('a[href^="/dien-thoai/"] h3', timeout=15000)
+                      break
+                  except Exception:
+                      pass
+              print("page title:", page.title(), "cards:", page.locator('a[href^="/dien-thoai/"] h3').count())
+              try:
+                  result = page.evaluate("""async ({url, body}) => {
+                    const res = await fetch(url, {method: 'POST', credentials: 'include',
+                      headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)});
+                    const text = await res.text();
+                    if (!res.ok) return {status: res.status, length: text.length};
+                    const data = JSON.parse(text);
+                    return {status: res.status, items: data.items?.length,
+                      priced: data.items?.filter(x => x.currentPrice > 0).length};
+                  }""", {"url": url, "body": body})
+                  print("browser API:", result)
+              except Exception as error:
+                  print("browser API error:", type(error).__name__, str(error)[:250])
+              browser.close()
+          PY
