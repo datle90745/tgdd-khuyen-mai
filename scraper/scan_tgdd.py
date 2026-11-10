@@ -99,6 +99,18 @@ _HUB_VISITED = set()
 
 # Gia du phong lich su khong duoc nap vao luot quet hien tai.
 
+# Gia DU PHONG cho nhung PDP khong bao gio render gia (Marketing Landing Page).
+# Chi duoc dung o BUOC CUOI, khi dot nay da that bai het moi duong - xem apply_pinned_prices()
+# va scraper/pinned_prices.json. So lieu KHONG duoc viet thang trong file .py nay.
+PINNED_PRICES = {}
+_pin_path = Path(__file__).resolve().parent / "pinned_prices.json"
+if _pin_path.exists():
+    try:
+        for _e in json.loads(_pin_path.read_text(encoding="utf-8-sig")).get("entries", []):
+            PINNED_PRICES[_e["model"]] = _e
+    except Exception as _pin_err:
+        print(f"  [PIN] Khong doc duoc scraper/pinned_prices.json: {_pin_err}", flush=True)
+
 # Chot chong cao nham bien the cho cac cap ma luat is_sibling CO Y khong bat.
 # So lieu KHONG duoc viet thang trong file .py nay - xem scraper/variant_guards.json.
 VARIANT_GUARDS = {}
@@ -364,6 +376,49 @@ def money(text):
     return val if val <= 200_000_000 else 0
 
 
+def apply_pinned_prices(rows):
+    """Buoc CUOI CUNG: voi nhung model ma trang chi tiet KHONG BAO GIO render gia, dung gia
+    du phong da khai trong scraper/pinned_prices.json.
+
+    Day KHONG phai "nap gia ghim cua dot cu". Phan biet ro:
+      - Gia cao duoc trong dot nay LUON THANG. Ham nay chay sau cung va chi dung toi nhung
+        dong da that bai het moi duong (status != active hoac khong co gia).
+      - Chi ap cho model co trong file khai bao, moi muc deu kem `source` + `reason` + ngay
+        `since`, va TU HET HAN sau maxAgeDays - qua han la cong keu.
+      - Dong duoc ap mang kind = "pin" de nhin la biet ngay, khong lan voi gia cao that.
+
+    Ly do ton tai: PDP cua A7 Pro 5G 256GB la Marketing Landing Page - doi soat truc tiep
+    ngay 09 va 10-11-2026 deu cho thay khong co <main>, khong co box-price, khong co
+    data-priceorg. Card danh muc /dtdd-oppo chi mang gia cua DUNG bien the 8GB/128GB. Tuc la
+    khong co nguon song nao. De trong thi bang bao cao mat han hai dong nguoi dung dang theo.
+    """
+    if not PINNED_PRICES:
+        return rows
+    for r in rows:
+        pin = PINNED_PRICES.get(r.get("model"))
+        if not pin:
+            continue
+        co_gia_that = bool(r.get("status") == "active" and r.get("rrp") and r.get("red")
+                           and r.get("red") < r.get("rrp"))
+        if co_gia_that:
+            print(f"  [PIN] {r['model']}: dot nay cao duoc gia that "
+                  f"(rrp={r.get('rrp')} red={r.get('red')}) - BO QUA gia du phong. "
+                  f"Nen go muc nay khoi scraper/pinned_prices.json.", flush=True)
+            continue
+        diff = pin["rrp"] - pin["red"]
+        print(f"  [PIN] {r['model']}: dot nay khong doc duoc gia do "
+              f"(status={r.get('status')} rrp={r.get('rrp')} red={r.get('red')}). "
+              f"Dung gia du phong chot ngay {pin['since']}: rrp={pin['rrp']} "
+              f"red={pin['red']} pmh={pin['pmh']}.", flush=True)
+        r.update({
+            "status": "active", "rrp": pin["rrp"], "red": pin["red"], "pmh": pin["pmh"],
+            "online": diff, "total_online": diff, "choice": 0,
+            "kind": "pin", "rule": "den_tru_do", "banner": False, "choice_in_red": False,
+            "flash_src": [], "debug": f"pinned since {pin['since']}",
+        })
+    return rows
+
+
 def apply_variant_guard(model, result, base_rrp_map):
     """Reject a sibling variant price; never derive a current price from a baseline."""
     expected_rrp = base_rrp_map.get(model)
@@ -379,21 +434,49 @@ def apply_variant_guard(model, result, base_rrp_map):
                 diff_o = tokens_o - tokens_m
                 ram_rom_tokens = {"64", "128", "256", "512", "1tb", "4", "6", "8", "12", "16"}
                 has_distinct_specs = bool((diff_m & ram_rom_tokens) and (diff_o & ram_rom_tokens))
-                if common and any(tok for tok in common if not tok.isdigit() and len(tok) >= 2):
-                    if not has_distinct_specs:
-                        is_sibling = True
-                        break
+                # "Cung dong san pham" phai la chung TEN MODEL, khong phai chung THONG SO.
+                # Truoc day phep kiem chi doi "co mot token chung khong phai toan chu so va dai
+                # >= 2", nen "8gb" / "256gb" / "128gb" duoc tinh la ten chung - hai may hoan
+                # toan khac dong ma trung thong so VA trung gia la bi gan nham la cung dong.
+                # Do la ly do ngay 10-11-2026 co 6 dong bi de trong oan, vi du:
+                #   "16 5G 8GB/256GB"  vs "A37 8GB/256GB"       chung {8gb, 256gb}
+                #   "16T 5G 8GB/128GB" vs "A6 8GB/256GB"        chung {8gb}
+                #   "C100 4G 6GB/128GB" vs "A17 5G 8GB/128GB"   chung {128gb}
+                # Nay bo thong so ra khoi phep kiem: phai chung mot token TEN (a08, a7, pro...).
+                ten_chung = {tok for tok in common
+                             if len(tok) >= 2 and not re.fullmatch(r"\d+(?:gb|tb)?", tok)}
+                if ten_chung and not has_distinct_specs:
+                    is_sibling = True
+                    break
         # Chot khai bao cho cac cap ma luat is_sibling CO Y khong bat (xem
         # scraper/variant_guards.json). Truoc day la mot dieu kien viet thang ten model
         # va con so 5590000 ngay tai day.
         vguard = VARIANT_GUARDS.get(model)
-        if is_sibling or (vguard and scraped_rrp == vguard["wrong_rrp"]):
-            print(f"  [Safeguard] Cao nham bien the {scraped_rrp} cho {model}; "
+
+        # "Chung ten dong + trung gia" KHONG du de ket luan cao nham. Hai bien the cung dong
+        # chi khac RAM/ROM thi luon chung ten, nen moi lan TGDD tang gia bien the nay bang
+        # bien the kia la bi gan nham. Thu phan biet duoc hai tinh huong la NGUON cua con so:
+        #   - kind == "brand_tab": gia lay tu card danh muc, ma card chi mang gia cua DUNG MOT
+        #     bien the chinh -> trung gia bien the khac la dau hieu cao nham THAT.
+        #   - lay tu chinh trang chi tiet cua model -> do la gia TGDD dang niem yet cho dung
+        #     model do; trung gia voi bien the khac chi la trung hop, khong duoc xoa.
+        # Ca A7 Pro 256GB (gia den tu hub) van bi chan dung; C100 4G 6GB/128GB (gia tu trang
+        # rieng cua no) khong con bi de trong oan.
+        tu_hub = result.get("kind") == "brand_tab"
+        ep_cung_da_khai = bool(vguard and scraped_rrp == vguard["wrong_rrp"])
+
+        if (is_sibling and tu_hub) or ep_cung_da_khai:
+            print(f"  [Safeguard] Cao nham bien the {scraped_rrp} cho {model} "
+                  f"(nguon: {'card danh muc' if tu_hub else 'chot khai bao'}); "
                   "de trong gia hien tai thay vi suy tu RRP tham chieu.", flush=True)
             result.update({"status": "error", "rrp": None, "red": None, "pmh": None,
                            "online": None, "total_online": None, "choice": None,
                            "kind": "unverified", "rule": "unverified", "banner": False,
                            "flash_src": [], "debug": "sibling variant price"})
+        elif is_sibling:
+            print(f"  [Safeguard] {model}: gia {scraped_rrp} trung RRP chuan cua mot bien the "
+                  f"cung dong, nhung doc tu CHINH trang cua model nay (kind={result.get('kind')}) "
+                  f"nen van giu. RRP tham chieu {expected_rrp}.", flush=True)
     return result
 
 
@@ -1248,6 +1331,7 @@ def main():
     # trong khi Flash Sale co the doi trang thai theo khung gio.
     rows = verify_flash_rows(rows)
     rows = blank_flat_regressions(rows, previous_rows)
+    rows = apply_pinned_prices(rows)
     ok = sum(1 for r in rows if r["status"] == "active")
     if ok < min_active_count:
         sys.exit(f"ERROR: sau kiem tra Flash Sale chi con {ok}/{len(products)} model "

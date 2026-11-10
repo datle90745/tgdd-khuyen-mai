@@ -190,10 +190,26 @@ if (Test-Path $scanScript) {
         ($scanContent -notmatch '(?m)^\s*_CATALOG_ITEMS\[\s*"[^"]+"\s*\]\s*=\s*\{\s*"red"\s*:\s*\d')
     } "Scraper scan_tgdd.py van con gia hardcode trong _CATALOG_ITEMS gay nguy co phuc hoi gia cu"
 
-    Assert-Check "Khong nap gia ghim cua dot cu vao luot quet hien tai" {
-        ($scanContent -notmatch 'PINNED_PRICES') -and
-        ($scanContent -notmatch 'pinned_prices\.json')
-    } "Scraper van co the dung gia ghim tu dot cu thay cho gia live"
+    # Khang dinh nay tung bi DAO CHIEU ngay 10-11-2026: ban goc doi PINNED_PRICES phai CO,
+    # mot commit sau doi no phai KHONG CO. Hau qua: A7 Pro 5G 256GB (ca hai ban) mat sach so
+    # lieu tren bang, vi PDP cua chung la Marketing Landing Page khong bao gio render gia.
+    # CONSTRAINTS 2.11 cam dao chieu mot khang dinh ma khong hoi nguoi dung.
+    #
+    # Moi lo cua ban dao chieu la DUNG va van duoc giu: khong duoc lay gia cu thay cho gia
+    # live. Nen chot nay doi CA HAI dieu:
+    #   1. Gia du phong phai ton tai (de dong landing page khong bi de trong), VA
+    #   2. No chi duoc ap o buoc cuoi, va phai bi BO QUA khi dot nay cao duoc gia that.
+    Assert-Check "Gia du phong chi la du phong: cao duoc gia that thi phai bo qua" {
+        ($scanContent -cmatch 'PINNED_PRICES') -and
+        ($scanContent -cmatch '(?m)^def apply_pinned_prices\(rows\):') -and
+        # Phai chay SAU cac buoc xac minh, khong phai ghi de tu dau.
+        ($scanContent -cmatch '(?s)rows = verify_flash_rows\(rows\).*?rows = apply_pinned_prices\(rows\)') -and
+        # Phai co nhanh bo qua khi da cao duoc gia do that.
+        ($scanContent -cmatch 'co_gia_that') -and
+        ($scanContent -cmatch 'BO QUA gia du phong') -and
+        # Dong duoc ap phai mang kind = "pin" de phan biet voi gia cao that.
+        ($scanContent -cmatch '"kind":\s*"pin"')
+    } "Gia du phong bi go mat (dong landing page se de trong), hoac no da thanh ghi de thay vi du phong"
     Assert-Check "Quet mot phan khong duoc tron gia cu roi dong dau gio moi" {
         ($scanContent -notmatch 'merge_into_today') -and
         ($scanContent -match 'if partial:\s*sys\.exit\(')
