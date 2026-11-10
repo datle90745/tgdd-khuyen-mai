@@ -455,10 +455,22 @@ def fpt_rows_via_browser():
     return rows
 
 
-def _parse_erp_portal_deals(deals):
+def _parse_erp_portal_deals(deals, now=None):
+    now = now or datetime.now(ZoneInfo("Asia/Ho_Chi_Minh"))
     rows, seen = [], set()
     for it in deals:
         if it.get("category") != "Điện thoại":
+            continue
+        # HTTP 200 only proves the API responded now. Each deal must itself
+        # have been scraped recently or the API can serve last month's prices.
+        try:
+            scraped_at = datetime.fromisoformat(str(it.get("scraped_at") or ""))
+            if scraped_at.tzinfo is None:
+                scraped_at = scraped_at.replace(tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
+            age_seconds = (now - scraped_at).total_seconds()
+        except (TypeError, ValueError):
+            continue
+        if not -60 <= age_seconds <= 3 * 60 * 60:
             continue
         p = int(it.get("sale_price") or 0)
         o = int(it.get("original_price") or 0)

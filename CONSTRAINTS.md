@@ -229,6 +229,9 @@ CHO DỮ LIỆU HIỆN TẠI.** Quyết định này thay thế quy tắc giá d
   phát hiện bất thường, không được điền lại vào dòng hiện tại.
 - Một sàn lỗi trong lượt quét thị trường phải để trống nguồn đó và báo "chưa xác minh";
   không bù dữ liệu từ `data/fpt.js` hoặc `data/fpt_portal_deals.json` của lượt khác.
+- Dòng từ Retail Deal API FPT phải có `scraped_at` riêng trong vòng 3 giờ; HTTP 200
+  của API không chứng minh giá bên trong là mới. Dòng thiếu thời điểm hoặc quá hạn
+  không được đưa vào nguồn hiện tại.
 - Dữ liệu TGDĐ bổ sung vào bảng thị trường phải mang cùng mã lượt GitHub Actions và
   thời điểm quét mới; dòng thiếu giá xác minh không được nhập vào bảng thị trường.
 - Trên trang công khai, tab "mới nhất", "toàn thị trường" và so sánh không được hiển thị

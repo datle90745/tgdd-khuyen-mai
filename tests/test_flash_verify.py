@@ -1,8 +1,10 @@
 """Regression checks for the final flash-sale recheck."""
 import sys
 import unittest
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import patch
+from zoneinfo import ZoneInfo
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scraper"))
 import scan_tgdd
@@ -69,6 +71,21 @@ class FlashVerifyTests(unittest.TestCase):
               patch.object(scan_market, "fpt_rows_via_browser", return_value=[])):
             with self.assertRaisesRegex(RuntimeError, "không dùng dữ liệu cũ"):
                 scan_market.scan_fpt()
+
+    def test_fpt_erp_rows_require_recent_scraped_at(self):
+        now = datetime(2026, 11, 10, 15, 0, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
+        base = {"category": "Điện thoại", "name": "OPPO Sample",
+                "sale_price": 9000000, "original_price": 10000000}
+        deals = [
+            {**base, "url": "https://example.com/fresh",
+             "scraped_at": "2026-11-10 14:00:00"},
+            {**base, "url": "https://example.com/old",
+             "scraped_at": "2026-10-09 14:38:16"},
+            {**base, "url": "https://example.com/no-date"}
+        ]
+        rows = scan_market._parse_erp_portal_deals(deals, now=now)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["u"], "https://example.com/fresh")
 
     def test_unexplained_flat_drop_is_unknown_not_old_price_or_zero(self):
         previous = [{"model": "A7 sample", "status": "active", "pmh": 500000}]
