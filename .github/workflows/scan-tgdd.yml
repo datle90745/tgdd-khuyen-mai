@@ -39,6 +39,8 @@ jobs:
         with:
           python-version: '3.13'
       - run: pip install -r scraper/requirements.txt
+      - name: Kiem tra hoi quy luot quet Flash Sale cuoi
+        run: python -m unittest discover -s tests -p 'test_flash_verify.py'
       # FPT Shop chặn kết nối từ máy chủ, cài đặt Playwright & Xvfb
       - run: python -m playwright install --with-deps chromium
       - run: sudo apt-get install -y --no-install-recommends xvfb

@@ -2627,6 +2627,54 @@ function initRiseAuthEvents(){
 initRiseAuthEvents();
 renderAll(); initExports(); compareInit(); calc();
 
+// GitHub Pages is static: an already-open tab otherwise keeps an old scan forever.
+// Check only while visible; reload on a changed feed with a fresh URL so the
+// HTML and all cache-busted data scripts come from the same deployment.
+const savedTab = (() => {
+  try { const tab = sessionStorage.getItem("tp_refresh_tab"); sessionStorage.removeItem("tp_refresh_tab"); return tab; }
+  catch (_) { return null; }
+})();
+if(savedTab && (savedTab !== "rise" || isRiseUnlocked())){
+  const tab = document.querySelector(`nav.tabs button[data-tab="${savedTab}"]`);
+  if(tab) doSwitchTab(tab);
+}
+async function checkPublishedScan(){
+  if(!/^https?:$/.test(location.protocol) || document.hidden) return;
+  const editing = document.activeElement && /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+  if(editing) return;
+  try {
+    const [latestResponse, marketResponse] = await Promise.all([
+      fetch(`data/latest.js?refresh=${Date.now()}`, {cache:"no-store"}),
+      fetch(`data/market.js?refresh=${Date.now()}`, {cache:"no-store"})
+    ]);
+    if(!latestResponse.ok || !marketResponse.ok) return;
+    const parseFeed = (text, marker) => {
+      const at = text.indexOf(marker);
+      if(at < 0) return null;
+      const start = text.indexOf("{", at);
+      const end = text.lastIndexOf("}");
+      return start >= 0 && end > start ? JSON.parse(text.slice(start, end + 1)) : null;
+    };
+    const latest = parseFeed(await latestResponse.text(), "window.LATEST");
+    const market = parseFeed(await marketResponse.text(), "window.MARKET");
+    if(!latest || !market) return;
+    const currentMarket = MK.scans?.[MK.scans.length - 1] || null;
+    const newMarket = market.scans?.[market.scans.length - 1] || null;
+    if(JSON.stringify(latest) === JSON.stringify(LATEST) &&
+       JSON.stringify(newMarket) === JSON.stringify(currentMarket)) return;
+    try {
+      const tab = document.querySelector('nav.tabs button[aria-selected="true"]');
+      if(tab) sessionStorage.setItem("tp_refresh_tab", tab.dataset.tab);
+    } catch (_) {}
+    const url = new URL(location.href);
+    url.searchParams.set("refresh", String(Date.now()));
+    location.replace(url.href);
+  } catch (error) { console.warn("Khong kiem tra duoc du lieu moi", error); }
+}
+setTimeout(checkPublishedScan, 15000);
+setInterval(checkPublishedScan, 5 * 60 * 1000);
+document.addEventListener("visibilitychange", () => { if(!document.hidden) checkPublishedScan(); });
+
 </script>
 </body>
 </html>

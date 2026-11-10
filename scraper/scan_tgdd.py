@@ -454,11 +454,11 @@ def verify_flash_rows(rows):
                   f"giu nguyen dong cu.", flush=True)
             continue
         again = apply_variant_guard(r["model"], again, base_rrp_map)
-        # PDPs used with a pinned or brand-card price can return only the list
-        # price. Keep the verified fallback unless the fresh PDP shows an actual
-        # discount or a flash quota; otherwise the second pass erases a good PMH.
-        fallback = r.get("model") in PINNED_PRICES or r.get("kind") == "brand_tab"
-        if (fallback and not again.get("banner") and
+        # A landing page may omit its red price on the second request even when
+        # the first request found a real discount. This recheck is for flash
+        # evidence; a flat non-flash PDP cannot invalidate the first price.
+        # Applies to every model, not only pinned prices or brand-card fallbacks.
+        if (not r.get("banner") and not again.get("banner") and
                 (again.get("red") or 0) >= (again.get("rrp") or 0) and
                 (r.get("red") or 0) < (r.get("rrp") or 0)):
             print(f"  [FLASH_VERIFY] {r['model']}: PDP khong co gia do; giu gia da doi soat.", flush=True)
