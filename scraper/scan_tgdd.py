@@ -222,6 +222,20 @@ def fetch_model_from_brand_hub(slug):
                                 return v_res
                         except Exception:
                             pass
+                        # Trang chi tiet cua bien the khong doc duoc gia (Marketing Landing Page).
+                        # Nhung gia VAN CO tren chinh danh muc /dtdd: bam nut pill cua bien the thi
+                        # the card doi gia tai cho. Doi soat tay ngay 10-11-2026 tren /dtdd:
+                        #   8GB/128GB  11.870.000 / 13.490.000
+                        #   6GB/256GB  13.990.000 / 14.490.000
+                        #   8GB/256GB  14.680.000 / 15.490.000
+                        # Cu bam do goi API ma chinh trang dung, voi modelCode nam o thuoc tinh
+                        # data-model-code cua the card. Lay thang tu do la dung tinh than
+                        # CONSTRAINTS 2.7: khong doc duoc thi tra cuu lan cuoi qua /dtdd.
+                        mc = re.search(r'data-model-code="(\d+)"', p)
+                        if mc:
+                            v_res = fetch_variant_from_catalog_api(mc.group(1), vslug)
+                            if v_res:
+                                return v_res
             if slug in _CATALOG_ITEMS and _CATALOG_ITEMS[slug]["red"] > 0:
                 c = _CATALOG_ITEMS[slug]
                 cat_res = build_result(c["rrp"], c["red"], False, 0, "brand_tab")
@@ -730,6 +744,87 @@ def extract_choice(soup, text=""):
             if 50_000 <= cval <= 20_000_000:
                 choice = cval
     return choice
+
+
+CATALOG_API = ("https://api.thegioididong.com/gw/bus-tgdd-tmdt/api/Product/GetPopup"
+               "?modelCode={model_code}&provinceId=1000&sellerId=10")
+
+
+def fetch_variant_from_catalog_api(model_code, want_slug):
+    """Lay gia cua DUNG mot bien the tu danh muc https://www.thegioididong.com/dtdd.
+
+    Tai sao can ham nay: card tren /dtdd chi hien gia cua bien the chinh. Bam nut pill cua
+    bien the khac thi card doi gia TAI CHO - tuc la gia co that o /dtdd, chi la khong nam
+    san trong HTML tinh. Cu bam do goi dung API nay, voi modelCode lay tu thuoc tinh
+    data-model-code cua the card.
+
+    Doi soat tay tren /dtdd ngay 10-11-2026 (bam tung nut pill):
+        8GB/128GB  11.870.000 / 13.490.000
+        6GB/256GB  13.990.000 / 14.490.000
+        8GB/256GB  14.680.000 / 15.490.000
+
+    Doc JSON theo kieu DO SAU va KHONG doan cau truc: tim muc nao co duong dan chua dung
+    slug can tim, roi lay cap gia trong chinh muc do. Hinh dang JSON doi thi ham tra None
+    chu khong tra so sai.
+    """
+    try:
+        resp = http_get(CATALOG_API.format(model_code=model_code))
+        if resp.status_code != 200:
+            return None
+        data = resp.json()
+    except Exception as e:
+        print(f"  [CATALOG_API] {want_slug}: khong goi duoc API danh muc: {e}", flush=True)
+        return None
+
+    ung_vien = []
+
+    def duyet(node):
+        if isinstance(node, list):
+            for x in node:
+                duyet(x)
+            return
+        if not isinstance(node, dict):
+            return
+        # Muc nay co tro toi dung slug can tim khong?
+        trung_slug = any(
+            isinstance(v, str) and want_slug in v
+            for k, v in node.items()
+            if re.search(r"url|slug|link|href", str(k), re.I)
+        )
+        if trung_slug:
+            gia = {}
+            for k, v in node.items():
+                if isinstance(v, (int, float)) and 100_000 <= v <= 200_000_000:
+                    gia[str(k).lower()] = int(v)
+            if gia:
+                ung_vien.append(gia)
+        for v in node.values():
+            duyet(v)
+
+    duyet(data)
+    if not ung_vien:
+        print(f"  [CATALOG_API] {want_slug}: API tra ve nhung khong tim thay muc nao "
+              f"tro toi slug nay - bo qua, khong doan so.", flush=True)
+        return None
+
+    gia = ung_vien[0]
+    red = next((gia[k] for k in ("price", "saleprice", "finalprice", "pricesale") if k in gia), 0)
+    rrp = next((gia[k] for k in ("priceold", "oldprice", "listprice", "originalprice",
+                                 "pricemarket", "strikeprice") if k in gia), 0)
+    if not red:
+        so = sorted(gia.values())
+        red, rrp = (so[0], so[-1]) if len(so) >= 2 else (so[0] if so else 0, 0)
+    if not red:
+        return None
+    if not rrp or rrp < red:
+        rrp = red
+    red = round(red / 1000.0) * 1000
+    rrp = round(rrp / 1000.0) * 1000
+    print(f"  [CATALOG_API] {want_slug}: lay duoc gia tu danh muc /dtdd "
+          f"(rrp={rrp} red={red}).", flush=True)
+    res = build_result(rrp, red, False, 0, "brand_tab")
+    res["flash_src"] = []
+    return res
 
 
 def slug_from_soup(soup):

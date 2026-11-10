@@ -37,12 +37,12 @@
     },
     {
       "model": "A7 Pro 5G 8GB/256GB",
-      "since": "2026-11-09",
+      "since": "2026-11-10",
       "rrp": 15490000,
-      "red": 15180000,
-      "pmh": 310000,
-      "source": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-8gb-256gb",
-      "reason": "Doi soat 09-11-2026: PDP khong co box-price / data-priceorg / the <main>. Card brand hub /dtdd-oppo chi mang gia cua bien the 8GB/128GB (nut pill 8GB/256GB khong kem gia). Tab #o=3 khong liet ke A7 Pro. Khong co nguon song nao."
+      "red": 14680000,
+      "pmh": 810000,
+      "source": "https://www.thegioididong.com/dtdd (bam nut pill 8GB/256GB tren the card A7 Pro)",
+      "reason": "Doi soat tay 10-11-2026 tren danh muc /dtdd: bam nut pill 8GB/256GB thi the card doi tai cho thanh 14.680.000 / 15.490.000 (-5%). Chi la mang luoi an toan - duong chinh la fetch_variant_from_catalog_api() lay thang tu /dtdd. Gia ghim cu (red 15.180.000, pmh 310.000) da SAI so voi thuc te."
     }
   ]
 }
