@@ -70,6 +70,26 @@ class FlashVerifyTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "không dùng dữ liệu cũ"):
                 scan_market.scan_fpt()
 
+    def test_unexplained_flat_drop_is_unknown_not_old_price_or_zero(self):
+        previous = [{"model": "A7 sample", "status": "active", "pmh": 500000}]
+        current = [{"model": "A7 sample", "status": "active", "rrp": 14490000,
+                    "red": 14490000, "pmh": 0, "online": 0, "choice": 0,
+                    "banner": False, "kind": "moi", "rule": "den_tru_do"}]
+        row = scan_tgdd.blank_flat_regressions(current, previous)[0]
+        self.assertEqual(row["status"], "error")
+        self.assertIsNone(row["rrp"])
+        self.assertIsNone(row["red"])
+        self.assertIsNone(row["pmh"])
+        self.assertEqual(row["flash_src"], [])
+
+    def test_no_previous_discount_keeps_live_flat_price(self):
+        current = [{"model": "Sample", "status": "active", "rrp": 1000000,
+                    "red": 1000000, "pmh": 0}]
+        row = scan_tgdd.blank_flat_regressions(
+            current, [{"model": "Sample", "status": "active", "pmh": 0}])[0]
+        self.assertEqual(row["status"], "active")
+        self.assertEqual(row["pmh"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

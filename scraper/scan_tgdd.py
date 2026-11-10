@@ -483,6 +483,27 @@ def verify_flash_rows(rows):
     return rows
 
 
+def blank_flat_regressions(rows, previous_rows):
+    """Use older prices only to flag an anomaly, never to fill the current scan."""
+    previously_discounted = {
+        row["model"] for row in previous_rows
+        if row.get("status") == "active" and isinstance(row.get("pmh"), int)
+        and row["pmh"] > 0
+    }
+    for row in rows:
+        if (row.get("model") in previously_discounted and
+                row.get("status") == "active" and
+                isinstance(row.get("rrp"), int) and row["rrp"] > 0 and
+                row.get("red") == row["rrp"] and row.get("pmh") == 0):
+            print(f"  [FLAT_UNVERIFIED] {row['model']}: gia do bang gia den sau khi "
+                  "truoc do co khuyen mai; de trong cho den khi co bang chung live.", flush=True)
+            row.update({"status": "error", "rrp": None, "red": None, "pmh": None,
+                        "online": None, "total_online": None, "choice": None,
+                        "kind": "unverified", "rule": "unverified", "banner": False,
+                        "flash_src": [], "debug": "flat price drop not verified"})
+    return rows
+
+
 def flash_evidence(page, box, box_text, box_html, in_hub):
     """Ghi lai BANG CHUNG da dua den ket luan "co Flash Sale", khong chi ghi ket luan.
 
@@ -1039,7 +1060,8 @@ def write_latest_js(scan):
     # nay, thay vi chi mang ket luan `banner: true` ma khong ai truy nguoc duoc.
     keys = ("model", "rrp", "red", "pmh", "status", "online", "total_online",
             "choice", "kind", "rule", "banner", "flash_src")
-    latest = {"date": scan["date"], "scanned_at": scan["scanned_at"], "rows": [
+    latest = {"date": scan["date"], "scanned_at": scan["scanned_at"],
+              "run_id": os.environ.get("GITHUB_RUN_ID"), "rows": [
         {k: r[k] for k in keys if k in r} for r in scan["rows"]]}
     LATEST_JS.write_text(
         "/* Tự sinh bởi scraper/scan_tgdd.py, đừng sửa tay. */\n"
@@ -1187,10 +1209,11 @@ def main():
     today = now.date().isoformat()
     previous = sorted(p for p in SCAN_DIR.glob("scan_*.json")
                       if p.stem.replace("scan_", "") < today)
+    previous_rows = (json.loads(previous[-1].read_text(encoding="utf-8-sig"))["rows"]
+                     if previous else [])
     ups = []
     if previous:
-        old = {r["model"]: r.get("rrp") for r in
-               json.loads(previous[-1].read_text(encoding="utf-8-sig"))["rows"]}
+        old = {r["model"]: r.get("rrp") for r in previous_rows}
         base_text = alerts._base_text()
         base_rrp_map = {m.group(1): int(m.group(2)) for m in re.finditer(r'"model":\s*"([^"]+)",\s*"rrp":\s*(\d+)', base_text)}
         for r in rows:
@@ -1237,6 +1260,7 @@ def main():
     # Quet lai ca danh sach ngay truoc khi luu: hub dau dot da cu sau ~9-20 phut,
     # trong khi Flash Sale co the doi trang thai theo khung gio.
     rows = verify_flash_rows(rows)
+    rows = blank_flat_regressions(rows, previous_rows)
     ok = sum(1 for r in rows if r["status"] == "active")
     if ok < min_active_count:
         sys.exit(f"ERROR: sau kiem tra Flash Sale chi con {ok}/{len(products)} model "

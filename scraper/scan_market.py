@@ -178,6 +178,13 @@ def scan_tgdd():
             lm = re.search(r'window\.LATEST\s*=\s*(\{.*?\});', l_txt, re.DOTALL)
             if lm:
                 latest_data = json.loads(lm.group(1))
+                focus_at = datetime.fromisoformat(latest_data["scanned_at"])
+                age_seconds = (datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")) - focus_at).total_seconds()
+                run_id = os.environ.get("GITHUB_RUN_ID")
+                if not -60 <= age_seconds <= 600:
+                    raise ValueError("latest.js khong phai du lieu moi cua luot quet nay")
+                if run_id and latest_data.get("run_id") != run_id:
+                    raise ValueError("latest.js thuoc luot GitHub Actions khac")
                 b_map = {}
                 data_file = ROOT / "data" / "data.js"
                 if data_file.exists():
@@ -195,6 +202,11 @@ def scan_tgdd():
                     if lkm:
                         links_map = json.loads(lkm.group(1))
                 for lr in latest_data.get("rows", []):
+                    if (lr.get("status") != "active" or
+                            not isinstance(lr.get("rrp"), int) or
+                            not isinstance(lr.get("red"), int) or
+                            lr["rrp"] <= 0 or lr["red"] <= 0):
+                        continue
                     u = lr.get("url") or links_map.get(lr.get("model")) or ""
                     u_key = u.replace("https://www.thegioididong.com", "").split("?")[0] if u else lr.get("model")
                     if u_key not in seen:

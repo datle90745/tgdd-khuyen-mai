@@ -683,9 +683,12 @@ function build(){
   // Đợt quét mới nhất luôn được đưa vào sau cùng: rơi đúng thứ Hai/thứ Sáu thì ghi đè cột đó,
   // ngày khác thì thành cột "hôm nay" riêng để mọi người xem được số mới nhất.
   const feeds = [...SCANS, ...imports.filter(im=>!pubDates.has(im.date))];
-  // Chỉ thêm cột khi đợt mới nhất thật sự có số PMH, tránh file hỏng làm trắng cả bảng.
+  // Luôn áp dụng đợt mới nhất sau SCANS, kể cả khi tất cả dòng đều chưa xác minh.
   let todayDate = null;
-  if(LATEST && !pubDates.has(LATEST.date) && LATEST.rows.some(x=>typeof x.pmh==="number")){ feeds.push(LATEST); todayDate = LATEST.date; }
+  if(LATEST && Array.isArray(LATEST.rows) && LATEST.rows.length){
+    feeds.push(LATEST);
+    if(!pubDates.has(LATEST.date)) todayDate = LATEST.date;
+  }
   feeds.forEach(im=>{
     // Đợt quét trùng ngày với cột đã có thì ghi đè cột đó, không thêm cột mới.
     let col = dates.indexOf(im.date);
@@ -1249,10 +1252,9 @@ const MK_FOCUS_ALL = new Set(BASE.rows.map(r=>((r.brand||"").toLowerCase() + "|"
 // Mỗi đợt chỉ hiển thị dữ liệu của chính lượt quét đó; nguồn lỗi để trống.
 function mkData(){
   const scans = Array.isArray(MK.scans) ? MK.scans : (MK.scans && Array.isArray(MK.scans.value) ? MK.scans.value : []);
-  const validScans = scans.filter(s => s && s.rows && Array.isArray(s.rows) && s.rows.length > 0);
-  const n = validScans.length, cur = n ? validScans[n-1] : null, prev = n > 1 ? validScans[n-2] : null;
-  if(!cur) return {cur:null, rows:[]};
-  const pm=new Map((prev?prev.rows:[]).map(x=>[x.r+"|"+(x.b||"").toLowerCase()+"|"+mkKey(x.n), x]));
+  const n = scans.length, cur = n ? scans[n-1] : null, prev = n > 1 ? scans[n-2] : null;
+  if(!cur || !Array.isArray(cur.rows)) return {cur:null, rows:[]};
+  const pm=new Map((prev && Array.isArray(prev.rows)?prev.rows:[]).map(x=>[x.r+"|"+(x.b||"").toLowerCase()+"|"+mkKey(x.n), x]));
   return {cur, prev, rows:cur.rows.map(x=>{
     const bk=(x.b||"").toLowerCase()+"|"+mkKey(x.n);
     const isTgdd = (x.r === "TGDĐ" || x.r === "Thế Giới Di Động");
@@ -2667,7 +2669,8 @@ function applyCurrentAvailability(){
   const focusAt = LATEST && LATEST.scanned_at;
   const scans = Array.isArray(MK.scans) ? MK.scans : [];
   const marketAt = scans.length ? scans[scans.length - 1].scanned_at : null;
-  const focusCurrent = isCurrentScan(focusAt);
+  const focusCurrent = isCurrentScan(focusAt) &&
+    Array.isArray(LATEST?.rows) && LATEST.rows.length > 0;
   setCurrentAvailability("p-latest", focusCurrent, focusAt);
   setCurrentAvailability("p-compare",
     focusCurrent && isCurrentScan(marketAt),

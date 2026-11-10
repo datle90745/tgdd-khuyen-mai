@@ -224,8 +224,13 @@ CHO DỮ LIỆU HIỆN TẠI.** Quyết định này thay thế quy tắc giá d
   model phải mang `status = "error"` hoặc `no_price`, `PMH = null`, không có kết luận
   Flash Sale. Giá ghim, giá của lần quét trước trong cùng ngày và giá của đầu lượt quét
   không được lấp vào dòng hiện tại sau khi lần kiểm tra cuối thất bại.
+- Nếu giá đỏ bằng giá đen và PMH tụt từ số dương ở đợt trước về 0 mà chưa có chứng cứ
+  xác nhận hết ưu đãi, dòng hiện tại phải là "chưa xác minh". Số cũ chỉ được dùng để
+  phát hiện bất thường, không được điền lại vào dòng hiện tại.
 - Một sàn lỗi trong lượt quét thị trường phải để trống nguồn đó và báo "chưa xác minh";
   không bù dữ liệu từ `data/fpt.js` hoặc `data/fpt_portal_deals.json` của lượt khác.
+- Dữ liệu TGDĐ bổ sung vào bảng thị trường phải mang cùng mã lượt GitHub Actions và
+  thời điểm quét mới; dòng thiếu giá xác minh không được nhập vào bảng thị trường.
 - Trên trang công khai, tab "mới nhất", "toàn thị trường" và so sánh không được hiển thị
   dữ liệu quá 3 giờ như dữ liệu hiện tại. Số cũ chỉ còn xem được trong tab Lịch sử.
 

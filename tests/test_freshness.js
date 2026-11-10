@@ -19,7 +19,7 @@ function check(ageHours, expectedUnavailable) {
     Date, Intl, Number, Array,
     location: {protocol: 'https:'},
     document: {hidden: false, getElementById: id => panes[id], addEventListener() {}},
-    LATEST: {scanned_at: stamp},
+    LATEST: {scanned_at: stamp, rows: [{model: 'Fresh', status: 'active'}]},
     MK: {scans: [{scanned_at: stamp}]},
     $: id => elements[id],
     setInterval() {}
@@ -62,4 +62,26 @@ assert.strictEqual(failed.pmh[failed.pmh.length - 1], null);
 const missing = buildContext.testRows.find(row => row.model === 'Missing');
 assert.strictEqual(missing.status, 'error');
 assert.strictEqual(missing.pmh[missing.pmh.length - 1], null);
+
+// An all-error latest scan still replaces earlier prices.
+const allErrorContext = {...buildContext,
+  LATEST: {date: '10-Nov', rows: base.rows.map(row =>
+    ({model: row.model, status: 'error', rrp: null, red: null, pmh: null}))}};
+vm.runInNewContext('let S;\n' + html.slice(buildStart, buildEnd) +
+  '\nbuild(); globalThis.testRows=S.rows;', allErrorContext);
+assert(allErrorContext.testRows.every(row =>
+  row.status === 'error' && row.pmh[row.pmh.length - 1] === null));
+
+// An empty new market scan must not fall back to the preceding nonempty scan.
+const marketStart = html.indexOf('function mkData(){');
+const marketEnd = html.indexOf('function mkChips(', marketStart);
+assert(marketStart >= 0 && marketEnd > marketStart);
+const marketContext = {mkKey: value => value, MK: {scans: [
+  {date: '09-Nov', rows: [{r: 'FPT Shop', n: 'Old', p: 100}]},
+  {date: '10-Nov', rows: [], report: {'FPT Shop': 'error'}}
+]}};
+vm.runInNewContext(html.slice(marketStart, marketEnd) +
+  '\nglobalThis.result=mkData();', marketContext);
+assert.strictEqual(marketContext.result.cur.date, '10-Nov');
+assert.strictEqual(marketContext.result.rows.length, 0);
 console.log('FRESHNESS_UI_PASS');
