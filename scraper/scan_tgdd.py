@@ -896,7 +896,11 @@ def fetch_variant_from_catalog_api(model_code, want_slug):
                 resp = requests.get(url, headers={**HEADERS, "Accept": "application/json",
                                                   "Origin": "https://www.thegioididong.com"}, timeout=(10, 25))
             else:
-                resp = http_get(url)
+                resp = requests.get(
+                    f"{CF_PROXY_URL}/fetch?url={quote(url, safe='')}",
+                    headers={"X-Proxy-Token": CF_PROXY_TOKEN, "Accept": "application/json",
+                             "Origin": "https://www.thegioididong.com",
+                             "Referer": "https://www.thegioididong.com/dtdd"}, timeout=(10, 30))
             if resp.status_code != 200:
                 print(f"  [CATALOG_API] {want_slug}: {route} HTTP {resp.status_code}.", flush=True)
                 continue
