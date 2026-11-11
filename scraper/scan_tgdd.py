@@ -40,6 +40,7 @@ SCANS_JS = ROOT / "data" / "scans.js"
 LATEST_JS = ROOT / "data" / "latest.js"
 LINKS_JS = ROOT / "data" / "links.js"
 PROMOS_JS = ROOT / "data" / "promos.js"
+LOCAL_VARIANTS = ROOT / "data" / "tgdd_variant_live.json"
 
 HEADERS = {
     "User-Agent": (
@@ -96,6 +97,35 @@ _CATALOG = None
 _CATALOG_ITEMS = {}
 _LIVE_FLASH_SLUGS = set()
 _HUB_VISITED = set()
+_LOCAL_VARIANT_ROWS = None
+
+
+def current_local_variants():
+    """Use only this workflow's fresh Windows API batch, never a previous scan."""
+    global _LOCAL_VARIANT_ROWS
+    if _LOCAL_VARIANT_ROWS is not None:
+        return _LOCAL_VARIANT_ROWS
+    _LOCAL_VARIANT_ROWS = {}
+    batch = os.environ.get("TGDD_BATCH_ID", "")
+    if not batch or not LOCAL_VARIANTS.exists():
+        return _LOCAL_VARIANT_ROWS
+    try:
+        snapshot = json.loads(LOCAL_VARIANTS.read_text(encoding="utf-8"))
+        at = datetime.fromisoformat(snapshot["scanned_at"].replace("Z", "+00:00"))
+        age = (datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")) - at).total_seconds()
+        if snapshot.get("batch_id") != batch or not 0 <= age <= 45 * 60:
+            print(f"  [LOCAL_VARIANT] batch/age khong hop le: age={age:.0f}s.", flush=True)
+            return _LOCAL_VARIANT_ROWS
+        for item in snapshot.get("rows", []):
+            slug, rrp, red = item.get("slug"), item.get("rrp"), item.get("red")
+            if (isinstance(slug, str) and re.fullmatch(r"[a-z0-9-]+", slug)
+                    and type(rrp) is int and type(red) is int and 0 < red <= rrp <= 200_000_000):
+                _LOCAL_VARIANT_ROWS[slug] = (rrp, red)
+        print(f"  [LOCAL_VARIANT] {len(_LOCAL_VARIANT_ROWS)} SKU tu batch Windows "
+              f"{batch}, age={age:.0f}s.", flush=True)
+    except Exception as error:
+        print(f"  [LOCAL_VARIANT] khong doc duoc snapshot: {error}", flush=True)
+    return _LOCAL_VARIANT_ROWS
 
 # Chot chong cao nham bien the cho cac cap ma luat is_sibling CO Y khong bat.
 # So lieu KHONG duoc viet thang trong file .py nay - xem scraper/variant_guards.json.
@@ -559,6 +589,18 @@ def verify_flash_rows(rows):
                     again = build_result(hub["rrp"], hub["red"], True, 0, "brand_tab")
                     again["flash_src"] = ["hub"]
                 print(f"  [FLASH_VERIFY] {r['model']}: xac minh lai gia tu danh muc live.", flush=True)
+        # GitHub cannot connect to the variant popup or render its dynamic
+        # card. The Windows task retrieves the exact SKU popup in this same
+        # batch; accept it only with matching batch ID and a short TTL.
+        if (again.get("status") != "active" or not again.get("rrp") or
+                (again.get("red") == again.get("rrp") and not again.get("banner"))):
+            local_pair = current_local_variants().get(slug)
+            if local_pair:
+                rrp, red = local_pair
+                again = build_result(rrp, red, slug in fresh, 0, "brand_tab")
+                again["flash_src"] = ["hub"] if slug in fresh else []
+                print(f"  [FLASH_VERIFY] {r['model']}: xac minh gia SKU live tu "
+                      f"Windows batch rrp={rrp} red={red}.", flush=True)
         if again.get("status") != "active" or not again.get("rrp"):
             unverified += 1
             print(f"  [FLASH_VERIFY] {r['model']}: quet lai ra status={again.get('status')}, "

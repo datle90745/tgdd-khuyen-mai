@@ -15,6 +15,46 @@ import scan_market
 
 
 class FlashVerifyTests(unittest.TestCase):
+    def test_windows_variant_snapshot_requires_same_batch_and_fresh_time(self):
+        now = datetime.now(timezone.utc)
+        snapshot = {"batch_id": "batch-this-run", "scanned_at": now.isoformat(),
+                    "rows": [{"slug": "oppo-a7-pro-5g-6gb-256gb", "rrp": 14490000, "red": 13990000}]}
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "tgdd_variant_live.json"
+            path.write_text(json.dumps(snapshot), encoding="utf-8")
+            old_cache = scan_tgdd._LOCAL_VARIANT_ROWS
+            try:
+                with (patch.object(scan_tgdd, "LOCAL_VARIANTS", path),
+                      patch.dict("os.environ", {"TGDD_BATCH_ID": "batch-this-run"})):
+                    scan_tgdd._LOCAL_VARIANT_ROWS = None
+                    self.assertEqual(scan_tgdd.current_local_variants()["oppo-a7-pro-5g-6gb-256gb"],
+                                     (14490000, 13990000))
+                    snapshot["batch_id"] = "previous-run"
+                    path.write_text(json.dumps(snapshot), encoding="utf-8")
+                    scan_tgdd._LOCAL_VARIANT_ROWS = None
+                    self.assertEqual(scan_tgdd.current_local_variants(), {})
+                    snapshot["batch_id"] = "batch-this-run"
+                    snapshot["scanned_at"] = (now - timedelta(minutes=46)).isoformat()
+                    path.write_text(json.dumps(snapshot), encoding="utf-8")
+                    scan_tgdd._LOCAL_VARIANT_ROWS = None
+                    self.assertEqual(scan_tgdd.current_local_variants(), {})
+            finally:
+                scan_tgdd._LOCAL_VARIANT_ROWS = old_cache
+
+    def test_final_flat_a7_uses_exact_live_windows_batch(self):
+        first = {"model": "A7 Pro 5G 6GB/256GB",
+                 "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-6gb-256gb",
+                 "status": "active", "rrp": 13490000, "red": 13490000, "pmh": 0,
+                 "banner": False, "kind": "moi", "flash_src": []}
+        with (patch.object(scan_tgdd, "fetch_live_flashsale_slugs", return_value=set()),
+              patch.object(scan_tgdd, "scan_one", return_value=first.copy()),
+              patch.object(scan_tgdd, "current_local_variants", return_value={
+                  "oppo-a7-pro-5g-6gb-256gb": (14490000, 13990000)}),
+              patch.object(scan_tgdd, "apply_variant_guard", side_effect=lambda model, row, base: row)):
+            result = scan_tgdd.verify_flash_rows([first])[0]
+        self.assertEqual((result["status"], result["rrp"], result["red"], result["pmh"]),
+                         ("active", 14490000, 13990000, 500000))
+
     def test_selected_variant_card_rejects_main_sku_price(self):
         target = "oppo-a7-pro-5g-6gb-256gb"
         main = "oppo-a7-pro-5g-8gb-128gb"

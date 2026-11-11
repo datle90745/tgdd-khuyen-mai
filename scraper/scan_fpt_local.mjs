@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { writeFileSync, unlinkSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { collectVariantSnapshot } from './scan_tgdd_local.mjs';
 
 const BRANDS = new Map([
   ['apple-iphone', 'Apple'], ['samsung', 'Samsung'], ['oppo', 'OPPO'],
@@ -92,27 +93,34 @@ async function collect() {
     source: ENDPOINT, counts, conflicts, rows };
 }
 
-function publish(snapshot) {
-  const path = `repos/${REPO}/contents/data/fpt_live.json`;
+function publishFile(filename, snapshot, message) {
+  const path = `repos/${REPO}/contents/data/${filename}`;
   let sha;
   try { sha = command(GH, ['api', path, '-q', '.sha']).trim(); }
   catch (error) {
     // The first run has no snapshot; other API errors must stop publication.
     if (!String(error).includes('404')) throw error;
   }
-  const payload = { message: `FPT live batch ${snapshot.batch_id}`,
+  const payload = { message,
     content: Buffer.from(JSON.stringify(snapshot)).toString('base64'), branch: 'main' };
   if (sha) payload.sha = sha;
-  const temp = join(tmpdir(), `fpt-live-${snapshot.batch_id}.json`);
+  const temp = join(tmpdir(), `live-${snapshot.batch_id}-${filename}`);
   let snapshotCommit;
   try {
     writeFileSync(temp, JSON.stringify(payload), { mode: 0o600 });
     const uploaded = JSON.parse(command(GH, ['api', path, '-X', 'PUT', '--input', temp]));
     snapshotCommit = uploaded.commit?.sha;
     if (!/^[0-9a-f]{40}$/.test(snapshotCommit || '')) {
-      throw new Error('GitHub did not return the FPT snapshot commit SHA');
+      throw new Error(`GitHub did not return the ${filename} commit SHA`);
     }
   } finally { try { unlinkSync(temp); } catch {} }
+  return snapshotCommit;
+}
+
+function publish(snapshot, variantSnapshot) {
+  publishFile('fpt_live.json', snapshot, `FPT live batch ${snapshot.batch_id}`);
+  const snapshotCommit = publishFile('tgdd_variant_live.json', variantSnapshot,
+    `TGDĐ live variants batch ${snapshot.batch_id}`);
   command(GH, ['workflow', 'run', 'scan-tgdd.yml', '--repo', REPO,
     '--ref', 'main', '-f', `fpt_batch_id=${snapshot.batch_id}`,
     '-f', `fpt_snapshot_sha=${snapshotCommit}`]);
@@ -132,5 +140,8 @@ if (localOutAt >= 0) {
   writeFileSync(out, `/* FPT production API, ${snapshot.scanned_at} */\nwindow.FPT_LOCAL = ${JSON.stringify({date, at, rows: snapshot.rows})};\n`, 'utf8');
   console.log(`Wrote ${out}`);
 }
-if (process.argv.includes('--publish')) publish(snapshot);
+if (process.argv.includes('--publish')) {
+  const variantSnapshot = await collectVariantSnapshot(snapshot.batch_id);
+  publish(snapshot, variantSnapshot);
+}
 else console.log(`Dry run: ${snapshot.batch_id}; add --publish to update GitHub`);
