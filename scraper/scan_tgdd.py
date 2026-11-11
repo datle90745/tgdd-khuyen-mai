@@ -233,7 +233,9 @@ def fetch_model_from_brand_hub(slug, refresh=False):
                 return cat_res
         except Exception as e:
             print(f"  [BRAND_HUB] Lỗi quét chốt chặn {hub_url}: {e}", flush=True)
-    return None
+    # The ordinary scan and the final flash check both call this function.
+    # Keep the real pill click here so neither path silently skips it.
+    return fetch_variant_from_live_card(slug)
 
 
 def catalog():
@@ -433,6 +435,13 @@ def last_check_tu_danh_muc(row):
                     return res
         except Exception as e:
             print(f"  [LAST_CHECK] {row.get('model')}: loi khi tra cuu {hub}: {e}", flush=True)
+    # The static card contains only the default SKU price. When GetPopup is
+    # blocked, click the exact SKU pill in a real browser and read the card
+    # after its title, price link and crossed-out price all switch to that SKU.
+    browser_result = fetch_variant_from_live_card(slug)
+    if browser_result:
+        print(f"  [LAST_CHECK] {row.get('model')}: gia tu pill live /dtdd.", flush=True)
+        return browser_result
     print(f"  [LAST_CHECK] {row.get('model')}: khong lay duoc gia tu danh muc /dtdd.", flush=True)
     return None
 
@@ -766,6 +775,85 @@ CATALOG_API = ("https://api.thegioididong.com/gw/bus-tgdd-tmdt/api/Product/GetPo
                "?modelCode={model_code}&provinceId=1000&sellerId=10")
 
 
+def parse_selected_variant_card(card_html, want_slug):
+    """Accept a price only when the live card has switched to this exact SKU."""
+    soup = BeautifulSoup(card_html, "html.parser")
+    href = f"/dtdd/{want_slug}"
+    title = soup.select_one(f'a[title][href="{href}"]')
+    price = soup.select_one(f'a.font-700.text-red-7[href="{href}"]')
+    old = soup.select_one(f'a[href="{href}"] del')
+    if not title or not price:
+        return None
+    red = money(price.get_text(" ", strip=True))
+    rrp = money(old.get_text(" ", strip=True)) if old else red
+    if not (0 < red <= rrp <= 200_000_000):
+        return None
+    result = build_result(rrp, red, False, 0, "brand_tab")
+    result["flash_src"] = []
+    return result
+
+
+def fetch_variant_from_live_card(want_slug):
+    """Last resort: open brand/category, load more cards and click SKU pill."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError as error:
+        print(f"  [CARD_PILL] {want_slug}: Playwright khong co: {error}", flush=True)
+        return None
+    brand = get_brand_from_slug(want_slug)
+    hubs = ([f"https://www.thegioididong.com/dtdd-{brand}"] if brand else []) + [
+        "https://www.thegioididong.com/dtdd"]
+    target_href = f"/dtdd/{want_slug}"
+    card_selector = f'div[data-product-code]:has(a[data-disable-progress="true"][href="{target_href}"])'
+    try:
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=True, args=["--no-sandbox"])
+            try:
+                page = browser.new_page(locale="vi-VN", user_agent=HEADERS["User-Agent"])
+                for hub in hubs:
+                    try:
+                        response = page.goto(hub, wait_until="domcontentloaded", timeout=30000)
+                        if not response or response.status != 200:
+                            print(f"  [CARD_PILL] {want_slug}: {hub} HTTP "
+                                  f"{response.status if response else 'none'}.", flush=True)
+                            continue
+                        card = page.locator(card_selector).first
+                        for _ in range(12):
+                            if card.count():
+                                break
+                            more = page.get_by_role("button", name=re.compile(r"Xem thêm.*(?:điện thoại|sản phẩm)", re.I)).first
+                            if not more.count() or not more.is_visible():
+                                break
+                            before = page.locator('div[data-product-code]').count()
+                            more.click(timeout=10000)
+                            page.wait_for_function(
+                                "n => document.querySelectorAll('div[data-product-code]').length > n",
+                                arg=before, timeout=12000)
+                        if not card.count():
+                            print(f"  [CARD_PILL] {want_slug}: khong co pill sau khi mo rong {hub}.", flush=True)
+                            continue
+                        card.locator(f'a[data-disable-progress="true"][href="{target_href}"]').click(timeout=10000)
+                        # React updates the card asynchronously. Check the
+                        # current title and price URL, never the old main SKU.
+                        page.wait_for_function("""slug => {
+                            const pill = document.querySelector(`a[data-disable-progress="true"][href="/dtdd/${slug}"]`);
+                            const card = pill?.closest('div[data-product-code]');
+                            return !!card?.querySelector(`a[title][href="/dtdd/${slug}"]`)
+                                && !!card?.querySelector(`a.font-700.text-red-7[href="/dtdd/${slug}"]`);
+                        }""", arg=want_slug, timeout=15000)
+                        result = parse_selected_variant_card(card.evaluate("element => element.outerHTML"), want_slug)
+                        if result:
+                            print(f"  [CARD_PILL] {want_slug}: live rrp={result['rrp']} red={result['red']} from {hub}.", flush=True)
+                            return result
+                    except Exception as error:
+                        print(f"  [CARD_PILL] {want_slug}: {hub} loi: {error}", flush=True)
+            finally:
+                browser.close()
+    except Exception as error:
+        print(f"  [CARD_PILL] {want_slug}: browser loi: {error}", flush=True)
+    return None
+
+
 def parse_popup_variant_prices(data, want_slug):
     """Read only the exact SKU URL from TGDD GetPopup's live boxBuys.
 
@@ -797,20 +885,29 @@ def parse_popup_variant_prices(data, want_slug):
 
 def fetch_variant_from_catalog_api(model_code, want_slug):
     """Fetch the exact variant price from TGDD's live catalog popup."""
-    try:
-        resp = http_get(CATALOG_API.format(model_code=model_code))
-        if resp.status_code != 200:
-            print(f"  [CATALOG_API] {want_slug}: HTTP {resp.status_code}.", flush=True)
-            return None
-        result = parse_popup_variant_prices(resp.json(), want_slug)
-    except Exception as e:
-        print(f"  [CATALOG_API] {want_slug}: khong doc duoc API: {e}", flush=True)
-        return None
-    if result:
-        print(f"  [CATALOG_API] {want_slug}: gia live rrp={result['rrp']} red={result['red']}.", flush=True)
-    else:
-        print(f"  [CATALOG_API] {want_slug}: khong co cap gia duy nhat dung URL SKU.", flush=True)
-    return result
+    url = CATALOG_API.format(model_code=model_code)
+    # The general site needs the Worker on GitHub, but api.thegioididong.com
+    # may allow a direct request even when the Worker receives HTTP 403.
+    for route in ("direct", "worker"):
+        if route == "worker" and not (CF_PROXY_URL and CF_PROXY_TOKEN):
+            continue
+        try:
+            if route == "direct":
+                resp = requests.get(url, headers={**HEADERS, "Accept": "application/json",
+                                                  "Origin": "https://www.thegioididong.com"}, timeout=(10, 25))
+            else:
+                resp = http_get(url)
+            if resp.status_code != 200:
+                print(f"  [CATALOG_API] {want_slug}: {route} HTTP {resp.status_code}.", flush=True)
+                continue
+            result = parse_popup_variant_prices(resp.json(), want_slug)
+            if result:
+                print(f"  [CATALOG_API] {want_slug}: {route} live rrp={result['rrp']} red={result['red']}.", flush=True)
+                return result
+            print(f"  [CATALOG_API] {want_slug}: {route} khong co cap gia duy nhat dung URL SKU.", flush=True)
+        except Exception as error:
+            print(f"  [CATALOG_API] {want_slug}: {route} loi: {error}", flush=True)
+    return None
 
 
 def slug_from_soup(soup):

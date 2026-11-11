@@ -15,6 +15,21 @@ import scan_market
 
 
 class FlashVerifyTests(unittest.TestCase):
+    def test_selected_variant_card_rejects_main_sku_price(self):
+        target = "oppo-a7-pro-5g-6gb-256gb"
+        main = "oppo-a7-pro-5g-8gb-128gb"
+        card = (f'<div data-product-code="1"><a title="OPPO A7 Pro" href="/dtdd/{main}">A7</a>'
+                f'<a data-disable-progress="true" href="/dtdd/{target}">6GB/256GB</a>'
+                f'<a class="font-700 text-red-7" href="/dtdd/{main}"><span>11.870.000đ</span></a>'
+                f'<a href="/dtdd/{main}"><del>13.490.000đ</del></a></div>')
+        self.assertIsNone(scan_tgdd.parse_selected_variant_card(card, target))
+        switched = (card.replace(f'href="/dtdd/{main}"', f'href="/dtdd/{target}"')
+                    .replace('11.870.000đ', '13.990.000đ')
+                    .replace('13.490.000đ', '14.490.000đ'))
+        result = scan_tgdd.parse_selected_variant_card(switched, target)
+        self.assertEqual((result["status"], result["red"], result["rrp"]),
+                         ("active", 13990000, 14490000))
+
     def test_fpt_batch_requires_matching_id_freshness_and_valid_prices(self):
         now = datetime.now(timezone.utc)
         rows = [{"r": "FPT Shop", "b": ["Apple", "Samsung", "OPPO", "Xiaomi"][i % 4],
