@@ -190,26 +190,13 @@ if (Test-Path $scanScript) {
         ($scanContent -notmatch '(?m)^\s*_CATALOG_ITEMS\[\s*"[^"]+"\s*\]\s*=\s*\{\s*"red"\s*:\s*\d')
     } "Scraper scan_tgdd.py van con gia hardcode trong _CATALOG_ITEMS gay nguy co phuc hoi gia cu"
 
-    # Khang dinh nay tung bi DAO CHIEU ngay 10-11-2026: ban goc doi PINNED_PRICES phai CO,
-    # mot commit sau doi no phai KHONG CO. Hau qua: A7 Pro 5G 256GB (ca hai ban) mat sach so
-    # lieu tren bang, vi PDP cua chung la Marketing Landing Page khong bao gio render gia.
-    # CONSTRAINTS 2.11 cam dao chieu mot khang dinh ma khong hoi nguoi dung.
-    #
-    # Moi lo cua ban dao chieu la DUNG va van duoc giu: khong duoc lay gia cu thay cho gia
-    # live. Nen chot nay doi CA HAI dieu:
-    #   1. Gia du phong phai ton tai (de dong landing page khong bi de trong), VA
-    #   2. No chi duoc ap o buoc cuoi, va phai bi BO QUA khi dot nay cao duoc gia that.
-    Assert-Check "Gia du phong chi la du phong: cao duoc gia that thi phai bo qua" {
-        ($scanContent -cmatch 'PINNED_PRICES') -and
-        ($scanContent -cmatch '(?m)^def apply_pinned_prices\(rows\):') -and
-        # Phai chay SAU cac buoc xac minh, khong phai ghi de tu dau.
-        ($scanContent -cmatch '(?s)rows = verify_flash_rows\(rows\).*?rows = apply_pinned_prices\(rows\)') -and
-        # Phai co nhanh bo qua khi da cao duoc gia do that.
-        ($scanContent -cmatch 'co_gia_that') -and
-        ($scanContent -cmatch 'BO QUA gia du phong') -and
-        # Dong duoc ap phai mang kind = "pin" de phan biet voi gia cao that.
-        ($scanContent -cmatch '"kind":\s*"pin"')
-    } "Gia du phong bi go mat (dong landing page se de trong), hoac no da thanh ghi de thay vi du phong"
+    # CONSTRAINTS 2.10: gia chot tu dot cu chi la tu lieu lich su.
+    Assert-Check "Scraper khong nap gia du phong cua dot cu vao hien tai" {
+        ($scanContent -notmatch 'PINNED_PRICES') -and
+        ($scanContent -notmatch 'apply_pinned_prices') -and
+        ($scanContent -cmatch 'fetch_model_from_brand_hub\(slug, refresh=True\)')
+    } "Scraper van nap gia ghim cu, hoac lan kiem tra cuoi khong doc lai danh muc live"
+
     Assert-Check "Quet mot phan khong duoc tron gia cu roi dong dau gio moi" {
         ($scanContent -notmatch 'merge_into_today') -and
         ($scanContent -match 'if partial:\s*sys\.exit\(')
@@ -578,21 +565,12 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         ($linksText -match '"A7 Pro 5G 6GB/256GB"') -and ($linksText -match '"A7 Pro 5G 8GB/128GB"')
     } "data/links.js thieu key 'A7 Pro 5G 6GB/256GB' hoac 'A7 Pro 5G 8GB/128GB'"
 
-    # Ban goc cua khang dinh nay cam MOI dong mang kind = "pin". Ket qua: hai ban A7 Pro
-    # 256GB - von co PDP la Marketing Landing Page khong bao gio render gia - bi de trong
-    # hoan toan tren bang. Nguoi dung bao loi ngay 10-11-2026.
-    # Giu nguyen y dung cua no (khong duoc ghim bua), nhung doi lai cho chinh xac:
-    # mot dong kind = "pin" chi hop le khi model do CO TRONG scraper/pinned_prices.json -
-    # tuc la da duoc khai bao, co bang chung, co han doi soat.
-    Assert-Check "A7 Pro 5G du bien the; moi dong kind=pin phai duoc khai bao truoc" {
+    Assert-Check "A7 Pro 5G van du 3 bien the trong bao cao" {
         $raw = (Get-Content "data/latest.js" -Raw -Encoding UTF8) -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.LATEST\s*=\s*', ''
         $latestObj = $raw.TrimEnd(" ;`r`n") | ConvertFrom-Json
         $models = @("A7 Pro 5G 6GB/256GB", "A7 Pro 5G 8GB/128GB", "A7 Pro 5G 8GB/256GB")
-        $daKhai = @((Get-Content "scraper/pinned_prices.json" -Raw -Encoding UTF8 | ConvertFrom-Json).entries | ForEach-Object { $_.model })
-        $ghimLau = @($latestObj.rows | Where-Object { $_.kind -eq "pin" -and $_.model -notin $daKhai })
-        @($latestObj.rows | Where-Object { $_.model -in $models }).Count -eq 3 -and
-        $ghimLau.Count -eq 0
-    } "data/latest.js thieu bien the A7 Pro, hoac co dong kind=pin cho model KHONG duoc khai bao trong scraper/pinned_prices.json"
+        @($latestObj.rows | Where-Object { $_.model -in $models }).Count -eq 3
+    } "data/latest.js thieu bien the A7 Pro"
 
     Assert-Check "data/latest.js phai co 'V80 Lite 5G 6GB/256GB' (RRP 14.990.000) va 'V80 Lite 5G 6GB/128GB' (RRP 12.990.000) active" {
         $latestText = Get-Content "data/latest.js" -Raw -Encoding UTF8

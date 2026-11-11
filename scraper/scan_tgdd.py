@@ -97,20 +97,6 @@ _CATALOG_ITEMS = {}
 _LIVE_FLASH_SLUGS = set()
 _HUB_VISITED = set()
 
-# Gia du phong lich su khong duoc nap vao luot quet hien tai.
-
-# Gia DU PHONG cho nhung PDP khong bao gio render gia (Marketing Landing Page).
-# Chi duoc dung o BUOC CUOI, khi dot nay da that bai het moi duong - xem apply_pinned_prices()
-# va scraper/pinned_prices.json. So lieu KHONG duoc viet thang trong file .py nay.
-PINNED_PRICES = {}
-_pin_path = Path(__file__).resolve().parent / "pinned_prices.json"
-if _pin_path.exists():
-    try:
-        for _e in json.loads(_pin_path.read_text(encoding="utf-8-sig")).get("entries", []):
-            PINNED_PRICES[_e["model"]] = _e
-    except Exception as _pin_err:
-        print(f"  [PIN] Khong doc duoc scraper/pinned_prices.json: {_pin_err}", flush=True)
-
 # Chot chong cao nham bien the cho cac cap ma luat is_sibling CO Y khong bat.
 # So lieu KHONG duoc viet thang trong file .py nay - xem scraper/variant_guards.json.
 VARIANT_GUARDS = {}
@@ -163,7 +149,7 @@ def get_brand_from_slug(slug):
     return ""
 
 
-def fetch_model_from_brand_hub(slug):
+def fetch_model_from_brand_hub(slug, refresh=False):
     """Chốt chặn cuối cùng theo khuyến nghị: Tra cứu trực tiếp từ tab thương hiệu trên TGDĐ
     (https://www.thegioididong.com/dtdd-<brand> hoặc /dtdd).
     Bóc tách trực tiếp card sản phẩm và các nút pill SKU để lấy giá thực tế trực tiếp,
@@ -172,6 +158,10 @@ def fetch_model_from_brand_hub(slug):
     global _CATALOG_ITEMS, _HUB_VISITED
     if not slug:
         return None
+    if refresh:
+        # The first pass's catalog can be 15+ minutes old. A final check must
+        # prove the price again from a new HTTP response.
+        _CATALOG_ITEMS.pop(slug, None)
     b = get_brand_from_slug(slug)
     # CONSTRAINTS 2.7 chi dinh CA HAI duong: tab thuong hieu VA danh muc tong
     # https://www.thegioididong.com/dtdd. Truoc day code chi di /dtdd khi KHONG doan duoc
@@ -184,7 +174,7 @@ def fetch_model_from_brand_hub(slug):
 
     for hub_url in hub_urls:
         visit_key = f"{slug}|{hub_url}"
-        if visit_key in _HUB_VISITED:
+        if visit_key in _HUB_VISITED and not refresh:
             continue
         try:
             resp = http_get(hub_url)
@@ -447,57 +437,6 @@ def last_check_tu_danh_muc(row):
     return None
 
 
-def apply_pinned_prices(rows):
-    """Buoc CUOI CUNG: voi nhung model ma trang chi tiet KHONG BAO GIO render gia, dung gia
-    du phong da khai trong scraper/pinned_prices.json.
-
-    Day KHONG phai "nap gia ghim cua dot cu". Phan biet ro:
-      - Gia cao duoc trong dot nay LUON THANG. Ham nay chay sau cung va chi dung toi nhung
-        dong da that bai het moi duong (status != active hoac khong co gia).
-      - Chi ap cho model co trong file khai bao, moi muc deu kem `source` + `reason` + ngay
-        `since`, va TU HET HAN sau maxAgeDays - qua han la cong keu.
-      - Dong duoc ap mang kind = "pin" de nhin la biet ngay, khong lan voi gia cao that.
-
-    Ly do ton tai: PDP cua A7 Pro 5G 256GB la Marketing Landing Page - doi soat truc tiep
-    ngay 09 va 10-11-2026 deu cho thay khong co <main>, khong co box-price, khong co
-    data-priceorg. Card danh muc /dtdd-oppo chi mang gia cua DUNG bien the 8GB/128GB. Tuc la
-    khong co nguon song nao. De trong thi bang bao cao mat han hai dong nguoi dung dang theo.
-    """
-    if not PINNED_PRICES:
-        return rows
-    for r in rows:
-        pin = PINNED_PRICES.get(r.get("model"))
-        if not pin:
-            continue
-        co_gia_that = bool(r.get("status") == "active" and r.get("rrp") and r.get("red")
-                           and r.get("red") < r.get("rrp"))
-        if co_gia_that:
-            print(f"  [PIN] {r['model']}: dot nay cao duoc gia that "
-                  f"(rrp={r.get('rrp')} red={r.get('red')}) - BO QUA gia du phong. "
-                  f"Nen go muc nay khoi scraper/pinned_prices.json.", flush=True)
-            continue
-        # QUY TAC NGUOI DUNG TRAIN: khong doc duoc gia thi LAST CHECK lay o
-        # https://www.thegioididong.com/dtdd. Chay o day - buoc cuoi, khi dong da that bai
-        # het moi duong - truoc khi nghi toi gia du phong.
-        cat = last_check_tu_danh_muc(r)
-        if cat:
-            r.update(cat)
-            continue
-
-        diff = pin["rrp"] - pin["red"]
-        print(f"  [PIN] {r['model']}: khong lay duoc tu /dtdd va khong doc duoc gia do "
-              f"(status={r.get('status')} rrp={r.get('rrp')} red={r.get('red')}). "
-              f"Dung gia du phong chot ngay {pin['since']}: rrp={pin['rrp']} "
-              f"red={pin['red']} pmh={pin['pmh']}.", flush=True)
-        r.update({
-            "status": "active", "rrp": pin["rrp"], "red": pin["red"], "pmh": pin["pmh"],
-            "online": diff, "total_online": diff, "choice": 0,
-            "kind": "pin", "rule": "den_tru_do", "banner": False, "choice_in_red": False,
-            "flash_src": [], "debug": f"pinned since {pin['since']}",
-        })
-    return rows
-
-
 def apply_variant_guard(model, result, base_rrp_map):
     """Reject a sibling variant price; never derive a current price from a baseline."""
     expected_rrp = base_rrp_map.get(model)
@@ -595,10 +534,22 @@ def verify_flash_rows(rows):
         try:
             again = scan_one(r["url"], attempts=2, allow_hub_fallback=False)
         except Exception as e:
-            unverified += 1
-            print(f"  [FLASH_VERIFY] {r['model']}: quet lai loi ({e}); de trong du lieu hien tai.", flush=True)
-            mark_unverified(r, str(e))
-            continue
+            again = {"status": "error", "debug": str(e)}
+        if again.get("status") != "active" or not again.get("rrp"):
+            # PDP can be a marketing page without a price while the current
+            # brand card still has it. Refetch that card NOW, never reuse the
+            # catalog captured at the beginning of this scan.
+            try:
+                hub = fetch_model_from_brand_hub(slug, refresh=True)
+            except Exception as e:
+                hub = None
+                print(f"  [FLASH_VERIFY] {r['model']}: danh muc loi ({e}).", flush=True)
+            if hub and hub.get("status") == "active" and hub.get("rrp") and hub.get("red"):
+                again = hub
+                if slug in fresh:
+                    again = build_result(hub["rrp"], hub["red"], True, 0, "brand_tab")
+                    again["flash_src"] = ["hub"]
+                print(f"  [FLASH_VERIFY] {r['model']}: xac minh lai gia tu danh muc live.", flush=True)
         if again.get("status") != "active" or not again.get("rrp"):
             unverified += 1
             print(f"  [FLASH_VERIFY] {r['model']}: quet lai ra status={again.get('status')}, "
@@ -815,81 +766,51 @@ CATALOG_API = ("https://api.thegioididong.com/gw/bus-tgdd-tmdt/api/Product/GetPo
                "?modelCode={model_code}&provinceId=1000&sellerId=10")
 
 
-def fetch_variant_from_catalog_api(model_code, want_slug):
-    """Lay gia cua DUNG mot bien the tu danh muc https://www.thegioididong.com/dtdd.
+def parse_popup_variant_prices(data, want_slug):
+    """Read only the exact SKU URL from TGDD GetPopup's live boxBuys.
 
-    Tai sao can ham nay: card tren /dtdd chi hien gia cua bien the chinh. Bam nut pill cua
-    bien the khac thi card doi gia TAI CHO - tuc la gia co that o /dtdd, chi la khong nam
-    san trong HTML tinh. Cu bam do goi dung API nay, voi modelCode lay tu thuoc tinh
-    data-model-code cua the card.
-
-    Doi soat tay tren /dtdd ngay 10-11-2026 (bam tung nut pill):
-        8GB/128GB  11.870.000 / 13.490.000
-        6GB/256GB  13.990.000 / 14.490.000
-        8GB/256GB  14.680.000 / 15.490.000
-
-    Doc JSON theo kieu DO SAU va KHONG doan cau truc: tim muc nao co duong dan chua dung
-    slug can tim, roi lay cap gia trong chinh muc do. Hinh dang JSON doi thi ham tra None
-    chu khong tra so sai.
+    price is the current selling price; sysPrice is the crossed-out price.
+    Different color rows must agree, otherwise the SKU is unverified.
     """
+    box_buys = data.get("data", {}).get("boxBuys", []) if isinstance(data, dict) else []
+    if not isinstance(box_buys, list):
+        return None
+    pairs = set()
+    target = f"dtdd/{want_slug}"
+    for item in box_buys:
+        if not isinstance(item, dict) or item.get("url", "").lstrip("/").split("?")[0] != target:
+            continue
+        for price in item.get("productPrices") or []:
+            if not isinstance(price, dict) or price.get("isCanBuy") is not True:
+                continue
+            red, rrp = price.get("price"), price.get("sysPrice")
+            if (type(red) is int and type(rrp) is int and
+                    0 < red <= rrp <= 200_000_000):
+                pairs.add((rrp, red))
+    if len(pairs) != 1:
+        return None
+    rrp, red = pairs.pop()
+    result = build_result(rrp, red, False, 0, "brand_tab")
+    result["flash_src"] = []
+    return result
+
+
+def fetch_variant_from_catalog_api(model_code, want_slug):
+    """Fetch the exact variant price from TGDD's live catalog popup."""
     try:
         resp = http_get(CATALOG_API.format(model_code=model_code))
         if resp.status_code != 200:
+            print(f"  [CATALOG_API] {want_slug}: HTTP {resp.status_code}.", flush=True)
             return None
-        data = resp.json()
+        result = parse_popup_variant_prices(resp.json(), want_slug)
     except Exception as e:
-        print(f"  [CATALOG_API] {want_slug}: khong goi duoc API danh muc: {e}", flush=True)
+        print(f"  [CATALOG_API] {want_slug}: khong doc duoc API: {e}", flush=True)
         return None
-
-    ung_vien = []
-
-    def duyet(node):
-        if isinstance(node, list):
-            for x in node:
-                duyet(x)
-            return
-        if not isinstance(node, dict):
-            return
-        # Muc nay co tro toi dung slug can tim khong?
-        trung_slug = any(
-            isinstance(v, str) and want_slug in v
-            for k, v in node.items()
-            if re.search(r"url|slug|link|href", str(k), re.I)
-        )
-        if trung_slug:
-            gia = {}
-            for k, v in node.items():
-                if isinstance(v, (int, float)) and 100_000 <= v <= 200_000_000:
-                    gia[str(k).lower()] = int(v)
-            if gia:
-                ung_vien.append(gia)
-        for v in node.values():
-            duyet(v)
-
-    duyet(data)
-    if not ung_vien:
-        print(f"  [CATALOG_API] {want_slug}: API tra ve nhung khong tim thay muc nao "
-              f"tro toi slug nay - bo qua, khong doan so.", flush=True)
-        return None
-
-    gia = ung_vien[0]
-    red = next((gia[k] for k in ("price", "saleprice", "finalprice", "pricesale") if k in gia), 0)
-    rrp = next((gia[k] for k in ("priceold", "oldprice", "listprice", "originalprice",
-                                 "pricemarket", "strikeprice") if k in gia), 0)
-    if not red:
-        so = sorted(gia.values())
-        red, rrp = (so[0], so[-1]) if len(so) >= 2 else (so[0] if so else 0, 0)
-    if not red:
-        return None
-    if not rrp or rrp < red:
-        rrp = red
-    red = round(red / 1000.0) * 1000
-    rrp = round(rrp / 1000.0) * 1000
-    print(f"  [CATALOG_API] {want_slug}: lay duoc gia tu danh muc /dtdd "
-          f"(rrp={rrp} red={red}).", flush=True)
-    res = build_result(rrp, red, False, 0, "brand_tab")
-    res["flash_src"] = []
-    return res
+    if result:
+        print(f"  [CATALOG_API] {want_slug}: gia live rrp={result['rrp']} red={result['red']}.", flush=True)
+    else:
+        print(f"  [CATALOG_API] {want_slug}: khong co cap gia duy nhat dung URL SKU.", flush=True)
+    return result
 
 
 def slug_from_soup(soup):
@@ -1491,7 +1412,6 @@ def main():
     # trong khi Flash Sale co the doi trang thai theo khung gio.
     rows = verify_flash_rows(rows)
     rows = blank_flat_regressions(rows, previous_rows)
-    rows = apply_pinned_prices(rows)
     ok = sum(1 for r in rows if r["status"] == "active")
     if ok < min_active_count:
         sys.exit(f"ERROR: sau kiem tra Flash Sale chi con {ok}/{len(products)} model "

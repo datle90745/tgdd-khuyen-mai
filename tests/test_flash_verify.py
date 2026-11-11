@@ -3,6 +3,7 @@ import sys
 import json
 import tempfile
 import unittest
+from types import SimpleNamespace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
@@ -33,8 +34,58 @@ class FlashVerifyTests(unittest.TestCase):
     def verify(self, first, second):
         with (patch.object(scan_tgdd, "fetch_live_flashsale_slugs", return_value=set()),
               patch.object(scan_tgdd, "scan_one", return_value=second),
+              patch.object(scan_tgdd, "fetch_model_from_brand_hub", return_value=None),
               patch.object(scan_tgdd, "apply_variant_guard", side_effect=lambda model, row, base: row)):
             return scan_tgdd.verify_flash_rows([first])[0]
+
+    def test_final_no_price_rechecks_live_brand_card(self):
+        first = {"model": "iPhone Duo 256GB", "url": "https://www.thegioididong.com/dtdd/iphone-duo",
+                 "status": "active", "rrp": 60000000, "red": 60000000, "pmh": 0,
+                 "banner": False, "kind": "brand_tab", "flash_src": []}
+        live = scan_tgdd.build_result(64990000, 64990000, False, 0, "brand_tab")
+        with (patch.object(scan_tgdd, "fetch_live_flashsale_slugs", return_value=set()),
+              patch.object(scan_tgdd, "scan_one", return_value={"status": "no_price"}),
+              patch.object(scan_tgdd, "fetch_model_from_brand_hub", return_value=live) as hub,
+              patch.object(scan_tgdd, "apply_variant_guard", side_effect=lambda model, row, base: row)):
+            result = scan_tgdd.verify_flash_rows([first])[0]
+        hub.assert_called_once_with("iphone-duo", refresh=True)
+        self.assertEqual((result["status"], result["rrp"], result["pmh"]),
+                         ("active", 64990000, 0))
+
+    def test_final_hub_refresh_does_not_use_old_catalog_cache(self):
+        old_items, old_visited = scan_tgdd._CATALOG_ITEMS, scan_tgdd._HUB_VISITED
+        html = ('<div data-product-code="1" data-model-code="2">'
+                '<a href="/dtdd/iphone-duo">iPhone Duo 256GB</a>'
+                '<a class="text-red-7"><span>64.990.000đ</span></a></div>')
+        scan_tgdd._CATALOG_ITEMS = {"iphone-duo": {"rrp": 60000000, "red": 60000000}}
+        scan_tgdd._HUB_VISITED = {"iphone-duo|https://www.thegioididong.com/dtdd-apple-iphone"}
+        try:
+            with patch.object(scan_tgdd, "http_get", return_value=SimpleNamespace(status_code=200, text=html)) as get:
+                result = scan_tgdd.fetch_model_from_brand_hub("iphone-duo", refresh=True)
+            self.assertGreater(get.call_count, 0)
+            self.assertEqual(result["rrp"], 64990000)
+        finally:
+            scan_tgdd._CATALOG_ITEMS = old_items
+            scan_tgdd._HUB_VISITED = old_visited
+
+    def test_current_scan_cannot_load_pinned_prices(self):
+        self.assertFalse(hasattr(scan_tgdd, "PINNED_PRICES"))
+        self.assertFalse(hasattr(scan_tgdd, "apply_pinned_prices"))
+
+    def test_popup_reads_exact_variant_and_rejects_conflicting_colors(self):
+        target = "oppo-a7-pro-5g-8gb-256gb"
+        data = {"data": {"boxBuys": [
+            {"url": "dtdd/oppo-a7-pro-5g-6gb-256gb", "productPrices": [
+                {"price": 13990000, "sysPrice": 14490000, "isCanBuy": True}]},
+            {"url": f"dtdd/{target}", "productPrices": [
+                {"price": 14680000, "sysPrice": 15490000, "isCanBuy": True}]},
+        ]}}
+        result = scan_tgdd.parse_popup_variant_prices(data, target)
+        self.assertEqual((result["rrp"], result["red"], result["pmh"]),
+                         (15490000, 14680000, 810000))
+        data["data"]["boxBuys"].append({"url": f"dtdd/{target}", "productPrices": [
+            {"price": 14990000, "sysPrice": 15490000, "isCanBuy": True}]})
+        self.assertIsNone(scan_tgdd.parse_popup_variant_prices(data, target))
 
     def test_missing_red_on_second_pass_does_not_reuse_first_pass_discount(self):
         first = {"model": "Sample 8GB/256GB", "url": "https://www.thegioididong.com/dtdd/sample",
