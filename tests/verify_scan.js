@@ -209,6 +209,9 @@ if (scanData) {
     }
     if (seen.has(model)) fail(`Model TRUNG LAP trong ${scanFileName}: ${model}`);
     seen.add(model);
+    if (r.kind === 'pin') {
+      fail(`${model}: gia ghim tu dot cu khong duoc dung trong du lieu hien tai`);
+    }
 
     if (r.status !== 'active') {
       if (r.pmh !== null && r.pmh !== undefined) {

@@ -104,13 +104,19 @@ function publish(snapshot) {
     content: Buffer.from(JSON.stringify(snapshot)).toString('base64'), branch: 'main' };
   if (sha) payload.sha = sha;
   const temp = join(tmpdir(), `fpt-live-${snapshot.batch_id}.json`);
+  let snapshotCommit;
   try {
     writeFileSync(temp, JSON.stringify(payload), { mode: 0o600 });
-    command(GH, ['api', path, '-X', 'PUT', '--input', temp]);
+    const uploaded = JSON.parse(command(GH, ['api', path, '-X', 'PUT', '--input', temp]));
+    snapshotCommit = uploaded.commit?.sha;
+    if (!/^[0-9a-f]{40}$/.test(snapshotCommit || '')) {
+      throw new Error('GitHub did not return the FPT snapshot commit SHA');
+    }
   } finally { try { unlinkSync(temp); } catch {} }
   command(GH, ['workflow', 'run', 'scan-tgdd.yml', '--repo', REPO,
-    '--ref', 'main', '-f', `fpt_batch_id=${snapshot.batch_id}`]);
-  console.log(`Published batch ${snapshot.batch_id} and dispatched GitHub scan`);
+    '--ref', 'main', '-f', `fpt_batch_id=${snapshot.batch_id}`,
+    '-f', `fpt_snapshot_sha=${snapshotCommit}`]);
+  console.log(`Published batch ${snapshot.batch_id} at ${snapshotCommit} and dispatched GitHub scan`);
 }
 
 const snapshot = await collect();

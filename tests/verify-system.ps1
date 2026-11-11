@@ -565,12 +565,13 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         ($linksText -match '"A7 Pro 5G 6GB/256GB"') -and ($linksText -match '"A7 Pro 5G 8GB/128GB"')
     } "data/links.js thieu key 'A7 Pro 5G 6GB/256GB' hoac 'A7 Pro 5G 8GB/128GB'"
 
-    Assert-Check "A7 Pro 5G van du 3 bien the trong bao cao" {
+    Assert-Check "A7 Pro 5G van du 3 bien the va hien tai khong co gia ghim" {
         $raw = (Get-Content "data/latest.js" -Raw -Encoding UTF8) -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.LATEST\s*=\s*', ''
         $latestObj = $raw.TrimEnd(" ;`r`n") | ConvertFrom-Json
         $models = @("A7 Pro 5G 6GB/256GB", "A7 Pro 5G 8GB/128GB", "A7 Pro 5G 8GB/256GB")
-        @($latestObj.rows | Where-Object { $_.model -in $models }).Count -eq 3
-    } "data/latest.js thieu bien the A7 Pro"
+        (@($latestObj.rows | Where-Object { $_.model -in $models }).Count -eq 3) -and
+        (@($latestObj.rows | Where-Object { $_.kind -eq 'pin' }).Count -eq 0)
+    } "data/latest.js thieu bien the A7 Pro hoac van dung gia ghim tu dot cu"
 
     Assert-Check "data/latest.js phai co 'V80 Lite 5G 6GB/256GB' (RRP 14.990.000) va 'V80 Lite 5G 6GB/128GB' (RRP 12.990.000) active" {
         $latestText = Get-Content "data/latest.js" -Raw -Encoding UTF8
