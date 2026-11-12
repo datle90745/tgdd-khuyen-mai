@@ -48,10 +48,28 @@ class FlashVerifyTests(unittest.TestCase):
                  "banner": False, "kind": "moi", "flash_src": []}
         with (patch.object(scan_tgdd, "fetch_live_flashsale_slugs", return_value=set()),
               patch.object(scan_tgdd, "scan_one", return_value=first.copy()),
+              patch.object(scan_tgdd, "last_check_tu_danh_muc", return_value=None),
               patch.object(scan_tgdd, "current_local_variants", return_value={
                   "oppo-a7-pro-5g-6gb-256gb": (14490000, 13990000)}),
               patch.object(scan_tgdd, "apply_variant_guard", side_effect=lambda model, row, base: row)):
             result = scan_tgdd.verify_flash_rows([first])[0]
+        self.assertEqual((result["status"], result["rrp"], result["red"], result["pmh"]),
+                         ("active", 14490000, 13990000, 500000))
+
+    def test_final_rechecks_exact_a7_api_after_pdp_loses_red(self):
+        first = {"model": "A7 Pro 5G 6GB/256GB",
+                 "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-6gb-256gb",
+                 "status": "active", "rrp": 14490000, "red": 13990000, "pmh": 500000,
+                 "banner": False, "kind": "brand_tab", "flash_src": []}
+        sibling_pdp = scan_tgdd.build_result(13490000, 13490000, False, 0, "moi")
+        exact = scan_tgdd.build_result(14490000, 13990000, False, 0, "brand_tab")
+        with (patch.object(scan_tgdd, "fetch_live_flashsale_slugs", return_value=set()),
+              patch.object(scan_tgdd, "scan_one", return_value=sibling_pdp),
+              patch.object(scan_tgdd, "last_check_tu_danh_muc", return_value=exact) as popup,
+              patch.object(scan_tgdd, "current_local_variants", return_value={}),
+              patch.object(scan_tgdd, "apply_variant_guard", side_effect=lambda model, row, base: row)):
+            result = scan_tgdd.verify_flash_rows([first])[0]
+        popup.assert_called_once_with(first)
         self.assertEqual((result["status"], result["rrp"], result["red"], result["pmh"]),
                          ("active", 14490000, 13990000, 500000))
 
@@ -90,6 +108,7 @@ class FlashVerifyTests(unittest.TestCase):
         with (patch.object(scan_tgdd, "fetch_live_flashsale_slugs", return_value=set()),
               patch.object(scan_tgdd, "scan_one", return_value=second),
               patch.object(scan_tgdd, "fetch_model_from_brand_hub", return_value=None),
+              patch.object(scan_tgdd, "last_check_tu_danh_muc", return_value=None),
               patch.object(scan_tgdd, "apply_variant_guard", side_effect=lambda model, row, base: row)):
             return scan_tgdd.verify_flash_rows([first])[0]
 

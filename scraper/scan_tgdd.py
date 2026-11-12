@@ -573,11 +573,12 @@ def verify_flash_rows(rows):
                     "flash_src": [], "debug": reason})
 
     for r, slug in cands:
+        exact_price_verified = False
         try:
             again = scan_one(r["url"], attempts=2, allow_hub_fallback=False)
         except Exception as e:
             again = {"status": "error", "debug": str(e)}
-        if again.get("status") != "active" or not again.get("rrp"):
+        if again.get("status") != "active" or not again.get("rrp") or not again.get("red"):
             # PDP can be a marketing page without a price while the current
             # brand card still has it. Refetch that card NOW, never reuse the
             # catalog captured at the beginning of this scan.
@@ -592,19 +593,38 @@ def verify_flash_rows(rows):
                     again = build_result(hub["rrp"], hub["red"], True, 0, "brand_tab")
                     again["flash_src"] = ["hub"]
                 print(f"  [FLASH_VERIFY] {r['model']}: xac minh lai gia tu danh muc live.", flush=True)
-        # GitHub cannot connect to the variant popup or render its dynamic
-        # card. The Windows task retrieves the exact SKU popup in this same
-        # batch; accept it only with matching batch ID and a short TTL.
-        if (again.get("status") != "active" or not again.get("rrp") or
-                (again.get("red") == again.get("rrp") and not again.get("banner"))):
+        # A variant landing page can show its sibling's full RRP. Refetch the
+        # exact SKU popup in this final pass; the first-pass price is never
+        # reused. A matching Windows batch remains a fallback when available.
+        needs_exact = (again.get("status") != "active" or not again.get("rrp") or not again.get("red") or
+                       (again.get("red") == again.get("rrp") and not again.get("banner") and
+                        (r.get("red") or 0) < (r.get("rrp") or 0)))
+        if needs_exact:
+            try:
+                exact = last_check_tu_danh_muc(r)
+            except Exception as e:
+                exact = None
+                print(f"  [FLASH_VERIFY] {r['model']}: API SKU loi ({e}).", flush=True)
+            if exact and exact.get("status") == "active" and exact.get("rrp") and exact.get("red"):
+                again = exact
+                exact_price_verified = True
+                if slug in fresh:
+                    again = build_result(exact["rrp"], exact["red"], True, 0, "brand_tab")
+                    again["flash_src"] = ["hub"]
+                print(f"  [FLASH_VERIFY] {r['model']}: xac minh lai gia API dung SKU "
+                      f"rrp={exact['rrp']} red={exact['red']}.", flush=True)
+        if (again.get("status") != "active" or not again.get("rrp") or not again.get("red") or
+                (again.get("red") == again.get("rrp") and not again.get("banner") and
+                 not exact_price_verified)):
             local_pair = current_local_variants().get(slug)
             if local_pair:
                 rrp, red = local_pair
                 again = build_result(rrp, red, slug in fresh, 0, "brand_tab")
                 again["flash_src"] = ["hub"] if slug in fresh else []
+                exact_price_verified = True
                 print(f"  [FLASH_VERIFY] {r['model']}: xac minh gia SKU live tu "
                       f"Windows batch rrp={rrp} red={red}.", flush=True)
-        if again.get("status") != "active" or not again.get("rrp"):
+        if again.get("status") != "active" or not again.get("rrp") or not again.get("red"):
             unverified += 1
             print(f"  [FLASH_VERIFY] {r['model']}: quet lai ra status={again.get('status')}, "
                   f"de trong du lieu hien tai.", flush=True)
@@ -613,7 +633,7 @@ def verify_flash_rows(rows):
         again = apply_variant_guard(r["model"], again, base_rrp_map)
         # A landing page can omit the red price in this request. The first-pass
         # price must not be carried into a final result that lacks confirmation.
-        if (not again.get("banner") and
+        if (not exact_price_verified and not again.get("banner") and
                 (again.get("red") or 0) >= (again.get("rrp") or 0) and
                 (r.get("red") or 0) < (r.get("rrp") or 0)):
             unverified += 1

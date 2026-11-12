@@ -6,3 +6,6 @@ workers_dev = true
 
 [secrets]
 required = ["PROXY_TOKEN"]
+
+[placement]
+hostname = "papi.fptshop.com.vn"
