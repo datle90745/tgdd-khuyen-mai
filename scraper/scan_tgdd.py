@@ -468,10 +468,13 @@ def last_check_tu_danh_muc(row):
     # The static card contains only the default SKU price. When GetPopup is
     # blocked, click the exact SKU pill in a real browser and read the card
     # after its title, price link and crossed-out price all switch to that SKU.
-    browser_result = fetch_variant_from_live_card(slug)
-    if browser_result:
-        print(f"  [LAST_CHECK] {row.get('model')}: gia tu pill live /dtdd.", flush=True)
-        return browser_result
+    # GitHub cannot open TGDĐ in Chromium; a timeout here adds a minute per
+    # missing variant. The Worker API above is the cloud source of live prices.
+    if os.environ.get("GITHUB_ACTIONS") != "true":
+        browser_result = fetch_variant_from_live_card(slug)
+        if browser_result:
+            print(f"  [LAST_CHECK] {row.get('model')}: gia tu pill live /dtdd.", flush=True)
+            return browser_result
     print(f"  [LAST_CHECK] {row.get('model')}: khong lay duoc gia tu danh muc /dtdd.", flush=True)
     return None
 
@@ -928,9 +931,10 @@ def parse_popup_variant_prices(data, want_slug):
 def fetch_variant_from_catalog_api(model_code, want_slug):
     """Fetch the exact variant price from TGDD's live catalog popup."""
     url = CATALOG_API.format(model_code=model_code)
-    # The general site needs the Worker on GitHub, but api.thegioididong.com
-    # may allow a direct request even when the Worker receives HTTP 403.
-    for route in ("direct", "worker"):
+    # GitHub cannot connect directly to this API. Use the deployed Worker
+    # when configured; local Windows scans still use the direct production API.
+    routes = ("worker",) if CF_PROXY_URL and CF_PROXY_TOKEN else ("direct",)
+    for route in routes:
         if route == "worker" and not (CF_PROXY_URL and CF_PROXY_TOKEN):
             continue
         try:

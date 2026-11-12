@@ -2,24 +2,8 @@ name: Quét PMH TGDĐ
 
 on:
   schedule:
-    # Quet tu dong dinh ky 3 tieng / lan (8 lan/ngay 24/7) theo gio Viet Nam (UTC+7):
-    # 00:05, 03:05, 06:05, 09:05, 12:05, 15:05, 18:05, 21:05 (gio VN)
-    # 00:05 VN (17:05 UTC) - Nua dem mo dau ngay
-    - cron: '5 17 * * *'
-    # 03:05 VN (20:05 UTC) - Dem khuya
-    - cron: '5 20 * * *'
-    # 06:05 VN (23:05 UTC) - Sang som
-    - cron: '5 23 * * *'
-    # 09:05 VN (02:05 UTC) - Flash Sale sang
-    - cron: '5 2 * * *'
-    # 12:05 VN (05:05 UTC) - Flash Sale trua
-    - cron: '5 5 * * *'
-    # 15:05 VN (08:05 UTC) - Flash Sale chieu
-    - cron: '5 8 * * *'
-    # 18:05 VN (11:05 UTC) - Flash Sale toi
-    - cron: '5 11 * * *'
-    # 21:05 VN (14:05 UTC) - Chot dem
-    - cron: '5 14 * * *'
+    # Recheck every 30 minutes; scan when verified TGDĐ result is >=90 minutes old.
+    - cron: '5,35 * * * *'
   workflow_dispatch:
     inputs:
       fpt_batch_id:
@@ -45,7 +29,7 @@ jobs:
       run: ${{ steps.decide.outputs.run }}
     steps:
       - uses: actions/checkout@v5
-      - name: Bỏ lượt lịch nếu Windows đã hoàn tất lượt FPT mới
+      - name: Bỏ lượt lịch khi đợt TGDĐ đã xác minh còn mới
         id: decide
         run: |
           if [ "${{ github.event_name }}" = "schedule" ]; then
@@ -66,11 +50,10 @@ jobs:
       - run: pip install -r scraper/requirements.txt
       - name: Kiem tra hoi quy luot quet Flash Sale cuoi
         run: python -m unittest discover -s tests -p 'test_flash_verify.py'
+      - name: Kiem tra quy tac lich quet
+        run: node tests/test_schedule.mjs
       - name: Kiem tra du lieu qua han va dong chua xac minh tren web
         run: node tests/test_freshness.js
-      # FPT Shop chặn kết nối từ máy chủ, cài đặt Playwright & Xvfb
-      - run: python -m playwright install --with-deps chromium
-      - run: sudo apt-get install -y --no-install-recommends xvfb
       - name: Lấy hai snapshot Windows của đúng batch trước khi quét
         if: inputs.fpt_snapshot_sha != ''
         env:
@@ -89,6 +72,19 @@ jobs:
           CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
           TGDD_BATCH_ID: ${{ inputs.fpt_batch_id }}
         run: python scraper/scan_tgdd.py
+      - name: Quét FPT production API qua Cloudflare khi không có batch Windows
+        id: fpt_cloud
+        if: github.event_name == 'schedule' || inputs.fpt_batch_id == ''
+        continue-on-error: true
+        env:
+          CF_PROXY_URL: ${{ secrets.CF_PROXY_URL }}
+          CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
+        run: node scraper/scan_fpt_cloud.mjs
+      # Browser setup for market cannot block the independently verified TGDĐ scan.
+      - run: python -m playwright install --with-deps chromium
+        continue-on-error: true
+      - run: sudo apt-get install -y --no-install-recommends xvfb
+        continue-on-error: true
       - name: Quét toàn thị trường (TGDĐ, CellphoneS, FPT Shop, Viettel Store)
         id: market
         continue-on-error: true
@@ -96,7 +92,7 @@ jobs:
           CF_PROXY_URL: ${{ secrets.CF_PROXY_URL }}
           CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
           ERP_PORTAL_COOKIE: ${{ secrets.ERP_PORTAL_COOKIE }}
-          FPT_BATCH_ID: ${{ inputs.fpt_batch_id }}
+          FPT_BATCH_ID: ${{ inputs.fpt_batch_id || steps.fpt_cloud.outputs.batch_id }}
         run: xvfb-run -a python scraper/scan_market.py
       # Trước đây bước báo lỗi nằm SAU bước commit, nên một bước quét hỏng thì hoàn toàn
       # im lặng, còn cả hai hỏng thì vẫn commit dữ liệu cũ rồi mới báo đỏ. Giờ chặn trước.

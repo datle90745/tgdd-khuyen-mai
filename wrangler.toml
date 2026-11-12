@@ -1,0 +1,8 @@
+name = "tgdd-proxy"
+main = "cloudflare-worker.js"
+compatibility_date = "2026-11-12"
+account_id = "188fc56ec6eb2c0ae04e322b6c64602b"
+workers_dev = true
+
+[secrets]
+required = ["PROXY_TOKEN"]

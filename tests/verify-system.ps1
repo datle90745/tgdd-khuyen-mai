@@ -829,6 +829,13 @@ if (-not (Test-Path $e2eHtml)) {
 
     # Kiem tra truc tiep DOM cua index.html va promotion tgdd.html xem ca 2 bien the A7 Pro 5G co render day du so lieu rieng biet hay khong
     $domCheckFiles = @("index.html", "promotion tgdd.html")
+    # Compare the rendered prices with this run's verified scan, not an old price.
+    $latestSource = Get-Content "data/latest.js" -Raw -Encoding UTF8
+    $latestJson = [regex]::Match($latestSource, '(?s)window\.LATEST\s*=\s*(\{.*\});').Groups[1].Value
+    $latestRows = (ConvertFrom-Json $latestJson).rows
+    $redmiLatest = $latestRows | Where-Object { $_.model -eq 'Redmi 17 4G 6GB/256GB' } | Select-Object -First 1
+    $a18Latest = $latestRows | Where-Object { $_.model -eq 'Galaxy A18 6GB/128GB' } | Select-Object -First 1
+    $viCulture = [cultureinfo]::GetCultureInfo('vi-VN')
     foreach ($dcf in $domCheckFiles) {
         $fullDcf = (Get-Item $dcf).FullName
         $tempDcf = "$env:TEMP\dom_check_$($dcf -replace '[^\w]','_').html"
@@ -886,18 +893,28 @@ if (-not (Test-Path $e2eHtml)) {
             } "$dcf khong an to vang hoac van con co RRP tang cho Realme 16 (hoac khong render duoc dong nay)"
 
             $redmiRow = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="Redmi 17 4G 6GB/256GB"[^>]*>(.*?)</tr>')
-            Assert-Check "DOM E2E: $dcf phai render gia online Redmi 17 4G 6GB/256GB dung (khong tru nham choice 200k)" {
-                $redmiRow.Success -and 
-                ($redmiRow.Groups[1].Value -match '5\.780\.000|5\.790\.000|5\.840\.000|5\.990\.000|6\.790\.000|7\.290\.000') -and
-                ($redmiRow.Groups[1].Value -notmatch '5\.580\.000|6\.590\.000')
+            Assert-Check "DOM E2E: $dcf phai render gia online Redmi 17 4G 6GB/256GB dung theo dot moi nhat" {
+                if (-not $redmiRow.Success -or -not $redmiLatest) { return $false }
+                if ($redmiLatest.status -ne 'active') {
+                    return $redmiRow.Groups[1].Value -match 'Chưa xác minh'
+                }
+                $correct = ([int]$redmiLatest.red).ToString('N0', $viCulture)
+                $wrong = ([int]($redmiLatest.red - $redmiLatest.choice)).ToString('N0', $viCulture)
+                ($redmiRow.Groups[1].Value -match [regex]::Escape($correct)) -and
+                (($redmiLatest.choice -le 0) -or
+                 ($redmiRow.Groups[1].Value -notmatch [regex]::Escape($wrong)))
             } "$dcf hien thi sai gia online cho Redmi 17 4G 6GB/256GB"
 
             $a18Row = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="Galaxy A18 6GB/128GB"[^>]*>(.*?)</tr>')
-            Assert-Check "DOM E2E: $dcf phai hien thi Galaxy A18 6GB/128GB la kenh Mass (RRP 7.190.000)" {
-                $a18Row.Success -and 
-                ($a18Row.Groups[1].Value -match 'class="badge mass">Mass<') -and
-                ($a18Row.Groups[1].Value -match '7\.190\.000')
-            } "$dcf khong hien thi Galaxy A18 6GB/128GB kenh Mass RRP 7.190.000"
+            Assert-Check "DOM E2E: $dcf phai hien thi Galaxy A18 6GB/128GB theo trang thai moi nhat" {
+                if (-not $a18Row.Success -or -not $a18Latest -or
+                    $a18Row.Groups[1].Value -notmatch 'class="badge mass">Mass<') { return $false }
+                if ($a18Latest.status -ne 'active') {
+                    return $a18Row.Groups[1].Value -match 'Chưa xác minh'
+                }
+                $rrpText = ([int]$a18Latest.rrp).ToString('N0', $viCulture)
+                $a18Row.Groups[1].Value -match [regex]::Escape($rrpText)
+            } "$dcf hien thi sai trang thai hoac RRP cho Galaxy A18 6GB/128GB"
 
             $renoRow = [regex]::Match($domContent, '(?s)<tr[^>]*data-m="Reno16F 5G 8GB/256GB"[^>]*>(.*?)</tr>')
             Assert-Check "DOM E2E: $dcf phai hien thi Reno16F 5G 8GB/256GB la kenh Mass" {
