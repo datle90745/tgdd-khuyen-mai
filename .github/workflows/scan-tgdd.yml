@@ -72,14 +72,6 @@ jobs:
           CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
           TGDD_BATCH_ID: ${{ inputs.fpt_batch_id }}
         run: python scraper/scan_tgdd.py
-      - name: Quét FPT production API qua Cloudflare khi không có batch Windows
-        id: fpt_cloud
-        if: github.event_name == 'schedule' || inputs.fpt_batch_id == ''
-        continue-on-error: true
-        env:
-          CF_PROXY_URL: ${{ secrets.CF_PROXY_URL }}
-          CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
-        run: node scraper/scan_fpt_cloud.mjs
       # Browser setup for market cannot block the independently verified TGDĐ scan.
       - run: python -m playwright install --with-deps chromium
         continue-on-error: true
@@ -92,7 +84,7 @@ jobs:
           CF_PROXY_URL: ${{ secrets.CF_PROXY_URL }}
           CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
           ERP_PORTAL_COOKIE: ${{ secrets.ERP_PORTAL_COOKIE }}
-          FPT_BATCH_ID: ${{ inputs.fpt_batch_id || steps.fpt_cloud.outputs.batch_id }}
+          FPT_BATCH_ID: ${{ inputs.fpt_batch_id }}
         run: xvfb-run -a python scraper/scan_market.py
       # Trước đây bước báo lỗi nằm SAU bước commit, nên một bước quét hỏng thì hoàn toàn
       # im lặng, còn cả hai hỏng thì vẫn commit dữ liệu cũ rồi mới báo đỏ. Giờ chặn trước.
