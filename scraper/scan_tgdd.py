@@ -975,7 +975,9 @@ def parse_popup_variant_prices(data, want_slug):
     box_buys = data.get("data", {}).get("boxBuys", []) if isinstance(data, dict) else []
     if not isinstance(box_buys, list):
         return None
-    pairs = set()
+    base_pairs = set()
+    active_promo_pairs = set()
+    now = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh"))
     target = f"dtdd/{want_slug}"
     for item in box_buys:
         if not isinstance(item, dict) or item.get("url", "").lstrip("/").split("?")[0] != target:
@@ -984,9 +986,27 @@ def parse_popup_variant_prices(data, want_slug):
             if not isinstance(price, dict) or price.get("isCanBuy") is not True:
                 continue
             red, rrp = price.get("price"), price.get("sysPrice")
-            if (type(red) is int and type(rrp) is int and
+            if not (type(red) is int and type(rrp) is int and
                     0 < red <= rrp <= 200_000_000):
-                pairs.add((rrp, red))
+                continue
+            start, end = price.get("startDate"), price.get("endDate")
+            if start or end:
+                try:
+                    if not start or not end:
+                        continue
+                    start_at = datetime.fromisoformat(start)
+                    end_at = datetime.fromisoformat(end)
+                    if start_at.tzinfo is None:
+                        start_at = start_at.replace(tzinfo=now.tzinfo)
+                    if end_at.tzinfo is None:
+                        end_at = end_at.replace(tzinfo=now.tzinfo)
+                    if start_at <= now <= end_at:
+                        active_promo_pairs.add((rrp, red))
+                except (TypeError, ValueError):
+                    continue
+            else:
+                base_pairs.add((rrp, red))
+    pairs = active_promo_pairs if active_promo_pairs else base_pairs
     if len(pairs) != 1:
         return None
     rrp, red = pairs.pop()
@@ -1114,6 +1134,14 @@ def fetch_full_dtdd_prices(wanted_slugs):
         matches = []
         for model_code, page_index in sorted(candidates):
             result = fetch_variant_from_catalog_api(model_code, slug)
+            if not result and CF_PROXY_URL and CF_PROXY_TOKEN:
+                # Intermittent popup responses can omit one storage variant.
+                # Recheck the same exact SKU; each call has a fresh URL.
+                for attempt in range(2):
+                    time.sleep(0.5 * (attempt + 1))
+                    result = fetch_variant_from_catalog_api(model_code, slug)
+                    if result:
+                        break
             source = "dtdd_full_catalog_popup"
             if not result:
                 result = candidates[(model_code, page_index)]

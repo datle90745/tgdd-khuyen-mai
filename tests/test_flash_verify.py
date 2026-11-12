@@ -161,6 +161,27 @@ class FlashVerifyTests(unittest.TestCase):
             {"price": 14990000, "sysPrice": 15490000, "isCanBuy": True}]})
         self.assertIsNone(scan_tgdd.parse_popup_variant_prices(data, target))
 
+    def test_popup_selects_only_current_timed_promotion(self):
+        target = "samsung-galaxy-a18-4gb-128gb"
+        now = datetime.now(ZoneInfo("Asia/Ho_Chi_Minh"))
+        def stamp(minutes):
+            return (now + timedelta(minutes=minutes)).replace(tzinfo=None).isoformat()
+        prices = [
+            {"price": 6590000, "sysPrice": 6590000, "isCanBuy": True},
+            {"price": 6090000, "sysPrice": 6590000, "isCanBuy": True,
+             "startDate": stamp(-10), "endDate": stamp(10)},
+            {"price": 5590000, "sysPrice": 6590000, "isCanBuy": True,
+             "startDate": stamp(20), "endDate": stamp(60)},
+        ]
+        data = {"data": {"boxBuys": [{"url": f"dtdd/{target}",
+                                        "productPrices": prices}]}}
+        result = scan_tgdd.parse_popup_variant_prices(data, target)
+        self.assertEqual((result["rrp"], result["red"]), (6590000, 6090000))
+        prices[1]["startDate"] = stamp(-60)
+        prices[1]["endDate"] = stamp(-20)
+        result = scan_tgdd.parse_popup_variant_prices(data, target)
+        self.assertEqual((result["rrp"], result["red"]), (6590000, 6590000))
+
     def test_missing_red_on_second_pass_does_not_reuse_first_pass_discount(self):
         first = {"model": "Sample 8GB/256GB", "url": "https://www.thegioididong.com/dtdd/sample",
                  "status": "active", "rrp": 10990000, "red": 9770000, "pmh": 1220000,
