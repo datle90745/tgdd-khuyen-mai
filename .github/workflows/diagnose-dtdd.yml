@@ -1,0 +1,27 @@
+name: Kiểm tra nguồn TGDĐ
+on:
+  workflow_dispatch:
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kiểm tra hai phiên bản bằng đường quét đám mây
+        env:
+          CF_PROXY_URL: ${{ secrets.CF_PROXY_URL }}
+          CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
+        run: |
+          node --input-type=module <<'JS'
+          for (const [id, slug] of [
+            ['224023', 'samsung-galaxy-a08-4gb-64gb'],
+            ['234423', 'samsung-galaxy-a18-4gb-128gb']
+          ]) {
+            const target = `https://api.thegioididong.com/gw/bus-tgdd-tmdt/api/Product/GetPopup?modelCode=${id}&provinceId=1000&sellerId=10&_=${Date.now()}`;
+            const url = `${process.env.CF_PROXY_URL}/fetch?url=${encodeURIComponent(target)}`;
+            const response = await fetch(url, {headers: {'X-Proxy-Token': process.env.CF_PROXY_TOKEN,
+              Accept: 'application/json', Origin: 'https://www.thegioididong.com', Referer: 'https://www.thegioididong.com/dtdd'}});
+            const body = await response.json();
+            const rows = (body.data?.boxBuys || []).filter(x => x.url?.replace(/^\//,'').split('?')[0] === `dtdd/${slug}`);
+            console.log(JSON.stringify({slug,http:response.status,code:body.code,total:body.data?.boxBuys?.length,
+              match:rows.length,prices:rows.map(x => x.productPrices?.map(y => ({rrp:y.sysPrice,red:y.price,buy:y.isCanBuy})))}));
+          }
+          JS
