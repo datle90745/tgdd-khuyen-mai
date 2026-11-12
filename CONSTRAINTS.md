@@ -184,14 +184,18 @@ Scraper đọc không ra giá → trả về `red = rrp` → `diff = 0` → `PMH
 đợt quét phát hiện được**. Đã xảy ra với OPPO A7 Pro ngày 09-11-2026.
 
 - `tests/verify_scan.js` bắt buộc so đợt quét mới với đợt liền trước:
-  - **CHẶN COMMIT** khi một model đang có `PMH > 0` bỗng về `PMH = 0` **và** `red == rrp`.
-  - **CHẶN và không thể bỏ qua** khi số model như vậy vượt `maxFlatZeroDrops` — nhiều model
-    cùng tụt phẳng một lúc là lỗi code, không phải thị trường.
+  - **CHẶN COMMIT** khi một model đang có `PMH > 0` bỗng về `PMH = 0` **và** `red == rrp`
+    mà chưa có bằng chứng giá đúng SKU từ chính đợt quét.
+  - **CHẶN và không thể bỏ qua** khi số model chưa xác minh như vậy vượt `maxFlatZeroDrops`
+    — nhiều model cùng tụt phẳng mà không có bằng chứng là dấu hiệu lỗi cào.
   - **Cảnh báo** (không chặn) khi `PMH` về 0 nhưng `red < rrp` — đúng luật 2.1.2 với flash sale
     không có mục "Chọn 1 trong".
-- Muốn cho qua một trường hợp: đối soát card `#o=3` hoặc bảng tracking của người dùng, rồi thêm
-  mục vào `tests/known-zero-pmh.json` **kèm bằng chứng** trong `reason`. Mục đó tự hết hiệu lực
-  khi `rrp` của model đổi.
+- Trường hợp được xác minh tự động phải quét hết các trang "Xem thêm" của `/dtdd`, rồi gọi
+  `GetPopup` và khớp đúng URL SKU, giá, thời điểm trong chính lượt quét. Cổng kiểm tra đối chiếu
+  bằng chứng này; không cần ghi giá thủ công hay lấy giá của lượt trước.
+- Với trường hợp chưa có bằng chứng tự động: đối soát card `#o=3` hoặc bảng tracking của người
+  dùng, rồi thêm mục vào `tests/known-zero-pmh.json` **kèm bằng chứng** trong `reason`.
+  Mục đó tự hết hiệu lực khi `rrp` của model đổi.
 - **Cấm viết chốt đích danh một model.** Kiến thức phải mô tả **lớp lỗi**. 31% khẳng định hiện có
   đang nêu đích danh model/giá cụ thể — đó là lý do cùng một lỗi cứ tái diễn ở model khác.
 

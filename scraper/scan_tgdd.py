@@ -657,6 +657,51 @@ def verify_flash_rows(rows):
     return rows
 
 
+
+def recover_unverified_from_dtdd(rows, previous_rows, live_prices=None):
+    """Final exact-SKU lookup for unresolved and suspicious flat-price rows."""
+    previously_discounted = {r["model"] for r in previous_rows
+                             if r.get("status") == "active" and (r.get("pmh") or 0) > 0}
+    pending = []
+    for row in rows:
+        if not row.get("url"):
+            continue
+        flat = (row.get("model") in previously_discounted and
+                row.get("status") == "active" and row.get("red") == row.get("rrp") and
+                row.get("pmh") == 0)
+        if row.get("status") != "active" or flat:
+            slug = row["url"].rstrip("/").rsplit("/", 1)[-1].split("?")[0]
+            pending.append((row, slug))
+    if not pending:
+        return rows
+    if live_prices is None:
+        try:
+            live_prices = fetch_full_dtdd_prices({slug for _, slug in pending})
+        except Exception as error:
+            print(f"  [DTDD_FULL] khong tai duoc danh muc day du: {error}.", flush=True)
+            return rows
+    base_text = alerts._base_text()
+    base_rrp_map = {m.group(1): int(m.group(2)) for m in
+                    re.finditer(r'"model":\s*"([^"]+)",\s*"rrp":\s*(\d+)', base_text)}
+    for row, slug in pending:
+        exact = live_prices.get(slug)
+        if not exact or exact.get("status") != "active" or not exact.get("dtdd_verification"):
+            print(f"  [DTDD_FULL] {row['model']}: khong co gia dung SKU tren /dtdd.", flush=True)
+            continue
+        in_hub = slug in _LIVE_FLASH_SLUGS
+        result = build_result(exact["rrp"], exact["red"], in_hub, 0, "brand_tab")
+        result["flash_src"] = ["hub"] if in_hub else []
+        result["dtdd_verification"] = exact["dtdd_verification"]
+        result = apply_variant_guard(row["model"], result, base_rrp_map)
+        if result.get("status") != "active":
+            continue
+        row.update(result)
+        row.pop("debug", None)
+        print(f"  [DTDD_FULL] {row['model']}: xac minh gia live dung SKU "
+              f"rrp={row['rrp']} red={row['red']} tren /dtdd.", flush=True)
+    return rows
+
+
 def blank_flat_regressions(rows, previous_rows):
     """Use older prices only to flag an anomaly, never to fill the current scan."""
     previously_discounted = {
@@ -668,7 +713,8 @@ def blank_flat_regressions(rows, previous_rows):
         if (row.get("model") in previously_discounted and
                 row.get("status") == "active" and
                 isinstance(row.get("rrp"), int) and row["rrp"] > 0 and
-                row.get("red") == row["rrp"] and row.get("pmh") == 0):
+                row.get("red") == row["rrp"] and row.get("pmh") == 0 and
+                not row.get("dtdd_verification")):
             print(f"  [FLAT_UNVERIFIED] {row['model']}: gia do bang gia den sau khi "
                   "truoc do co khuyen mai; de trong cho den khi co bang chung live.", flush=True)
             row.update({"status": "error", "rrp": None, "red": None, "pmh": None,
@@ -838,6 +884,7 @@ def extract_choice(soup, text=""):
 
 CATALOG_API = ("https://api.thegioididong.com/gw/bus-tgdd-tmdt/api/Product/GetPopup"
                "?modelCode={model_code}&provinceId=1000&sellerId=10")
+CATALOG_LIST_API = "https://api.thegioididong.com/gw/bus-tgdd-tmdt/api/Cate/GetproductCateV2"
 
 
 def parse_selected_variant_card(card_html, want_slug):
@@ -978,6 +1025,87 @@ def fetch_variant_from_catalog_api(model_code, want_slug):
         except Exception as error:
             print(f"  [CATALOG_API] {want_slug}: {route} loi: {error}", flush=True)
     return None
+
+
+
+def fetch_full_dtdd_prices(wanted_slugs):
+    """Read every /dtdd 'Xem thêm' page, then the popup for each exact SKU.
+
+    This is the API called by TGDĐ's category page. Its response includes
+    remainingQuantity; never treat the first 20 server-rendered cards as all
+    products. Results are fetched anew for this final check, with no disk cache.
+    """
+    wanted = {slug for slug in wanted_slugs if slug}
+    if not wanted:
+        return {}
+    found = {slug: set() for slug in wanted}
+    total = 0
+    pages_scanned = 0
+    for page_index in range(25):
+        payload = {"pageIndex": page_index, "pageSize": 20, "provinceId": 1000,
+                   "urlCate": "/dtdd", "cateId": "42", "filters": []}
+        headers = {"Origin": "https://www.thegioididong.com",
+                   "Referer": "https://www.thegioididong.com/dtdd",
+                   "Accept": "application/json"}
+        if CF_PROXY_URL and CF_PROXY_TOKEN:
+            url = f"{CF_PROXY_URL}/fetch?url={quote(CATALOG_LIST_API, safe='')}"
+            headers["X-Proxy-Token"] = CF_PROXY_TOKEN
+        else:
+            url = CATALOG_LIST_API
+            headers.update(HEADERS)
+        response = requests.post(url, json=payload, headers=headers, timeout=(10, 30))
+        response.raise_for_status()
+        body = response.json()
+        data = body.get("data") if isinstance(body, dict) and body.get("code") == 0 else None
+        products = data.get("products") if isinstance(data, dict) else None
+        remaining = data.get("remainingQuantity") if isinstance(data, dict) else None
+        if (not isinstance(products, list) or type(remaining) is not int or remaining < 0 or
+                type(data.get("totalProduct")) is not int or data["totalProduct"] <= 0):
+            raise RuntimeError(f"/dtdd page {page_index}: invalid or blocked response")
+        total = data["totalProduct"]
+        pages_scanned += 1
+        for product in products:
+            if not isinstance(product, dict):
+                continue
+            model_code = str(product.get("id") or "")
+            if not model_code.isdecimal():
+                continue
+            # Variant URLs are nested in the product object. GetPopup below
+            # still requires an exact boxBuys URL, so sibling text cannot pass.
+            live_card = json.dumps(product, ensure_ascii=False)
+            for slug in wanted:
+                if f"dtdd/{slug}" in live_card:
+                    found[slug].add((model_code, page_index))
+        if remaining == 0:
+            break
+        if not products:
+            raise RuntimeError(f"/dtdd page {page_index}: empty page with {remaining} remaining")
+    else:
+        raise RuntimeError("/dtdd: pagination did not finish in 25 pages")
+    print(f"  [DTDD_FULL] {pages_scanned} trang, {total} model; "
+          f"tim thay {sum(bool(v) for v in found.values())}/{len(wanted)} SKU can doi soat.", flush=True)
+    verified = {}
+    for slug, candidates in found.items():
+        matches = []
+        for model_code, page_index in sorted(candidates):
+            result = fetch_variant_from_catalog_api(model_code, slug)
+            if result and result.get("status") == "active":
+                matches.append((result, model_code, page_index))
+        if not matches:
+            continue
+        prices = {(result["rrp"], result["red"]) for result, _, _ in matches}
+        if len(prices) != 1:
+            print(f"  [DTDD_FULL] {slug}: gia cac card mau khong thong nhat; de trong.", flush=True)
+            continue
+        result, model_code, page_index = matches[0]
+        result["dtdd_verification"] = {
+            "source": "dtdd_full_catalog_popup", "slug": slug,
+            "model_code": model_code, "page_index": page_index,
+            "pages_scanned": pages_scanned, "catalog_total": total,
+            "checked_at": datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).isoformat(timespec="seconds"),
+            "rrp": result["rrp"], "red": result["red"]}
+        verified[slug] = result
+    return verified
 
 
 def slug_from_soup(soup):
@@ -1377,7 +1505,7 @@ def write_latest_js(scan):
     # flash_src di kem de moi ket luan "co Flash Sale" deu mang theo BANG CHUNG cua chinh dot
     # nay, thay vi chi mang ket luan `banner: true` ma khong ai truy nguoc duoc.
     keys = ("model", "rrp", "red", "pmh", "status", "online", "total_online",
-            "choice", "kind", "rule", "banner", "flash_src")
+            "choice", "kind", "rule", "banner", "flash_src", "dtdd_verification")
     latest = {"date": scan["date"], "scanned_at": scan["scanned_at"],
               "run_id": os.environ.get("GITHUB_RUN_ID"), "rows": [
         {k: r[k] for k in keys if k in r} for r in scan["rows"]]}
@@ -1578,6 +1706,7 @@ def main():
     # Quet lai ca danh sach ngay truoc khi luu: hub dau dot da cu sau ~9-20 phut,
     # trong khi Flash Sale co the doi trang thai theo khung gio.
     rows = verify_flash_rows(rows)
+    rows = recover_unverified_from_dtdd(rows, previous_rows)
     rows = blank_flat_regressions(rows, previous_rows)
     ok = sum(1 for r in rows if r["status"] == "active")
     if ok < min_active_count:

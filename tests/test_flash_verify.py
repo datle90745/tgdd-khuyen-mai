@@ -230,6 +230,42 @@ class FlashVerifyTests(unittest.TestCase):
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0]["u"], "https://example.com/fresh")
 
+    def test_full_dtdd_reads_all_pages_and_exact_popup(self):
+        slug = "samsung-galaxy-a18-6gb-128gb"
+        def response(data):
+            return SimpleNamespace(raise_for_status=lambda: None, json=lambda: data)
+        pages = [
+            response({"code": 0, "data": {"products": [{"id": "1", "url": "dtdd/unrelated"}],
+                                          "totalProduct": 2, "remainingQuantity": 1}}),
+            response({"code": 0, "data": {"products": [{"id": "234423", "url": f"dtdd/{slug}"}],
+                                          "totalProduct": 2, "remainingQuantity": 0}}),
+        ]
+        exact = scan_tgdd.build_result(7190000, 7190000, False, 0, "brand_tab")
+        with (patch.object(scan_tgdd, "CF_PROXY_URL", ""),
+              patch.object(scan_tgdd.requests, "post", side_effect=pages) as post,
+              patch.object(scan_tgdd, "fetch_variant_from_catalog_api", return_value=exact) as popup):
+            found = scan_tgdd.fetch_full_dtdd_prices({slug})
+        self.assertEqual([c.kwargs["json"]["pageIndex"] for c in post.call_args_list], [0, 1])
+        popup.assert_called_once_with("234423", slug)
+        self.assertEqual(found[slug]["dtdd_verification"]["pages_scanned"], 2)
+        self.assertEqual(found[slug]["red"], 7190000)
+
+    def test_current_dtdd_popup_confirms_flat_price_without_old_data(self):
+        slug = "samsung-galaxy-a18-6gb-128gb"
+        current = {"model": "Galaxy A18 6GB/128GB",
+                   "url": f"https://www.thegioididong.com/dtdd/{slug}",
+                   "status": "active", "rrp": 7190000, "red": 7190000,
+                   "pmh": 0, "banner": False, "flash_src": []}
+        previous = [{"model": current["model"], "status": "active", "pmh": 500000}]
+        exact = scan_tgdd.build_result(7190000, 7190000, False, 0, "brand_tab")
+        exact["dtdd_verification"] = {"source": "dtdd_full_catalog_popup", "slug": slug}
+        with patch.object(scan_tgdd, "_LIVE_FLASH_SLUGS", set()):
+            scan_tgdd.recover_unverified_from_dtdd([current], previous, {slug: exact})
+        result = scan_tgdd.blank_flat_regressions([current], previous)[0]
+        self.assertEqual((result["status"], result["rrp"], result["red"], result["pmh"]),
+                         ("active", 7190000, 7190000, 0))
+        self.assertEqual(result["dtdd_verification"]["slug"], slug)
+
     def test_unexplained_flat_drop_is_unknown_not_old_price_or_zero(self):
         previous = [{"model": "A7 sample", "status": "active", "pmh": 500000}]
         current = [{"model": "A7 sample", "status": "active", "rrp": 14490000,

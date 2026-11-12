@@ -19,6 +19,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { hasCurrentDtddProof } from './dtdd_evidence.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CFG = JSON.parse(fs.readFileSync(path.join(ROOT, 'tests', 'gate-config.json'), 'utf8'));
@@ -531,15 +532,24 @@ if (scanData && scanFileName) {
 
     if (prevScan) {
       const prevByModel = new Map((prevScan.rows || []).map((r) => [r.model, r]));
-      const flatRegressions = [];   // red == rrp  -> chu ky loi landing page
-      const softZeros = [];         // red < rrp   -> co the la flash sale khong co qua (2.1.2)
+      const flatRegressions = [];   // red == rrp without current exact-SKU proof
+      const verifiedFlats = [];     // red == rrp confirmed by full /dtdd + GetPopup
+      const softZeros = [];         // red < rrp may be flash without a choice
 
       for (const r of rows) {
+        if (r.dtdd_verification && !hasCurrentDtddProof(r, scanData)) {
+          fail(`BANG CHUNG /dtdd KHONG HOP LE: ${r.model} (SKU, gia, phan trang hoac thoi gian).`);
+        }
         if (r.status !== 'active') continue;
         const p = prevByModel.get(r.model);
-        if (!p || p.status !== 'active') continue;          // model moi / truoc do khong doc duoc
+        if (!p || p.status !== 'active') continue;
         if (!((p.pmh || 0) > 0 && (r.pmh || 0) === 0)) continue;
-        (r.red === r.rrp ? flatRegressions : softZeros).push({ r, p });
+        if (r.red === r.rrp) {
+          (hasCurrentDtddProof(r, scanData) ? verifiedFlats : flatRegressions).push({ r, p });
+        } else softZeros.push({ r, p });
+      }
+      if (verifiedFlats.length) {
+        console.log(`[DTDD] ${verifiedFlats.length} gia phang duoc xac minh lai bang URL SKU tren /dtdd.`);
       }
 
       // (a) Systemic: nhieu model cung tut phang mot luc = loi code, khong phai thi truong.
