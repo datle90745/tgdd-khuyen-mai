@@ -995,6 +995,24 @@ def parse_popup_variant_prices(data, want_slug):
     return result
 
 
+def parse_card_variant_prices(product):
+    """Read an exact-URL /dtdd card only if every buyable color agrees."""
+    prices = product.get("productPrices") or []
+    pairs = set()
+    for price in prices:
+        if not isinstance(price, dict) or price.get("isCanBuy") is not True:
+            continue
+        red, rrp = price.get("price"), price.get("sysPrice")
+        if type(red) is int and type(rrp) is int and 0 < red <= rrp <= 200_000_000:
+            pairs.add((rrp, red))
+    if len(pairs) != 1:
+        return None
+    rrp, red = pairs.pop()
+    result = build_result(rrp, red, False, 0, "brand_tab")
+    result["flash_src"] = []
+    return result
+
+
 def fetch_variant_from_catalog_api(model_code, want_slug):
     """Fetch the exact variant price from TGDD's live catalog popup."""
     url = CATALOG_API.format(model_code=model_code)
@@ -1009,8 +1027,12 @@ def fetch_variant_from_catalog_api(model_code, want_slug):
                 resp = requests.get(url, headers={**HEADERS, "Accept": "application/json",
                                                   "Origin": "https://www.thegioididong.com"}, timeout=(10, 25))
             else:
+                # Force a fresh upstream response for each final verification.
+                # The intermediary may otherwise receive a cached popup that
+                # omits secondary RAM/storage variants still sold on /dtdd.
+                fresh_url = f"{url}&_={int(time.time() * 1000)}"
                 resp = requests.get(
-                    f"{CF_PROXY_URL}/fetch?url={quote(url, safe='')}",
+                    f"{CF_PROXY_URL}/fetch?url={quote(fresh_url, safe='')}",
                     headers={"X-Proxy-Token": CF_PROXY_TOKEN, "Accept": "application/json",
                              "Origin": "https://www.thegioididong.com",
                              "Referer": "https://www.thegioididong.com/dtdd"}, timeout=(10, 30))
@@ -1038,7 +1060,7 @@ def fetch_full_dtdd_prices(wanted_slugs):
     wanted = {slug for slug in wanted_slugs if slug}
     if not wanted:
         return {}
-    found = {slug: set() for slug in wanted}
+    found = {slug: {} for slug in wanted}
     total = 0
     pages_scanned = 0
     for page_index in range(25):
@@ -1070,12 +1092,15 @@ def fetch_full_dtdd_prices(wanted_slugs):
             model_code = str(product.get("id") or "")
             if not model_code.isdecimal():
                 continue
-            # Variant URLs are nested in the product object. GetPopup below
-            # still requires an exact boxBuys URL, so sibling text cannot pass.
+            # Variant URLs are nested in the product object. The card price
+            # is usable only when its own URL matches the requested SKU.
             live_card = json.dumps(product, ensure_ascii=False)
             for slug in wanted:
                 if f"dtdd/{slug}" in live_card:
-                    found[slug].add((model_code, page_index))
+                    card_price = None
+                    if product.get("url", "").lstrip("/").split("?")[0] == f"dtdd/{slug}":
+                        card_price = parse_card_variant_prices(product)
+                    found[slug][(model_code, page_index)] = card_price
         if remaining == 0:
             break
         if not products:
@@ -1089,17 +1114,21 @@ def fetch_full_dtdd_prices(wanted_slugs):
         matches = []
         for model_code, page_index in sorted(candidates):
             result = fetch_variant_from_catalog_api(model_code, slug)
+            source = "dtdd_full_catalog_popup"
+            if not result:
+                result = candidates[(model_code, page_index)]
+                source = "dtdd_full_catalog_card"
             if result and result.get("status") == "active":
-                matches.append((result, model_code, page_index))
+                matches.append((result, model_code, page_index, source))
         if not matches:
             continue
-        prices = {(result["rrp"], result["red"]) for result, _, _ in matches}
+        prices = {(result["rrp"], result["red"]) for result, _, _, _ in matches}
         if len(prices) != 1:
             print(f"  [DTDD_FULL] {slug}: gia cac card mau khong thong nhat; de trong.", flush=True)
             continue
-        result, model_code, page_index = matches[0]
+        result, model_code, page_index, source = matches[0]
         result["dtdd_verification"] = {
-            "source": "dtdd_full_catalog_popup", "slug": slug,
+            "source": source, "slug": slug,
             "model_code": model_code, "page_index": page_index,
             "pages_scanned": pages_scanned, "catalog_total": total,
             "checked_at": datetime.now(ZoneInfo("Asia/Ho_Chi_Minh")).isoformat(timespec="seconds"),

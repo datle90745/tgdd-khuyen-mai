@@ -1,6 +1,6 @@
 export function hasCurrentDtddProof(row, scan) {
   const proof = row?.dtdd_verification;
-  if (!proof || proof.source !== 'dtdd_full_catalog_popup') return false;
+  if (!proof || !['dtdd_full_catalog_popup', 'dtdd_full_catalog_card'].includes(proof.source)) return false;
   if (typeof row.url !== 'string' || !/^https:\/\/www\.thegioididong\.com\/dtdd\/[a-z0-9-]+(?:\?.*)?$/.test(row.url)) return false;
   const slug = new URL(row.url).pathname.split('/').at(-1);
   if (proof.slug !== slug || !/^\d+$/.test(String(proof.model_code))) return false;

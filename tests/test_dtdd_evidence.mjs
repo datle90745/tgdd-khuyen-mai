@@ -10,6 +10,8 @@ const row = { model: 'Galaxy A18 6GB/128GB', status: 'active',
     page_index: 8, pages_scanned: 9, catalog_total: 170,
     checked_at: '2026-11-12T10:19:00+07:00', rrp: 7190000, red: 7190000 } };
 assert.equal(hasCurrentDtddProof(row, scan), true);
+assert.equal(hasCurrentDtddProof({ ...row, dtdd_verification: { ...row.dtdd_verification,
+  source: 'dtdd_full_catalog_card' } }, scan), true);
 assert.equal(hasCurrentDtddProof({ ...row, red: 6890000 }, scan), false);
 assert.equal(hasCurrentDtddProof({ ...row, dtdd_verification: { ...row.dtdd_verification,
   slug: 'samsung-galaxy-a18-4gb-128gb' } }, scan), false);

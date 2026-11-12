@@ -250,6 +250,29 @@ class FlashVerifyTests(unittest.TestCase):
         self.assertEqual(found[slug]["dtdd_verification"]["pages_scanned"], 2)
         self.assertEqual(found[slug]["red"], 7190000)
 
+    def test_full_dtdd_uses_only_exact_card_when_popup_missing(self):
+        slug = "samsung-galaxy-a07-5g-4gb-128gb"
+        card = {"id": "201912", "url": f"dtdd/{slug}",
+                "productPrices": [{"price": 5890000, "sysPrice": 5890000,
+                                   "isCanBuy": True}]}
+        sibling = {**card, "url": "dtdd/samsung-galaxy-a07-5g-6gb-128gb"}
+        def response(products):
+            data = {"code": 0, "data": {"products": products,
+                    "totalProduct": len(products), "remainingQuantity": 0}}
+            return SimpleNamespace(raise_for_status=lambda: None, json=lambda: data)
+        with (patch.object(scan_tgdd, "CF_PROXY_URL", ""),
+              patch.object(scan_tgdd.requests, "post", return_value=response([card])),
+              patch.object(scan_tgdd, "fetch_variant_from_catalog_api", return_value=None)):
+            found = scan_tgdd.fetch_full_dtdd_prices({slug})
+        self.assertEqual(found[slug]["red"], 5890000)
+        self.assertEqual(found[slug]["dtdd_verification"]["source"],
+                         "dtdd_full_catalog_card")
+        with (patch.object(scan_tgdd, "CF_PROXY_URL", ""),
+              patch.object(scan_tgdd.requests, "post", return_value=response([sibling])),
+              patch.object(scan_tgdd, "fetch_variant_from_catalog_api", return_value=None)):
+            found = scan_tgdd.fetch_full_dtdd_prices({slug})
+        self.assertNotIn(slug, found)
+
     def test_current_dtdd_popup_confirms_flat_price_without_old_data(self):
         slug = "samsung-galaxy-a18-6gb-128gb"
         current = {"model": "Galaxy A18 6GB/128GB",
