@@ -2,8 +2,9 @@ name: Quét PMH TGDĐ
 
 on:
   schedule:
-    # Recheck every 30 minutes; scan when verified TGDĐ result is >=90 minutes old.
-    - cron: '5,35 * * * *'
+    # GitHub may drop delayed schedule events. Check at six offset minutes;
+    # the guard still starts a full scan only when the last result is stale.
+    - cron: '7,17,27,37,47,57 * * * *'
   workflow_dispatch:
     inputs:
       fpt_batch_id:
