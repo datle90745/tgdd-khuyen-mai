@@ -1,11 +1,11 @@
 {
  "date": "14-Nov",
- "scanned_at": "2026-11-14T08:41:33+07:00",
+ "scanned_at": "2026-11-14T09:10:51+07:00",
  "rows": [
   {
    "model": "iPhone 17 Pro Max 512GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17-pro-max-512gb",
-   "at": "14-11 08:25",
+   "at": "14-11 08:54",
    "status": "active",
    "rrp": 44490000,
    "red": 41490000,
@@ -23,7 +23,7 @@
   {
    "model": "iPhone 18 Pro Max 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-18-pro-max",
-   "at": "14-11 08:26",
+   "at": "14-11 08:54",
    "status": "active",
    "rrp": 41990000,
    "red": 41990000,
@@ -41,7 +41,7 @@
   {
    "model": "iPhone 17 Pro Max 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17-pro-max",
-   "at": "14-11 08:26",
+   "at": "14-11 08:54",
    "status": "active",
    "rrp": 37990000,
    "red": 34990000,
@@ -59,7 +59,7 @@
   {
    "model": "iPhone 17 Pro 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17-pro",
-   "at": "14-11 08:26",
+   "at": "14-11 08:54",
    "status": "active",
    "rrp": 34990000,
    "red": 31990000,
@@ -77,7 +77,7 @@
   {
    "model": "iPhone Air 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-air",
-   "at": "14-11 08:26",
+   "at": "14-11 08:54",
    "status": "active",
    "rrp": 34990000,
    "red": 22990000,
@@ -95,7 +95,7 @@
   {
    "model": "iPhone 17 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17",
-   "at": "14-11 08:26",
+   "at": "14-11 08:54",
    "status": "active",
    "rrp": 28990000,
    "red": 28990000,
@@ -113,7 +113,7 @@
   {
    "model": "iPhone 16 128GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-16",
-   "at": "14-11 08:26",
+   "at": "14-11 08:54",
    "status": "active",
    "rrp": 24990000,
    "red": 24990000,
@@ -131,7 +131,7 @@
   {
    "model": "iPhone 15 128GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-15",
-   "at": "14-11 08:26",
+   "at": "14-11 08:55",
    "status": "active",
    "rrp": 21990000,
    "red": 21990000,
@@ -149,7 +149,7 @@
   {
    "model": "Find X9 Ultra 12GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-find-x9-ultra",
-   "at": "14-11 08:26",
+   "at": "14-11 08:55",
    "status": "active",
    "rrp": 49990000,
    "red": 49990000,
@@ -167,25 +167,30 @@
   {
    "model": "Find X9s 12GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-find-x9s-12gb-512gb",
-   "at": "14-11 08:26",
+   "at": "14-11 08:55",
    "status": "active",
    "rrp": 26990000,
-   "red": 26990000,
+   "red": 26490000,
    "pmh": 0,
-   "online": 0,
-   "total_online": 0,
+   "online": 500000,
+   "total_online": 500000,
    "choice": 0,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "banner": false,
+   "kind": "moi-banner",
+   "rule": "flash_chon1",
+   "banner": true,
    "choice_in_red": false,
-   "flash_src": [],
+   "flash_src": [
+    "quota",
+    "fs-class",
+    "orange",
+    "keyword"
+   ],
    "subs": []
   },
   {
    "model": "Reno16 Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-reno16-pro",
-   "at": "14-11 08:26",
+   "at": "14-11 08:55",
    "status": "active",
    "rrp": 25990000,
    "red": 23390000,
@@ -203,7 +208,7 @@
   {
    "model": "Find X9s 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-find-x9s",
-   "at": "14-11 08:26",
+   "at": "14-11 08:55",
    "status": "active",
    "rrp": 24990000,
    "red": 24990000,
@@ -211,17 +216,17 @@
    "online": 0,
    "total_online": 0,
    "choice": 0,
-   "kind": "brand_tab",
+   "kind": "moi",
    "rule": "den_tru_do",
    "banner": false,
-   "choice_in_red": true,
+   "choice_in_red": false,
    "flash_src": [],
    "subs": []
   },
   {
    "model": "Reno16 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-reno16-5g-8gb-256gb",
-   "at": "14-11 08:26",
+   "at": "14-11 08:55",
    "status": "active",
    "rrp": 18990000,
    "red": 17090000,
@@ -239,7 +244,7 @@
   {
    "model": "Reno16F 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-reno16-f",
-   "at": "14-11 08:26",
+   "at": "14-11 08:55",
    "status": "active",
    "rrp": 15990000,
    "red": 15690000,
@@ -257,7 +262,7 @@
   {
    "model": "Reno16F 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-reno16f-5g-8gb-128gb",
-   "at": "14-11 08:26",
+   "at": "14-11 08:55",
    "status": "active",
    "rrp": 14990000,
    "red": 14690000,
@@ -275,7 +280,7 @@
   {
    "model": "A7 Pro 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-8gb-256gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:55",
    "status": "active",
    "rrp": 15490000,
    "red": 14990000,
@@ -292,7 +297,7 @@
   {
    "model": "A7 Pro 5G 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-6gb-256gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:56",
    "status": "active",
    "rrp": 14490000,
    "red": 13990000,
@@ -309,7 +314,7 @@
   {
    "model": "A7 Pro 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a7-pro-5g-8gb-128gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:56",
    "status": "active",
    "rrp": 13490000,
    "red": 12140000,
@@ -329,7 +334,7 @@
   {
    "model": "A6 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-8gb-256gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:56",
    "status": "active",
    "rrp": 11990000,
    "red": 11490000,
@@ -347,7 +352,7 @@
   {
    "model": "A6 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-8gb-128gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:56",
    "status": "active",
    "rrp": 10990000,
    "red": 10690000,
@@ -365,7 +370,7 @@
   {
    "model": "A6 Pro 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-pro-5g-8gb-256gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:56",
    "status": "active",
    "rrp": 10990000,
    "red": 10490000,
@@ -388,25 +393,30 @@
   {
    "model": "A6 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-6gb-128gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:56",
    "status": "active",
    "rrp": 9990000,
-   "red": 9390000,
+   "red": 9490000,
    "pmh": 600000,
-   "online": 600000,
-   "total_online": 1200000,
+   "online": 500000,
+   "total_online": 1100000,
    "choice": 600000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "banner": false,
+   "kind": "moi-banner",
+   "rule": "flash_chon1",
+   "banner": true,
    "choice_in_red": false,
-   "flash_src": [],
+   "flash_src": [
+    "quota",
+    "fs-class",
+    "orange",
+    "keyword"
+   ],
    "subs": []
   },
   {
    "model": "A6 Pro 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6-pro-8gb-256gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:56",
    "status": "active",
    "rrp": 9990000,
    "red": 9990000,
@@ -424,7 +434,7 @@
   {
    "model": "A6x 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6x-6gb-256gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:56",
    "status": "active",
    "rrp": 8990000,
    "red": 8690000,
@@ -442,7 +452,7 @@
   {
    "model": "A6x 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6x-4gb-128gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:56",
    "status": "active",
    "rrp": 7090000,
    "red": 6690000,
@@ -460,7 +470,7 @@
   {
    "model": "A6c 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6c-4gb-128gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:56",
    "status": "active",
    "rrp": 5690000,
    "red": 5690000,
@@ -468,17 +478,17 @@
    "online": 0,
    "total_online": 0,
    "choice": 0,
-   "kind": "brand_tab",
+   "kind": "moi",
    "rule": "den_tru_do",
    "banner": false,
-   "choice_in_red": true,
+   "choice_in_red": false,
    "flash_src": [],
    "subs": []
   },
   {
    "model": "A6x 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6x-4gb-64gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:56",
    "status": "active",
    "rrp": 4990000,
    "red": 4740000,
@@ -501,7 +511,7 @@
   {
    "model": "A6c 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6c-4gb-64gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:57",
    "status": "active",
    "rrp": 4690000,
    "red": 4690000,
@@ -519,7 +529,7 @@
   {
    "model": "S26 Ultra 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s26-ultra-12gb-256gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:57",
    "status": "active",
    "rrp": 40990000,
    "red": 31990000,
@@ -537,7 +547,7 @@
   {
    "model": "S26+ 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s26-plus-12gb-256gb",
-   "at": "14-11 08:27",
+   "at": "14-11 08:57",
    "status": "active",
    "rrp": 33990000,
    "red": 24690000,
@@ -555,7 +565,7 @@
   {
    "model": "S25 Ultra 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s25-ultra",
-   "at": "14-11 08:28",
+   "at": "14-11 08:57",
    "status": "active",
    "rrp": 33380000,
    "red": 25890000,
@@ -573,7 +583,7 @@
   {
    "model": "S26 FE 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s26-fe-8gb-256gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:57",
    "status": "active",
    "rrp": 21990000,
    "red": 18790000,
@@ -591,7 +601,7 @@
   {
    "model": "S25 FE 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s25-fe-5g-8gb-256gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:57",
    "status": "active",
    "rrp": 19690000,
    "red": 16490000,
@@ -614,7 +624,7 @@
   {
    "model": "A57 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a57-12gb-256gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:57",
    "status": "active",
    "rrp": 16490000,
    "red": 14790000,
@@ -638,25 +648,30 @@
   {
    "model": "A57 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a57-8gb-256gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:57",
    "status": "active",
    "rrp": 15490000,
-   "red": 14490000,
-   "pmh": 1000000,
-   "online": 1000000,
-   "total_online": 1000000,
+   "red": 14290000,
+   "pmh": 0,
+   "online": 1200000,
+   "total_online": 1200000,
    "choice": 0,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "banner": false,
+   "kind": "moi-banner",
+   "rule": "flash_chon1",
+   "banner": true,
    "choice_in_red": false,
-   "flash_src": [],
+   "flash_src": [
+    "quota",
+    "fs-class",
+    "orange",
+    "keyword"
+   ],
    "subs": []
   },
   {
    "model": "A37 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a37-8gb-256gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:57",
    "status": "active",
    "rrp": 13990000,
    "red": 13390000,
@@ -674,25 +689,30 @@
   {
    "model": "A37 5G 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a37-6gb-128gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:57",
    "status": "active",
    "rrp": 11190000,
-   "red": 10590000,
-   "pmh": 600000,
-   "online": 600000,
-   "total_online": 900000,
+   "red": 10190000,
+   "pmh": 300000,
+   "online": 1000000,
+   "total_online": 1300000,
    "choice": 300000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "banner": false,
+   "kind": "moi-banner",
+   "rule": "flash_chon1",
+   "banner": true,
    "choice_in_red": false,
-   "flash_src": [],
+   "flash_src": [
+    "quota",
+    "fs-class",
+    "orange",
+    "keyword"
+   ],
    "subs": []
   },
   {
    "model": "A27 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a27-8gb-128gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:58",
    "status": "active",
    "rrp": 10190000,
    "red": 9590000,
@@ -710,7 +730,7 @@
   {
    "model": "A27 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a27-6gb-128gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:58",
    "status": "active",
    "rrp": 9090000,
    "red": 8190000,
@@ -728,7 +748,7 @@
   {
    "model": "A17 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-5g-8gb-128gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:58",
    "status": "active",
    "rrp": 8790000,
    "red": 7700000,
@@ -746,7 +766,7 @@
   {
    "model": "A17 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-5g-8gb-256gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:58",
    "status": "active",
    "rrp": 7990000,
    "red": 7490000,
@@ -764,7 +784,7 @@
   {
    "model": "A17 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-8gb-256gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:58",
    "status": "active",
    "rrp": 6890000,
    "red": 6190000,
@@ -787,7 +807,7 @@
   {
    "model": "A17 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-8gb-128gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:58",
    "status": "error",
    "rrp": null,
    "red": null,
@@ -806,7 +826,7 @@
   {
    "model": "A07 5G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-5g-4gb-128gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:58",
    "status": "active",
    "rrp": 5890000,
    "red": 4890000,
@@ -824,7 +844,7 @@
   {
    "model": "A17 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a17-4gb-128gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:58",
    "status": "active",
    "rrp": 5690000,
    "red": 5090000,
@@ -842,7 +862,7 @@
   {
    "model": "A08 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a08-4gb-64gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:58",
    "status": "active",
    "rrp": 4790000,
    "red": 4790000,
@@ -860,7 +880,7 @@
   {
    "model": "A07 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-6gb-128gb",
-   "at": "14-11 08:28",
+   "at": "14-11 08:58",
    "status": "active",
    "rrp": 4490000,
    "red": 3970000,
@@ -883,7 +903,7 @@
   {
    "model": "A07 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07-4gb-64gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:58",
    "status": "active",
    "rrp": 3890000,
    "red": 3390000,
@@ -906,7 +926,7 @@
   {
    "model": "Xiaomi 17 Ultra 5G 16GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17-ultra",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 39990000,
    "red": 30690000,
@@ -924,7 +944,7 @@
   {
    "model": "Xiaomi 17 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 26990000,
    "red": 19490000,
@@ -942,7 +962,7 @@
   {
    "model": "17T Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17t-pro-5g-12gb-256gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 23990000,
    "red": 21590000,
@@ -960,7 +980,7 @@
   {
    "model": "17T 5G 12GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17t-5g-12gb-512gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 20990000,
    "red": 18290000,
@@ -978,7 +998,7 @@
   {
    "model": "17T 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-17t-5g-12gb-256gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 20090000,
    "red": 17490000,
@@ -996,7 +1016,7 @@
   {
    "model": "Redmi Note 17 Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-5g-12gb-256gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 13490000,
    "red": 12090000,
@@ -1014,7 +1034,7 @@
   {
    "model": "Redmi Note 17 Pro 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-5g-8gb-256gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 12490000,
    "red": 11290000,
@@ -1032,7 +1052,7 @@
   {
    "model": "Redmi Note 17 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-5g-8gb-256gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 10090000,
    "red": 9080000,
@@ -1050,7 +1070,7 @@
   {
    "model": "Redmi Note 17 5G 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-5g-6gb-256gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 9490000,
    "red": 8890000,
@@ -1068,7 +1088,7 @@
   {
    "model": "Redmi Note 17 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-4g-6gb-256gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 8290000,
    "red": 7390000,
@@ -1086,7 +1106,7 @@
   {
    "model": "Redmi Note 17 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-4g-6gb-128gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 7690000,
    "red": 7090000,
@@ -1104,7 +1124,7 @@
   {
    "model": "Redmi 17 4G 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-4g-6gb-256gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 7490000,
    "red": 6690000,
@@ -1122,7 +1142,7 @@
   {
    "model": "Redmi Note 15 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-15-8gb-256gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 7090000,
    "red": 5990000,
@@ -1140,7 +1160,7 @@
   {
    "model": "Redmi 17 4G 4GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-4g-4gb-256gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 6690000,
    "red": 5590000,
@@ -1158,7 +1178,7 @@
   {
    "model": "Redmi 17 5G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-5g-4gb-128gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 6490000,
    "red": 5790000,
@@ -1176,7 +1196,7 @@
   {
    "model": "Redmi 17 4G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-17-4g-4gb-128gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 5990000,
    "red": 4990000,
@@ -1194,7 +1214,7 @@
   {
    "model": "Redmi 15 5G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-15-5g-4gb-128gb",
-   "at": "14-11 08:29",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 5690000,
    "red": 4690000,
@@ -1212,7 +1232,7 @@
   {
    "model": "Redmi A7 Pro 4/128G",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-a7-pro-4gb-128gb",
-   "at": "14-11 08:30",
+   "at": "14-11 08:59",
    "status": "active",
    "rrp": 4990000,
    "red": 4290000,
@@ -1232,7 +1252,7 @@
   {
    "model": "Redmi 15 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-15-6gb-128gb",
-   "at": "14-11 08:30",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 4790000,
    "red": 4790000,
@@ -1250,7 +1270,7 @@
   {
    "model": "Redmi A7 Pro 4/64G",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-a7-pro",
-   "at": "14-11 08:30",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 4490000,
    "red": 3990000,
@@ -1268,7 +1288,7 @@
   {
    "model": "X300 Ultra 16GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-x300-ultra",
-   "at": "14-11 08:30",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 49990000,
    "red": 37990000,
@@ -1286,7 +1306,7 @@
   {
    "model": "V70 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-v70-8gb-256gb",
-   "at": "14-11 08:30",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 17990000,
    "red": 17290000,
@@ -1307,7 +1327,7 @@
   {
    "model": "V80 Lite 5G 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-v80-lite-5g-6gb-256gb",
-   "at": "14-11 08:30",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 14990000,
    "red": 14290000,
@@ -1325,7 +1345,7 @@
   {
    "model": "V70 FE 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-v70-fe-8gb-256gb",
-   "at": "14-11 08:30",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 13990000,
    "red": 13490000,
@@ -1343,7 +1363,7 @@
   {
    "model": "V80 Lite 5G 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-v80-lite-5g-6gb-128gb",
-   "at": "14-11 08:30",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 12990000,
    "red": 12290000,
@@ -1361,7 +1381,7 @@
   {
    "model": "V60 Lite 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-v60-lite-8gb-256gb",
-   "at": "14-11 08:30",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 10490000,
    "red": 9990000,
@@ -1382,7 +1402,7 @@
   {
    "model": "Y31d 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y31d-8gb-128gb",
-   "at": "14-11 08:30",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 10090000,
    "red": 9090000,
@@ -1400,7 +1420,7 @@
   {
    "model": "Y31d 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y31d-6gb-128gb",
-   "at": "14-11 08:30",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 8990000,
    "red": 8090000,
@@ -1418,7 +1438,7 @@
   {
    "model": "Y39 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y39-5g",
-   "at": "14-11 08:30",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 7360000,
    "red": 6860000,
@@ -1439,7 +1459,7 @@
   {
    "model": "Y11d 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y11d-6gb-128gb",
-   "at": "14-11 08:31",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 7290000,
    "red": 7290000,
@@ -1460,7 +1480,7 @@
   {
    "model": "Y11d 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y11d-4gb-128gb",
-   "at": "14-11 08:31",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 6790000,
    "red": 6490000,
@@ -1478,7 +1498,7 @@
   {
    "model": "Y05 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y05-4gb-128gb",
-   "at": "14-11 08:31",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 5990000,
    "red": 5790000,
@@ -1496,7 +1516,7 @@
   {
    "model": "Y05 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y05-4gb-64gb",
-   "at": "14-11 08:31",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 4990000,
    "red": 4490000,
@@ -1514,7 +1534,7 @@
   {
    "model": "16 Pro 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16-pro-5g-12gb-256gb",
-   "at": "14-11 08:31",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 14490000,
    "red": 13090000,
@@ -1537,7 +1557,7 @@
   {
    "model": "16 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16-5g-12gb-256gb",
-   "at": "14-11 08:31",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 14490000,
    "red": 12790000,
@@ -1561,7 +1581,7 @@
   {
    "model": "16 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16-5g-8gb-256gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 13990000,
    "red": 12590000,
@@ -1579,7 +1599,7 @@
   {
    "model": "16T 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16t-5g-8gb-256gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 12990000,
    "red": 11690000,
@@ -1597,7 +1617,7 @@
   {
    "model": "16T 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-16t-5g-8gb-128gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:00",
    "status": "active",
    "rrp": 11990000,
    "red": 10290000,
@@ -1615,25 +1635,30 @@
   {
    "model": "C100 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100-4g-8gb-256gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 9990000,
-   "red": 9290000,
-   "pmh": 700000,
-   "online": 700000,
-   "total_online": 1100000,
+   "red": 9090000,
+   "pmh": 400000,
+   "online": 900000,
+   "total_online": 1300000,
    "choice": 400000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "banner": false,
+   "kind": "moi-banner",
+   "rule": "flash_chon1",
+   "banner": true,
    "choice_in_red": false,
-   "flash_src": [],
+   "flash_src": [
+    "quota",
+    "fs-class",
+    "orange",
+    "keyword"
+   ],
    "subs": []
   },
   {
    "model": "C100 4G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100-4g-8gb-128gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 9290000,
    "red": 8590000,
@@ -1651,7 +1676,7 @@
   {
    "model": "C85 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c85-5g-8gb-256gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 8490000,
    "red": 6860000,
@@ -1674,7 +1699,7 @@
   {
    "model": "C100 4G 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100-4g-6gb-128gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 8790000,
    "red": 7590000,
@@ -1692,7 +1717,7 @@
   {
    "model": "C85 Pro 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c85-pro-8gb-256gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 7690000,
    "red": 6600000,
@@ -1715,7 +1740,7 @@
   {
    "model": "C100x 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100x-6gb-128gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 8290000,
    "red": 7140000,
@@ -1733,7 +1758,7 @@
   {
    "model": "C100x 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100x-4gb-128gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 7290000,
    "red": 6240000,
@@ -1751,7 +1776,7 @@
   {
    "model": "C100i 4G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100i-4gb-128gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 6290000,
    "red": 6190000,
@@ -1769,7 +1794,7 @@
   {
    "model": "C85 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c85-8gb-128gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 6290000,
    "red": 5370000,
@@ -1792,25 +1817,30 @@
   {
    "model": "C100i 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c100i-4gb-64gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 5290000,
-   "red": 5190000,
+   "red": 4920000,
    "pmh": 100000,
-   "online": 100000,
-   "total_online": 200000,
+   "online": 370000,
+   "total_online": 470000,
    "choice": 100000,
-   "kind": "moi",
-   "rule": "den_tru_do",
-   "banner": false,
+   "kind": "moi-banner",
+   "rule": "flash_chon1",
+   "banner": true,
    "choice_in_red": false,
-   "flash_src": [],
+   "flash_src": [
+    "quota",
+    "fs-class",
+    "orange",
+    "keyword"
+   ],
    "subs": []
   },
   {
    "model": "Redmi Note 17 Pro 5G 6GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-5g-6gb-256gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 11490000,
    "red": 10790000,
@@ -1828,7 +1858,7 @@
   {
    "model": "Galaxy A18 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a18-8gb-128gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 8490000,
    "red": 8190000,
@@ -1846,7 +1876,7 @@
   {
    "model": "Galaxy A18 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a18-6gb-128gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 7190000,
    "red": 6890000,
@@ -1864,7 +1894,7 @@
   {
    "model": "Galaxy A18 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a18-4gb-128gb",
-   "at": "14-11 08:32",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 6590000,
    "red": 6290000,
@@ -1882,7 +1912,7 @@
   {
    "model": "Galaxy A07s 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a07s-4gb-64gb",
-   "at": "14-11 08:33",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 4190000,
    "red": 3770000,
@@ -1900,7 +1930,7 @@
   {
    "model": "iPhone 18 Pro 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-18-pro",
-   "at": "14-11 08:33",
+   "at": "14-11 09:01",
    "status": "active",
    "rrp": 38990000,
    "red": 38990000,
@@ -1918,7 +1948,7 @@
   {
    "model": "iPhone Duo 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-duo",
-   "at": "14-11 08:33",
+   "at": "14-11 09:02",
    "status": "active",
    "rrp": 64990000,
    "red": 64990000,
@@ -1939,7 +1969,7 @@
   {
    "model": "Galaxy A26 5G 8+256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a26",
-   "at": "14-11 08:34",
+   "at": "14-11 09:02",
    "status": "active",
    "rrp": 8390000,
    "red": 7400000,
@@ -1962,7 +1992,7 @@
   {
    "model": "Redmi Note 17 Pro Max 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-max-8gb-256gb",
-   "at": "14-11 08:34",
+   "at": "14-11 09:02",
    "status": "active",
    "rrp": 15990000,
    "red": 14490000,
@@ -1980,7 +2010,7 @@
   {
    "model": "Note 80 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/realme-note-80-4gb-64gb",
-   "at": "14-11 08:34",
+   "at": "14-11 09:02",
    "status": "active",
    "rrp": 4690000,
    "red": 4290000,
@@ -1998,7 +2028,7 @@
   {
    "model": "Galaxy A08 4+128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a08-4gb-128gb",
-   "at": "14-11 08:34",
+   "at": "14-11 09:03",
    "status": "active",
    "rrp": 5590000,
    "red": 5030000,
@@ -2016,7 +2046,7 @@
   {
    "model": "X500 Pro Max 12GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-x500-pro-max-12gb-512gb",
-   "at": "14-11 08:34",
+   "at": "14-11 09:03",
    "status": "active",
    "rrp": 49990000,
    "red": 43990000,
@@ -2036,7 +2066,7 @@
   {
    "model": "X500 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-x500-12gb-256gb",
-   "at": "14-11 08:34",
+   "at": "14-11 09:03",
    "status": "active",
    "rrp": 34990000,
    "red": 30990000,
@@ -2056,7 +2086,7 @@
   {
    "model": "V60 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-v60-12gb-256gb",
-   "at": "14-11 08:34",
+   "at": "14-11 09:03",
    "status": "active",
    "rrp": 15990000,
    "red": 15090000,
@@ -2077,7 +2107,7 @@
   {
    "model": "Y05e 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/vivo-y05e-4gb-64gb",
-   "at": "14-11 08:34",
+   "at": "14-11 09:03",
    "status": "active",
    "rrp": 4490000,
    "red": 4490000,
@@ -2095,7 +2125,7 @@
   {
    "model": "Galaxy Z Fold8 Ultra 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-z-fold8-ultra-12gb-256gb",
-   "at": "14-11 08:34",
+   "at": "14-11 09:03",
    "status": "active",
    "rrp": 52990000,
    "red": 47490000,
@@ -2113,7 +2143,7 @@
   {
    "model": "Galaxy Z Fold8 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-z-fold8-12gb-256gb",
-   "at": "14-11 08:34",
+   "at": "14-11 09:03",
    "status": "active",
    "rrp": 46990000,
    "red": 41190000,
@@ -2133,7 +2163,7 @@
   {
    "model": "Galaxy Z Flip8 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-z-flip8-12gb-256gb",
-   "at": "14-11 08:34",
+   "at": "14-11 09:04",
    "status": "active",
    "rrp": 31990000,
    "red": 26990000,
@@ -2151,7 +2181,7 @@
   {
    "model": "S26 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s26-12gb-256gb",
-   "at": "14-11 08:34",
+   "at": "14-11 09:04",
    "status": "active",
    "rrp": 29990000,
    "red": 20990000,
@@ -2169,7 +2199,7 @@
   {
    "model": "S26 FE 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-s26-fe-8gb-128gb",
-   "at": "14-11 08:34",
+   "at": "14-11 09:04",
    "status": "active",
    "rrp": 18990000,
    "red": 15490000,
@@ -2187,7 +2217,7 @@
   {
    "model": "Galaxy A57 5G 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/samsung-galaxy-a57-8gb-128gb",
-   "at": "14-11 08:35",
+   "at": "14-11 09:04",
    "status": "active",
    "rrp": 13490000,
    "red": 10700000,
@@ -2205,7 +2235,7 @@
   {
    "model": "Find N6 5G 16GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-find-n6",
-   "at": "14-11 08:35",
+   "at": "14-11 09:04",
    "status": "active",
    "rrp": 64990000,
    "red": 64990000,
@@ -2223,7 +2253,7 @@
   {
    "model": "Find X10 Pro Max 5G 16GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-find-x10-pro-max-16gb-512gb",
-   "at": "14-11 08:35",
+   "at": "14-11 09:04",
    "status": "active",
    "rrp": 34990000,
    "red": 34990000,
@@ -2241,7 +2271,7 @@
   {
    "model": "Find X10 5G 12GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-find-x10-12gb-512gb",
-   "at": "14-11 08:35",
+   "at": "14-11 09:04",
    "status": "active",
    "rrp": 34990000,
    "red": 34990000,
@@ -2259,7 +2289,7 @@
   {
    "model": "Find X10 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-find-x10-12gb-256gb",
-   "at": "14-11 08:35",
+   "at": "14-11 09:04",
    "status": "active",
    "rrp": 34990000,
    "red": 34990000,
@@ -2267,17 +2297,17 @@
    "online": 0,
    "total_online": 0,
    "choice": 0,
-   "kind": "brand_tab",
+   "kind": "moi",
    "rule": "den_tru_do",
    "banner": false,
-   "choice_in_red": true,
+   "choice_in_red": false,
    "flash_src": [],
    "subs": []
   },
   {
    "model": "A6t Pro 8GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6t-pro-8gb-128gb",
-   "at": "14-11 08:35",
+   "at": "14-11 09:04",
    "status": "active",
    "rrp": 10990000,
    "red": 10990000,
@@ -2295,7 +2325,7 @@
   {
    "model": "A6t 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/oppo-a6t-4gb-64gb",
-   "at": "14-11 08:35",
+   "at": "14-11 09:04",
    "status": "active",
    "rrp": 4990000,
    "red": 4990000,
@@ -2313,7 +2343,7 @@
   {
    "model": "POCO X8s 5G 12GB/512GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-poco-x8s-12gb-512gb",
-   "at": "14-11 08:35",
+   "at": "14-11 09:05",
    "status": "active",
    "rrp": 11990000,
    "red": 11990000,
@@ -2331,7 +2361,7 @@
   {
    "model": "POCO X8s 5G 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-poco-x8s-8gb-256gb",
-   "at": "14-11 08:35",
+   "at": "14-11 09:05",
    "status": "active",
    "rrp": 11990000,
    "red": 11990000,
@@ -2349,7 +2379,7 @@
   {
    "model": "POCO C95 Pro 8GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-poco-c95-pro-8gb-256gb",
-   "at": "14-11 08:35",
+   "at": "14-11 09:05",
    "status": "active",
    "rrp": 7690000,
    "red": 7290000,
@@ -2367,7 +2397,7 @@
   {
    "model": "POCO C95 Pro 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-poco-c95-pro-6gb-128gb",
-   "at": "14-11 08:35",
+   "at": "14-11 09:05",
    "status": "active",
    "rrp": 6490000,
    "red": 6090000,
@@ -2385,7 +2415,7 @@
   {
    "model": "Redmi Note 17 Pro Max 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-max-12gb-256gb",
-   "at": "14-11 08:36",
+   "at": "14-11 09:05",
    "status": "active",
    "rrp": 16990000,
    "red": 15290000,
@@ -2403,7 +2433,7 @@
   {
    "model": "Redmi Note 17 Pro 5G 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-pro-5g-6gb-128gb",
-   "at": "14-11 08:36",
+   "at": "14-11 09:05",
    "status": "active",
    "rrp": 10990000,
    "red": 10290000,
@@ -2421,7 +2451,7 @@
   {
    "model": "Redmi Note 17 5G 6GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-5g-6gb-128gb",
-   "at": "14-11 08:36",
+   "at": "14-11 09:05",
    "status": "active",
    "rrp": 8990000,
    "red": 8690000,
@@ -2439,7 +2469,7 @@
   {
    "model": "Redmi Note 17 4G 4GB/128GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-note-17-4g-4gb-128gb",
-   "at": "14-11 08:36",
+   "at": "14-11 09:05",
    "status": "active",
    "rrp": 6990000,
    "red": 6390000,
@@ -2457,7 +2487,7 @@
   {
    "model": "Redmi A7 3GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/xiaomi-redmi-a7-3gb-64gb",
-   "at": "14-11 08:36",
+   "at": "14-11 09:05",
    "status": "active",
    "rrp": 3890000,
    "red": 3290000,
@@ -2478,7 +2508,7 @@
   {
    "model": "C01 4GB/64GB",
    "url": "https://www.thegioididong.com/dtdd/realme-c01-4gb-64gb",
-   "at": "14-11 08:36",
+   "at": "14-11 09:05",
    "status": "active",
    "rrp": 5990000,
    "red": 5290000,
@@ -2498,7 +2528,7 @@
   {
    "model": "P4 Power 5G 12GB/256GB",
    "url": "https://www.thegioididong.com/dtdd/realme-p4-power-5g-12gb-256gb",
-   "at": "14-11 08:36",
+   "at": "14-11 09:05",
    "status": "active",
    "rrp": 15990000,
    "red": 12490000,
@@ -2521,7 +2551,7 @@
   {
    "model": "iPhone 17e 256GB",
    "url": "https://www.thegioididong.com/dtdd/iphone-17e-256gb",
-   "at": "14-11 08:36",
+   "at": "14-11 09:05",
    "status": "active",
    "rrp": 21990000,
    "red": 21990000,
