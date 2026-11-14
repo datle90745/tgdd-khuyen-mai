@@ -36,6 +36,7 @@ CF_PROXY_URL = os.environ.get("CF_PROXY_URL", "").rstrip("/")
 CF_PROXY_TOKEN = os.environ.get("CF_PROXY_TOKEN", "")
 ERP_PORTAL_COOKIE = os.environ.get("ERP_PORTAL_COOKIE", "").strip()
 FPT_BATCH_ID = os.environ.get("FPT_BATCH_ID", "").strip()
+_FPT_HTTP_BLOCKED_BRANDS = set()
 # Trình duyệt cho FPT: có màn hình ảo (xvfb-run) thì để hiện, chạy máy thường thì ẩn.
 HEADLESS = os.environ.get("DISPLAY", "") == ""
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -348,6 +349,8 @@ def parse_fpt_nextjs(html):
 def fpt_rows_via_http():
     """Tải nhanh danh mục FPT Shop bằng HTTP request (qua Cloudflare proxy nếu có).
     Cực nhanh (1-2s/trang), không tốn RAM và tránh tải nặng Playwright."""
+    global _FPT_HTTP_BLOCKED_BRANDS
+    _FPT_HTTP_BLOCKED_BRANDS = set()
     rows, seen = [], set()
     fpt_headers = {
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -373,6 +376,8 @@ def fpt_rows_via_http():
                         break
             except Exception as e:
                 if attempt == 1:
+                    if str(e).count("403") >= 2:
+                        _FPT_HTTP_BLOCKED_BRANDS.add(slug)
                     print(f"  FPT HTTP {slug} không thành công: {e}", flush=True)
                 time.sleep(2)
         print(f"  FPT HTTP {slug}: {len(items)} máy", flush=True)
@@ -499,7 +504,10 @@ def fpt_rows_via_erp_api():
     }
     resp = requests.get(url, headers=headers, timeout=30)
     if resp.status_code == 200:
-        return _parse_erp_portal_deals(resp.json())
+        deals = resp.json()
+        rows = _parse_erp_portal_deals(deals)
+        print(f"  FPT Retail Deal API: {len(rows)}/{len(deals)} bản ghi điện thoại còn mới.", flush=True)
+        return rows
     print(f"  FPT ERP Portal trả về HTTP {resp.status_code}", flush=True)
     return []
 
@@ -566,6 +574,8 @@ def scan_fpt():
         print(f"  FPT Retail Deal API không thành công: {e}", flush=True)
 
     # 2. Thử HTTP NextJS request trực tiếp / qua proxy (yêu cầu đủ >= 80 máy để tránh thiếu hãng)
+    global _FPT_HTTP_BLOCKED_BRANDS
+    _FPT_HTTP_BLOCKED_BRANDS = set()
     try:
         rows = fpt_rows_via_http()
         if len(rows) >= 80:
@@ -573,6 +583,14 @@ def scan_fpt():
             return rows
     except Exception as e:
         print(f"  FPT HTTP không thành công: {e}", flush=True)
+
+    # On GitHub, multiple independent 403 responses from both routes are a
+    # hard anti-bot block. A headless browser from the same runner cannot
+    # recover enough brands and adds minutes before publishing TGDĐ results.
+    if (os.environ.get("GITHUB_ACTIONS") == "true" and CF_PROXY_URL and
+            len(_FPT_HTTP_BLOCKED_BRANDS) >= 3):
+        raise RuntimeError("FPT Shop chặn từ GitHub ở cả đường trực tiếp lẫn Cloudflare; "
+                           "không dùng dữ liệu cũ")
 
     # 3. Thử Playwright trình duyệt thật có stealth chống bot
     try:

@@ -236,6 +236,20 @@ class FlashVerifyTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "không dùng dữ liệu cũ"):
                 scan_market.scan_fpt()
 
+    def test_fpt_cloud_hard_403_skips_slow_browser_without_old_prices(self):
+        def blocked_http():
+            scan_market._FPT_HTTP_BLOCKED_BRANDS = {"apple-iphone", "oppo", "xiaomi"}
+            return []
+        with (patch.dict(scan_market.os.environ, {"GITHUB_ACTIONS": "true"}),
+              patch.object(scan_market, "CF_PROXY_URL", "https://proxy.example"),
+              patch.object(scan_market, "fpt_rows_via_local_batch", return_value=[]),
+              patch.object(scan_market, "fpt_rows_via_erp_api", return_value=[]),
+              patch.object(scan_market, "fpt_rows_via_http", side_effect=blocked_http),
+              patch.object(scan_market, "fpt_rows_via_browser") as browser):
+            with self.assertRaisesRegex(RuntimeError, "không dùng dữ liệu cũ"):
+                scan_market.scan_fpt()
+            browser.assert_not_called()
+
     def test_fpt_erp_rows_require_recent_scraped_at(self):
         now = datetime(2026, 11, 10, 15, 0, tzinfo=ZoneInfo("Asia/Ho_Chi_Minh"))
         base = {"category": "Điện thoại", "name": "OPPO Sample",
