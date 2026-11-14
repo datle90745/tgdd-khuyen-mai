@@ -9,6 +9,7 @@ jobs:
         env:
           CF_PROXY_URL: ${{ secrets.CF_PROXY_URL }}
           CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
+          FPT_PROXY_TOKEN: ${{ secrets.FPT_PROXY_TOKEN }}
           ERP_PORTAL_COOKIE: ${{ secrets.ERP_PORTAL_COOKIE }}
         run: |
           node --input-type=module <<'JS'
@@ -18,6 +19,13 @@ jobs:
             const response=await fetch(url,{method:'POST',headers:{'X-Proxy-Token':process.env.CF_PROXY_TOKEN,'Content-Type':'application/json',Origin:'https://fptshop.com.vn',Referer:`https://fptshop.com.vn/dien-thoai/${slug}`},body:JSON.stringify({slug:`dien-thoai/${slug}`,skipCount:0,maxResultCount:50,sortMethod:'noi-bat',categoryType:'category'}),signal:AbortSignal.timeout(20000)});
             const data=await response.json().catch(()=>({}));
             console.log(JSON.stringify({source:'fpt_production',slug,http:response.status,total:data.totalCount,count:data.items?.length}));
+          }
+          for(const slug of ['samsung','oppo','apple-iphone','xiaomi','vivo','realme']){
+            const endpoint='https://papi.fptshop.com.vn/gw/v1/public/fulltext-search-service/category';
+            const url=`https://fpt-proxy-vn.datle90745.workers.dev/fetch?url=${encodeURIComponent(endpoint)}`;
+            const response=await fetch(url,{method:'POST',headers:{'X-Proxy-Token':process.env.FPT_PROXY_TOKEN,'Content-Type':'application/json',Origin:'https://fptshop.com.vn',Referer:`https://fptshop.com.vn/dien-thoai/${slug}`},body:JSON.stringify({slug:`dien-thoai/${slug}`,skipCount:0,maxResultCount:50,sortMethod:'noi-bat',categoryType:'category'}),signal:AbortSignal.timeout(20000)});
+            const data=await response.json().catch(()=>({}));
+            console.log(JSON.stringify({source:'fpt_placed',slug,http:response.status,total:data.totalCount,count:data.items?.length}));
           }
           if(process.env.ERP_PORTAL_COOKIE){
             const cookie=process.env.ERP_PORTAL_COOKIE;
