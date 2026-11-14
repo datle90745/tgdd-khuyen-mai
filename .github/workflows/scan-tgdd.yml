@@ -52,6 +52,8 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_flash_verify.py'
       - name: Kiem tra quy tac lich quet
         run: node tests/test_schedule.mjs
+      - name: Kiem tra bo hen gio Cloudflare
+        run: node tests/test_watchdog.mjs
       - name: Kiem tra bang chung gia tu danh muc TGDĐ
         run: node tests/test_dtdd_evidence.mjs
       - name: Kiem tra du lieu qua han va dong chua xac minh tren web

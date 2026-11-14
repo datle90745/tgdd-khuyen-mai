@@ -1,0 +1,9 @@
+name = "tgdd-watchdog"
+main = "cloudflare-watchdog.mjs"
+compatibility_date = "2026-11-12"
+account_id = "188fc56ec6eb2c0ae04e322b6c64602b"
+workers_dev = true
+
+[triggers]
+crons = ["*/10 * * * *"]
+
