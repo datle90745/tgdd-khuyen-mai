@@ -8,11 +8,14 @@ import unittest
 from pathlib import Path
 
 
-SCRIPT = Path(__file__).with_name("publish_scan.py")
+SCRIPT = Path(__file__).resolve().parents[1] / "scraper" / "publish_scan.py"
 
 
 def run(cwd, *args):
-    return subprocess.run(args, cwd=cwd, check=True, capture_output=True, text=True)
+    result = subprocess.run(args, cwd=cwd, capture_output=True, text=True)
+    if result.returncode:
+        raise AssertionError(f"{args} failed:\n{result.stdout}\n{result.stderr}")
+    return result
 
 
 def latest(marker, minute):
