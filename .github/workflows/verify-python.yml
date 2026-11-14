@@ -112,6 +112,9 @@ jobs:
           print("OK: khong co khoi `product[\"model\"] in (...)` nao.")
           PY
 
+      - name: Kiem tra luu dot quet khi co commit chen ngang
+        run: python -m unittest discover -s tests -p 'test_publish_scan.py'
+
       - name: Cac thu muc phu (chi bao, khong chan)
         continue-on-error: true
         run: |

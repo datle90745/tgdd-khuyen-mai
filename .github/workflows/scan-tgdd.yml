@@ -55,6 +55,8 @@ jobs:
         run: node tests/test_schedule.mjs
       - name: Kiem tra bo hen gio Cloudflare
         run: node tests/test_watchdog.mjs
+      - name: Kiem tra luu dot quet khi co commit chen ngang
+        run: python -m unittest discover -s tests -p 'test_publish_scan.py'
       - name: Kiem tra bang chung gia tu danh muc TGDĐ
         run: node tests/test_dtdd_evidence.mjs
       - name: Kiem tra du lieu qua han va dong chua xac minh tren web
@@ -69,10 +71,6 @@ jobs:
           git show "$FPT_SNAPSHOT_SHA:data/fpt_live.json" > data/fpt_live.json
           git show "$FPT_SNAPSHOT_SHA:data/tgdd_variant_live.json" > data/tgdd_variant_live.json
           echo "Windows snapshot commit: $FPT_SNAPSHOT_SHA"
-      # TGDĐ itself opens Chromium for variant verification; install it first.
-      # An install failure does not hide valid API/category results.
-      - run: python -m playwright install --with-deps chromium
-        continue-on-error: true
       - name: Quét Master List TGDĐ (số SKU theo tests/gate-config.json)
         id: focus
         continue-on-error: true
@@ -81,6 +79,9 @@ jobs:
           CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
           TGDD_BATCH_ID: ${{ inputs.fpt_batch_id }}
         run: python scraper/scan_tgdd.py
+      # Chromium is needed only by the market scanner on GitHub.
+      - run: python -m playwright install --with-deps chromium
+        continue-on-error: true
       - run: sudo apt-get install -y --no-install-recommends xvfb
         continue-on-error: true
       - name: Quét toàn thị trường (TGDĐ, CellphoneS, FPT Shop, Viettel Store)
@@ -110,38 +111,4 @@ jobs:
       - name: Kiểm định toàn vẹn dữ liệu (CI Circuit Breaker)
         run: node tests/verify_scan.js
       - name: Lưu kết quả
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          TAG="sync_$(TZ=Asia/Ho_Chi_Minh date +%Y%m%d_%H%M)"
-          sed -i -E "s/\\?v=[^\"]+/?v=$TAG/g" index.html || true
-          for f in data/scans data/scans.js data/latest.js data/links.js data/promos.js data/market.js data/alerts.js data/rises.js data/fpt.js data/market_last.json scraper/products.csv index.html "promotion tgdd.html" "promotion tgdd standalone.html" "promotion tgdd"; do
-            if [ -e "$f" ]; then git add "$f"; fi
-          done
-          if git diff --cached --quiet; then
-            echo "Không có thay đổi"
-            exit 0
-          fi
-          git commit -m "Đợt quét PMH $(TZ=Asia/Ho_Chi_Minh date +%d-%m-%Y)"
-          for i in 1 2 3 4 5; do
-            if git push; then exit 0; fi
-            git fetch origin main
-            if ! git rebase -X theirs origin/main; then
-              git checkout --theirs . || true
-              git add -A
-              GIT_EDITOR=true git rebase --continue || git rebase --abort
-            fi
-            # Circuit breaker o tren chay TRUOC rebase, nen truoc day ket qua cua rebase
-            # khong bao gio duoc kiem. Lop loi that su da xay ra ngay 09-11-2026:
-            # scan_*.json in moi truong mot dong, nen `rebase -X theirs` tron theo DONG
-            # giua hai phien ban cua cung mot dong du lieu - lay "status" cua ban nay va
-            # "pmh" cua ban kia. Ket qua la dong tu mau thuan (status=chua_mo_ban nhung
-            # pmh=0) duoc day thang len main ma khong qua bat ky check nao.
-            if ! node tests/verify_scan.js; then
-              echo "::error::Rebase voi origin/main tao ra du lieu khong hop le (xem log circuit breaker o tren). KHONG day len."
-              exit 1
-            fi
-            sleep 10
-          done
-          echo "::error::Không đẩy được kết quả sau 5 lần thử."
-          exit 1
+        run: python scraper/publish_scan.py

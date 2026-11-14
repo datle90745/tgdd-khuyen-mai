@@ -907,6 +907,10 @@ def parse_selected_variant_card(card_html, want_slug):
 
 def fetch_variant_from_live_card(want_slug):
     """Last resort: open brand/category, load more cards and click SKU pill."""
+    # GitHub's Chromium cannot load these pages (all attempts time out at 30s).
+    # Keep the interactive fallback for Windows; cloud uses live catalog/API.
+    if os.environ.get("GITHUB_ACTIONS") == "true":
+        return None
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as error:
