@@ -31,10 +31,8 @@ class PublishScanRaceTest(unittest.TestCase):
                 work = root / "work"
                 other = root / "other"
                 run(root, "git", "clone", str(origin), str(work))
-                run(root, "git", "clone", str(origin), str(other))
-                for repo in (work, other):
-                    run(repo, "git", "config", "user.name", "Test")
-                    run(repo, "git", "config", "user.email", "test@example.com")
+                run(work, "git", "config", "user.name", "Test")
+                run(work, "git", "config", "user.email", "test@example.com")
                 (work / "data" / "scans").mkdir(parents=True)
                 (work / "tests").mkdir()
                 (work / "data" / "latest.js").write_text(latest("base", 0), encoding="utf-8")
@@ -47,7 +45,9 @@ class PublishScanRaceTest(unittest.TestCase):
                 run(work, "git", "add", ".")
                 run(work, "git", "commit", "-m", "base")
                 run(work, "git", "push", "-u", "origin", "HEAD:main")
-                run(other, "git", "checkout", "-b", "main", "origin/main")
+                run(root, "git", "clone", str(origin), str(other))
+                run(other, "git", "config", "user.name", "Test")
+                run(other, "git", "config", "user.email", "test@example.com")
                 (other / "data" / "latest.js").write_text(latest("remote", remote_minute), encoding="utf-8")
                 (other / "data" / "scans" / "today.json").write_text('{"marker":"remote"}')
                 (other / "data" / "fpt_live.json").write_text('{"fresh":true}')
