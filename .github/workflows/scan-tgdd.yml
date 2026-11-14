@@ -69,6 +69,10 @@ jobs:
           git show "$FPT_SNAPSHOT_SHA:data/fpt_live.json" > data/fpt_live.json
           git show "$FPT_SNAPSHOT_SHA:data/tgdd_variant_live.json" > data/tgdd_variant_live.json
           echo "Windows snapshot commit: $FPT_SNAPSHOT_SHA"
+      # TGDĐ itself opens Chromium for variant verification; install it first.
+      # An install failure does not hide valid API/category results.
+      - run: python -m playwright install --with-deps chromium
+        continue-on-error: true
       - name: Quét Master List TGDĐ (số SKU theo tests/gate-config.json)
         id: focus
         continue-on-error: true
@@ -77,9 +81,6 @@ jobs:
           CF_PROXY_TOKEN: ${{ secrets.CF_PROXY_TOKEN }}
           TGDD_BATCH_ID: ${{ inputs.fpt_batch_id }}
         run: python scraper/scan_tgdd.py
-      # Browser setup for market cannot block the independently verified TGDĐ scan.
-      - run: python -m playwright install --with-deps chromium
-        continue-on-error: true
       - run: sudo apt-get install -y --no-install-recommends xvfb
         continue-on-error: true
       - name: Quét toàn thị trường (TGDĐ, CellphoneS, FPT Shop, Viettel Store)
