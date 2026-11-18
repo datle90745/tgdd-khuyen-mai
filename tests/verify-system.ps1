@@ -461,14 +461,30 @@ if (Test-Path $scanScript) {
 
     # Hai lan he thong chet (10-11 va 17-11) deu im lang: GitHub bao do hang chuc luot lien
     # tiep ma khong ai hay, nguoi dung chi phat hien khi tu mo bang ra xem, sau hon mot ngay.
-    Assert-Check "Dot quet hong phai co bao dong, va tu dong khi chay lai duoc" {
-        $w = Get-Content ".github/workflows/scan-tgdd.yml" -Raw -Encoding UTF8
-        ($w -cmatch 'issues:\s*write') -and
-        ($w -cmatch '(?m)^\s*if:\s*failure\(\)') -and ($w -cmatch 'gh issue create') -and
-        ($w -cmatch '(?m)^\s*if:\s*success\(\)') -and ($w -cmatch 'gh issue close') -and
-        # Phai dung lai phieu cu, khong mo phieu moi moi luot hong.
-        ($w -cmatch 'gh issue list')
-    } "scan-tgdd.yml khong con bao dong khi hong - mot dot quet hong se lai im lang hang ngay troi"
+    # Nguoi dung khong muon nhan email bao hong - chi can he thong tu biet va tu sua.
+    # Nen thay vi mo phieu (GitHub se gui email), dot quet hong thi TU CHAY LAI sau vai phut.
+    # Phan lon cac lan hong la ly do thoang qua: bi chan IP, mang chap chon, trang doi bo cuc.
+    Assert-Check "Dot quet hong phai TU THU LAI, co gioi han so lan" {
+        $p = ".github/workflows/tu-thu-lai.yml"
+        if (-not (Test-Path $p)) { return $false }
+        $r = Get-Content $p -Raw -Encoding UTF8
+        $s = Get-Content ".github/workflows/scan-tgdd.yml" -Raw -Encoding UTF8
+        ($r -cmatch 'workflow_run') -and
+        ($r -cmatch "workflows:\s*\[`"Qu") -and
+        ($r -cmatch "conclusion\s*==\s*'failure'") -and
+        ($r -cmatch 'MAX_THU_LAI') -and ($r -cmatch 'LIEN_TIEP') -and
+        ($r -cmatch 'gh workflow run') -and
+        # Khong duoc gui email/mo phieu nua.
+        ($s -notmatch 'gh issue create')
+    } "Mat co che tu thu lai khi dot quet hong, hoac no khong con gioi han so lan - se chay vong vo tan"
+
+    Assert-Check "Tu thu lai phai DUNG khi hong lien tiep qua gioi han" {
+        $r = Get-Content ".github/workflows/tu-thu-lai.yml" -Raw -Encoding UTF8
+        # Phai co nhanh quyet dinh KHONG thu lai, va buoc chay lai phai phu thuoc nhanh do.
+        ($r -cmatch 'thu_lai=false') -and
+        ($r -cmatch "steps\.quyet_dinh\.outputs\.thu_lai\s*==\s*'true'") -and
+        ($r -cmatch '\$LIEN_TIEP"?\s*-le\s*"?\$MAX_THU_LAI')
+    } "Tu thu lai khong con dieu kien dung - hong that se bi thu lai mai, giau mat van de va phi tai nguyen"
 
     # Mot dong hong khong duoc giet ca dot quet.
     Assert-Check "Scraper phai cach ly rieng dong khong chung minh duoc, co nguong" {

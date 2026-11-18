@@ -1,0 +1,70 @@
+name: Tự thử lại khi đợt quét hỏng
+
+# LY DO TON TAI
+# Truoc day mot dot quet hong la nam cho den moc ke tiep - 3 tieng sau. Phan lon cac lan
+# hong lai la ly do THOANG QUA: TGDD chan IP cua runner mot luc, mang chap chon, trang doi
+# bo cuc trong vai phut. Nhung lan do chay lai la xong, khong can ai dung vao.
+#
+# Nguoi dung khong muon nhan email bao hong - chi can he thong tu biet va tu sua. Day la
+# phan "tu sua".
+#
+# GIOI HAN: chi thu lai toi MAX_THU_LAI lan LIEN TIEP. Qua so do nghia la khong phai loi
+# thoang qua ma la loi that (loi code, doi cau truc trang), thu lai nua chi phi tai nguyen
+# va giau mat van de. Luc do dung han, de bang web tu bao "chua co du lieu duoc xac minh".
+
+on:
+  workflow_run:
+    workflows: ["Quét PMH TGDĐ"]
+    types: [completed]
+
+permissions:
+  actions: write    # doc lich su luot chay va goi lai workflow quet
+
+concurrency:
+  group: tu-thu-lai
+  cancel-in-progress: false
+
+jobs:
+  thu-lai:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Quyết định có thử lại không
+        id: quyet_dinh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MAX_THU_LAI: '2'
+        run: |
+          # Dem so luot HONG LIEN TIEP gan nhat cua workflow quet.
+          # Dung `--json conclusion` roi dem tu dau danh sach cho den khi gap mot luot thanh cong.
+          gh run list --workflow "scan-tgdd.yml" --limit 10 \
+            --json conclusion,status --jq '.[] | select(.status=="completed") | .conclusion' > ket_qua.txt || true
+          echo "--- ket qua 10 luot gan nhat ---"
+          cat ket_qua.txt
+          LIEN_TIEP=0
+          while read -r d; do
+            if [ "$d" = "failure" ]; then
+              LIEN_TIEP=$((LIEN_TIEP + 1))
+            else
+              break
+            fi
+          done < ket_qua.txt
+          echo "So luot hong lien tiep: $LIEN_TIEP (gioi han $MAX_THU_LAI)"
+          if [ "$LIEN_TIEP" -le "$MAX_THU_LAI" ]; then
+            echo "thu_lai=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "thu_lai=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::Da hong $LIEN_TIEP luot lien tiep - khong phai loi thoang qua. Dung thu lai."
+          fi
+
+      - name: Chờ rồi chạy lại
+        if: steps.quyet_dinh.outputs.thu_lai == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Cho 5 phut: phan lon cac lan bi chan IP hoac mang chap chon se qua trong khoang nay.
+          sleep 300
+          gh workflow run "scan-tgdd.yml" --ref main
+          echo "Da goi lai dot quet."

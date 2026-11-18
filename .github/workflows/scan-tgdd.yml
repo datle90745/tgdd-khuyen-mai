@@ -33,7 +33,7 @@ on:
 
 permissions:
   contents: write
-  issues: write   # de mo/dong phieu bao khi dot quet hong
+  actions: read   # de buoc tu thu lai doc duoc ket qua cac luot truoc
 
 concurrency:
   group: scan-tgdd
@@ -129,34 +129,7 @@ jobs:
       - name: Lưu kết quả
         run: python scraper/publish_scan.py
 
-      # Trước đây một đợt quét hỏng là hoàn toàn im lặng: GitHub báo đỏ hàng chục lượt
-      # liên tiếp mà không ai hay, và người dùng chỉ phát hiện khi tự mở bảng ra thấy dòng
-      # "chưa có dữ liệu được xác minh". Hai lần hệ thống chết (10-11 và 17-11) đều được
-      # phát hiện theo cách đó, sau hơn một ngày.
-      # Nay hỏng là mở một phiếu trên repo — GitHub tự gửi email cho chủ repo. Phiếu được
-      # dùng lại chứ không mở mới mỗi lượt, để 8 lượt hỏng trong ngày không thành 8 phiếu.
-      - name: Báo động khi đợt quét hỏng
-        if: failure()
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: |
-          TIEU_DE="Đợt quét tự động đang hỏng"
-          SO=$(gh issue list --state open --search "$TIEU_DE in:title" --json number --jq '.[0].number' || echo "")
-          NOI_DUNG=$(printf 'Đợt quét lúc %s (giờ VN) thất bại.\n\nLượt chạy: %s\n\nDữ liệu trên web sẽ đứng yên cho tới khi việc này được sửa.\nPhiếu này tự đóng khi có một đợt quét chạy thành công trở lại.' "$(TZ=Asia/Ho_Chi_Minh date '+%d-%m-%Y %H:%M')" "$RUN_URL")
-          if [ -n "$SO" ]; then
-            gh issue comment "$SO" --body "$NOI_DUNG"
-          else
-            gh issue create --title "$TIEU_DE" --body "$NOI_DUNG"
-          fi
-
-      - name: Đóng phiếu báo động khi đã chạy lại được
-        if: success()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          TIEU_DE="Đợt quét tự động đang hỏng"
-          SO=$(gh issue list --state open --search "$TIEU_DE in:title" --json number --jq '.[0].number' || echo "")
-          if [ -n "$SO" ]; then
-            gh issue close "$SO" --comment "Đợt quét đã chạy lại bình thường lúc $(TZ=Asia/Ho_Chi_Minh date '+%d-%m-%Y %H:%M') giờ VN."
-          fi
+      # KHONG mo phieu, KHONG gui email - nguoi dung khong muon bi lam phien.
+      # Thay vao do he thong TU BIET va TU THU LAI: xem .github/workflows/tu-thu-lai.yml.
+      # Dot quet hong vi ly do thoang qua (bi chan IP, mang chap chon, trang doi bo cuc mot
+      # luc) thi tu chay lai sau vai phut, thay vi nam cho het 3 tieng toi moc ke tiep.
