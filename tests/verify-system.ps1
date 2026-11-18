@@ -459,6 +459,29 @@ if (Test-Path $scanScript) {
         ($scanContent -notmatch 'is_true_flash\s*=\s*bool\(has_quota and in_hub\)')
     } "Da dao nguoc quyet dinh 10-11-2026 cua nguoi dung ve flash sale, hoac xoa phan ghi quyet dinh trong CONSTRAINTS.md - day la dinh nghia nghiep vu, phai hoi nguoi dung truoc"
 
+    # Ngay 18-11-2026: nhanh bo cuc cu (.box_main) dat banner = True ma khong gan `flash_src`.
+    # Cong chan dung (muc [8] "FLASH KHONG BANG CHUNG"), nhung vi the ca he thong quet tu dong
+    # dung han tu 17-11 den 18-11. Chot nay bat MOI cho sinh ket qua co the mang banner thi
+    # PHAI gan flash_src ngay sau do.
+    Assert-Check "Moi nhanh co the dat banner=True deu phai gan flash_src ngay sau" {
+        $lines = Get-Content "scraper/scan_tgdd.py" -Encoding UTF8
+        $thieu = @()
+        for ($i = 0; $i -lt $lines.Count; $i++) {
+            if ($lines[$i] -notmatch 'build_result\(') { continue }
+            # Bo qua chinh dong DINH NGHIA ham - no khong phai mot loi goi.
+            if ($lines[$i] -match '^\s*def\s+build_result\(') { continue }
+            # Gom toi da 3 dong de doc tron loi goi (co cho xuong dong giua cac tham so).
+            $goi = ($lines[$i..([Math]::Min($i + 2, $lines.Count - 1))] -join ' ')
+            $m = [regex]::Match($goi, 'build_result\(\s*[^,]+,\s*[^,]+,\s*([^,]+),')
+            if (-not $m.Success) { continue }
+            $bannerArg = $m.Groups[1].Value.Trim()
+            if ($bannerArg -eq 'False') { continue }   # chac chan khong bao gio co banner
+            $sau = ($lines[$i..([Math]::Min($i + 6, $lines.Count - 1))] -join ' ')
+            if ($sau -notmatch 'flash_src') { $thieu += "dong $($i + 1): $bannerArg" }
+        }
+        $thieu.Count -eq 0
+    } "Co nhanh dat banner=True ma khong gan flash_src - cong se chan ca dot quet va he thong dung han"
+
     Assert-Check "Nhan dien flash sale o CA HAI nhanh parse deu phai doi bang chung suat that" {
         # Nhanh parse_next_layout truoc day khong doi suat nao: mot the class chua chu 'orange'
         # hoac 'flash' bat ky trong <main> la du ket luan co flash sale. Trang chi tiet co chu

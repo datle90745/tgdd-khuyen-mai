@@ -1367,9 +1367,24 @@ def parse_page(html):
     red = rrp - discount - (choice if flash is None else 0)
     if red and red % 1000 != 0:
         red = int(round(red / 1000.0)) * 1000
-    return build_result(rrp, red, flash is not None, choice,
-                        "banner" if flash is not None else "thuong",
-                        choice_in_red=flash is None)
+    res = build_result(rrp, red, flash is not None, choice,
+                       "banner" if flash is not None else "thuong",
+                       choice_in_red=flash is None)
+    # Nhanh bo cuc cu (.box_main) nay la cho DUY NHAT con dat banner = True ma khong gan
+    # `flash_src`. Ngay 18-11-2026 no lam dung chuyen do voi Galaxy Z Fold8 12GB/256GB, va
+    # cong chan dung (muc [8]) - nhung vi the ca he thong quet tu dong dung han tu 17-11.
+    # Bang chung o day la CHINH khoi .box_saving: do la khoi suat flash that tren trang,
+    # tuong duong "quota" o cac nhanh khac.
+    if flash is not None:
+        ev = ["quota"]
+        if FLASH_KEYWORDS_RE.search(area):
+            ev.append("keyword")
+        if ORANGE_BANNER_RE.search(str(flash)):
+            ev.append("orange")
+        res["flash_src"] = ev
+    else:
+        res["flash_src"] = []
+    return res
 
 
 
