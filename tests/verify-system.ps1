@@ -459,6 +459,18 @@ if (Test-Path $scanScript) {
         ($scanContent -notmatch 'is_true_flash\s*=\s*bool\(has_quota and in_hub\)')
     } "Da dao nguoc quyet dinh 10-11-2026 cua nguoi dung ve flash sale, hoac xoa phan ghi quyet dinh trong CONSTRAINTS.md - day la dinh nghia nghiep vu, phai hoi nguoi dung truoc"
 
+    # Quet tu dong KHONG duoc phu thuoc vao may cua nguoi dung. Ngay 18-11-2026 cron dang la
+    # '7,17,27,37,47,57 * * * *' (144 luot/ngay): trong 100 luot gan nhat chi 9 luot do
+    # schedule kich, GitHub bo gan het vi cron qua day. Tam gio co dinh, thua thot thi on dinh.
+    Assert-Check "Workflow quet phai co lich cron thua, khong duoc day dac" {
+        $w = Get-Content ".github/workflows/scan-tgdd.yml" -Raw -Encoding UTF8
+        $crons = @([regex]::Matches($w, "(?m)^\s*-\s*cron:\s*'([^']+)'") | ForEach-Object { $_.Groups[1].Value })
+        if ($crons.Count -eq 0) { return $false }
+        # Cam cron co nhieu moc phut trong mot gio (vi du '7,17,27,...' hoac '*/10').
+        $dayDac = @($crons | Where-Object { $_ -match '^\s*(\*/\d+|[\d,]*,[\d,]+)\s' })
+        ($dayDac.Count -eq 0) -and ($crons.Count -le 12)
+    } "scan-tgdd.yml dung cron day dac - GitHub se bo gan het su kien schedule va he thong trong nhu khong tu dong"
+
     # Ngay 18-11-2026: nhanh bo cuc cu (.box_main) dat banner = True ma khong gan `flash_src`.
     # Cong chan dung (muc [8] "FLASH KHONG BANG CHUNG"), nhung vi the ca he thong quet tu dong
     # dung han tu 17-11 den 18-11. Chot nay bat MOI cho sinh ket qua co the mang banner thi
@@ -676,15 +688,24 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         $a08.rrp -eq 4790000
     } "data/scans.js 26-Oct sai RRP A08 4GB/64GB"
 
-    Assert-Check "data/market.js quet 27-Oct phai co FPT Shop ban Galaxy A18 6GB 128GB dung 7.190.000 (khong bi 6.490.000)" {
+    # Khang dinh nay truoc day ghim vao dung dot "27-Oct". Ngay 18-11-2026 no bat dau FAIL -
+    # khong phai vi du lieu sai, ma vi 27-Oct da roi khoi cua so luu tru cua market.js. Mot
+    # khang dinh ghim vao mot ngay co dinh thi tu hong theo thoi gian, giong het chot
+    # "scans.js phai co dot hom nay" tung lam dung ca he thong (CONSTRAINTS 2.11).
+    # Dieu CAN giu la bat bien that: gia FPT cho Galaxy A18 6GB/128GB khong duoc la 6.490.000
+    # (gia bi cao nham cua ban khac) - dung o MOI dot con luu, khong rieng mot ngay.
+    Assert-Check "data/market.js: FPT Shop ban Galaxy A18 6GB 128GB khong duoc bi gia nham 6.490.000" {
         $mktText = Get-Content "data/market.js" -Raw -Encoding UTF8
         $raw = $mktText -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.MARKET\s*=\s*', ''
-        $raw = $raw.TrimEnd(" ;`r`n")
-        $mktObj = $raw | ConvertFrom-Json
-        $s27 = $mktObj.scans | Where-Object { $_.date -eq "27-Oct" }
-        $a18Fpt = $s27.rows | Where-Object { $_.r -eq "FPT Shop" -and $_.n -like "*A18*6GB*128GB*" }
-        $a18Fpt -and ($a18Fpt.p -eq 7190000)
-    } "data/market.js scan 27-Oct sai gia FPT Shop cho Galaxy A18 (phai la 7.190.000)"
+        $mktObj = $raw.TrimEnd(" ;`r`n") | ConvertFrom-Json
+        $dong = @()
+        foreach ($s in $mktObj.scans) {
+            $dong += @($s.rows | Where-Object { $_.r -eq "FPT Shop" -and $_.n -like "*A18*6GB*128GB*" })
+        }
+        # Khong con dot nao chua dong do thi khong khang dinh duoc gi - coi nhu dat, nhung
+        # phai con it nhat mot dot trong market.js (neu rong la du lieu hong that).
+        ($mktObj.scans.Count -gt 0) -and (@($dong | Where-Object { $_.p -eq 6490000 }).Count -eq 0)
+    } "data/market.js co dot ghi gia FPT Shop cho Galaxy A18 6GB/128GB la 6.490.000 - do la gia bi cao nham tu ban khac"
 
     Assert-Check "data/market.js quet 27-Oct phai co CellphoneS ban Samsung Galaxy A17 8GB 128GB dung 5.490.000 (khong bi 5.690.000)" {
         $mktText = Get-Content "data/market.js" -Raw -Encoding UTF8

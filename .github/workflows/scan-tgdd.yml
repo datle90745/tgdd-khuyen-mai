@@ -2,9 +2,24 @@ name: Quét PMH TGDĐ
 
 on:
   schedule:
-    # GitHub may drop delayed schedule events. Check at six offset minutes;
-    # the guard still starts a full scan only when the last result is stale.
-    - cron: '7,17,27,37,47,57 * * * *'
+    # Quet 8 lan/ngay, cach nhau 3 tieng, theo gio Viet Nam (UTC+7).
+    #
+    # TRUOC DAY la '7,17,27,37,47,57 * * * *' - moi 10 phut, 144 luot/ngay. Ket qua do
+    # duoc ngay 18-11-2026: trong 100 luot gan nhat chi co 9 luot do `schedule` kich, 91
+    # luot con lai la nguoi goi tay. GitHub co quyen hoan hoac BO HAN su kien schedule khi
+    # he thong ban, va cron day dac thi bi bo gan het - nen he thong trong nhu "khong tu
+    # dong". Mot dot quet lai mat ~20-25 phut, nen cron 10 phut cung tu chong len nhau.
+    #
+    # Tam gio co dinh, thua thot thi GitHub ton trong on dinh hon han. Trang web canh bao
+    # khi du lieu qua 3 gio, nen 3 tieng mot lan la vua khop.
+    - cron: '5 17 * * *'   # 00:05 gio VN
+    - cron: '5 20 * * *'   # 03:05
+    - cron: '5 23 * * *'   # 06:05
+    - cron: '5 2 * * *'    # 09:05
+    - cron: '5 5 * * *'    # 12:05
+    - cron: '5 8 * * *'    # 15:05
+    - cron: '5 11 * * *'   # 18:05
+    - cron: '5 14 * * *'   # 21:05
   workflow_dispatch:
     inputs:
       fpt_batch_id:
