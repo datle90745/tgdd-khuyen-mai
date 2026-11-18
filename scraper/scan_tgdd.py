@@ -702,6 +702,65 @@ def recover_unverified_from_dtdd(rows, previous_rows, live_prices=None):
     return rows
 
 
+MAX_CACH_LY = 5
+
+
+def cach_ly_dong_khong_chung_minh_duoc(rows):
+    """Buoc CUOI: dong nao khong tu chung minh duoc thi CACH LY rieng dong do,
+    thay vi de no lam hong ca dot quet.
+
+    VI SAO CAN: ngay 17-11-2026 dung MOT dong - Galaxy Z Fold8 12GB/256GB - duoc danh
+    flash sale ma thieu `flash_src`. Circuit breaker chan dung, nhung vi no chan CA DOT nen
+    134 dong con lai von hoan toan tot cung khong duoc luu. He thong dung hon mot ngay, va
+    khong ai biet cho den khi nguoi dung tu mo bang ra xem.
+
+    Chan ca dot la dung khi loi DIEN RONG (cao hong, bi chan IP). Nhung voi mot vai dong le,
+    cai gia phai tra qua lon: ca bang dung yen thay vi mot o de trong.
+
+    Nen:
+      - It hon hoac bang MAX_CACH_LY dong co van de -> cach ly rieng chung (de trong, ghi ro
+        ly do), 130+ dong con lai van duoc luu va len web binh thuong.
+      - Nhieu hon the -> KHONG cach ly, de nguyen cho circuit breaker chan ca dot, vi luc do
+        day la dau hieu hong he thong chu khong phai vai dong le.
+
+    Day KHONG phai ha rao: dong bi cach ly khong duoc cong bo nhu la dung, no bi de trong -
+    dung nhu cach he thong van xu ly dong `unverified`.
+    """
+    nghi_ngo = []
+    for r in rows:
+        if r.get("status") != "active":
+            continue
+        # Dung lop loi da lam dung he thong: bao co flash sale ma khong kem bang chung.
+        co_flash = bool(r.get("banner")) or r.get("rule") == "flash_chon1"
+        if co_flash and not (r.get("flash_src") or []):
+            nghi_ngo.append((r, "bao flash sale nhung khong co flash_src"))
+            continue
+        # Dong active ma thieu gia thi cung khong chung minh duoc.
+        if not r.get("rrp") or r.get("red") is None:
+            nghi_ngo.append((r, "active nhung thieu rrp/red"))
+
+    if not nghi_ngo:
+        return rows
+    if len(nghi_ngo) > MAX_CACH_LY:
+        print(f"  [CACH_LY] Co {len(nghi_ngo)} dong khong chung minh duoc (nguong "
+              f"{MAX_CACH_LY}). Qua nhieu de coi la vai dong le - KHONG cach ly, de "
+              f"circuit breaker chan ca dot.", flush=True)
+        for r, ly_do in nghi_ngo:
+            print(f"    - {r.get('model')}: {ly_do}", flush=True)
+        return rows
+
+    for r, ly_do in nghi_ngo:
+        print(f"  [CACH_LY] {r.get('model')}: {ly_do} -> de trong rieng dong nay, "
+              f"cac dong khac van duoc luu.", flush=True)
+        # De trong y het cach verify_flash_rows() xu ly dong khong xac minh duoc: chi giu
+        # truong dinh danh, xoa sach gia, de so cua luot truoc khong the trong nhu so hien tai.
+        r.update({"status": "error", "rrp": None, "red": None, "pmh": None,
+                  "online": None, "total_online": None, "choice": None,
+                  "kind": "unverified", "rule": "unverified", "banner": False,
+                  "flash_src": [], "debug": f"cach ly: {ly_do}"})
+    return rows
+
+
 def blank_flat_regressions(rows, previous_rows):
     """Use older prices only to flag an anomaly, never to fill the current scan."""
     previously_discounted = {
@@ -1784,6 +1843,7 @@ def main():
     rows = verify_flash_rows(rows)
     rows = recover_unverified_from_dtdd(rows, previous_rows)
     rows = blank_flat_regressions(rows, previous_rows)
+    rows = cach_ly_dong_khong_chung_minh_duoc(rows)
     ok = sum(1 for r in rows if r["status"] == "active")
     if ok < min_active_count:
         sys.exit(f"ERROR: sau kiem tra Flash Sale chi con {ok}/{len(products)} model "

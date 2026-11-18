@@ -459,6 +459,28 @@ if (Test-Path $scanScript) {
         ($scanContent -notmatch 'is_true_flash\s*=\s*bool\(has_quota and in_hub\)')
     } "Da dao nguoc quyet dinh 10-11-2026 cua nguoi dung ve flash sale, hoac xoa phan ghi quyet dinh trong CONSTRAINTS.md - day la dinh nghia nghiep vu, phai hoi nguoi dung truoc"
 
+    # Hai lan he thong chet (10-11 va 17-11) deu im lang: GitHub bao do hang chuc luot lien
+    # tiep ma khong ai hay, nguoi dung chi phat hien khi tu mo bang ra xem, sau hon mot ngay.
+    Assert-Check "Dot quet hong phai co bao dong, va tu dong khi chay lai duoc" {
+        $w = Get-Content ".github/workflows/scan-tgdd.yml" -Raw -Encoding UTF8
+        ($w -cmatch 'issues:\s*write') -and
+        ($w -cmatch '(?m)^\s*if:\s*failure\(\)') -and ($w -cmatch 'gh issue create') -and
+        ($w -cmatch '(?m)^\s*if:\s*success\(\)') -and ($w -cmatch 'gh issue close') -and
+        # Phai dung lai phieu cu, khong mo phieu moi moi luot hong.
+        ($w -cmatch 'gh issue list')
+    } "scan-tgdd.yml khong con bao dong khi hong - mot dot quet hong se lai im lang hang ngay troi"
+
+    # Mot dong hong khong duoc giet ca dot quet.
+    Assert-Check "Scraper phai cach ly rieng dong khong chung minh duoc, co nguong" {
+        ($scanContent -cmatch '(?m)^def cach_ly_dong_khong_chung_minh_duoc\(rows\):') -and
+        ($scanContent -cmatch '(?m)^\s+rows = cach_ly_dong_khong_chung_minh_duoc\(rows\)') -and
+        # Phai chay TRUOC khi ghi file scan.
+        ($scanContent -cmatch '(?s)cach_ly_dong_khong_chung_minh_duoc\(rows\).*?SCAN_DIR\.mkdir') -and
+        # Vuot nguong thi KHONG cach ly, de circuit breaker chan ca dot.
+        ($scanContent -cmatch 'MAX_CACH_LY') -and
+        ($scanContent -cmatch 'len\(nghi_ngo\) > MAX_CACH_LY')
+    } "Scraper khong cach ly rieng dong hong - mot dong khong chung minh duoc se lai chan ca dot quet"
+
     # Quet tu dong KHONG duoc phu thuoc vao may cua nguoi dung. Ngay 18-11-2026 cron dang la
     # '7,17,27,37,47,57 * * * *' (144 luot/ngay): trong 100 luot gan nhat chi 9 luot do
     # schedule kich, GitHub bo gan het vi cron qua day. Tam gio co dinh, thua thot thi on dinh.
