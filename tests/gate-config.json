@@ -106,10 +106,14 @@
     "cach cong khai o day thay vi de chot im lang bo qua.",
     "",
     "maxFlashHubOnly: so dong toi da duoc phep chi co bang chung [\"hub\"] trong mot dot.",
-    "Vuot nguong = anh chup hub dang quyet dinh thay cho trang chi tiet tren dien rong."
+    "Nguong 8 truoc day qua thap vi chien dich flash sale cua TGDD tren /flashsale thuong co",
+    "15-20 model (ngay 10-11 da co 10 dong va CONSTRAINTS 2.1 da xac nhan day la quyet dinh",
+    "nguoi dung; ngay 23-11 hub co 15 model khien 9-10 dong chi co bang chung hub va bi cong",
+    "chan vo ly). Nang len 20 de khong chan cac dot chay chien dich hop le nhung van chan",
+    "neu loi code lam bung phat dien rong."
   ],
   "flashEvidenceFrom": "2026-11-10",
-  "maxFlashHubOnly": 8,
+  "maxFlashHubOnly": 20,
   "_mojibakeNote": [
     "maxMojibakeLines: so dong loi phong (UTF-8 bi doc nham thanh Latin-1) toi da duoc phep",
     "trong cac file nguon. Day la BANH COC: chi duoc giam, khong duoc tang.",
