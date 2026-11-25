@@ -230,11 +230,38 @@ class FlashVerifyTests(unittest.TestCase):
             scan_tgdd._LIVE_FLASH_SLUGS = old
 
     def test_fpt_failure_does_not_use_file_from_earlier_scan(self):
-        with (patch.object(scan_market, "fpt_rows_via_erp_api", return_value=[]),
+        # Test này kiểm: MỌI nguồn FPT đều hỏng thì phải báo lỗi, tuyệt đối không công bố
+        # số cũ. Nhưng nó chỉ patch ba đường lấy trực tiếp, bỏ sót đường đọc file do máy
+        # Windows sinh ra — test anh em ngay bên dưới (cloud_hard_403) thì có patch cả bốn.
+        # Trước đây nó vẫn xanh một cách tình cờ, vì fpt_rows_via_local_batch bắt buộc phải
+        # có FPT_BATCH_ID, mà biến đó chỉ có khi gọi tay workflow — nên trong test nó luôn
+        # trả rỗng. Chính ràng buộc đó là thứ làm cột FPT trống 11 ngày liền (19→25-11, chỉ
+        # 23-11 có số vì hôm đó có người gọi tay), nên nó đã được gỡ.
+        # Ý của test vẫn được giữ nguyên: khi không còn nguồn nào, phải báo lỗi chứ không
+        # lấy số cũ. Cửa sổ tươi 60 phút trong fpt_rows_via_local_batch vẫn còn nguyên.
+        with (patch.object(scan_market, "fpt_rows_via_local_batch", return_value=[]),
+              patch.object(scan_market, "fpt_rows_via_erp_api", return_value=[]),
               patch.object(scan_market, "fpt_rows_via_http", return_value=[]),
               patch.object(scan_market, "fpt_rows_via_browser", return_value=[])):
             with self.assertRaisesRegex(RuntimeError, "không dùng dữ liệu cũ"):
                 scan_market.scan_fpt()
+
+    def test_fpt_local_batch_van_tu_choi_file_qua_cu(self):
+        """Gỡ ràng buộc batch id KHÔNG được làm mất rào tươi: file quá 60 phút vẫn phải bị từ chối."""
+        import json as _json
+        import tempfile
+        from datetime import datetime, timedelta, timezone
+        now = datetime.now(timezone.utc)
+        rows = [{"r": "FPT Shop", "b": b, "n": f"{b} Sample {i}",
+                 "u": "https://fptshop.com.vn/dien-thoai/sample", "p": 1_000_000, "o": 2_000_000}
+                for b in ("Apple", "Samsung", "OPPO", "Xiaomi") for i in range(25)]
+        for nhan, tre, mong_doi in (("tuoi", timedelta(minutes=5), True),
+                                    ("qua cu", timedelta(minutes=90), False)):
+            with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as fh:
+                _json.dump({"batch_id": "x", "scanned_at": (now - tre).isoformat(), "rows": rows}, fh)
+                duong_dan = fh.name
+            ket_qua = scan_market.fpt_rows_via_local_batch(path=duong_dan, batch_id="", now=now)
+            self.assertEqual(bool(ket_qua), mong_doi, f"file {nhan} bi xu ly sai")
 
     def test_fpt_cloud_hard_403_skips_slow_browser_without_old_prices(self):
         def blocked_http():
