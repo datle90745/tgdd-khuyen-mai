@@ -464,6 +464,21 @@ if (Test-Path $scanScript) {
     # Nguoi dung khong muon nhan email bao hong - chi can he thong tu biet va tu sua.
     # Nen thay vi mo phieu (GitHub se gui email), dot quet hong thi TU CHAY LAI sau vai phut.
     # Phan lon cac lan hong la ly do thoang qua: bi chan IP, mang chap chon, trang doi bo cuc.
+    # Cot FPT chi co du lieu khi co nguoi goi tay workflow kem batch id - dung cai ma he
+    # thong tu dong phai khong can. Do tren market.js: 19,20,21,22,24,25-Nov deu FPT=0, chi
+    # 23-Nov co 99 dong (hom co nguoi goi tay). Batch id nay phai la TUY CHON.
+    Assert-Check "Nhan du lieu FPT tu may Windows khong duoc bat buoc co batch id" {
+        $mkt = Get-Content "scraper/scan_market.py" -Raw -Encoding UTF8
+        $fn = Get-PyBlock $mkt 'def fpt_rows_via_local_batch(path=None, batch_id=None, now=None):'
+        if ($fn.Length -eq 0) { return $false }
+        # Khong duoc bo ve ngay khi thieu batch id.
+        ($fn -notmatch '(?m)^\s*if not batch_id:\s*$') -and
+        # Nhung neu CO truyen batch id thi van phai khop.
+        ($fn -cmatch 'if batch_id and snapshot\.get\("batch_id"\) != batch_id') -and
+        # Va do tuoi van phai duoc kiem - do moi la rao that.
+        ($fn -cmatch 'age') -and ($fn -cmatch '60 \* 60')
+    } "scan_market.py lai bat buoc co FPT_BATCH_ID - luot chay theo lich se bo trong cot FPT nhu tu 14-11 den 25-11"
+
     Assert-Check "Dot quet hong phai TU THU LAI, co gioi han so lan" {
         $p = ".github/workflows/tu-thu-lai.yml"
         if (-not (Test-Path $p)) { return $false }
@@ -730,9 +745,23 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
     # khong phai vi du lieu sai, ma vi 27-Oct da roi khoi cua so luu tru cua market.js. Mot
     # khang dinh ghim vao mot ngay co dinh thi tu hong theo thoi gian, giong het chot
     # "scans.js phai co dot hom nay" tung lam dung ca he thong (CONSTRAINTS 2.11).
-    # Dieu CAN giu la bat bien that: gia FPT cho Galaxy A18 6GB/128GB khong duoc la 6.490.000
-    # (gia bi cao nham cua ban khac) - dung o MOI dot con luu, khong rieng mot ngay.
-    Assert-Check "data/market.js: FPT Shop ban Galaxy A18 6GB 128GB khong duoc bi gia nham 6.490.000" {
+    # SUA LAN HAI, 25-11-2026. Ban truoc cam gia BAN (`p`) bang 6.490.000, coi do la "gia cao
+    # nham tu ban khac". Hom nay no FAIL, va doi soat truc tiep fptshop.com.vn cho thay CHOT
+    # SAI chu khong phai du lieu sai:
+    #     Samsung Galaxy A18 6GB 128GB ........ 7.190.000d   (gia niem yet)
+    #     Khuyen mai chinh: Da ban 0/10 suat .. 6.490.000d   (gia FLASH SALE, co dem nguoc)
+    # Tuc 6.490.000 la gia flash sale cua DUNG may do. Dot 23-Nov bat duoc dung luc con suat,
+    # va ghi dung ca hai: p=6.490.000 (gia ban), o=7.190.000 (gia niem yet).
+    #
+    # Bai hoc: gia BAN thay doi theo flash sale nen khong the ghim. Thu on dinh la gia NIEM
+    # YET (`o`) - no phai khop RRP chuan cua chinh model do. Cao nham sang ban khac thi `o`
+    # cung sai theo, nen kiem `o` van bat duoc dung lop loi ban dau.
+    # Lay RRP chuan tu data.js chu khong viet cung so.
+    Assert-Check "data/market.js: gia NIEM YET cua FPT cho Galaxy A18 6GB/128GB phai khop RRP chuan" {
+        $dtText = Get-Content "data/data.js" -Raw -Encoding UTF8
+        $mRrp = [regex]::Match($dtText, '"model"\s*:\s*"Galaxy A18 6GB/128GB"\s*,\s*"rrp"\s*:\s*(\d+)')
+        if (-not $mRrp.Success) { return $false }   # khong tra duoc RRP chuan thi khong khang dinh mo
+        $chuan = [int]$mRrp.Groups[1].Value
         $mktText = Get-Content "data/market.js" -Raw -Encoding UTF8
         $raw = $mktText -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.MARKET\s*=\s*', ''
         $mktObj = $raw.TrimEnd(" ;`r`n") | ConvertFrom-Json
@@ -740,10 +769,9 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         foreach ($s in $mktObj.scans) {
             $dong += @($s.rows | Where-Object { $_.r -eq "FPT Shop" -and $_.n -like "*A18*6GB*128GB*" })
         }
-        # Khong con dot nao chua dong do thi khong khang dinh duoc gi - coi nhu dat, nhung
-        # phai con it nhat mot dot trong market.js (neu rong la du lieu hong that).
-        ($mktObj.scans.Count -gt 0) -and (@($dong | Where-Object { $_.p -eq 6490000 }).Count -eq 0)
-    } "data/market.js co dot ghi gia FPT Shop cho Galaxy A18 6GB/128GB la 6.490.000 - do la gia bi cao nham tu ban khac"
+        # Khong dot nao con dong do thi khong khang dinh mo, nhung market.js phai con du lieu.
+        ($mktObj.scans.Count -gt 0) -and (@($dong | Where-Object { $_.o -ne $chuan }).Count -eq 0)
+    } "data/market.js co dot ghi gia NIEM YET cua FPT cho Galaxy A18 6GB/128GB khac RRP chuan trong data.js - dau hieu cao nham sang bien the khac"
 
     Assert-Check "data/market.js quet 27-Oct phai co CellphoneS ban Samsung Galaxy A17 8GB 128GB dung 5.490.000 (khong bi 5.690.000)" {
         $mktText = Get-Content "data/market.js" -Raw -Encoding UTF8

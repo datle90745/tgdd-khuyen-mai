@@ -513,14 +513,32 @@ def fpt_rows_via_erp_api():
 
 
 def fpt_rows_via_local_batch(path=None, batch_id=None, now=None):
-    """Accept a Windows scan only for the explicit GitHub dispatch that created it."""
+    """Nhan ket qua cao FPT do tac vu tren may Windows sinh ra (FPT chan IP trung tam du lieu
+    nen GitHub khong tu cao duoc).
+
+    SUA 25-11-2026: truoc day ham doi BAT BUOC co FPT_BATCH_ID, ma bien do chi duoc truyen khi
+    NGUOI TA GOI TAY workflow (`inputs.fpt_batch_id`). Luot chay theo lich khong co no, nen
+    dong 518-519 tra [] ngay lap tuc. Ket qua do duoc tren market.js:
+
+        19-Nov FPT=0   20-Nov FPT=0   21-Nov FPT=0   22-Nov FPT=0
+        23-Nov FPT=99  (dung hom co nguoi goi tay kem batch id)
+        24-Nov FPT=0   25-Nov FPT=0
+
+    Tuc la cot FPT chi co du lieu khi co nguoi ngoi goi tay - dung cai ma he thong tu dong
+    phai khong can. Tac vu tren may van chay deu moi 3 tieng va van day fpt_live.json len,
+    nhung khong luot tu dong nao dung toi.
+
+    Nay batch_id la TUY CHON:
+      - Co truyen (goi tay) -> van bat buoc khop dung, nhu cu.
+      - Khong truyen (chay theo lich) -> nhan theo DO TUOI, la thu that su quan trong.
+    Cua so tuoi 60 phut giu nguyen. Hai lich von da khop nhau: tac vu tren may chay luc
+    00:00/03:00/.../21:00 gio VN, GitHub quet luc 00:05/03:05/... - cach nhau 5 phut.
+    """
     batch_id = FPT_BATCH_ID if batch_id is None else batch_id
-    if not batch_id:
-        return []
     path = path or ROOT / "data" / "fpt_live.json"
     try:
         snapshot = json.loads(Path(path).read_text(encoding="utf-8"))
-        if snapshot.get("batch_id") != batch_id:
+        if batch_id and snapshot.get("batch_id") != batch_id:
             return []
         scanned_at = datetime.fromisoformat(snapshot["scanned_at"].replace("Z", "+00:00"))
         if scanned_at.tzinfo is None:
