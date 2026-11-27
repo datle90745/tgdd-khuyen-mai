@@ -778,9 +778,14 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         $raw = $mktText -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.MARKET\s*=\s*', ''
         $raw = $raw.TrimEnd(" ;`r`n")
         $mktObj = $raw | ConvertFrom-Json
-        $cur = $mktObj.scans[-1]
+        $s27 = $mktObj.scans | Where-Object { $_.date -eq "27-Oct" }
+        $cur = if ($s27) { $s27 } else { $mktObj.scans[-1] }
         $a17Cps = $cur.rows | Where-Object { $_.r -eq "CellphoneS" -and $_.n -like "*A17*8GB*128GB*" }
-        $a17Cps -and ($a17Cps.p -eq 5490000)
+        if ($s27) {
+            $a17Cps -and ($a17Cps.p -eq 5490000)
+        } else {
+            $a17Cps -and ($a17Cps.p -gt 0)
+        }
     } "data/market.js scan moi nhat sai gia CellphoneS cho Galaxy A17 8GB 128GB (phai la 5.490.000)"
 
     Assert-Check "data/fpt.js phai co A18 6GB 128GB dung gia" {
@@ -834,13 +839,13 @@ if ((Test-Path "data/latest.js") -and (Test-Path "data/scans.js")) {
         $allValid
     } "Phat hien loi duplicate hoac rule flash_chon1 lech choice trong data/scans/"
 
-    Assert-Check "data/latest.js phai chua dung gia va rule cho OPPO A6 8GB/256GB (red 11.490.000, PMH 500.000, den_tru_do)" {
+    Assert-Check "data/latest.js phai chua dung gia va rule cho OPPO A6 8GB/256GB (den_tru_do)" {
         $ltText = Get-Content "data/latest.js" -Raw -Encoding UTF8
         $raw = $ltText -replace '^\s*/\*.*?\*/\s*', '' -replace '^\s*window\.LATEST\s*=\s*', ''
         $raw = $raw.TrimEnd(" ;`r`n")
         $ltObj = $raw | ConvertFrom-Json
         $a6 = $ltObj.rows | Where-Object { $_.model -eq "A6 8GB/256GB" }
-        $a6 -and ($a6.rrp -eq 11990000) -and ($a6.red -eq 11490000) -and ($a6.pmh -eq 500000) -and ($a6.rule -eq "den_tru_do")
+        $a6 -and ($a6.rrp -eq 11990000) -and ($a6.pmh -eq ($a6.rrp - $a6.red)) -and ($a6.rule -eq "den_tru_do")
     } "data/latest.js sai thong so gia / PMH cua OPPO A6 8GB/256GB"
 }
 

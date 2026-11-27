@@ -42,7 +42,7 @@ class PublishScanRaceTest(unittest.TestCase):
                 (work / "data" / "scans" / "today.json").write_text('{"marker":"base"}')
                 (work / "index.html").write_text('<script src="data/latest.js?v=old"></script>')
                 (work / "tests" / "verify_scan.js").write_text(
-                    "const fs=require('fs'); const a=JSON.parse(fs.readFileSync('data/latest.js','utf8').split(' = ')[1].slice(0,-2)); "
+                    "const fs=require('fs'); const a=JSON.parse(fs.readFileSync('data/latest.js','utf8').split(' = ')[1].replace(/;[\\r\\n]*$/, '').trim()); "
                     "const b=JSON.parse(fs.readFileSync('data/scans/today.json')); "
                     "if(a.marker!==b.marker)process.exit(1);\n")
                 run(work, "git", "add", ".")
@@ -61,7 +61,7 @@ class PublishScanRaceTest(unittest.TestCase):
                 (work / "data" / "scans" / "today.json").write_text('{"marker":"local"}')
                 run(work, sys.executable, str(SCRIPT))
                 run(other, "git", "pull", "--ff-only")
-                published = json.loads((other / "data" / "latest.js").read_text().split(" = ")[1][:-2])
+                published = json.loads((other / "data" / "latest.js").read_text().split(" = ")[1].replace(";\r\n", "").replace(";\n", "").strip())
                 scan = json.loads((other / "data" / "scans" / "today.json").read_text())
                 self.assertEqual(published["marker"], expected)
                 self.assertEqual(scan["marker"], expected)

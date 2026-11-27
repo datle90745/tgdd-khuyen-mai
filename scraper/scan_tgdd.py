@@ -147,9 +147,29 @@ def fetch_live_flashsale_slugs():
         try:
             resp = http_get("https://www.thegioididong.com/flashsale")
             resp.raise_for_status()
-            slugs = set(re.findall(r'href="\/dtdd\/([^"?#]+)', resp.text))
+            soup = BeautifulSoup(resp.text, "html.parser")
+            slugs = set()
+            for a in soup.find_all("a", href=re.compile(r"/dtdd/([^\"?#]+)")):
+                m = re.search(r"/dtdd/([^\"?#]+)", a["href"])
+                if not m:
+                    continue
+                slug = m.group(1)
+                box = a
+                for _ in range(6):
+                    if box.parent and box.parent.name not in ("body", "html", "[document]"):
+                        box = box.parent
+                        if box.get("data-product-code") or "item" in (box.get("class") or []):
+                            break
+                box_text = box.get_text(" ", strip=True)
+                has_quota = bool(
+                    box.select_one(".bg-stock-quantity")
+                    or box.select_one(".box_saving")
+                    or re.search(r'\d+\s*/\s*\d+\s*suất|\d+\s*suất|còn\s*\d+\s*suất|hết\s*suất|cháy\s*hàng|vừa\s*hết', box_text, re.I)
+                )
+                if has_quota:
+                    slugs.add(slug)
             _LIVE_FLASH_SLUGS = slugs
-            print(f"  [FLASHSALE] Đã nạp {len(slugs)} SKU từ hub TGDĐ.", flush=True)
+            print(f"  [FLASHSALE] Đã nạp {len(slugs)} SKU từ hub TGDĐ: {slugs}", flush=True)
             return slugs
         except Exception as error:
             last_error = error
